@@ -1,6 +1,6 @@
 # Phase 7 — Frontend Architecture
 
-`Haulr Design OS` · `Version 1.0.0` · `2026-09-30` · Previous: [Phase 6 — Interaction Contracts](./phase-6-interaction-contracts.md) · Next: [Phase 8 — Implementation Roadmap](./phase-8-implementation-roadmap.md)
+`Haulr Design OS` · `Version 1.1.0` · `2026-09-30` · Previous: [Phase 6 — Interaction Contracts](./phase-6-interaction-contracts.md) · Next: [Phase 8 — Implementation Roadmap](./phase-8-implementation-roadmap.md)
 
 How the code is organised to deliver Phases 1–6. This phase names files and folders because its job is code organisation. It says nothing about how anything looks; styling organisation follows the host repo's conventions (`styles/tokens.css`, `styles/globals.css`, `.claude/skills/elegant-ui`) and is not specified here.
 
@@ -28,6 +28,14 @@ How the code is organised to deliver Phases 1–6. This phase names files and fo
 18. [Performance Strategy](#18-performance-strategy)
 19. [Security](#19-security)
 20. [Enforcement](#20-enforcement)
+21. [Observability](#21-observability)
+22. [Feature Flags and Configuration](#22-feature-flags-and-configuration)
+23. [Caching and Revalidation](#23-caching-and-revalidation)
+24. [Tenancy and Session Hygiene](#24-tenancy-and-session-hygiene)
+25. [Internationalisation Readiness](#25-internationalisation-readiness)
+26. [Concurrency](#26-concurrency)
+27. [Analytics Event Catalogue](#27-analytics-event-catalogue)
+28. [Error Taxonomy Implementation](#28-error-taxonomy-implementation)
 
 ---
 
@@ -43,6 +51,11 @@ How the code is organised to deliver Phases 1–6. This phase names files and fo
 | D-6 | No global store. Server state in TanStack Query; local state in `useState`/`useReducer`/URL; persistence via `useSyncExternalStore` + `localStorage`; the driver offline queue uses IndexedDB behind the same external-store interface | Host requires a stated reason for a global store; none of Phases 4–6 needs one | State management row |
 | D-7 | `PROTECTED_ROUTE_PREFIXES` becomes the set of workspace and internal prefixes; role checks for internal prefixes happen in `proxy.ts` from the verified session's role claim | Edge enforcement by prefix (Phase 3 §5) | Uses the existing `proxy.ts` |
 | D-8 | Status labels, industry glossary, notification copy and error copy are constants, never inline strings | Single source of truth; future i18n (Phase 1 §16) | Rule 1 and rule 4 |
+| D-9 | Environment variables are parsed once at startup by a Zod schema in `lib/validations/env.ts`; the app fails fast on missing or malformed values | Misconfiguration is caught at deploy, not at first use; one typed source for config | Zod for shapes; constants for defaults |
+| D-10 | Observability uses the framework-native `instrumentation.ts` with OpenTelemetry, and an error-reporting service wrapped in `lib/utils/report-error.ts`; nothing logs to the console | NFR-OBS-1 … 4; host rule 6 ("logging belongs in services") | Framework-native; wrapper is the service |
+| D-11 | Feature flags are read server-side from one typed module `lib/flags.ts` backed by environment or a flag service, and passed to client components as props | Progressive rollout and kill switches for enterprise features without redeploying code paths; no client-side flag fetching | Single source of truth |
+| D-12 | Mutations on mutable records send the record `version` (or ETag via `If-Match`); a 412 is mapped to E-PRECONDITION and handled by IC-67 | SSB-8; no last-write-wins in a multi-user enterprise tenant | Contract carries `version` on mutable DTOs |
+| D-13 | Every Server Action and Route Handler is wrapped by one higher-order helper, `withAction` or `withHandler` in `lib/utils/`, which applies the session, role check, correlation ID, audit reason pass-through, error-class mapping and timing | One enforcement point for SEC-4, NFR-OBS-1 and Phase 4 §2.2; avoids copy-pasted guards | Extends the `create-user.ts` pattern rather than replacing it |
 
 ---
 
@@ -67,6 +80,13 @@ app/
     threads/[threadId]/messages/route.ts
     notifications/route.ts
     rate-estimate/route.ts           anonymous, rate-limited (PG-05)
+    imports/[batchId]/route.ts       polled batch status (PG-56)
+    exports/route.ts                 polled export job status (PG-59, PG-62, PG-63)
+    approvals/route.ts               polled approval queue (PG-58)
+    attention/route.ts               polled attention queue (SH-07)
+    webhooks/[endpointId]/deliveries/route.ts   polled delivery log (PG-61)
+    auth/sso/[...step]/route.ts      SSO start and callback relay (SC-10.3)
+instrumentation.ts                   OpenTelemetry registration (§21)
   auth/                              (exists) access pages, PG-10 … PG-15
     login/page.tsx                   (exists)
   (public)/  (workspace)/  (internal)/   see §3
@@ -134,6 +154,10 @@ app/
     shipper/invoices/page.tsx                    PG-30
     shipper/invoices/[invoiceId]/page.tsx        PG-31
     shipper/locations/page.tsx                   PG-32
+    shipper/loads/import/page.tsx                PG-56
+    shipper/templates/page.tsx                   PG-57
+    shipper/approvals/page.tsx                   PG-58
+    shipper/reports/page.tsx                     PG-59
     carrier/layout.tsx                           carrier role guard
     carrier/page.tsx                             PG-19
     carrier/load-board/page.tsx                  PG-33
@@ -146,6 +170,7 @@ app/
     driver/page.tsx                              PG-20
     driver/trips/[loadId]/page.tsx               PG-39
     loads/[loadId]/page.tsx                      PG-40
+    loads/[loadId]/amendments/[amendmentId]/page.tsx   PG-64
     messages/page.tsx                            PG-41
     notifications/page.tsx                       PG-42
     documents/page.tsx                           PG-43
@@ -156,6 +181,10 @@ app/
     settings/page.tsx                            PG-47
     settings/organization/page.tsx               PG-48
     settings/billing/page.tsx                    PG-49
+    settings/security/page.tsx                   PG-60
+    settings/integrations/page.tsx               PG-61
+    settings/privacy/page.tsx                    PG-62
+    settings/audit/page.tsx                      PG-63
     shippers/[shipperId]/page.tsx                PG-04
   (internal)/
     layout.tsx                                   internal-role guard
@@ -232,7 +261,7 @@ Note: `SC-40.2` in Phase 5 names `lib/loads/transitions.ts`; that is this file.
 - **URL state:** filters, sort, cursor, view, step, tab, selected thread/ticket/exception (Phase 3 §10). Parsed and serialised by `lib/utils/query-string.ts` (exists).
 - **Local component state:** entry in progress, open disclosures, selection.
 - **Reducers:** multi-step flows (SH-13) use `useReducer` with typed actions.
-- **Persistence:** drafts and dismissals through `useSyncExternalStore` over `lib/utils/local-storage.ts` (exists). The driver offline queue uses IndexedDB behind the same subscribe/getSnapshot interface.
+- **Persistence:** drafts and persistent dismissals through `useSyncExternalStore` over `lib/utils/local-storage.ts` (exists). Session-only dismissals (SH-06 non-blocking notices) use the same safe wrapper generalised to accept the storage area (`localStorage` or `sessionStorage`), rather than a second helper. The driver offline queue uses IndexedDB behind the same subscribe/getSnapshot interface.
 - **Contexts:** only the providers in §5. No context holds server data.
 
 ---
@@ -275,7 +304,7 @@ Every hook lives in `lib/hooks/use-<resource>.ts` (host rule), and components co
 | `use-claims.ts` | `useClaims`, `useClaim`, `useCreateClaim`, `useClaimActions` | Server Actions |
 | `use-messages.ts` | `useThreads`, `useMessages`, `useSendMessage` | Route Handler (polled), Server Action |
 | `use-notifications.ts` | `useNotifications`, `useNotificationPreferences` | Route Handler (polled), Server Actions |
-| `use-attention-items.ts` | `useAttentionItems` | Server Action |
+| `use-attention-items.ts` | `useAttentionItems` | Route Handler (polled) |
 | `use-metrics.ts` | `useMetrics`, `useScorecard` | Server Actions |
 | `use-ratings.ts` | `useRateCounterparty` | Server Action |
 | `use-profiles.ts` | `useCarrierProfile`, `useShipperProfile` | Server Actions |
@@ -286,6 +315,17 @@ Every hook lives in `lib/hooks/use-<resource>.ts` (host rule), and components co
 | `use-admin.ts` | `useAccounts`, `usePlatformConfig`, `useUpdateConfig`, `useAuditLog` | Server Actions |
 | `use-help.ts` | `useHelpSearch`, `useArticleFeedback` | Local index, Server Action |
 | `use-quick-find.ts` | `useQuickFind` | Server Action |
+| `use-bulk-import.ts` | `useImportBatch`, `useImportMappings`, `useImportRows`, `useUpdateImportRow`, `usePriceImportBatch`, `useConfirmImportBatch`, `useImportBatches` | Server Actions; Route Handler for batch status (polled) |
+| `use-templates.ts` | `useLoadTemplates`, `useRecurrences` | Server Actions |
+| `use-approvals.ts` | `useApprovalRequests`, `useApprovalRequest`, `useDecideApproval`, `useApprovalDelegations`, `useSpendPolicy` | Route Handler (polled queue), Server Actions |
+| `use-reports.ts` | `useReport`, `useSavedReports`, `useReportSchedules` | Server Actions |
+| `use-security.ts` | `useVerifiedDomains`, `useSsoConnection`, `useScim`, `useRoleMappings`, `useSessionPolicy` | Server Actions (all sensitive, IC-13) |
+| `use-integrations.ts` | `useApiKeys`, `useWebhooks`, `useWebhookDeliveries`, `useEdiConnections` | Server Actions; Route Handler for deliveries (polled) |
+| `use-privacy.ts` | `useExports`, `useRequestExport`, `usePrivacyRequests` | Server Actions; Route Handler for job status (polled) |
+
+**Additions to existing hook files (version 1.1.0):** `use-loads.ts` gains `useAmendments`, `useAmendment`, `useProposeAmendment` and `useDecideAmendment`; `use-auth-recovery.ts` gains `useSsoDiscovery`; `use-tickets.ts` gains `useViewAs`.
+
+**Naming across phases.** Phases 5 and 6 cite hooks in the kebab form used for files, with parameters (for example `use-account-standing()`). The export is always the camelCase equivalent (`useAccountStanding`), and it lives in the file listed in this table, which may group several related hooks (`useAccountStanding` is exported from `use-organization.ts`).
 
 **Hook rules.**
 
@@ -314,15 +354,33 @@ Pure, framework-free helpers in `lib/utils/` (existing files kept):
 | `units.ts` | Miles, pounds, temperature formatting |
 | `action-result.ts` | Map `ActionResult` failures to user-facing constants |
 | `offline-queue.ts` | IndexedDB-backed queue with external-store interface (§13) |
+| `with-action.ts` | `withAction` and `withHandler` wrappers: session, role, correlation ID, reason pass-through, error-class mapping, timing (D-13) |
+| `report-error.ts` | Single error-reporting entry point with PII scrubbing (D-10, §21) |
 
 ---
 
 ## 10. Constants and Enums
 
-- **`lib/constants.ts`** (exists) gains app-wide values: `appRoutes`, `PROTECTED_ROUTE_PREFIXES` (all workspace and internal prefixes), `INTERNAL_ROUTE_PREFIXES`, page size, upload limits, session warning lead time, generic error copy, metadata title template.
+- **`lib/constants.ts`** (exists) gains app-wide values: `appRoutes`, `PROTECTED_ROUTE_PREFIXES` (all workspace and internal prefixes), `INTERNAL_ROUTE_PREFIXES`, page size (default 50, maximum 200), upload limits, session warning lead time, `errorCopy` per error class (Phase 4 §2.2), the analytics event catalogue (§27), loading and freshness thresholds (Phase 4 §2.1, §2.6), metadata title template.
 - **Feature constants** in `lib/<feature>/constants.ts` (§6): status labels, refresh intervals, thresholds (BR-06, BR-08, BR-10, BR-11), glossary definitions (IC-56), notification copy.
 - **`lib/enums/`** holds one file per enumeration from Phase 3 §6 (`load-status.ts`, `bid-status.ts`, `equipment-type.ts`, `stop-type.ts`, `accessorial-type.ts`, `document-type.ts`, `exception-type.ts`, `invoice-status.ts`, `settlement-status.ts`, `claim-type.ts`, `claim-status.ts`, `compliance-status.ts`, `notification-event.ts`, `role-key.ts`). Each derives from the generated contract enum where one exists, so a backend change breaks type-checking here.
 - **Configurable values.** Where the platform configuration (SC-25.2) owns a value, the constant is the fallback and the server value wins.
+- **Field and collection limits** live in one `LIMITS` map in `lib/constants.ts`, mirrored by the backend DTO validators so that the contract enforces them (G-7). Defaults below are proposed and need confirmation by product and backend before Sprint 1:
+
+| Limit | Default | Limit | Default |
+| --- | --- | --- | --- |
+| Single-line text | 200 chars | Password | 8–128 chars |
+| Email | 254 chars | Reason (reason-required actions) | 1–1,000 chars |
+| Notes, instructions | 500 chars | Handoff note | 2,000 chars |
+| Message | 4,000 chars | Rating comment | 1,000 chars |
+| Signed name | 200 chars | Search query | 2–200 chars |
+| Saved search name | 1–80 chars | Saved searches per user | 25 |
+| Watched loads per user | 200 | Bulk selection | 500 records |
+| Upload | 20 MB per file, 10 files per selection | Camera capture | 1–10 pages |
+| Import file | 5 MB, 500 rows (BR-28) | Invitations per send | 20 |
+| Share recipients | 10 | Tender waterfall | 1–10 carriers |
+| Load board radius | 10–500 mi, step 5 | Page size | 50 default, 200 maximum |
+| Seal number | 30 chars | Pieces | 0–99,999 |
 
 ---
 
@@ -370,6 +428,14 @@ Pure, framework-free helpers in `lib/utils/` (existing files kept):
 | Exception queue (PG-50) | 15 s | Yes |
 | Messages (open thread) | 10 s | Yes |
 | Notifications count | 60 s | Yes |
+| Approval queue (PG-58), open amendment (PG-40) | 30 s | Yes |
+| Import batch status (PG-56) | 5 s while processing | No (job continues server-side; status re-read on return) |
+| Export job status (PG-59, PG-62, PG-63) | 10 s while running | Yes |
+| Webhook delivery log (PG-61) | 60 s | Yes |
+| Operations dashboard counts (PG-21) | 30 s | No on DV-WALL screens; yes elsewhere |
+| Support ticket queue (PG-24) | 60 s | Yes |
+| Attention queue (SH-07, dashboards) | 60 s and on focus | Yes |
+| Recommended loads (SC-19.3) | 5 min | Yes |
 
 Server-sent events via a Route Handler (native `ReadableStream`, no dependency) are the upgrade path for messages and exceptions once the backend exposes a stream. Hooks keep the same signature either way.
 
@@ -412,6 +478,10 @@ Per the master prompt's Library Selection Policy: reuse first, otherwise recomme
 | End-to-end | **Proposed** | `@playwright/test` | The recommended E2E runner for Next.js; multi-browser (Phase 9 cross-browser) |
 | Accessibility tests | **Proposed** | `@axe-core/playwright` | Automated WCAG checks within E2E |
 | Payments entry | **Proposed** | Processor's official React SDK | Required by A6; chosen with the backend processor decision |
+| Observability | **Proposed** | `@vercel/otel` (or `@opentelemetry/sdk-node` if not on Vercel) via `instrumentation.ts`; `@sentry/nextjs` for error reporting | Framework-native OpenTelemetry hook; Sentry is the most widely used Next.js error reporter with source maps and release tracking (D-10) |
+| Product analytics | **Proposed** | Vendor chosen with privacy review (for example PostHog, self-hostable) | Event catalogue in §27; NFR-PRIV-3 constrains properties |
+| Feature flags | **Reuse first** | Environment-backed `lib/flags.ts`; a flag service only if targeting by organisation is required | D-11 |
+| Passkeys | **Reuse** | Browser WebAuthn API (no dependency); server library chosen by the backend | SEC-1 |
 | Accessible primitives | **Open question** | None proposed by default | The host builds primitives in `components/ui/`; if the team prefers a headless library for combobox, dialog and menu (IC-05, IC-41, IC-57), propose it explicitly |
 
 ---
@@ -468,6 +538,14 @@ Techniques: server components by default, with client components only for intera
 - Uploads: type and size checked client-side, scanned server-side; downloads via short-lived signed URLs.
 - Content Security Policy set in `next.config.ts` headers, with map tiles, processor and storage origins allow-listed.
 - No `console.*` in committed code (host rule 6); service-level logging only.
+- **CSRF:** Server Actions rely on the framework's Origin check; `serverActions.allowedOrigins` in `next.config.ts` lists only Haulr origins. Route Handlers that mutate verify `Origin` and use SameSite=Lax cookies (SEC-7).
+- **CSP with nonces:** generated per request in `proxy.ts` and passed through headers; `script-src 'self' 'nonce-…' 'strict-dynamic'`; `frame-ancestors 'none'`; `form-action` limited to Haulr and identity-provider origins.
+- **Other headers:** HSTS (2 years, preload), `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` allowing camera and geolocation only on driver routes, `X-Content-Type-Options: nosniff`.
+- **SSO:** SAML and OIDC exchanges terminate at the backend; the frontend relays through `app/api/auth/sso/[...step]` and never parses assertions. State and nonce parameters are validated server-side.
+- **Session hygiene (SSB-10):** on sign-out, account switch, view-as start or end, and SCIM deprovision, the client calls `queryClient.clear()`, removes user-keyed drafts and clears the IndexedDB offline queue after replay or discard.
+- **Idle timeout:** the organisation policy (BR-24) is enforced server-side; IC-54 warns 2 minutes before expiry.
+- **Secrets in the browser:** only the reveal-once flow (IC-63) ever holds a secret, in component memory, never in query cache, storage or URL.
+- **View-as:** the scoped session is read-only at the backend unless consent exists; the frontend additionally hides nothing, but disables blocked actions with the reason (G-5).
 
 ---
 
@@ -484,7 +562,86 @@ Existing ESLint rules in `tools/eslint/rules/` already enforce much of this phas
 | `no-comments` | Host comment policy |
 | `application-register-density` | Host styling-register rule (not specified here) |
 
-Proposed additions, each with a colocated `.test.ts` per host convention: a rule forbidding string-literal internal paths in components (use `appRoutes`, IC-51), and a rule forbidding `refetchInterval` literals outside feature constants. The existing codemod `extract-transport-to-hook` covers moving stray transport calls into hooks.
+Proposed additions, each with a colocated `.test.ts` per host convention: a rule forbidding string-literal internal paths in components (use `appRoutes`, IC-51); a rule forbidding `refetchInterval` literals outside feature constants; a rule requiring every exported Server Action and Route Handler to be wrapped by `withAction` or `withHandler` (D-13); and a rule forbidding analytics calls whose event name is not in the §27 catalogue. The existing codemod `extract-transport-to-hook` covers moving stray transport calls into hooks.
+
+---
+
+## 21. Observability
+
+- **Tracing:** `instrumentation.ts` registers OpenTelemetry; spans cover route render, Server Action and Route Handler execution, and `backendFetch` calls. The `x-request-id` created in `proxy.ts` becomes the trace attribute and is forwarded to the backend (NFR-OBS-1).
+- **Error reporting:** `lib/utils/report-error.ts` is the only reporting entry point. It is called from `error.tsx`, `global-error.tsx`, `withAction`/`withHandler` and the Query client's global `onError`. It attaches release, route, role key (never user identity), error class (Phase 4 §2.2) and correlation ID, and scrubs PII per NFR-PRIV-3.
+- **Real-user monitoring:** Web Vitals via `useReportWebVitals` in the root providers, tagged with route and role family (NFR-OBS-3).
+- **SLO dashboards and alerts:** built from the metrics above for NFR-AV-1, NFR-AV-2 and NFR-PERF-3, with burn-rate alerts (NFR-OBS-4).
+- **Support reference:** E-SERVER and E-CONTRACT messages show the correlation ID so support can find the trace.
+
+## 22. Feature Flags and Configuration
+
+- `lib/validations/env.ts` (D-9): a schema for every environment variable (`NEXT_PUBLIC_API_URL`, `JWT_PUBLIC_KEY`, `CONTRACT_SOURCE`, map and processor keys, telemetry DSNs); parsed on server start.
+- `lib/flags.ts` (D-11): typed flags with a default, owner and removal date. Initial flags: `bulkImport`, `recurringLoads`, `spendApprovals`, `amendments`, `sso`, `scim`, `apiKeys`, `webhooks`, `edi`, `reports`, `viewAs`, `passkeys`, `driverServiceWorker`.
+- Flags gate availability, never authorisation. A flagged-off capability returns E-FORBIDDEN with "not yet available for your organisation", and the spec's status for it is still tracked in Phase 8.
+- Flags past their removal date fail CI (an ESLint rule or a test in `lib/flags.test.ts`).
+
+## 23. Caching and Revalidation
+
+| Data | Server cache | Client cache (TanStack Query) |
+| --- | --- | --- |
+| Public pages (PG-01, PG-05 shell, PG-06, PG-07, PG-09) | Static or ISR; revalidate by tag on content change | — |
+| Carrier profiles (PG-03) | ISR 1 h; tag `carrier:<id>` revalidated on compliance change | — |
+| Authenticated reads | `no-store` (existing `backendFetch`) | `staleTime` 60 s default; freshness overrides from Phase 4 §2.6 |
+| Polled reads | `no-store` | `refetchInterval` from §13; `placeholderData` keeps previous |
+| Mutations | — | Invalidate by key factory; optimistic only where Phase 5 says so |
+| Reference data (enums, facilities) | — | `staleTime` 10 min; invalidated by facility mutations |
+
+Query keys always include the organisation ID as their first segment after the resource, so that a cache can never serve another tenant's data even before SSB-10 purges it.
+
+## 24. Tenancy and Session Hygiene
+
+- Organisation context is resolved from the session on the server; client components never pass an organisation ID to actions (SEC-5).
+- Multi-role users switch role roots without re-authenticating; switching organisation is not supported (one membership per user, Phase 1 §7.4).
+- View-as sessions (XS-16) use a separate cookie and query client instance; ending them restores the agent's session with a clean cache.
+- Local persistence keys include the user ID and organisation ID; SSB-10 purges them.
+
+## 25. Internationalisation Readiness
+
+- All copy in constants grouped by feature (`lib/<feature>/constants.ts`), with ICU-style placeholders for variables and plurals, so a translation layer can wrap them without code changes (NFR-I18N-1).
+- Dates, times, numbers, currency, distances and weights go through `lib/utils/date-formatter.ts`, `currency.ts` and `units.ts` with an explicit locale (default `en-US`) and time zone.
+- No sentence is assembled from fragments; every sentence with variables is one template.
+- `lang` is set on `<html>`; user-generated content (notes, messages) is rendered with `dir="auto"`.
+
+## 26. Concurrency
+
+- Mutable DTOs carry `version` (D-12). Hooks send it; `withAction` maps 412 to E-PRECONDITION.
+- IC-67 resolves conflicts in the UI; hooks expose `{ conflict, latest }` for it.
+- Idempotency keys (`nanoid`) on every money-committing and state-transition mutation; retries reuse the key.
+- Queue claims (IC-47) use the same version mechanism.
+
+## 27. Analytics Event Catalogue
+
+Events follow `<domain>.<object>.<verb>` and carry only IDs, enums, counts and durations (NFR-PRIV-3). The catalogue lives in `lib/constants.ts` as a typed map, so an unknown event name fails type-checking. Each KPI's source events:
+
+| KPI | Events |
+| --- | --- |
+| KPI-01 Quote-to-post | `load.quote.requested`, `load.posted` |
+| KPI-02 Time to coverage | `load.posted`, `load.booked` |
+| KPI-03 Self-serve booking | `load.booked` (property `actorType`) |
+| KPI-04 On-time | `stop.arrived`, `stop.departed` (server) |
+| KPI-05 Tracking compliance | `position.received` (server aggregate) |
+| KPI-06 POD to verified | `pod.captured`, `pod.verified` |
+| KPI-07 Days to pay | `settlement.paid` |
+| KPI-08 Carrier repeat booking | `load.booked` (property `carrierId`) |
+| KPI-10 Operations touches | `exception.resolved`, operations `actorType` on any mutation |
+| KPI-11 Disputed invoices | `invoice.disputed`, `invoice.issued` |
+| KPI-12 Task success | Research tooling, not product events |
+| Enterprise adoption | `load.import.confirmed`, `approval.decided`, `security.sso.enforced`, `integration.key.created` |
+
+Every page's events are named in its Phase 4 implementation notes; any event not in this catalogue must be added here first.
+
+## 28. Error Taxonomy Implementation
+
+- `lib/utils/action-result.ts` maps HTTP status and parse failures to the classes in Phase 4 §2.2 and returns `{ class, messageKey, retryAfter?, correlationId? }`.
+- `errorCopy` in `lib/constants.ts` holds one message per class; sections add a context phrase from their feature constants.
+- The Query client's `retry` function implements the automatic-retry column of Phase 4 §2.2: reads only, E-SERVER and E-UNAVAILABLE, with the stated delays; never for mutations without idempotency keys.
+- `components/common/section-state.tsx` renders LS, E and EM classes consistently for every section.
 
 ---
 

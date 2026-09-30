@@ -1,6 +1,6 @@
 # Phase 9 — Quality Assurance Checklist
 
-`Haulr Design OS` · `Version 1.0.0` · `2026-09-30` · Previous: [Phase 8 — Implementation Roadmap](./phase-8-implementation-roadmap.md) · Next: [START_HERE](./START_HERE.md)
+`Haulr Design OS` · `Version 1.1.0` · `2026-09-30` · Previous: [Phase 8 — Implementation Roadmap](./phase-8-implementation-roadmap.md) · Next: [START_HERE](./START_HERE.md)
 
 A review of the whole system. Each item is a check that must pass before a feature moves from **Built** to **Verified** in [Phase 8 §9](./phase-8-implementation-roadmap.md#9-per-feature-build-status). QA here is functional. Visual quality is judged when each page is built, with the owner.
 
@@ -23,7 +23,8 @@ A review of the whole system. Each item is a check that must pass before a featu
 13. [Maintainability](#13-maintainability) — QA-184 … QA-193
 14. [Cross-Browser Compatibility](#14-cross-browser-compatibility) — QA-194 … QA-201
 15. [Business Rules and Security](#15-business-rules-and-security) — QA-202 … QA-216
-16. [Sign-off](#16-sign-off)
+16. [Enterprise, Compliance and Operations](#16-enterprise-compliance-and-operations) — QA-217 … QA-266
+17. [Sign-off](#17-sign-off)
 
 ---
 
@@ -320,9 +321,64 @@ Behavioural responsiveness only: every device need in Phase 4 is achievable. Vis
 | QA-215 | Rate limits enforced on anonymous endpoints | Phase 8 §10 | Auto | Yes |
 | QA-216 | CSP blocks non-allow-listed origins | Phase 7 §19 | Tool | Yes |
 
-**Total: 216 QA items.**
+## 16. Enterprise, Compliance and Operations
 
-## 16. Sign-off
+| ID | Check | Ref | Method | Block |
+| --- | --- | --- | --- | --- |
+| QA-217 | SAML and OIDC sign-in succeed with Okta, Entra ID, Google Workspace and OneLogin test tenants | SEC-2, R-13 | Manual | Yes |
+| QA-218 | Enforced SSO disables password sign-in for members except the break-glass admin | BR-24 | Auto | Yes |
+| QA-219 | SCIM create, update and deactivate reflect within 5 minutes; deactivation ends all sessions | BR-24 | Auto | Yes |
+| QA-220 | SSO enforcement is refused without a passing test sign-in in the last 24 h | SC-60.4 | Auto | Yes |
+| QA-221 | SSO discovery responses are indistinguishable for unknown and password-only domains | SC-10.3, SEC-10 | Auto | Yes |
+| QA-222 | Idle timeout follows organisation policy and warns 2 minutes ahead | BR-24, IC-54 | Auto | Yes |
+| QA-223 | IP allow-list refuses admin access from other addresses and cannot lock out the configuring admin | SC-60.4 | Auto | Yes |
+| QA-224 | Actions above a member's spend limit enter `PendingApproval` via UI, bulk import, API and EDI | BR-23, Phase 2 §7 | Auto | Yes |
+| QA-225 | Approvers cannot approve their own requests, including admins | BR-23, IC-62 | Auto | Yes |
+| QA-226 | Approval of a still-valid request completes the original action within 5 s | PG-58 | Auto | Yes |
+| QA-227 | Approval after quote or bid expiry is refused and the requester is prompted to re-quote | XF-16 | Auto | Yes |
+| QA-228 | Amendments bind only after carrier acceptance with signature evidence; previous versions remain retrievable | BR-25, CMP-3, CMP-4 | Auto | Yes |
+| QA-229 | Amendments cannot change completed stops; one open amendment per load | Phase 2 §5.1 | Auto | Yes |
+| QA-230 | Lapsed amendments raise an operations exception | XF-15 | Auto | Yes |
+| QA-231 | Bulk import of 500 rows validates and prices within 60 s; nothing posts before confirmation | BR-28, NFR-CAP-3 | Auto | Yes |
+| QA-232 | Every imported row has exactly one outcome in the results file | IC-61 | Auto | Yes |
+| QA-233 | Recurrence occurrences above the guardrail become drafts and notify the owner | SC-57.3 | Auto | No |
+| QA-234 | API key secrets are shown once and never appear in storage, logs, analytics or query cache | IC-63, SEC-8 | Review | Yes |
+| QA-235 | Revoked API keys fail within 60 s; rotation overlap ends at the chosen time | BR-29 | Auto | Yes |
+| QA-236 | Webhooks are signed, retried for 24 h, and refused for non-HTTPS or private addresses | BR-29, SC-61.2 | Auto | Yes |
+| QA-237 | Every mutation produces an audit event visible to the organisation within 60 s with actor type | BR-26, SSB-9 | Auto | Yes |
+| QA-238 | No role, including `internal.admin`, can edit or delete audit events | BR-26 | Auto | Yes |
+| QA-239 | Audit and data exports include manifests with row counts and checksums, and are themselves audited | IC-65 | Auto | Yes |
+| QA-240 | Export download links require a session and expire after 24 h | IC-65 | Auto | Yes |
+| QA-241 | Privacy requests are acknowledged within 7 days and fulfilled within 45; outcome reports state retained data and legal basis | BR-30, CMP-7 | Manual | Yes |
+| QA-242 | View-as requires a linked ticket, is read-only without consent, never writes payout, security, key or export settings, and ends at 60 minutes | BR-27 | Auto | Yes |
+| QA-243 | View-as actions appear in the organisation audit log attributed to the staff member | BR-27, XS-17 | Auto | Yes |
+| QA-244 | View-as state is announced on every page and cannot be dismissed | IC-64 | AT | Yes |
+| QA-245 | Every resource returns not found across tenants for read, list and mutate | SEC-5, R-14 | Auto | Yes |
+| QA-246 | Query cache, drafts and offline queue are purged on sign-out, view-as start and end, and deprovisioning | SSB-10 | Auto | Yes |
+| QA-247 | Stale edits return E-PRECONDITION and IC-67 preserves the user's input in every path | SSB-8, IC-67 | Auto | Yes |
+| QA-248 | Every page and section implements the Phase 4 §2 state classes it cites; no bare "retry" or "loading" behaviour | Phase 4 §2 | Review | Yes |
+| QA-249 | Every E-SERVER and E-CONTRACT shows a correlation ID that locates the trace | NFR-OBS-1, Phase 7 §21 | Manual | Yes |
+| QA-250 | Analytics and error payloads contain no PII (automated scan) | NFR-PRIV-3 | Tool | Yes |
+| QA-251 | Only catalogued analytics events are emitted; every KPI's source events arrive in staging | Phase 7 §27 | Auto | Yes |
+| QA-252 | Load test meets NFR-CAP-1 … 3 and NFR-PERF-3 … 5 at 1.5× peak | NFR-CAP, NFR-PERF | Tool | Yes |
+| QA-253 | Each dependency failure degrades only its capability, with E-UNAVAILABLE messaging | NFR-AV-4, OPS-4 | Manual | Yes |
+| QA-254 | Restore drill meets RPO ≤ 5 min and RTO ≤ 1 h | NFR-AV-5 | Manual | Yes |
+| QA-255 | Offline stop events queued up to 7 days replay without loss | NFR-AV-6 | Auto | Yes |
+| QA-256 | No open critical or high findings from DAST or penetration test | SEC-7, SEC-9 | Tool | Yes |
+| QA-257 | Security headers (CSP nonces, HSTS, frame-ancestors, Permissions-Policy) present on every route | Phase 7 §19 | Tool | Yes |
+| QA-258 | Server Actions reject cross-origin requests | SEC-7 | Auto | Yes |
+| QA-259 | Passwords checked against breached lists; MFA required for the roles listed in SEC-1 | SEC-1 | Auto | Yes |
+| QA-260 | VPAT published and consistent with Phase 9 §1–2 results | NFR-A11Y-1 | Review | Yes |
+| QA-261 | Broker MC number appears on rate confirmations, invoices and legal pages | CMP-1 | Manual | Yes |
+| QA-262 | OFAC screening runs at onboarding and on payout-method change | CMP-11 | Auto | Yes |
+| QA-263 | Environment validation fails the deploy on missing or malformed variables | D-9 | Auto | Yes |
+| QA-264 | Expired feature flags fail CI | Phase 7 §22 | Auto | No |
+| QA-265 | Copy survives 40% text expansion and pseudo-localisation without truncating meaning | NFR-I18N-1 | Manual | No |
+| QA-266 | Runbooks exist and were rehearsed for every E-UNAVAILABLE dependency | OPS-4 | Review | Yes |
+
+**Total: 266 QA items.**
+
+## 17. Sign-off
 
 A page moves to **Verified** when:
 
@@ -331,7 +387,7 @@ A page moves to **Verified** when:
 3. The owner has reviewed the rendered page (visual quality is judged there, not here).
 4. [Phase 8 §9](./phase-8-implementation-roadmap.md#9-per-feature-build-status) is updated in the same PR.
 
-Launch (M4) requires every page **Verified** and every item in §1, §2, §8 and §15 passing.
+Launch (M4) requires every page **Verified** and every item in §1, §2, §8, §15 and §16 passing. Enterprise readiness (M5) requires QA-217 … QA-247 passing for the enterprise track.
 
 ---
 
