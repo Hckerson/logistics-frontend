@@ -247,8 +247,6 @@ Navigation hierarchy
 
 Sitemap
 
-Content hierarchy
-
 Role-based navigation
 
 Permissions
@@ -272,6 +270,8 @@ Empty routes
 Fallback routes
 
 Future expansion strategy
+
+Describe structure and reachability only: which pages exist, how they relate, which route group each belongs to and who can reach it. Never what a layout shows (navigation bars, sidebars, headers, cards or any other on-screen chrome).
 
 ---
 
@@ -331,9 +331,7 @@ Business objective
 
 User objective
 
-Primary tasks
-
-Content requirements (the information and actions the page must offer, in priority order; never layout, placement or module names that imply a layout)
+Primary tasks (what the user comes to get done, as goals in their own words; never fields, buttons or links)
 
 Required data
 
@@ -349,11 +347,11 @@ Error states
 
 Success states
 
-Actions
-
 Dependencies
 
 Implementation notes
+
+States describe what happens and what the user is told, never where it appears on screen.
 
 ---
 
@@ -367,13 +365,9 @@ Purpose
 
 Responsibilities
 
-Content model
-
 Data requirements
 
 Interaction model
-
-Controls
 
 Device needs
 
@@ -387,11 +381,11 @@ Empty states
 
 Reuse potential
 
-Technical notes
+Technical notes (data, validation and dependencies; never components to build, cards or shared visual shells)
 
 No section should solve multiple unrelated jobs.
 
-Describe content and behaviour only. Never specify layout, order on screen, sizing, imagery, animation or wireframes.
+Describe behaviour only. Never specify what the section shows, which components or controls it uses, layout, order on screen, sizing, imagery, animation or wireframes.
 
 ---
 
@@ -837,9 +831,25 @@ When the design operating system is complete, the entire 15-file design operatin
 
 Never prescribe visual design. No colours, fonts, sizes, spacing, layouts, placement ("banner here", "hero with image"), imagery, animation, visual references or wireframes, in any phase or in the implementation prompt.
 
-Describe what users need, what information and actions each page must offer and in what priority, and how it behaves. Never how it looks or where things sit.
+Never prescribe screen content either. No inventories of fields, buttons, links or headings, no component lists, and no shared cards or shells, in any phase or in the implementation prompt.
+
+Describe what users need to get done and how the product behaves. Never what a page contains, how it looks or where things sit.
 
 The look of each page is decided when it is built, with the owner.
+
+## Self-Audit Before Delivery
+
+Before delivering, audit Phases 1–5, Phase 8 and the implementation prompt against No Visual Prescription, and rewrite or remove every passage that fails. A passage fails when it:
+
+- uses a field this prompt does not define for that phase (for example "Content requirements", "Content model", "Content hierarchy", "Controls", "Actions", "Frame" or "Content, in order");
+- ranks what a page or section shows ("primary", "by priority", "in priority order", "first"), which is layout by another name;
+- lists the fields, buttons, links or headings a page or section contains;
+- names the components, cards, shells or controls a page or section is built from;
+- says where something appears: top, bottom, under, above, beside, left, right, sidebar, header, banner, hero, card, modal or any other position or container.
+
+Phase 6 names interactive element types because its job is their behaviour, and Phase 7 names files and folders because its job is code organisation. Neither may say how or where anything appears.
+
+List what the audit rewrote or removed under **Changed** in the manifest.
 
 ## Scope Preservation
 
@@ -869,7 +879,7 @@ Before formatting, obey these delivery rules — they determine _where_ the deli
 
 **Delivery mode.** One file per artifact, written to disk (via the environment's file-writing tool). Cross-links between files use relative paths within `{{OUTPUT_DIR}}`.
 
-**Regeneration.** A run over a non-empty `{{OUTPUT_DIR}}` is a **merge, not an overwrite**. Before writing anything, read the existing artifact set and inventory every page, section, interaction contract, flow, persona, role and state it defines. Every entry in that inventory must survive into the new set, carrying its Phase 8 status. Visual prescriptions from an earlier run (tokens, palettes, layouts, wireframes) are not features: drop them and list them under **Changed**. See Critical Rules › Scope Preservation.
+**Regeneration.** A run over a non-empty `{{OUTPUT_DIR}}` is a **merge, not an overwrite**. Before writing anything, read the existing artifact set and inventory every page, section, interaction contract, flow, persona, role and state it defines. Every entry in that inventory must survive into the new set, carrying its Phase 8 status. Visual and content prescriptions from an earlier run (tokens, palettes, layouts, wireframes, screen-content inventories, component lists, placement) are not features: drop them and list them under **Changed**. See Critical Rules › Scope Preservation.
 
 **Ordering.** Generate in dependency order: phases 1→9 first (each referencing prior phases), then the 6 ancillary documents (which reference the phases).
 

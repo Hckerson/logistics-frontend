@@ -3,7 +3,7 @@ import { format, resolveConfig } from "prettier";
 import { openApiDocument } from "./openapi-document";
 import { routesFile, schemasFile } from "./generate-contract";
 
-const SOURCE = process.env.CONTRACT_SOURCE ?? "../nest-setup/openapi.json";
+const SOURCE = process.env.CONTRACT_SOURCE ?? "../backend/openapi.json";
 const OUTPUT_DIR = "lib/contract";
 const CHECK = process.argv.includes("--check");
 
@@ -18,7 +18,7 @@ const main = async (): Promise<void> => {
         process.stdout.write(
             CHECK
                 ? `${SOURCE} not found - contract check skipped\n`
-                : `${SOURCE} not found - run pnpm openapi in nest-setup first\n`,
+                : `${SOURCE} not found - run pnpm openapi in the backend first\n`,
         );
         process.exit(CHECK ? 0 : 1);
     }
