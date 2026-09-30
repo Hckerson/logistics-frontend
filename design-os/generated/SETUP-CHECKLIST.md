@@ -1,6 +1,6 @@
 # Setup Checklist — Haulr
 
-`Version 1.0.0` · `2026-09-30` · Start: [START_HERE](./START_HERE.md) · Architecture: [Phase 7](./phase-7-frontend-architecture.md) · Build: [IMPLEMENTATION_PROMPT](./IMPLEMENTATION_PROMPT.md)
+`Version 1.1.0` · `2026-09-30` · Start: [START_HERE](./START_HERE.md) · Architecture: [Phase 7](./phase-7-frontend-architecture.md) · Build: [IMPLEMENTATION_PROMPT](./IMPLEMENTATION_PROMPT.md)
 
 Step by step, from a fresh machine to a repository ready for Sprint 1. Tick each box as you go. Steps marked **Approval** need the maintainer's go-ahead before you run them (Library Selection Policy, [Phase 7 §15](./phase-7-frontend-architecture.md#15-shared-libraries)).
 
@@ -109,7 +109,9 @@ This repository is already a Next.js 16 App Router project. **Do not run `create
 | `JWT_PUBLIC_KEY` | RS256 public key for session verification in `proxy.ts` and the session route | Backend `pnpm keys:generate` output |
 | `CONTRACT_SOURCE` | Location of the backend `openapi.json` for `pnpm contract` | Path to `../backend/openapi.json` |
 
-- [ ] Later sprints add: map tile key (S5), payments processor publishable key (S6). Never commit keys.
+- [ ] Later sprints add: telemetry DSNs (S1), map tile key (S5), payments processor publishable key (S6), analytics key (S7). Never commit keys.
+- [ ] Every variable is declared in `lib/validations/env.ts` (D-9); the app refuses to start when one is missing or malformed.
+- [ ] For SSO work (S2), get access to the staging identity-provider tenants (Okta developer, Entra ID test, Google Workspace, OneLogin) from the security engineer (Phase 8 §5).
 
 ### 3.3 TypeScript configuration
 
@@ -170,6 +172,9 @@ Propose each with its reason, wait for approval, then install. Never hand-edit `
 | S5 | `maplibre-gl`, `react-map-gl` | Maps (IC-30) | `pnpm add maplibre-gl react-map-gl` |
 | S6 | Processor React SDK | Payment method entry (IC-42) | Decided with the processor |
 | S7 | `recharts` | Charts (IC-45) | `pnpm add recharts` |
+| S1 | `@vercel/otel` (or `@opentelemetry/sdk-node`), `@sentry/nextjs` | Tracing and error reporting (D-10) | `pnpm add @vercel/otel @sentry/nextjs` |
+| S7 | Product analytics SDK (after privacy review) | Event catalogue (Phase 7 §27) | Decided with the vendor |
+| S8 | `k6` (CLI, not a package dependency), OWASP ZAP (CI container) | Load and security testing (Phase 8 §8) | Installed in CI images, not in `package.json` |
 | Optional | Headless accessible primitives | Combobox, dialog, menu | Only if proposed and approved |
 
 - [ ] Record each approval in the PR that installs the package.

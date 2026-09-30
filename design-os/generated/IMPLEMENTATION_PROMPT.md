@@ -1,6 +1,6 @@
 # Implementation Prompt — Haulr
 
-`Version 1.0.0` · `2026-09-30` · Start: [START_HERE](./START_HERE.md) · Setup: [SETUP-CHECKLIST](./SETUP-CHECKLIST.md) · Index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
+`Version 1.1.0` · `2026-09-30` · Start: [START_HERE](./START_HERE.md) · Setup: [SETUP-CHECKLIST](./SETUP-CHECKLIST.md) · Index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
 
 Copy this entire file into a new Claude Code session at the repository root, then name the sprint, page or feature to build.
 
@@ -75,7 +75,7 @@ These bind every change. Host rules come from `.claude/CLAUDE.md` and win over a
 ### 4.1 Host rules (summary; read the file)
 
 1. **No hardcoding.** Routes, durations, enums and repeated copy live in `lib/constants.ts` or `lib/<feature>/constants.ts`. Endpoints come from `lib/contract` (generated) or `lib/api-routes.ts`. Shapes come from Zod. Seed data lives in `lib/data/`.
-2. **Match the architecture.** Do not invent patterns or locations. Phase 7 decisions D-1 … D-8 are the only sanctioned extensions.
+2. **Match the architecture.** Do not invent patterns or locations. Phase 7 decisions D-1 … D-13 are the only sanctioned extensions.
 3. **Use the framework natively.** Do not add a dependency that duplicates an installed one.
 4. **Single source of truth.** Define once, reference everywhere.
 5. **Minimise lines of code.** Shortest maintainable solution.
@@ -104,6 +104,13 @@ These bind every change. Host rules come from `.claude/CLAUDE.md` and win over a
 - Every multi-step entry persists drafts (PP-06, SH-13).
 - Every task works by keyboard, with a screen reader and without the map (PP-08).
 - A record the user cannot access returns not found, never access denied (Phase 3 §5.2).
+- Every state is one of the named classes in [Phase 4 §2](./phase-4-page-blueprints.md#2-shared-state-behaviour): LS- (loading), E- (error), EM- (empty), SU- (success). Never ship a bare "loading", "retry" or empty screen; implement exactly what the page and section blueprints specify for each class.
+- Money-committing actions go through spend authority (BR-23): the server decides whether they complete or enter `PendingApproval`; the client never hides the action.
+- Booked terms change only through amendments the carrier accepts (BR-25).
+- Every mutation carries the record version (SSB-8, D-12) and is audited server-side (SSB-9, BR-26); reason-required actions (Phase 1 §11) cannot submit without a reason.
+- View-as sessions are read-only unless consented and never touch payout, security, keys or exports (BR-27).
+- Tenant isolation: caches keyed by organisation and purged per SSB-10; no organisation ID is ever accepted from the client (SEC-5).
+- Telemetry carries no PII (NFR-PRIV-3); only catalogued analytics events are emitted (Phase 7 §27).
 
 ---
 
@@ -184,6 +191,15 @@ proxy.ts
 | `/support-console` | `app/(internal)/support-console/page.tsx` | PG-24 |
 | `/admin` | `app/(internal)/admin/page.tsx` | PG-25 |
 | `/admin/accounts` | `app/(internal)/admin/accounts/page.tsx` | PG-52 |
+| `/shipper/loads/import` | `app/(workspace)/shipper/loads/import/page.tsx` | PG-56 |
+| `/shipper/templates` | `app/(workspace)/shipper/templates/page.tsx` | PG-57 |
+| `/shipper/approvals` | `app/(workspace)/shipper/approvals/page.tsx` | PG-58 |
+| `/shipper/reports` | `app/(workspace)/shipper/reports/page.tsx` | PG-59 |
+| `/settings/security` | `app/(workspace)/settings/security/page.tsx` | PG-60 |
+| `/settings/integrations` | `app/(workspace)/settings/integrations/page.tsx` | PG-61 |
+| `/settings/privacy` | `app/(workspace)/settings/privacy/page.tsx` | PG-62 |
+| `/settings/audit` | `app/(workspace)/settings/audit/page.tsx` | PG-63 |
+| `/loads/[loadId]/amendments/[amendmentId]` | `app/(workspace)/loads/[loadId]/amendments/[amendmentId]/page.tsx` | PG-64 |
 | — | `app/not-found.tsx`, `app/global-error.tsx`, `app/forbidden.tsx` | PG-53, PG-54, PG-55 |
 
 Every data-bearing segment adds `loading.tsx` and `error.tsx`; each route group adds `not-found.tsx`.
@@ -199,7 +215,8 @@ Every data-bearing segment adds `loading.tsx` and `error.tsx`; each route group 
 - Extend `PROTECTED_ROUTE_PREFIXES` in `lib/constants.ts` to every workspace prefix (`/dashboard`, `/onboarding`, `/shipper`, `/carrier`, `/driver`, `/loads`, `/messages`, `/notifications`, `/documents`, `/claims`, `/profile`, `/settings`, `/shippers`) and add `INTERNAL_ROUTE_PREFIXES` (`/ops`, `/compliance`, `/finance`, `/support-console`, `/admin`).
 - In `proxy.ts`, reject non-internal roles on internal prefixes (D-7).
 - Role layouts (`shipper/`, `carrier/`, `driver/`, `(internal)/`) re-check role on the server and call `forbidden()`.
-- Every Server Action and Route Handler re-checks role and record membership.
+- Every Server Action and Route Handler is wrapped by `withAction` / `withHandler` (D-13), which re-checks session, role and record membership, attaches the correlation ID and maps errors to Phase 4 §2.2 classes.
+- `org.security`-only users resolve to PG-60; organisation security policy (idle timeout, IP allow-list, SSO enforcement) is enforced server-side (BR-24).
 
 ### 5.5 Hooks organisation
 
@@ -222,69 +239,83 @@ A section used by two pages lives once in `components/common/`. Page sections al
 
 ## 6. Phase 8 Implementation — Sprint Breakdown
 
-Authoritative source: [Phase 8 §3](./phase-8-implementation-roadmap.md#3-sprint-breakdown). 16 weeks, 8 sprints, starting 2026-10-05.
+Authoritative source: [Phase 8 §3](./phase-8-implementation-roadmap.md#3-sprint-breakdown). 16 weeks, 8 sprints, starting 2026-10-05, with a parallel enterprise track from Sprint 2. Stories enter a sprint only when they meet the Definition of Ready ([Phase 8 §11](./phase-8-implementation-roadmap.md#11-definition-of-ready-and-definition-of-done)).
 
 ### Sprint 1 — Foundations (2026-10-05 → 2026-10-16)
 
-- **Build:** route groups and layouts; guards (§5.4); `appRoutes`; `lib/enums/` (role key, load status); `lib/loads/constants.ts` and `transitions.ts` with tests; announcer and session providers; `section-boundary`.
+- **Build:**
+  - Route groups and layouts; guards (§5.4); `appRoutes`.
+  - `lib/enums/` (role key, load status); `lib/loads/constants.ts` and `transitions.ts` with tests.
+  - Env validation (D-9), `instrumentation.ts` and `report-error` (D-10), `lib/flags.ts` (D-11), `withAction`/`withHandler` (D-13).
+  - Error taxonomy wiring (`errorCopy`, `section-state`, Query retry policy); CSP nonces and security headers.
+  - Announcer and session providers; `section-boundary`.
 - **Contracts:** IC-01, IC-02, IC-03, IC-04, IC-07, IC-09, IC-11 (extend `button.tsx`), IC-12, IC-14, IC-41, IC-51, IC-52, IC-59, IC-60.
 - **Pages and flows:** PG-10 (extend with MFA hand-off and role resolution), PG-11 … PG-15, PG-53 … PG-55, dashboard redirect. Flow XS-01.
-- **Sequencing:** guards and providers → primitives → access pages → system pages.
-- **Close:** D-2 confirmation; forms and testing library approvals; `forbidden()` check (R-08).
+- **Sequencing:** env, observability and guards → taxonomy and providers → primitives → access pages → system pages.
+- **Close:** D-2 confirmation; forms, testing and observability library approvals; `forbidden()` check (R-08).
 
 ### Sprint 2 — Accounts and onboarding (2026-10-19 → 2026-10-30)
 
-- **Contracts:** IC-05, IC-13, IC-15, IC-24, IC-26, IC-38, IC-39, IC-58.
+- **Contracts:** IC-05, IC-13, IC-15, IC-24, IC-26, IC-38, IC-39, IC-58, IC-63, IC-67.
 - **Shared sections:** SH-03 document set, SH-06 account standing, SH-13 step progression.
-- **Pages and flows:** PG-16, PG-17, PG-46, PG-47 (SC-47.1, SC-47.2), PG-48, PG-09. Flows XS-02, XF-13, XF-12 (carrier side).
-- **Sequencing:** SH-13 before PG-16/PG-17; SH-03 before SC-17.4.
-- **Milestone M1 (2026-10-30):** both sides register, verify, onboard and invite; guards enforced.
+- **Pages and flows:** PG-16, PG-17, PG-46, PG-47 (SC-47.1, SC-47.2), PG-48, PG-09. Enterprise track: PG-60, SC-10.3. Flows XS-02, XF-13, XF-12 (carrier side), XS-13.
+- **Sequencing:** SH-13 before PG-16/PG-17; SH-03 before SC-17.4; IC-67 before any editable record ships.
+- **Milestone M1 (2026-10-30):** both sides register, verify, onboard and invite; guards enforced; SSO tested against Okta and Entra ID.
 
 ### Sprint 3 — Posting (2026-11-02 → 2026-11-13)
 
 - **Contracts:** IC-08, IC-19, IC-20, IC-21, IC-22, IC-23, IC-32, IC-40, IC-46, IC-56, IC-57.
 - **Shared sections:** SH-01 timeline, SH-05 record collection, SH-14 money breakdown.
-- **Pages and flows:** PG-27, PG-32, PG-26 (SC-26.1), PG-40 (SC-40.1, 40.2, 40.3, 40.7, 40.8), PG-05, PG-01. Flows XF-01, XS-10, XS-11.
-- **Sequencing:** PG-32 facilities → PG-27 posting → PG-40 core → PG-26 collection; PG-05 and PG-01 in parallel.
+- **Pages and flows:** PG-27, PG-32, PG-26 (SC-26.1), PG-40 (SC-40.1, 40.2, 40.3, 40.7, 40.8), PG-05, PG-01. Enterprise track: PG-57. Flows XF-01, XS-10, XS-11, XF-14 (templates).
+- **Sequencing:** PG-32 facilities → PG-27 posting → PG-40 core → PG-26 collection; PG-05 and PG-01 in parallel; PG-57 after PG-27 schemas.
 
 ### Sprint 4 — Marketplace (2026-11-16 → 2026-11-27)
 
-- **Contracts:** IC-18, IC-27, IC-28, IC-33, IC-34.
+- **Contracts:** IC-18, IC-27, IC-28, IC-33, IC-34, IC-61, IC-62.
 - **Shared sections:** SH-09 scorecard.
-- **Pages and flows:** PG-33, PG-34, PG-36, PG-28, PG-29, PG-03, PG-04, PG-35 (SC-35.1), PG-22, PG-51, PG-40 (SC-40.4). Flows XF-02, XF-03, XF-04, XS-09, XF-12 (compliance side), XD-05.
-- **Sequencing:** PG-51 and PG-22 early (approved carriers are needed to book); PG-33 → PG-34; PG-28 with SC-40.4.
-- **Milestone M2 (2026-11-27):** a load goes from quote to booked with a signed rate confirmation by an approved carrier.
+- **Pages and flows:** PG-33, PG-34, PG-36, PG-28, PG-29, PG-03, PG-04, PG-35 (SC-35.1), PG-22, PG-51, PG-40 (SC-40.4, SC-40.17). Enterprise track: PG-58, PG-56, SC-48.4. Flows XF-02, XF-03, XF-04, XS-09, XF-12 (compliance side), XD-05, XF-16, XF-14 (bulk import).
+- **Sequencing:** PG-51 and PG-22 early (approved carriers are needed to book); PG-33 → PG-34; PG-28 with SC-40.4; SC-48.4 → PG-58 → SC-40.17; PG-56 after PG-58 (imports route to approvals).
+- **Milestone M2 (2026-11-27):** a load goes from quote to booked with a signed rate confirmation by an approved carrier; a 500-row import posts; approvals complete the original action.
 
 ### Sprint 5 — Execution and tracking (2026-11-30 → 2026-12-11)
 
-- **Contracts:** IC-06, IC-10, IC-25, IC-29, IC-30, IC-31, IC-44, IC-55.
+- **Contracts:** IC-06, IC-10, IC-25, IC-29, IC-30, IC-31, IC-44, IC-55, IC-66.
 - **Shared sections:** SH-02 live position and ETA, SH-15 assignment.
-- **Pages and flows:** PG-37, PG-35 (SC-35.2), PG-20, PG-39, PG-02, PG-40 (SC-40.5, 40.6, 40.12, 40.15), PG-26 (SC-26.2, 26.3). Flows XF-05, XF-06, XF-07, XF-09 (capture), XD-03.
-- **Sequencing:** PG-37 → SH-15 → PG-39 (with offline queue) → SH-02 → PG-02.
+- **Pages and flows:** PG-37, PG-35 (SC-35.2), PG-20, PG-39, PG-02, PG-40 (SC-40.5, 40.6, 40.12, 40.15, 40.16), PG-26 (SC-26.2, 26.3). Enterprise track: PG-64. Flows XF-05, XF-06, XF-07, XF-09 (capture), XD-03, XF-15.
+- **Sequencing:** PG-37 → SH-15 → PG-39 (with offline queue) → SH-02 → PG-02; SC-40.16 → PG-64.
 - **Needs:** map library approval.
 
 ### Sprint 6 — Money (2026-12-14 → 2027-01-08, holiday weeks excluded)
 
-- **Contracts:** IC-42, IC-43.
-- **Pages and flows:** PG-30, PG-31, PG-38, PG-49, PG-43, PG-44, PG-45, PG-40 (SC-40.9, 40.10, 40.13), PG-23 (SC-23.1). Flows XF-09 (verification), XF-10, XF-11, XS-06, XS-08, XS-12.
-- **Sequencing:** PG-49 → PG-31 → PG-30 → PG-38; claims after invoices.
+- **Contracts:** IC-42, IC-43, IC-65.
+- **Shared sections:** SH-11 audit.
+- **Pages and flows:** PG-30, PG-31, PG-38, PG-49, PG-43, PG-44, PG-45, PG-40 (SC-40.9, 40.10, 40.13), PG-23 (SC-23.1). Enterprise track: PG-62, PG-63. Flows XF-09 (verification), XF-10, XF-11, XS-06, XS-08, XS-12, XS-15, XS-17.
+- **Sequencing:** PG-49 → PG-31 → PG-30 → PG-38; claims after invoices; SH-11 → PG-63; IC-65 → PG-62.
 - **Needs:** processor SDK approval.
-- **Milestone M3 (2027-01-08):** a load goes from quote to paid and settled, with tracking and POD.
+- **Milestone M3 (2027-01-08):** a load goes from quote to paid and settled, with tracking, POD and an accepted amendment; the audit log shows every step.
 
 ### Sprint 7 — Communication, dashboards and offline (2027-01-11 → 2027-01-22)
 
 - **Contracts:** IC-16, IC-17, IC-35, IC-36, IC-37, IC-45, IC-50, IC-53, IC-54.
 - **Shared sections:** SH-04 conversation, SH-07 attention queue, SH-08 metrics, SH-10 rating, SH-12 guidance.
-- **Pages and flows:** PG-41, PG-42, PG-47 (SC-47.3), PG-18, PG-19, PG-06, PG-07, PG-08, PG-40 (SC-40.11, 40.14); driver service worker caching. Flows XS-03, XS-04, XS-05, XS-07, XD-01, XD-02.
-- **Needs:** chart library approval.
+- **Pages and flows:** PG-41, PG-42, PG-47 (SC-47.3), PG-18, PG-19, PG-06, PG-07, PG-08, PG-40 (SC-40.11, 40.14); driver service worker caching. Enterprise track: PG-59, PG-61. Flows XS-03, XS-04, XS-05, XS-07, XD-01, XD-02, XS-14.
+- **Needs:** chart and product-analytics approvals.
+- **Milestone M5 (2027-01-22):** enterprise capabilities Verified (Phase 9 QA-217 … QA-247).
 
 ### Sprint 8 — Operations and launch (2027-01-25 → 2027-02-05)
 
-- **Contracts:** IC-47, IC-48, IC-49.
-- **Shared sections:** SH-11 audit.
-- **Pages and flows:** PG-21, PG-23 (remaining), PG-24, PG-25, PG-50, PG-52. Flows XF-08, XD-04, XD-06, XD-07, XD-08.
-- **Hardening:** full Phase 9 pass; performance; accessibility audit; browser matrix; security review.
+- **Contracts:** IC-47, IC-48, IC-49, IC-64.
+- **Pages and flows:** PG-21, PG-23 (remaining), PG-24 (including SC-24.4), PG-25, PG-50, PG-52 (including SC-52.4). Flows XF-08, XD-04, XD-06, XD-07, XD-08, XS-16.
+- **Hardening:**
+  - Full Phase 9 pass.
+  - Load test and dependency-failure drills.
+  - Penetration test remediation.
+  - Accessibility audit and VPAT.
+  - Browser matrix.
+  - Go/no-go ([Phase 8 §15](./phase-8-implementation-roadmap.md#15-gono-go-and-hypercare)).
 - **Milestone M4 (2027-02-05):** every page Verified; launch gate passed.
+
+**Capacity warning.** Phase 8 §13 estimates a shortfall of about 19% at the stated team size. Raise it at every milestone; never absorb it by skipping states, tests or accessibility.
 
 ### Dependencies and sequencing rules
 
@@ -296,7 +327,7 @@ Authoritative source: [Phase 8 §3](./phase-8-implementation-roadmap.md#3-sprint
 
 ## 7. Phase 9 Implementation — QA Checklist
 
-Authoritative source: [Phase 9](./phase-9-qa-checklist.md). A feature is **Verified** only when every applicable blocking item passes. The complete list follows, organised by category (216 items; **[B]** marks blocking).
+Authoritative source: [Phase 9](./phase-9-qa-checklist.md). A feature is **Verified** only when every applicable blocking item passes. The complete list follows, organised by category (266 items; **[B]** marks blocking).
 
 ### 7.1 Accessibility
 
@@ -559,7 +590,60 @@ Authoritative source: [Phase 9](./phase-9-qa-checklist.md). A feature is **Verif
 - [ ] **QA-215** Rate limits enforced on anonymous endpoints _(Phase 8 §10)_ **[B]**
 - [ ] **QA-216** CSP blocks non-allow-listed origins _(Phase 7 §19)_ **[B]**
 
-### 7.16 Accessibility verification procedure
+### 7.16 Enterprise, Compliance and Operations
+
+- [ ] **QA-217** SAML and OIDC sign-in succeed with Okta, Entra ID, Google Workspace and OneLogin test tenants _(SEC-2, R-13)_ **[B]**
+- [ ] **QA-218** Enforced SSO disables password sign-in for members except the break-glass admin _(BR-24)_ **[B]**
+- [ ] **QA-219** SCIM create, update and deactivate reflect within 5 minutes; deactivation ends all sessions _(BR-24)_ **[B]**
+- [ ] **QA-220** SSO enforcement is refused without a passing test sign-in in the last 24 h _(SC-60.4)_ **[B]**
+- [ ] **QA-221** SSO discovery responses are indistinguishable for unknown and password-only domains _(SC-10.3, SEC-10)_ **[B]**
+- [ ] **QA-222** Idle timeout follows organisation policy and warns 2 minutes ahead _(BR-24, IC-54)_ **[B]**
+- [ ] **QA-223** IP allow-list refuses admin access from other addresses and cannot lock out the configuring admin _(SC-60.4)_ **[B]**
+- [ ] **QA-224** Actions above a member's spend limit enter `PendingApproval` via UI, bulk import, API and EDI _(BR-23, Phase 2 §7)_ **[B]**
+- [ ] **QA-225** Approvers cannot approve their own requests, including admins _(BR-23, IC-62)_ **[B]**
+- [ ] **QA-226** Approval of a still-valid request completes the original action within 5 s _(PG-58)_ **[B]**
+- [ ] **QA-227** Approval after quote or bid expiry is refused and the requester is prompted to re-quote _(XF-16)_ **[B]**
+- [ ] **QA-228** Amendments bind only after carrier acceptance with signature evidence; previous versions remain retrievable _(BR-25, CMP-3, CMP-4)_ **[B]**
+- [ ] **QA-229** Amendments cannot change completed stops; one open amendment per load _(Phase 2 §5.1)_ **[B]**
+- [ ] **QA-230** Lapsed amendments raise an operations exception _(XF-15)_ **[B]**
+- [ ] **QA-231** Bulk import of 500 rows validates and prices within 60 s; nothing posts before confirmation _(BR-28, NFR-CAP-3)_ **[B]**
+- [ ] **QA-232** Every imported row has exactly one outcome in the results file _(IC-61)_ **[B]**
+- [ ] **QA-233** Recurrence occurrences above the guardrail become drafts and notify the owner _(SC-57.3)_
+- [ ] **QA-234** API key secrets are shown once and never appear in storage, logs, analytics or query cache _(IC-63, SEC-8)_ **[B]**
+- [ ] **QA-235** Revoked API keys fail within 60 s; rotation overlap ends at the chosen time _(BR-29)_ **[B]**
+- [ ] **QA-236** Webhooks are signed, retried for 24 h, and refused for non-HTTPS or private addresses _(BR-29, SC-61.2)_ **[B]**
+- [ ] **QA-237** Every mutation produces an audit event visible to the organisation within 60 s with actor type _(BR-26, SSB-9)_ **[B]**
+- [ ] **QA-238** No role, including `internal.admin`, can edit or delete audit events _(BR-26)_ **[B]**
+- [ ] **QA-239** Audit and data exports include manifests with row counts and checksums, and are themselves audited _(IC-65)_ **[B]**
+- [ ] **QA-240** Export download links require a session and expire after 24 h _(IC-65)_ **[B]**
+- [ ] **QA-241** Privacy requests are acknowledged within 7 days and fulfilled within 45; outcome reports state retained data and legal basis _(BR-30, CMP-7)_ **[B]**
+- [ ] **QA-242** View-as requires a linked ticket, is read-only without consent, never writes payout, security, key or export settings, and ends at 60 minutes _(BR-27)_ **[B]**
+- [ ] **QA-243** View-as actions appear in the organisation audit log attributed to the staff member _(BR-27, XS-17)_ **[B]**
+- [ ] **QA-244** View-as state is announced on every page and cannot be dismissed _(IC-64)_ **[B]**
+- [ ] **QA-245** Every resource returns not found across tenants for read, list and mutate _(SEC-5, R-14)_ **[B]**
+- [ ] **QA-246** Query cache, drafts and offline queue are purged on sign-out, view-as start and end, and deprovisioning _(SSB-10)_ **[B]**
+- [ ] **QA-247** Stale edits return E-PRECONDITION and IC-67 preserves the user's input in every path _(SSB-8, IC-67)_ **[B]**
+- [ ] **QA-248** Every page and section implements the Phase 4 §2 state classes it cites; no bare "retry" or "loading" behaviour _(Phase 4 §2)_ **[B]**
+- [ ] **QA-249** Every E-SERVER and E-CONTRACT shows a correlation ID that locates the trace _(NFR-OBS-1, Phase 7 §21)_ **[B]**
+- [ ] **QA-250** Analytics and error payloads contain no PII (automated scan) _(NFR-PRIV-3)_ **[B]**
+- [ ] **QA-251** Only catalogued analytics events are emitted; every KPI's source events arrive in staging _(Phase 7 §27)_ **[B]**
+- [ ] **QA-252** Load test meets NFR-CAP-1 … 3 and NFR-PERF-3 … 5 at 1.5× peak _(NFR-CAP, NFR-PERF)_ **[B]**
+- [ ] **QA-253** Each dependency failure degrades only its capability, with E-UNAVAILABLE messaging _(NFR-AV-4, OPS-4)_ **[B]**
+- [ ] **QA-254** Restore drill meets RPO ≤ 5 min and RTO ≤ 1 h _(NFR-AV-5)_ **[B]**
+- [ ] **QA-255** Offline stop events queued up to 7 days replay without loss _(NFR-AV-6)_ **[B]**
+- [ ] **QA-256** No open critical or high findings from DAST or penetration test _(SEC-7, SEC-9)_ **[B]**
+- [ ] **QA-257** Security headers (CSP nonces, HSTS, frame-ancestors, Permissions-Policy) present on every route _(Phase 7 §19)_ **[B]**
+- [ ] **QA-258** Server Actions reject cross-origin requests _(SEC-7)_ **[B]**
+- [ ] **QA-259** Passwords checked against breached lists; MFA required for the roles listed in SEC-1 _(SEC-1)_ **[B]**
+- [ ] **QA-260** VPAT published and consistent with Phase 9 §1–2 results _(NFR-A11Y-1)_ **[B]**
+- [ ] **QA-261** Broker MC number appears on rate confirmations, invoices and legal pages _(CMP-1)_ **[B]**
+- [ ] **QA-262** OFAC screening runs at onboarding and on payout-method change _(CMP-11)_ **[B]**
+- [ ] **QA-263** Environment validation fails the deploy on missing or malformed variables _(D-9)_ **[B]**
+- [ ] **QA-264** Expired feature flags fail CI _(Phase 7 §22)_
+- [ ] **QA-265** Copy survives 40% text expansion and pseudo-localisation without truncating meaning _(NFR-I18N-1)_
+- [ ] **QA-266** Runbooks exist and were rehearsed for every E-UNAVAILABLE dependency _(OPS-4)_ **[B]**
+
+### 7.17 Accessibility verification procedure
 
 1. Automated: axe via Playwright on every page state (loading, empty, error, success) — zero serious or critical violations.
 2. Keyboard: complete every Phase 4 primary task without a pointer; check focus order, visibility and return.
@@ -567,7 +651,7 @@ Authoritative source: [Phase 9](./phase-9-qa-checklist.md). A feature is **Verif
 4. Zoom and reflow: 200% text, 320 px viewport, text-spacing override.
 5. Map independence: complete PG-02, PG-26, PG-33 and PG-40 tasks via text equivalents only.
 
-### 7.17 Performance targets
+### 7.18 Performance targets
 
 | Metric (p75, mid-range phone, 4G) | Target |
 | --- | --- |
@@ -576,15 +660,15 @@ Authoritative source: [Phase 9](./phase-9-qa-checklist.md). A feature is **Verif
 | CLS | ≤ 0.1 |
 | Initial JS | public ≤ 170 KB, workspace ≤ 250 KB, driver ≤ 150 KB |
 
-### 7.18 Browser compatibility
+### 7.19 Browser compatibility
 
 Current and previous Chrome, Edge, Firefox, Safari; Safari iOS 16+; Chrome Android 10+. Camera, geolocation, Web Share and IndexedDB degrade gracefully.
 
-### 7.19 Responsive behaviour verification
+### 7.20 Responsive behaviour verification
 
 For each page, confirm every "Device needs" statement in Phase 4 is achievable on the named device. Behaviour only; visual responsiveness is judged in the owner review.
 
-### 7.20 Interaction contract completeness
+### 7.21 Interaction contract completeness
 
 For each IC- used: every listed state is reachable and tested; keyboard support matches; ARIA matches; validation, loading and error behaviour match; content rules hold.
 
@@ -728,7 +812,7 @@ Rules: key factories exported for invalidation; intervals from constants; `place
 
 ### 8.4 API integration patterns
 
-**Server Action** (follows `lib/actions/create-user.ts`):
+**Server Action** (follows `lib/actions/create-user.ts`, wrapped by `withAction` per D-13):
 
 ```ts
 "use server";
@@ -741,35 +825,35 @@ import {
     type BookLoadDto,
     type RateConfirmationDto,
 } from "@/lib/contract/schemas";
-import { INVALID_REQUEST } from "@/lib/constants";
-import { refusal } from "@/lib/utils/action-result";
-import type { ActionResult } from "@/lib/types/api";
+import { toActionResult } from "@/lib/utils/action-result";
+import { withAction } from "@/lib/utils/with-action";
 
 const bookedSchema = apiEnvelopeDtoSchema.extend({
     data: rateConfirmationDtoSchema,
 });
 
-export const bookLoad = async (
-    loadId: string,
-    input: BookLoadDto,
-): Promise<ActionResult<RateConfirmationDto>> => {
-    const parsed = bookLoadDtoSchema.safeParse(input);
-    if (!parsed.success) return { ok: false, status: 400, message: INVALID_REQUEST };
-
-    const upstream = await backendFetch(routes.loadsBook(loadId), {
-        method: "POST",
-        body: JSON.stringify(parsed.data),
-        headers: { "Idempotency-Key": parsed.data.idempotencyKey },
-    });
-    const body = await readJson(upstream);
-    if (!upstream.ok) return refusal(upstream.status, body);
-
-    const booked = bookedSchema.safeParse(body);
-    return booked.success
-        ? { ok: true, data: booked.data.data }
-        : { ok: false, status: 502, message: INVALID_REQUEST };
-};
+export const bookLoad = withAction(
+    { capability: "load.book", input: bookLoadDtoSchema },
+    async ({ input, context }, loadId: string) => {
+        const upstream = await backendFetch(routes.loadsBook(loadId), {
+            method: "POST",
+            body: JSON.stringify(input),
+            headers: {
+                "Idempotency-Key": input.idempotencyKey,
+                "If-Match": input.version,
+                "x-request-id": context.correlationId,
+            },
+        });
+        return toActionResult<RateConfirmationDto>(
+            upstream.status,
+            await readJson(upstream),
+            bookedSchema,
+        );
+    },
+);
 ```
+
+`withAction` validates `input` against the schema (E-VALIDATION), resolves the session and checks the capability (E-AUTH, E-FORBIDDEN), and supplies `context` (organisation, role, correlation ID, reason). It also times the call and reports failures through `report-error`. `toActionResult` maps status and schema parse results to the Phase 4 §2.2 error classes, including 409 → E-CONFLICT, 412 → E-PRECONDITION, 429 → E-RATE-LIMIT and parse failure → E-CONTRACT. The action never trusts an organisation ID from the client (SEC-5).
 
 **Route Handler relay** (polled reads):
 
@@ -786,7 +870,7 @@ export const GET = async (
 };
 ```
 
-Route names such as `routes.loadsBook` come from the generated contract once the backend publishes them; until then the hook reads seed data (§6).
+Route Handlers use `withHandler` the same way. Route names such as `routes.loadsBook` come from the generated contract once the backend publishes them; until then the hook reads seed data (§6).
 
 ### 8.5 Error handling
 

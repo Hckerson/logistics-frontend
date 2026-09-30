@@ -1,6 +1,6 @@
 # Phase 2 — Experience Maps
 
-`Haulr Design OS` · `Version 1.0.0` · `2026-09-30` · Previous: [Phase 1 — Product Vision](./phase-1-product-vision.md) · Next: [Phase 3 — Information Architecture](./phase-3-information-architecture.md)
+`Haulr Design OS` · `Version 1.1.0` · `2026-09-30` · Previous: [Phase 1 — Product Vision](./phase-1-product-vision.md) · Next: [Phase 3 — Information Architecture](./phase-3-information-architecture.md)
 
 Experiences come before pages. Each map below describes one journey end to end: what the user wants, what the system does, how the journey fails and how it recovers. Pages in [Phase 4](./phase-4-page-blueprints.md) exist to serve these journeys, and every page cites the experiences it serves.
 
@@ -281,6 +281,66 @@ Every map has the same twelve fields: **User intent**, **Trigger**, **Entry poin
 - **System behavior:** the organisation can post quotes immediately; posting requires terms or a prepay method.
 - **Completion criteria:** organisation active with terms or prepay, and at least one user.
 - **Dependencies:** credit provider, XS-02, XS-08.
+
+### XF-14 — Bulk import, templates and recurring loads
+
+- **Personas:** PR-01, PR-04
+- **User intent:** "Create this week's 120 loads without typing each one."
+- **Trigger:** A weekly shipping plan exported from the shipper's ERP or TMS; a lane shipped on a fixed schedule.
+- **Entry points:** PG-26 Shipments, PG-56 Bulk Import, PG-57 Templates, PG-27 (save as template).
+- **Journey:**
+  1. The shipper downloads the import template (CSV with a documented column dictionary) or uses a saved column mapping.
+  2. The shipper uploads the file; Haulr maps columns, resolves facilities, validates every row (BR-28).
+  3. The shipper reviews row outcomes: valid, warning (for example appointment outside facility hours), invalid with reasons.
+  4. The shipper fixes invalid rows inline or re-uploads; valid rows are priced as a batch.
+  5. The shipper confirms the priced batch; loads above spend limits enter approval (XF-16), the rest post.
+  6. Separately, the shipper saves a posted load as a template, and optionally schedules it to generate drafts on a recurrence (weekly on chosen days, up to 12 weeks ahead).
+- **Decision points:** fix or skip invalid rows; post all or selected; tender strategy for the batch; recurrence generates drafts or posts automatically (posting automatically requires the quote to fall within a price guardrail).
+- **Emotional state:** Efficiency-driven; anxious about silent errors in large batches; needs proof that every row was handled.
+- **Failure paths:** unreadable file; unknown columns; duplicate references in file or against existing loads; facilities not found; pricing unavailable for some lanes; recurrence price exceeds guardrail.
+- **Recovery paths:** column mapping step with saved mappings; duplicates flagged with the existing load linked; facility creation inline; unpriced rows held as drafts with a custom-quote request; guardrail breach converts the recurrence occurrence to a draft and notifies the owner.
+- **System behavior:** import runs as a background job (LS-7) with per-row results retained 30 days; nothing posts before confirmation; each created load records its import batch ID; recurrences create drafts 72 h before pickup and re-quote them.
+- **Completion criteria:** every row has an outcome (posted, pending approval, draft, or rejected with reason) and the user has a downloadable result file.
+- **Dependencies:** XF-01, XF-16, PG-32 facilities, quoting service, BR-06, BR-28.
+
+### XF-15 — Amend a booked load
+
+- **Personas:** PR-01, PR-02, PR-08
+- **User intent:** Shipper: "The delivery appointment moved; make it official." Carrier: "Show me exactly what changed and let me accept or decline."
+- **Trigger:** Changed appointment, added stop, changed weight or equipment, agreed rate change, accessorial terms change after booking.
+- **Entry points:** PG-40 Load Details (shipper or operations), notification to carrier, PG-64 Review Amendment.
+- **Journey:**
+  1. The shipper (or operations) proposes changes; Haulr re-prices where the change affects cost and states the new shipper price and carrier pay separately (BR-05).
+  2. Haulr classifies the amendment as material or non-material (configuration).
+  3. The carrier reviews a field-by-field comparison of old and new terms and accepts (with signature evidence, BR-25) or declines.
+  4. On acceptance the amendment becomes the governing rate confirmation; the driver's trip updates and the driver is notified.
+  5. On decline of a material amendment, the carrier may cancel without penalty, or the shipper may withdraw the amendment.
+- **Decision points:** propose or withdraw; accept, decline or cancel; whether a changed rate needs shipper approval (XF-16).
+- **Emotional state:** Shipper: under pressure from their customer. Carrier: wary of being squeezed; wants the old terms protected.
+- **Failure paths:** carrier does not respond before the affected stop; amendment conflicts with the driver's hours; load already past the affected stop.
+- **Recovery paths:** a response deadline derived from the affected stop raises an operations exception (XF-08) when missed; stops already completed cannot be amended; operations can mediate by phone and record the outcome.
+- **System behavior:** one open amendment per load at a time; previous rate confirmation versions retained (CMP-3, CMP-4); every version visible on the load timeline (SH-01).
+- **Completion criteria:** amendment accepted, declined with an outcome, or withdrawn; both parties notified; governing version clear.
+- **Dependencies:** BR-04, BR-25, XF-08, XF-16, IC-26, IC-66.
+
+### XF-16 — Spend approval
+
+- **Personas:** PR-01 (requester), PR-04 (approver)
+- **User intent:** Requester: "Get this approved before the price or the truck goes." Approver: "Approve quickly with the facts in front of me."
+- **Trigger:** A post, bid acceptance, amendment or accessorial exceeds the requester's spend limit (BR-23).
+- **Entry points:** PG-27, PG-28, PG-40 (requester); notification, PG-58 Approvals, PG-18 attention items (approver).
+- **Journey:**
+  1. The requester submits; Haulr states that approval is needed, who can approve, and the deadline (quote or bid expiry).
+  2. Approvers are notified on their chosen channels.
+  3. The approver reviews the request with its price basis, lane history for comparison, and requester's note; approves or rejects with a reason.
+  4. On approval, the original action completes automatically (load posts, bid is accepted) if still valid; otherwise the requester is told what expired and offered a re-quote.
+- **Decision points:** approve, reject, or request changes; delegate while out of office.
+- **Emotional state:** Requester: blocked and anxious about losing the truck. Approver: interrupted; wants a one-step decision.
+- **Failure paths:** no approver available; approval arrives after the quote or bid expired; the requester cancels meanwhile.
+- **Recovery paths:** escalation to all organisation admins after half the remaining validity; delegation rules; expired approvals prompt a re-quote carrying the approval note.
+- **System behavior:** items in `PendingApproval` are excluded from the load board; approvers cannot approve their own requests; approval decisions are audited with reason (SSB-9).
+- **Completion criteria:** request approved and the original action completed, or rejected with a reason delivered to the requester.
+- **Dependencies:** BR-06, BR-23, XS-03, IC-62.
 
 ---
 
@@ -592,6 +652,98 @@ Each dashboard is a starting point for a working session. The shared question is
 - **Completion criteria:** document retrieved or replaced.
 - **Dependencies:** document storage, XF-09, XF-12.
 
+### XS-13 — Enterprise SSO and provisioning
+
+- **Personas:** PR-13, PR-04, PR-06, PR-12
+- **User intent:** "Our people sign in with our identity provider, get the right role automatically, and lose access the moment they leave."
+- **Trigger:** Enterprise onboarding; security review by the customer; an employee joins or leaves.
+- **Entry points:** PG-60 Security and SSO, PG-10 (SSO sign-in by email domain), PG-52 (internal support).
+- **Journey:**
+  1. The security admin verifies the organisation's email domain (DNS TXT record).
+  2. They configure SAML or OIDC with the provider's metadata and test the connection with their own account.
+  3. They map identity-provider groups to Haulr roles and enable SCIM with a generated token.
+  4. They choose enforcement: optional, or required with a named break-glass admin (BR-24); they set idle timeout and IP allow-list if needed.
+  5. Members signing in with a verified domain are routed to the identity provider; SCIM creates, updates and deactivates members.
+- **Decision points:** SAML or OIDC; enforce now or after a pilot; group-to-role mapping; break-glass admin.
+- **Emotional state:** Cautious; fears locking the company out.
+- **Failure paths:** domain verification fails; test sign-in fails (certificate, audience, clock skew); enforcing would lock out the configuring admin; SCIM token leaked; a deprovisioned user holds an open session.
+- **Recovery paths:** step-level diagnostics naming the failing assertion attribute; enforcement blocked until a successful test sign-in; break-glass admin required; SCIM token rotation; deprovisioning revokes sessions within 5 minutes.
+- **System behavior:** all changes are sensitive actions (Phase 4 §2.8); every organisation admin is notified of policy changes; sign-in events carry the identity provider in the audit log.
+- **Completion criteria:** SSO tested and enforced as chosen, provisioning active, audit event recorded.
+- **Dependencies:** BR-24, SEC-2, SEC-3, IC-63, IC-13.
+
+### XS-14 — API keys, webhooks and EDI
+
+- **Personas:** PR-13, PR-04
+- **User intent:** "Our TMS creates loads and receives status without anyone re-keying."
+- **Trigger:** Integration project; key rotation schedule; a failing webhook.
+- **Entry points:** PG-61 Integrations, PG-06 developer documentation articles.
+- **Journey:**
+  1. The admin creates an API key with scopes and an expiry; the secret is revealed once (IC-63).
+  2. The admin registers webhook endpoints, chooses event types, and sends a signed test event.
+  3. For EDI, the admin requests a trading-partner connection; Haulr operations completes the setup; the admin monitors transaction status.
+  4. The admin monitors delivery health (success rate, last failure, retries) and replays failed webhook deliveries.
+  5. The admin rotates or revokes keys.
+- **Decision points:** scopes; rotation overlap window; which events to subscribe to.
+- **Emotional state:** Technical and precise; wants deterministic behaviour and clear diagnostics.
+- **Failure paths:** secret lost; endpoint returns errors; signature verification fails at the customer; key compromised.
+- **Recovery paths:** secrets cannot be re-shown, only rotated; delivery log with response codes and replay; signing secret rotation with overlap; immediate revocation with audit.
+- **System behavior:** BR-29; keys stored hashed; each key's last use time and IP retained; rate limits per key.
+- **Completion criteria:** integration exchanging data with healthy delivery metrics.
+- **Dependencies:** BR-29, SEC-8, IC-63.
+
+### XS-15 — Data export and privacy requests
+
+- **Personas:** PR-04, PR-06, PR-13, any individual user
+- **User intent:** Organisation: "Give us all our data for our records or our auditors." Individual: "Show me or delete my personal data."
+- **Trigger:** Audit, migration, contract end, privacy request.
+- **Entry points:** PG-62 Data and Privacy, PG-47 Settings, PG-08 Support.
+- **Journey:**
+  1. An organisation admin selects datasets and a date range and requests an export; it runs as a background job (LS-7) and is delivered as a time-limited download.
+  2. An individual requests access or deletion of their personal data; identity is re-verified (IC-13).
+  3. Haulr confirms receipt, performs the request within BR-30 limits, and reports what was deleted, what was de-identified and what was retained with the legal reason.
+- **Decision points:** datasets and format; deletion versus account deactivation.
+- **Emotional state:** Formal; distrustful of partial answers.
+- **Failure paths:** export too large; download link expired; deletion blocked by an open claim or unpaid invoice.
+- **Recovery paths:** exports split by period automatically; re-issue links; blocked deletions state the blocking record and resume when it closes.
+- **System behavior:** exports are audited; download links expire after 24 h and require an authenticated session.
+- **Completion criteria:** export delivered, or request fulfilled with a written outcome.
+- **Dependencies:** BR-26, BR-30, NFR-PRIV-5, NFR-PRIV-6, IC-65.
+
+### XS-16 — Support view-as
+
+- **Personas:** PR-11, PR-08, PR-12; the customer organisation
+- **User intent:** Support: "See exactly what the customer sees to fix their problem." Customer: "Know who looked and what they did."
+- **Trigger:** A ticket that cannot be resolved from the requester context (SC-24.3).
+- **Entry points:** PG-24 Support Console, PG-52 Accounts.
+- **Journey:**
+  1. The agent starts view-as from the ticket, choosing the member and a reason; read-only by default (BR-27).
+  2. If the customer granted write consent on the ticket, the agent may act, and each action is attributed to both the agent and the member.
+  3. The session is persistently identified as view-as for the agent and ends after 60 minutes, on explicit end, or on ticket closure.
+  4. The organisation sees the session and its actions in its audit log (XS-17).
+- **Decision points:** read-only or with consent; which member to view as.
+- **Emotional state:** Agent: focused on resolution. Customer: needs trust.
+- **Failure paths:** no linked ticket; consent absent for a write action; member is an admin of a regulated capability (payouts) where view-as is never allowed to write.
+- **Recovery paths:** view-as refused with the reason; write actions blocked and explained; payout and security settings are always read-only in view-as.
+- **System behavior:** separate session token carrying the origin identity; SSB-10 purge on exit; audit per BR-27.
+- **Completion criteria:** session ended with its actions recorded and visible to the organisation.
+- **Dependencies:** BR-27, SEC-6, IC-64.
+
+### XS-17 — Organisation audit review
+
+- **Personas:** PR-13, PR-04, PR-06
+- **User intent:** "Show who changed what in our account, and prove it to our auditors."
+- **Trigger:** Internal audit, security incident, disputed change.
+- **Entry points:** PG-63 Audit Log.
+- **Journey:** filter events by actor, action, target, date → open an event for before and after values → export the filtered set (CSV or JSON) for evidence.
+- **Decision points:** scope of export.
+- **Emotional state:** Investigative.
+- **Failure paths:** large result sets; events outside retention.
+- **Recovery paths:** export as a background job; retention boundary stated.
+- **System behavior:** read-only; BR-26; exports themselves are audited.
+- **Completion criteria:** the events needed are found or exported.
+- **Dependencies:** BR-26, SH-11, IC-65.
+
 ---
 
 ## 5. Load State Machine
@@ -600,8 +752,12 @@ Legal transitions (BR-01). Any transition not listed is rejected by the backend,
 
 | From | To | Actor | Guard |
 | --- | --- | --- | --- |
-| Draft | Posted | Shipper | Valid quote (BR-06), organisation can post (XF-13) |
+| Draft | Posted | Shipper | Valid quote (BR-06), organisation can post (XF-13), amount within the requester's spend limit (BR-23) |
+| Draft | PendingApproval | Shipper | Amount above the requester's spend limit (BR-23) |
+| PendingApproval | Posted | Approver | Approved while the quote is valid; approver is not the requester |
+| PendingApproval | Draft | Approver, Shipper, System | Rejected with reason, withdrawn by requester, or quote expired |
 | Draft | Cancelled | Shipper | None |
+| Expired | Draft | Shipper | Re-quote required before posting again |
 | Posted | Booked | Carrier, Operations | Eligibility (BR-03), rate confirmation accepted (BR-04) |
 | Posted | Expired | System | Pickup window closed (BR-07) |
 | Posted | Cancelled | Shipper, Operations | None |
@@ -622,6 +778,21 @@ Legal transitions (BR-01). Any transition not listed is rejected by the backend,
 | OnHold | Previous state | Operations | Reason required |
 | Invoiced, Paid | Disputed | Shipper, Carrier | Within window (BR-16, BR-17) |
 | Disputed | Previous state | Finance | Resolution recorded |
+| AtPickup | Cancelled | Operations | Freight not ready or refused at pickup; TONU or layover applied per BR-11, BR-12 |
+
+### 5.1 Amendment states (BR-25)
+
+An amendment is a separate record attached to a booked load; the load's own state does not change while an amendment is open.
+
+| From | To | Actor | Guard |
+| --- | --- | --- | --- |
+| — | Proposed | Shipper, Operations | Load in `Booked`, `Dispatched`, `AtPickup` or `InTransit`; affected stops not yet completed; no other open amendment |
+| — | PendingApproval | Shipper | Amended shipper price exceeds the requester's spend limit (BR-23) |
+| PendingApproval | Proposed | Approver | Approved |
+| Proposed | Accepted | Carrier | Signature evidence recorded (BR-04); becomes the governing rate confirmation |
+| Proposed | Declined | Carrier | Reason required; material declines allow penalty-free cancellation |
+| Proposed, PendingApproval | Withdrawn | Shipper, Operations | Before acceptance |
+| Proposed | Lapsed | System | Response deadline (derived from the affected stop) passed; raises an XF-08 exception |
 
 ## 6. Bid State Machine
 
@@ -637,11 +808,14 @@ Legal transitions (BR-01). Any transition not listed is rejected by the backend,
 
 ## 7. Cross-Experience Rules
 
-- **Who acts next.** In any multi-party flow (XF-03, XF-04, XF-08, XS-06) the user is always told whose turn it is and by when.
+- **Who acts next.** In any multi-party flow (XF-03, XF-04, XF-08, XF-15, XF-16, XS-06) the user is always told whose turn it is and by when.
 - **Notification parity.** Every state change that affects another party emits an event defined in the XS-03 catalogue.
 - **Consistent confirmations.** Every irreversible step (book, cancel, pay, reject, delete) follows the same confirmation behaviour, defined once in [Phase 6](./phase-6-interaction-contracts.md) (IC-12).
 - **Freshness everywhere.** Any live value (position, ETA, bid count, queue size) states its age (PP-03).
-- **Draft safety.** Every multi-step entry flow (XF-01, XF-12, XF-13, XS-06, XS-07) persists drafts (PP-06).
+- **Draft safety.** Every multi-step entry flow (XF-01, XF-12, XF-13, XF-14, XS-06, XS-07, XS-13) persists drafts (PP-06).
+- **Authority is checked, not assumed.** Any money-committing step (XF-01, XF-03, XF-15, accessorial approval in XF-08) checks spend authority (BR-23) before it completes, and routes to XF-16 when needed.
+- **Every change is attributable.** Every experience that changes data produces audit events (BR-26) that the affected organisation can review (XS-17), including actions taken through view-as (XS-16), the API or EDI (XS-14).
+- **Same rules on every channel.** Loads created or changed through bulk import, the API or EDI obey the same state machine, spend authority and validation as the UI (BR-28, BR-29).
 
 ## 8. Traceability
 
@@ -660,6 +834,9 @@ Legal transitions (BR-01). Any transition not listed is rejected by the backend,
 | XF-11 | PR-06, PR-02, PR-10 | JTBD-06 | BR-15, BR-16 | PG-38 |
 | XF-12 | PR-06, PR-09 | JTBD-09, JTBD-11 | BR-03, BR-18 | PG-17, PG-22, PG-51 |
 | XF-13 | PR-04, PR-05 | JTBD-01 | — | PG-16 |
+| XF-14 | PR-01, PR-04 | JTBD-13 | BR-06, BR-28 | PG-56, PG-57, PG-26 |
+| XF-15 | PR-01, PR-02, PR-08 | JTBD-16 | BR-04, BR-25 | PG-40, PG-64 |
+| XF-16 | PR-01, PR-04 | JTBD-15 | BR-23 | PG-58, PG-27, PG-28, PG-18 |
 | XD-01 … XD-08 | per dashboard | JTBD-08, JTBD-10, JTBD-12 | — | PG-18 … PG-25 |
 | XS-01 | all | — | — | PG-10 … PG-15 |
 | XS-02 | PR-04, PR-06 | — | — | PG-48, PG-15, PG-37, PG-52 |
@@ -673,6 +850,11 @@ Legal transitions (BR-01). Any transition not listed is rejected by the backend,
 | XS-10 | PR-01, prospects | JTBD-01 | BR-06 | PG-05 |
 | XS-11 | all | — | — | PG-46, PG-47, PG-32 |
 | XS-12 | PR-02, PR-06, PR-05 | — | BR-20 | PG-43 |
+| XS-13 | PR-13, PR-04, PR-06 | JTBD-14 | BR-24 | PG-60, PG-10 |
+| XS-14 | PR-13, PR-04 | JTBD-14 | BR-29 | PG-61 |
+| XS-15 | PR-04, PR-06, PR-13 | JTBD-17 | BR-26, BR-30 | PG-62 |
+| XS-16 | PR-11, PR-08, PR-12 | — | BR-27 | PG-24, PG-52 |
+| XS-17 | PR-13, PR-04, PR-06 | JTBD-17 | BR-26 | PG-63 |
 
 ---
 

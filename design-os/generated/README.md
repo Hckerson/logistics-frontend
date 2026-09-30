@@ -1,6 +1,6 @@
 # Haulr Design OS
 
-`Version 1.0.0` · `2026-09-30` · Start: [START_HERE](./START_HERE.md) · Index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
+`Version 1.1.0` · `2026-09-30` · Start: [START_HERE](./START_HERE.md) · Index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
 
 ## In 30 Seconds
 
@@ -22,15 +22,15 @@ The design OS defines **what the product does**: its users, journeys, pages, sec
 
 | File | Purpose |
 | --- | --- |
-| [phase-1-product-vision.md](./phase-1-product-vision.md) | Vision, goals, 12 personas, permission roles, jobs to be done, 22 business rules, KPIs and North Star, governance, constraints, principles, non-goals, assumptions |
-| [phase-2-experience-maps.md](./phase-2-experience-maps.md) | 13 primary flows, 8 role dashboards and 12 supporting flows, each with failure and recovery paths; load and bid state machines |
-| [phase-3-information-architecture.md](./phase-3-information-architecture.md) | Sitemap of 55 pages with routes and route groups, role reachability, capability matrix, taxonomy, labelling, search, filtering, SEO, breadcrumbs, fallbacks |
-| [phase-4-page-blueprints.md](./phase-4-page-blueprints.md) | Purpose, objectives, primary tasks, data, permissions, device needs and every state for each of the 55 pages |
-| [phase-5-section-blueprints.md](./phase-5-section-blueprints.md) | 15 shared and 179 page sections, each with one job, its data, interaction model, accessibility and states |
-| [phase-6-interaction-contracts.md](./phase-6-interaction-contracts.md) | 60 behavioural contracts: states, keyboard, ARIA, validation, loading, errors, content rules |
-| [phase-7-frontend-architecture.md](./phase-7-frontend-architecture.md) | Folder and route structure, layouts, providers, hooks, API organisation, real-time and offline, libraries, naming, performance, security, enforcement |
-| [phase-8-implementation-roadmap.md](./phase-8-implementation-roadmap.md) | 8 sprints, 4 milestones, dependencies, 12 risks, testing strategy, per-feature build status, deployment readiness |
-| [phase-9-qa-checklist.md](./phase-9-qa-checklist.md) | 216 QA items across 15 categories, with sign-off rules |
+| [phase-1-product-vision.md](./phase-1-product-vision.md) | Vision, goals, 13 personas, permission roles, jobs to be done, 30 business rules, KPIs and North Star, governance, constraints, principles, non-goals, assumptions, and the enterprise baseline: non-functional requirements, compliance, identity and security, privacy, operational readiness |
+| [phase-2-experience-maps.md](./phase-2-experience-maps.md) | 16 primary flows, 8 role dashboards and 17 supporting flows, each with failure and recovery paths; load, amendment and bid state machines |
+| [phase-3-information-architecture.md](./phase-3-information-architecture.md) | Sitemap of 64 pages with routes and route groups, role reachability, capability matrix, taxonomy, labelling, search, filtering, SEO, breadcrumbs, fallbacks |
+| [phase-4-page-blueprints.md](./phase-4-page-blueprints.md) | The shared state taxonomy (loading, error, empty, success, device context, freshness, audit) and, for each of the 64 pages, purpose, objectives, primary tasks, data, permissions, device needs, every state and measurable acceptance criteria |
+| [phase-5-section-blueprints.md](./phase-5-section-blueprints.md) | 15 shared and 215 page sections, each with one job, its data, interaction model, accessibility and states |
+| [phase-6-interaction-contracts.md](./phase-6-interaction-contracts.md) | 67 behavioural contracts: states, keyboard, ARIA, validation, loading, errors, content rules |
+| [phase-7-frontend-architecture.md](./phase-7-frontend-architecture.md) | Folder and route structure, layouts, providers, hooks, API organisation, real-time and offline, libraries, naming, performance, security, enforcement, observability, flags, caching, tenancy, i18n, concurrency, analytics catalogue, error taxonomy |
+| [phase-8-implementation-roadmap.md](./phase-8-implementation-roadmap.md) | 8 sprints, 5 milestones, dependencies, 17 risks, testing strategy, per-feature build status with sizing, deployment readiness, Definition of Ready and Done, RACI, capacity, release management, go/no-go and hypercare |
+| [phase-9-qa-checklist.md](./phase-9-qa-checklist.md) | 266 QA items across 16 categories, with sign-off rules |
 
 ### Guides
 
@@ -77,15 +77,16 @@ The design OS defines **what the product does**: its users, journeys, pages, sec
 | Measure | Count |
 | --- | --- |
 | Phases | 9 (+ 6 guides = 15 files) |
-| Personas | 12 (3 primary, 4 secondary, 5 internal) |
-| Permission roles | 12 |
-| Business rules | 22 |
-| Experiences | 33 (13 primary flows, 8 dashboards, 12 supporting flows) |
-| Pages | 55 |
-| Sections | 194 (15 shared, 179 page) |
-| Interaction contracts | 60 |
-| Timeline | 16 weeks, 8 sprints, 4 milestones |
-| QA items | 216 |
+| Personas | 13 (3 primary, 5 secondary, 5 internal) |
+| Permission roles | 14 |
+| Business rules | 30 |
+| Experiences | 41 (16 primary flows, 8 dashboards, 17 supporting flows) |
+| Pages | 64 |
+| Sections | 230 (15 shared, 215 page) |
+| Interaction contracts | 67 |
+| Timeline | 16 weeks, 8 sprints, 5 milestones |
+| QA items | 266 |
+| Non-functional, compliance and security requirements | 45 (NFR-, CMP-, SEC-, NFR-PRIV-, OPS-) |
 
 ---
 
