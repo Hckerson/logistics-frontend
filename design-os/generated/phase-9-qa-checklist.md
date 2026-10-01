@@ -281,7 +281,7 @@ Behavioural responsiveness only: every device need in Phase 4 is achievable. Vis
 | QA-185 | One component per file, kebab-case matching export | Host | Tool | Yes |
 | QA-186 | Shared domain types live in `lib/types/` and are re-exported | Host | Tool | Yes |
 | QA-187 | No inline copy repeated twice; copy in constants | Host rule 1 | Review | Yes |
-| QA-188 | No `console.*` or debug statements | Host rule 6 | Tool | Yes |
+| QA-188 | No `console.*` or debug statements | Host rule 5 | Tool | Yes |
 | QA-189 | No deep-relative imports | Host | Tool | Yes |
 | QA-190 | `lib/contract/` untouched by hand | Host | Tool | Yes |
 | QA-191 | Validations compose over contract schemas instead of restating them | Host | Review | Yes |

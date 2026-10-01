@@ -76,16 +76,15 @@ These bind every change. Host rules come from `.claude/CLAUDE.md` and win over a
 
 1. **No hardcoding.** Routes, durations, enums and repeated copy live in `lib/constants.ts` or `lib/<feature>/constants.ts`. Endpoints come from `lib/contract` (generated) or `lib/api-routes.ts`. Shapes come from Zod. Seed data lives in `lib/data/`.
 2. **Match the architecture.** Do not invent patterns or locations. Phase 7 decisions D-1 … D-13 are the only sanctioned extensions.
-3. **Use the framework natively.** Do not add a dependency that duplicates an installed one.
-4. **Single source of truth.** Define once, reference everywhere.
-5. **Minimise lines of code.** Shortest maintainable solution.
-6. **No `console.*` or debug statements.**
-7. **Never delete a feature because it is not built.**
-8. **One component per file**, kebab-case filename matching the export. **Absolute `@/` imports.** **Split any file over ~150 lines.**
-9. **Pages compose sections and hold page-level state only.** No inline data arrays, no inline sub-components.
-10. **Components consume hooks, never transport.** Authenticated mutations go through Server Actions in `lib/actions/`.
-11. **`lib/contract/` is generated; never edit it.** Regenerate with `pnpm contract`.
-12. **IDs with `nanoid`.** Never `uuid` or `Date.now()`.
+3. **Single source of truth.** Define once, reference everywhere.
+4. **Minimise lines of code.** Shortest maintainable solution.
+5. **No `console.*` or debug statements.**
+6. **Never delete a feature because it is not built.**
+7. **One component per file**, kebab-case filename matching the export. **Absolute `@/` imports.** **Split any file over ~150 lines.**
+8. **Pages compose sections and hold page-level state only.** No inline data arrays, no inline sub-components.
+9. **Components consume hooks, never transport.** Authenticated mutations go through Server Actions in `lib/actions/`.
+10. **`lib/contract/` is generated; never edit it.** Regenerate with `pnpm contract`.
+11. **IDs with `nanoid`.** Never `uuid` or `Date.now()`.
 
 ### 4.2 Design OS rules
 
@@ -554,7 +553,7 @@ Authoritative source: [Phase 9](./phase-9-qa-checklist.md). A feature is **Verif
 - [ ] **QA-185** One component per file, kebab-case matching export _(Host)_ **[B]**
 - [ ] **QA-186** Shared domain types live in `lib/types/` and are re-exported _(Host)_ **[B]**
 - [ ] **QA-187** No inline copy repeated twice; copy in constants _(Host rule 1)_ **[B]**
-- [ ] **QA-188** No `console.*` or debug statements _(Host rule 6)_ **[B]**
+- [ ] **QA-188** No `console.*` or debug statements _(Host rule 5)_ **[B]**
 - [ ] **QA-189** No deep-relative imports _(Host)_ **[B]**
 - [ ] **QA-190** `lib/contract/` untouched by hand _(Host)_ **[B]**
 - [ ] **QA-191** Validations compose over contract schemas instead of restating them _(Host)_ **[B]**

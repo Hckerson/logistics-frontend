@@ -1147,7 +1147,7 @@ Mechanism in Phase 3 §3.5 · Sections: [SC-54.x](./phase-5-section-blueprints.m
 - **Error states:** Covers E-SERVER and E-CONTRACT for a whole segment. Retry fails again → stays here with the same reference; after 3 failures the message directs the user to support with the reference (E-TIMEOUT rule, §2.2). A failure in the root segment → `global-error.tsx`.
 - **Success states:** SU-1: retry succeeds and the segment renders in place.
 - **Dependencies:** PG-08.
-- **Implementation notes:** Segment `error.tsx` offers `reset()`; `global-error.tsx` for root failures; the digest is passed to PG-08 as context; no stack traces; logging belongs in services, not components (host rule 6). Acceptance: given an E-CONTRACT failure, then nothing partial is rendered and the correlation ID is stated; given the user opens support, then PG-08 receives the digest as context. Analytics: `system.error.viewed` (route pattern, error class), `system.error.retried`. No audit events. Error reports carry release, route and correlation ID without PII (NFR-OBS-2).
+- **Implementation notes:** Segment `error.tsx` offers `reset()`; `global-error.tsx` for root failures; the digest is passed to PG-08 as context; no stack traces; logging belongs in services, not components (host rule 5). Acceptance: given an E-CONTRACT failure, then nothing partial is rendered and the correlation ID is stated; given the user opens support, then PG-08 receives the digest as context. Analytics: `system.error.viewed` (route pattern, error class), `system.error.retried`. No audit events. Error reports carry release, route and correlation ID without PII (NFR-OBS-2).
 
 ### PG-55 — Access Denied
 
