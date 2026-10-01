@@ -6,11 +6,10 @@ This is a reusable **Next.js App Router starter**. It ships architecture, conven
 
 1. **No hardcoding.** API routes, durations, enums, and copy that appears twice live in `lib/constants.ts` or feature-scoped `lib/<feature>/constants.ts`. Endpoints come from `lib/api-routes.ts`, shapes from Zod schemas. Seed and sample data lives in `lib/data/`, never inline in a page.
 2. **Match the existing architecture.** Do not invent patterns, and do not invent locations — when you are unsure where something goes, re-read this file. State the reason before deviating.
-3. **Use the framework natively.** Next.js and the installed libraries (Query / Zustand / Zod / motion / CSS `clamp()`) cover the need. Do not add a dependency that duplicates one, and do not rebuild what the tool already does.
-4. **Single source of truth.** Name a recurring decision once as a semantic token and reference it everywhere. Define once, change in one place.
-5. **Minimize LOC.** Ship the shortest solution that stays maintainable.
-6. **No `console.log`, `console.error`, or debug statements** in committed code. Logging belongs in services.
-7. **Never delete a feature because it is not built.** Unbuilt, stubbed, scaffolded and placeholder are states of work in progress — not evidence the thing was abandoned. This binds specs, seed data, types, primitives, enums, ESLint rules and codemods alike: an export nothing imports yet, a route with no page, a validation schema with no form. Removal needs an explicit instruction naming the feature; if you believe something is genuinely dead, say so and wait. Same rule for generated design OS artifacts — see `docs/MASTER_PROMPT_COMPLETE.md` › Critical Rules › Scope Preservation.
+3. **Single source of truth.** Name a recurring decision once as a semantic token and reference it everywhere. Define once, change in one place.
+4. **Minimize LOC.** Ship the shortest solution that stays maintainable.
+5. **No `console.log`, `console.error`, or debug statements** in committed code. Logging belongs in services.
+6. **Never delete a feature because it is not built.** Unbuilt, stubbed, scaffolded and placeholder are states of work in progress — not evidence the thing was abandoned. This binds specs, seed data, types, primitives, enums, ESLint rules and codemods alike: an export nothing imports yet, a route with no page, a validation schema with no form. Removal needs an explicit instruction naming the feature; if you believe something is genuinely dead, say so and wait. Same rule for generated design OS artifacts — see `docs/MASTER_PROMPT_COMPLETE.md` › Critical Rules › Scope Preservation.
 
 ## Required patterns
 
