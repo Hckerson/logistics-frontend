@@ -123,6 +123,70 @@
     box-sizing: border-box;
 }
 
+@utility haulr-shell {
+    width: min(100% - 2 * var(--haulr-gutter), var(--haulr-shell));
+    margin-inline: auto;
+}
+
+@utility haulr-section {
+    padding-block: var(--haulr-section);
+}
+
+@utility haulr-display {
+    font-size: var(--haulr-display);
+    font-weight: 300;
+    font-stretch: var(--haulr-wide);
+    line-height: 0.94;
+    letter-spacing: -0.035em;
+}
+
+@utility haulr-title {
+    font-size: var(--haulr-title);
+    font-weight: 400;
+    font-stretch: var(--haulr-semi);
+    line-height: 1.02;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+}
+
+@utility haulr-label {
+    font-family: var(--fonts-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+@utility haulr-track {
+    position: relative;
+    height: 520svh;
+
+    @media (prefers-reduced-motion: reduce) {
+        height: auto;
+    }
+}
+
+@utility haulr-pan-track {
+    position: relative;
+    height: 240svh;
+
+    @media (prefers-reduced-motion: reduce) {
+        height: auto;
+    }
+}
+
+@utility haulr-stage {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    overflow: hidden;
+
+    @media (prefers-reduced-motion: reduce) {
+        position: relative;
+        height: auto;
+        min-height: 100svh;
+    }
+}
+
 ::selection {
     background-color: var(--colors-accent);
     color: var(--colors-text-inverse);

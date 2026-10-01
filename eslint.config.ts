@@ -13,6 +13,7 @@ const SOURCE = [...VIEWS, "lib/**/*.{ts,tsx}"];
 const ROUTES = ["app/**/page.tsx"];
 const COMPONENTS = ["components/**/*.tsx"];
 const TESTS = ["**/*.test.ts"];
+const CINEMATIC = ["app/page.tsx", "components/home/**/*.tsx"];
 
 type RestrictedPath = { name: string; message: string };
 
@@ -91,6 +92,10 @@ const starterConfig: ConfigArray = [
     {
         files: TESTS,
         rules: { "max-lines": "off" },
+    },
+    {
+        files: CINEMATIC,
+        rules: { "starter/application-register-density": "off" },
     },
 ];
 

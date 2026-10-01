@@ -237,3 +237,42 @@
     --icon-sizes-md: 24px;
     --icon-bg-mix: 12%;
 }
+
+.theme-haulr {
+    --colors-background: #f3f2ee;
+    --colors-background-alt: #eae8e2;
+    --colors-background-muted: #e1ded6;
+
+    --colors-text: #15171a;
+    --colors-text-secondary: #3d4148;
+    --colors-text-muted: #6b6f76;
+    --colors-text-inverse: #f7f6f2;
+
+    --colors-accent: #ff5a1f;
+    --colors-accent-dark: #d9430d;
+    --colors-accent-light: #ffe2d4;
+
+    --colors-border: #d6d3cb;
+    --colors-border-light: #e4e1da;
+    --colors-border-dark: #b9b5ab;
+
+    --fonts-display: var(--nf-haulr-sans), system-ui, "Segoe UI", sans-serif;
+    --fonts-body: var(--nf-haulr-sans), system-ui, "Segoe UI", sans-serif;
+    --fonts-mono: var(--nf-haulr-mono), ui-monospace, monospace;
+
+    --haulr-network: rgba(21, 23, 26, 0.14);
+    --haulr-hub: rgba(21, 23, 26, 0.55);
+    --haulr-band: rgba(255, 90, 31, 0.16);
+    --haulr-glow: rgba(255, 90, 31, 0.18);
+
+    --haulr-display: clamp(2.5rem, 5.6vw, 5rem);
+    --haulr-title: clamp(2.25rem, 4.6vw, 4.5rem);
+    --haulr-lead: clamp(1.0625rem, 1.3vw, 1.25rem);
+    --haulr-gutter: clamp(1.25rem, 4vw, 3rem);
+    --haulr-shell: 84rem;
+    --haulr-header: 4.5rem;
+    --haulr-section: clamp(5rem, 11vw, 9rem);
+    --haulr-wide: 125%;
+    --haulr-semi: 112%;
+    --haulr-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
