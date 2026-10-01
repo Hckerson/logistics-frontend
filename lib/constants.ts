@@ -8,6 +8,19 @@ export const LOGIN_ROUTE = `${AUTH_ROUTE_PREFIX}/login`;
 
 export const HOME_ROUTE = "/";
 
+export const REGISTER_ROUTE = `${AUTH_ROUTE_PREFIX}/register`;
+
+export const RATE_ESTIMATOR_ROUTE = "/tools/rate-estimator";
+
+export const HELP_ROUTE = "/help";
+
+export const SUPPORT_ROUTE = "/support";
+
+export const legalRoute = (document: string) => `/legal/${document}`;
+
+export const registerRoute = (side: "shipper" | "carrier") =>
+    `${REGISTER_ROUTE}?side=${side}`;
+
 export const PROTECTED_ROUTE_PREFIXES = ["/dashboard"];
 
 export const API_BASE_URL =

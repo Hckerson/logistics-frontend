@@ -1,4 +1,10 @@
-import { Fraunces, Libre_Franklin, JetBrains_Mono } from "next/font/google";
+import {
+    Archivo,
+    Fraunces,
+    IBM_Plex_Mono,
+    JetBrains_Mono,
+    Libre_Franklin,
+} from "next/font/google";
 
 const display = Fraunces({
     subsets: ["latin"],
@@ -22,4 +28,20 @@ const mono = JetBrains_Mono({
     fallback: ["ui-monospace", "monospace"],
 });
 
-export { display, sans, mono };
+const haulrSans = Archivo({
+    subsets: ["latin"],
+    axes: ["wdth"],
+    variable: "--nf-haulr-sans",
+    display: "swap",
+    fallback: ["system-ui", "Segoe UI", "sans-serif"],
+});
+
+const haulrMono = IBM_Plex_Mono({
+    subsets: ["latin"],
+    weight: ["400", "500"],
+    variable: "--nf-haulr-mono",
+    display: "swap",
+    fallback: ["ui-monospace", "monospace"],
+});
+
+export { display, sans, mono, haulrSans, haulrMono };
