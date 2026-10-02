@@ -5,6 +5,7 @@ import HaulrButton from "@/components/home/haulr-button";
 import HeroHeadline from "@/components/home/hero-headline";
 import SceneBlock from "@/components/home/scene-block";
 import { useSide } from "@/lib/hooks/use-side";
+import HeroPulse from "@/components/home/hero-pulse";
 import { HERO_COPY, HERO_LANE_LABEL } from "@/lib/data/home/hero";
 import { SCENES } from "@/lib/home/constants";
 
@@ -39,6 +40,7 @@ export default function HeroScene({ progress, reduced }: Props) {
                     </HaulrButton>
                 </div>
             </div>
+            <HeroPulse />
         </SceneBlock>
     );
 }

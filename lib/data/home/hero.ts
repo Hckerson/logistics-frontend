@@ -1,4 +1,4 @@
-import type { Side, SideCopy } from "@/lib/types";
+import type { SceneReadout, Side, SideCopy } from "@/lib/types";
 import { HELP_ROUTE, registerRoute } from "@/lib/constants";
 import { PRICE_ANCHOR } from "@/lib/home/constants";
 
@@ -18,3 +18,12 @@ export const HERO_COPY: Record<Side, SideCopy> = {
 };
 
 export const HERO_LANE_LABEL = "Chicago to Dallas, one lane";
+
+export const HERO_PULSE = {
+    note: "Sample figures",
+    readouts: [
+        { id: "trucks", label: "Trucks on the network", value: "2,614" },
+        { id: "lanes", label: "Lanes priced today", value: "18,402" },
+        { id: "book", label: "Median time to book", value: "6 min" },
+    ] satisfies SceneReadout[],
+} as const;

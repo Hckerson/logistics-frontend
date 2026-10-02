@@ -8,7 +8,7 @@ import { HAULR_THEME_CLASS, HAULR_THEME_COLOR } from "@/lib/home/constants";
 export const viewport: Viewport = {
     width: "device-width",
     initialScale: 1,
-    colorScheme: "light",
+    colorScheme: "dark",
     themeColor: HAULR_THEME_COLOR,
 };
 

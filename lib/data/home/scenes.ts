@@ -35,10 +35,24 @@ export const TRACK_SCENE = {
 export const DELIVER_SCENE = {
     label: "Delivered",
     title: "Delivered. Paid in three days.",
-    receipt: [
-        { id: "pod", label: "Proof of delivery", value: "Captured at the dock, Thu 14:08" },
-        { id: "invoice", label: "Invoice", value: "Sent with the documents attached" },
-        { id: "pay", label: "Carrier pay", value: "Monday, three days after POD" },
+    steps: [
+        { id: "delivered", label: "Delivered at the dock", value: "Thu 14:08" },
+        { id: "verified", label: "Proof of delivery verified", value: "Thu 14:31" },
+        { id: "invoiced", label: "Invoice sent with the documents attached", value: "Thu 14:32" },
+        { id: "paid", label: "Carrier paid $2,060", value: "Mon 09:00" },
     ] satisfies SceneReadout[],
-    note: "Sample load",
+    document: {
+        label: "Proof of delivery",
+        load: "HL-48213",
+        summary: "Sample proof of delivery for load HL-48213, signed at the Dallas dock on Thursday at 14:08.",
+        rows: [
+            { id: "place", label: "Delivered to", value: "Dallas distribution center" },
+            { id: "freight", label: "Received", value: "22 pallets, no exceptions" },
+            { id: "signer", label: "Signed by", value: "R. Alvarez, receiving" },
+        ] satisfies SceneReadout[],
+        photos: ["Dock photo", "Seal photo"],
+        signature: "Signature",
+        stamp: ["Delivered", "Thu 14:08"],
+        note: "Sample load",
+    },
 } as const;

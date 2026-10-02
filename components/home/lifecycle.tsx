@@ -1,24 +1,21 @@
 "use client";
-import { useEffect, useRef } from "react";
+import dynamic from "next/dynamic";
+import { useEffect } from "react";
 import { animate, useMotionValue } from "motion/react";
 import BookScene from "@/components/home/book-scene";
 import DeliverScene from "@/components/home/deliver-scene";
 import HeroScene from "@/components/home/hero-scene";
-import LaneTag from "@/components/home/lane-tag";
-import NetworkCanvas from "@/components/home/network-canvas";
+import MapScrims from "@/components/home/map-scrims";
 import QuoteScene from "@/components/home/quote-scene";
 import TrackScene from "@/components/home/track-scene";
 import { useSceneProgress } from "@/lib/hooks/use-scene-progress";
-import { QUOTE_SCENE, TRACK_SCENE } from "@/lib/data/home/scenes";
-import { INTRO, SCENES } from "@/lib/home/constants";
+import { INTRO } from "@/lib/home/constants";
 
-const PRICE_RANGE = [SCENES.quote[0] + 0.04, SCENES.book[1]] as const;
+const FreightMap = dynamic(() => import("@/components/home/freight-map"), { ssr: false });
 
 export default function Lifecycle() {
     const { ref, progress, reduced } = useSceneProgress<HTMLElement>();
     const intro = useMotionValue(0);
-    const price = useRef<HTMLDivElement>(null);
-    const truck = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (reduced) {
@@ -32,21 +29,14 @@ export default function Lifecycle() {
     return (
         <section ref={ref} className="haulr-track">
             <div className="haulr-stage">
-                <NetworkCanvas progress={progress} intro={intro} price={price} truck={truck} />
+                <div className="absolute inset-x-0 top-[40%] bottom-0 lg:inset-0 motion-reduce:relative motion-reduce:top-0 motion-reduce:h-[70svh]">
+                    <FreightMap progress={progress} intro={intro} still={reduced} />
+                </div>
+                <MapScrims progress={progress} />
                 <HeroScene progress={progress} reduced={reduced} />
                 <QuoteScene progress={progress} reduced={reduced} />
                 <BookScene progress={progress} reduced={reduced} />
                 <TrackScene progress={progress} reduced={reduced} />
-                <LaneTag anchor={price} progress={progress} range={PRICE_RANGE}>
-                    <span className="text-text-muted">{QUOTE_SCENE.tag.lane}</span>
-                    <span className="text-base">
-                        {QUOTE_SCENE.tag.rate} <span className="text-accent-dark">{QUOTE_SCENE.tag.range}</span>
-                    </span>
-                </LaneTag>
-                <LaneTag anchor={truck} progress={progress} range={SCENES.track}>
-                    <span className="text-text-muted">{TRACK_SCENE.readouts.source.label}</span>
-                    <span>{TRACK_SCENE.readouts.source.value}</span>
-                </LaneTag>
                 <DeliverScene progress={progress} reduced={reduced} />
             </div>
         </section>

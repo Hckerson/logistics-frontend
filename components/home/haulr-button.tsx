@@ -14,7 +14,7 @@ interface Props {
 }
 
 const tones: Record<Tone, string> = {
-    accent: "bg-accent text-text hover:bg-accent-dark hover:text-text-inverse",
+    accent: "bg-accent text-text-inverse hover:bg-accent-dark",
     ink: "bg-text text-text-inverse hover:bg-text-secondary",
     ghost: "border border-border-dark text-text hover:border-text",
 };

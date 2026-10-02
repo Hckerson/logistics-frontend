@@ -1,12 +1,13 @@
 import Link from "next/link";
 import HaulrWordmark from "@/components/home/haulr-wordmark";
-import LaneRule from "@/components/home/lane-rule";
+import { HAULR_BRAND } from "@/lib/data/home/brand";
 import { FOOTER_COPY, FOOTER_GROUPS } from "@/lib/data/home/footer";
+import { WORDMARK } from "@/lib/home/constants";
 
 export default function HaulrFooter() {
     return (
-        <footer className="border-border border-t">
-            <div className="haulr-shell flex flex-col gap-12 py-14">
+        <footer className="border-border overflow-hidden border-t">
+            <div className="haulr-shell flex flex-col gap-16 pt-14">
                 <div className="grid gap-12 lg:grid-cols-12">
                     <div className="flex flex-col gap-5 lg:col-span-5">
                         <HaulrWordmark />
@@ -35,7 +36,19 @@ export default function HaulrFooter() {
                         ))}
                     </nav>
                 </div>
-                <LaneRule state="settled" className="w-full" />
+                <svg aria-hidden viewBox={`0 0 ${WORDMARK.width} ${WORDMARK.height}`} className="w-full">
+                    <text
+                        x={WORDMARK.width / 2}
+                        y={WORDMARK.baseline}
+                        textAnchor="middle"
+                        textLength={WORDMARK.width}
+                        lengthAdjust="spacingAndGlyphs"
+                        className="fill-background-muted font-display font-semibold uppercase"
+                        style={{ fontSize: WORDMARK.size, fontStretch: "var(--haulr-wide)" }}
+                    >
+                        {HAULR_BRAND.name}
+                    </text>
+                </svg>
             </div>
         </footer>
     );
