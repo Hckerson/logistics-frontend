@@ -149,6 +149,15 @@
     text-wrap: balance;
 }
 
+@utility haulr-figure {
+    font-size: var(--haulr-figure);
+    font-weight: 300;
+    font-stretch: var(--haulr-wide);
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+    font-variant-numeric: tabular-nums;
+}
+
 @utility haulr-label {
     font-family: var(--fonts-mono);
     font-size: 0.6875rem;

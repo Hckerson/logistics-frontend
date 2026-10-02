@@ -44,6 +44,11 @@ export default function LanesBand() {
                         ))}
                     </motion.ul>
                 </div>
+                <div aria-hidden className="haulr-shell motion-reduce:hidden">
+                    <div className="bg-border relative h-px">
+                        <motion.span style={{ scaleX: progress }} className="bg-accent absolute inset-0 origin-left" />
+                    </div>
+                </div>
             </div>
         </section>
     );

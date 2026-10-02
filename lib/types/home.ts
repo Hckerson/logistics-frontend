@@ -1,5 +1,3 @@
-import type { MotionValue } from "motion/react";
-
 export type Side = "ship" | "haul";
 
 export interface Hub {
@@ -10,60 +8,47 @@ export interface Hub {
     major: boolean;
 }
 
-export interface Point {
-    x: number;
-    y: number;
+export type LonLat = [number, number];
+
+export type Rgb = [number, number, number];
+
+export interface NetworkHub extends Hub {
+    position: LonLat;
 }
 
-export interface NetworkHub extends Hub, Point {
-    delay: number;
+export interface Trip {
+    path: LonLat[];
+    timestamps: number[];
+    accent: boolean;
 }
 
-export interface StageSize {
-    width: number;
-    height: number;
+export interface HubArc {
+    from: LonLat;
+    to: LonLat;
 }
 
-export interface NetworkLane {
-    from: NetworkHub;
-    to: NetworkHub;
-    delay: number;
+export interface FlightView {
+    longitude: number;
+    latitude: number;
+    zoom: number;
+    pitch: number;
+    bearing: number;
 }
 
-export interface Camera {
-    x: number;
-    y: number;
-    scale: number;
-    frameX: number;
-    frameY: number;
-}
-
-export interface NetworkPalette {
-    ground: string;
-    line: string;
-    hub: string;
-    muted: string;
-    accent: string;
-    band: string;
+export interface MapPalette {
+    land: Rgb;
+    stateLine: Rgb;
+    road: Rgb;
+    headlight: Rgb;
+    accent: Rgb;
+    muted: Rgb;
     font: string;
 }
 
-export interface NetworkFrame {
+export interface MapFrame {
     intro: number;
     progress: number;
-    pointer: Point & { presence: number };
     time: number;
-}
-
-export interface NetworkAnchors {
-    price: Point;
-    truck: Point;
-}
-
-export interface DampedPointer {
-    x: MotionValue<number>;
-    y: MotionValue<number>;
-    presence: MotionValue<number>;
 }
 
 export interface SideCopy {
@@ -107,4 +92,53 @@ export interface FooterGroup {
     id: string;
     label: string;
     links: readonly NavLinkItem[];
+}
+
+export interface TargetFigure {
+    id: string;
+    value: number;
+    unit: string;
+    label: string;
+}
+
+export interface ConsoleLoad {
+    id: string;
+    lane: string;
+    status: string;
+    tone: "live" | "done" | "idle";
+    eta: string;
+    rate: string;
+    progress: number;
+}
+
+export interface DriverStep {
+    id: string;
+    label: string;
+    done: boolean;
+}
+
+export interface PayTerm {
+    id: string;
+    label: string;
+    days: number;
+    value: string;
+    featured: boolean;
+}
+
+export interface EnterpriseItem {
+    id: string;
+    title: string;
+    body: string;
+}
+
+export type LonLatAlt = [number, number, number];
+
+export interface QuoteLane {
+    from: NetworkHub;
+    to: NetworkHub;
+}
+
+export interface LaneDraft {
+    origin: string;
+    destination: string;
 }
