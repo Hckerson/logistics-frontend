@@ -7,16 +7,16 @@ import { useFreightMap } from "@/lib/hooks/use-freight-map";
 interface Props {
     progress: MotionValue<number>;
     still: boolean;
-    tagRef: RefObject<HTMLDivElement | null>;
+    tagsRef: RefObject<HTMLDivElement | null>;
     labelsRef: RefObject<HTMLDivElement | null>;
 }
 
-export default function FreightMap({ progress, still, tagRef, labelsRef }: Props) {
+export default function FreightMap({ progress, still, tagsRef, labelsRef }: Props) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [ready, setReady] = useState(false);
     const onReady = useCallback(() => setReady(true), []);
 
-    useFreightMap(canvasRef, { progress, still, onReady, tagRef, labelsRef });
+    useFreightMap(canvasRef, { progress, still, onReady, tagsRef, labelsRef });
 
     return (
         <canvas

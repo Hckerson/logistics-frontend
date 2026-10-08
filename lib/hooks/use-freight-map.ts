@@ -6,11 +6,11 @@ import { INTRO } from "@/lib/home/constants";
 import { DPR_MAX, MAP_DEVICE, MOBILE_WIDTH, TRIPS } from "@/lib/home/map-constants";
 import { flightAt } from "@/lib/home/flight";
 import { glowsOf } from "@/lib/home/glow";
-import { lanePoint, truckAt } from "@/lib/home/lane";
+import { LANE_MIDPOINT, LANE_ORIGIN, lanePoint, truckAt } from "@/lib/home/lane";
 import { introFades, mapLayers } from "@/lib/home/map-layers";
 import { clamp } from "@/lib/home/math";
 import { paletteOf } from "@/lib/home/palette";
-import { pin, pinLabels, viewportOf } from "@/lib/home/screen";
+import { pinLabels, pinTags, viewportOf } from "@/lib/home/screen";
 import { buildTrips } from "@/lib/home/trips";
 import type { LonLat } from "@/lib/types";
 
@@ -18,7 +18,7 @@ interface Options {
     progress: MotionValue<number>;
     still: boolean;
     onReady: () => void;
-    tagRef: RefObject<HTMLElement | null>;
+    tagsRef: RefObject<HTMLElement | null>;
     labelsRef: RefObject<HTMLElement | null>;
 }
 
@@ -27,7 +27,7 @@ const MILLISECONDS = 1000;
 
 export function useFreightMap(
     canvasRef: RefObject<HTMLCanvasElement | null>,
-    { progress, still, onReady, tagRef, labelsRef }: Options,
+    { progress, still, onReady, tagsRef, labelsRef }: Options,
 ) {
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -82,7 +82,7 @@ export function useFreightMap(
             submitted = true;
             const viewport = viewportOf(view, canvas);
             pinLabels(labelsRef.current, viewport, introFades(intro).network);
-            if (tagRef.current) pin(tagRef.current, viewport, lanePoint(truckAt(current)), 1);
+            pinTags(tagsRef.current, viewport, { quote: LANE_MIDPOINT, book: LANE_ORIGIN, truck: lanePoint(truckAt(current)) });
         };
 
         const watcher = new IntersectionObserver(([entry]) => {
@@ -96,5 +96,5 @@ export function useFreightMap(
             watcher.disconnect();
             deck.finalize();
         };
-    }, [canvasRef, progress, still, onReady, tagRef, labelsRef]);
+    }, [canvasRef, progress, still, onReady, tagsRef, labelsRef]);
 }

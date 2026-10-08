@@ -1,5 +1,5 @@
 import { WebMercatorViewport } from "@deck.gl/core";
-import type { FlightView, LonLat } from "@/lib/types";
+import type { FlightView, LonLat, MapTagId } from "@/lib/types";
 import { NETWORK_HUBS } from "@/lib/home/trips";
 
 const HUB_POSITIONS = new Map(NETWORK_HUBS.map((hub) => [hub.code, hub.position]));
@@ -20,5 +20,12 @@ export function pinLabels(container: HTMLElement | null, viewport: WebMercatorVi
     container?.querySelectorAll<HTMLElement>("[data-hub]").forEach((label) => {
         const position = HUB_POSITIONS.get(label.dataset.hub ?? "");
         if (position) pin(label, viewport, position, opacity);
+    });
+}
+
+export function pinTags(container: HTMLElement | null, viewport: WebMercatorViewport, anchors: Record<MapTagId, LonLat>) {
+    container?.querySelectorAll<HTMLElement>("[data-pin]").forEach((tag) => {
+        const position = anchors[tag.dataset.pin as MapTagId];
+        if (position) pin(tag, viewport, position, 1);
     });
 }
