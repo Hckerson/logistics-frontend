@@ -6,14 +6,13 @@ const { recovery } = SIGN_IN_COPY;
 
 export default function RecoveryNav() {
     return (
-        <nav aria-label={recovery.label} className="border-border flex flex-col gap-4 border-t pt-8">
-            <p className="haulr-label text-text-muted">{recovery.label}</p>
+        <nav aria-label={recovery.label} className="py-3">
             <ul className="flex flex-col">
                 {recovery.links.map((link) => (
                     <li key={link.id}>
                         <Link
                             href={link.href}
-                            className="group text-text-secondary hover:text-text focus-visible:outline-text flex items-center justify-between py-2 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
+                            className="group text-text-secondary hover:text-text focus-visible:outline-text flex items-center justify-between py-1.5 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
                         >
                             {link.label}
                             <ArrowRight

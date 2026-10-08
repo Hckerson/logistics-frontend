@@ -175,6 +175,27 @@
     animation: haulr-rise 0.9s var(--haulr-ease) backwards;
 }
 
+@keyframes haulr-draw {
+    from {
+        stroke-dashoffset: 1;
+    }
+}
+
+@utility haulr-draw {
+    stroke-dasharray: 1 1;
+    animation: haulr-draw 2.6s var(--haulr-ease) 0.3s backwards;
+}
+
+@keyframes haulr-traffic {
+    to {
+        stroke-dashoffset: -1;
+    }
+}
+
+@utility haulr-traffic {
+    animation: haulr-traffic linear infinite;
+}
+
 @utility haulr-track {
     position: relative;
     height: 520svh;
