@@ -48,3 +48,5 @@ export const truckAt = (progress: number) => {
     const linear = ramp(progress, RIDE[0] + TRACK_INSET, RIDE[1] - TRACK_INSET);
     return lerp(linear, smootherstep(linear), 0.5);
 };
+
+export const LANE_MIDPOINT = lanePoint(0.5);

@@ -6,6 +6,8 @@ export type LonLatAlt = [number, number, number];
 
 export type Rgb = [number, number, number];
 
+export type MapTagId = "quote" | "book" | "truck";
+
 export type Rgba = [number, number, number, number];
 
 export interface Trip {

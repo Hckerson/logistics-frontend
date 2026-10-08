@@ -1,13 +1,11 @@
 import type { RefObject } from "react";
-import clsx from "clsx";
 
 interface Props {
     labelsRef: RefObject<HTMLDivElement | null>;
     codes: readonly string[];
-    className?: string;
 }
 
-export default function MapLabels({ labelsRef, codes, className }: Props) {
+export default function MapLabels({ labelsRef, codes }: Props) {
     return (
         <div ref={labelsRef} aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
             {codes.map((code) => (
@@ -16,7 +14,7 @@ export default function MapLabels({ labelsRef, codes, className }: Props) {
                     data-hub={code}
                     className="absolute top-0 left-0 opacity-0 will-change-transform"
                 >
-                    <span className={clsx("haulr-label block translate-x-3 -translate-y-1/2", className)}>
+                    <span className="haulr-label text-text-muted block translate-x-3 -translate-y-1/2">
                         {code}
                     </span>
                 </span>
