@@ -24,7 +24,7 @@ export default function HeroScene({ progress, reduced }: Props) {
             range={SCENES.hero}
             hold="start"
             reduced={reduced}
-            className="items-start pt-[calc(var(--haulr-header)+2rem)] lg:items-center lg:pt-(--haulr-header)"
+            className="items-start pt-[calc(var(--haulr-header)+2rem)] lg:items-center lg:pt-(--haulr-header) motion-reduce:flex-col motion-reduce:gap-10 motion-reduce:lg:items-start"
         >
             <div className="flex max-w-xl flex-col gap-6 lg:max-w-[50%] lg:gap-8">
                 <p className="haulr-label text-accent-dark">{HERO_LANE_LABEL}</p>

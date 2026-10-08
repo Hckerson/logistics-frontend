@@ -52,7 +52,7 @@ export default function PodDocument({ progress, reduced }: Props) {
                             stroke="currentColor"
                             strokeWidth={1.6}
                             strokeLinecap="round"
-                            style={reduced ? undefined : { pathLength: signed }}
+                            style={{ pathLength: reduced ? 1 : signed }}
                         />
                     </svg>
                 </div>
@@ -61,7 +61,7 @@ export default function PodDocument({ progress, reduced }: Props) {
                     <span>{DOC.note}</span>
                 </p>
                 <motion.div
-                    style={reduced ? undefined : { opacity: stampOpacity, scale: stampScale }}
+                    style={reduced ? { opacity: 1, scale: 1 } : { opacity: stampOpacity, scale: stampScale }}
                     className="border-accent text-accent absolute top-16 right-5 flex size-28 rotate-12 flex-col items-center justify-center rounded-full border-[3px]"
                 >
                     <span className="haulr-label font-semibold">{DOC.stamp[0]}</span>
