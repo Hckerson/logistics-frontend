@@ -1,11 +1,13 @@
 import type { Layer } from "@deck.gl/core";
-import { TripsLayer } from "@deck.gl/geo-layers";
-import { GeoJsonLayer, PathLayer, ScatterplotLayer, TextLayer } from "@deck.gl/layers";
-import type { LonLat, LonLatAlt, MapPalette, NetworkHub, QuoteLane, Rgb, Trip } from "@/lib/types";
-import { MAP_ALPHA, MAP_DOT, MAP_LABEL_SIZE, MAP_WIDTH, TRIPS } from "@/lib/home/constants";
-import { arcPath } from "@/lib/home/quote-map";
-import { CONTIGUOUS_STATES } from "@/lib/home/states";
-import { NETWORK_HUBS } from "@/lib/home/trips";
+import { ScatterplotLayer } from "@deck.gl/layers";
+import type { Glows, MapPalette, NetworkHub, QuoteLane, Route, Trip } from "@/lib/types";
+import { CLOSE_COPY } from "@/lib/data/home/close";
+import { MAP_DOT, MAP_WIDTH, QUOTE_MAP } from "@/lib/home/map-constants";
+import { baseLayers } from "@/lib/home/base-layers";
+import { GlowTripsLayer } from "@/lib/home/glow";
+import { OPAQUE, tint } from "@/lib/home/palette";
+import { laneBetween } from "@/lib/home/quote-map";
+import { arcRoute } from "@/lib/home/routes";
 
 interface Frame {
     time: number;
@@ -13,80 +15,35 @@ interface Frame {
     drawn: number;
 }
 
-const OPAQUE = 255;
-const ADDITIVE = {
-    blendColorSrcFactor: "src-alpha",
-    blendColorDstFactor: "one",
-    blendAlphaSrcFactor: "one",
-    blendAlphaDstFactor: "one",
-} as const;
+const { origin, destination } = CLOSE_COPY.fields;
+const WARM_LANE = laneBetween(origin.placeholder, destination.placeholder);
+const SHOWN = { land: 1, network: 1, traffic: 1 };
 
-const tint = (colour: Rgb, alpha: number): [number, number, number, number] => [...colour, Math.round(alpha)];
-
-export function quoteLayers(roads: LonLat[][], trips: Trip[], palette: MapPalette, frame: Frame): Layer[] {
-    const { lane, drawn } = frame;
-    const ends = lane ? [lane.from, lane.to] : [];
-    const arc = lane ? [arcPath(lane, drawn)] : [];
+export function quoteLayers(trips: Trip[], palette: MapPalette, frame: Frame, glows: Glows): Layer[] {
+    const shown = frame.lane ?? WARM_LANE;
+    const opacity = frame.lane ? 1 : 0;
+    const ends = shown ? [shown.from, shown.to] : [];
+    const arc = shown
+        ? [arcRoute(shown.from.position, shown.to.position, frame.lane ? frame.drawn : 1, QUOTE_MAP.arcHeight)]
+        : [];
 
     return [
-        new GeoJsonLayer({
-            id: "quote-states",
-            data: CONTIGUOUS_STATES,
-            filled: true,
-            stroked: true,
-            getFillColor: tint(palette.land, OPAQUE),
-            getLineColor: tint(palette.stateLine, OPAQUE),
-            lineWidthMinPixels: 1,
-        }),
-        new PathLayer<LonLat[]>({
-            id: "quote-roads",
-            data: roads,
-            getPath: (road) => road,
-            getColor: tint(palette.road, MAP_ALPHA.road),
-            widthMinPixels: MAP_WIDTH.road,
-        }),
-        new TripsLayer<Trip>({
-            id: "quote-trips",
-            data: trips,
-            getPath: (trip) => trip.path,
-            getTimestamps: (trip) => trip.timestamps,
-            getColor: (trip) => (trip.accent ? palette.accent : palette.headlight),
-            currentTime: frame.time,
-            trailLength: TRIPS.trail,
-            fadeTrail: true,
-            capRounded: true,
-            jointRounded: true,
-            widthMinPixels: MAP_WIDTH.trip,
-            parameters: ADDITIVE,
-        }),
-        new ScatterplotLayer<NetworkHub>({
-            id: "quote-hubs",
-            data: NETWORK_HUBS,
-            getPosition: (hub) => hub.position,
-            getRadius: MAP_DOT.hub,
-            getFillColor: tint(palette.muted, OPAQUE),
-            radiusUnits: "pixels",
-            billboard: true,
-        }),
-        new PathLayer<LonLatAlt[]>({
-            id: "quote-arc-glow",
-            data: arc,
-            getPath: (path) => path,
-            getColor: tint(palette.accent, MAP_ALPHA.laneGlow),
-            widthMinPixels: MAP_WIDTH.laneGlow,
-            capRounded: true,
-            jointRounded: true,
-            billboard: true,
-        }),
-        new PathLayer<LonLatAlt[]>({
+        ...baseLayers("quote-", trips, palette, frame.time, glows, SHOWN),
+        new GlowTripsLayer<Route>({
             id: "quote-arc",
             data: arc,
-            getPath: (path) => path,
+            getPath: (route) => route.path,
+            getTimestamps: (route) => route.timestamps,
             getColor: tint(palette.accent, OPAQUE),
+            currentTime: 1,
+            trailLength: 1,
+            fadeTrail: false,
             widthMinPixels: MAP_WIDTH.lane,
             capRounded: true,
             jointRounded: true,
             billboard: true,
+            opacity,
+            extensions: [glows.arc],
         }),
         new ScatterplotLayer<NetworkHub>({
             id: "quote-ends",
@@ -96,18 +53,8 @@ export function quoteLayers(roads: LonLat[][], trips: Trip[], palette: MapPalett
             getFillColor: tint(palette.accent, OPAQUE),
             radiusUnits: "pixels",
             billboard: true,
-        }),
-        new TextLayer<NetworkHub>({
-            id: "quote-labels",
-            data: ends,
-            getPosition: (hub) => hub.position,
-            getText: (hub) => hub.code,
-            getSize: MAP_LABEL_SIZE + 2,
-            getColor: tint(palette.headlight, OPAQUE),
-            getPixelOffset: [14, 0],
-            getTextAnchor: "start",
-            getAlignmentBaseline: "center",
-            fontFamily: palette.font,
+            opacity,
+            extensions: [glows.dot],
         }),
     ];
 }

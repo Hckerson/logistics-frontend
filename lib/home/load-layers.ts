@@ -1,24 +1,33 @@
 import type { Layer } from "@deck.gl/core";
-import { PathLayer, ScatterplotLayer, SolidPolygonLayer } from "@deck.gl/layers";
-import type { LonLat, MapFrame, MapPalette, Rgb } from "@/lib/types";
-import { beamPolygon } from "@/lib/home/beam";
-import { CARRIERS, INTRO, MAP_ALPHA, MAP_DOT, MAP_WIDTH, SCENES } from "@/lib/home/constants";
-import { LANE_DESTINATION, LANE_ORIGIN, lanePoint, laneSlice, truckAt } from "@/lib/home/lane";
+import { ScatterplotLayer } from "@deck.gl/layers";
+import type { Glows, LonLat, MapFrame, MapPalette, Rgb, Rgba, Route } from "@/lib/types";
+import { beamRoute, beamWidth } from "@/lib/home/beam";
+import { INTRO, SCENES } from "@/lib/home/constants";
+import { BEAM, CARRIERS, LANE, MAP_DOT, MAP_WIDTH } from "@/lib/home/map-constants";
+import { GlowTripsLayer } from "@/lib/home/glow";
+import { LANE_DESTINATION, LANE_ORIGIN, LANE_PATH, LANE_TIMES, lanePoint, truckAt } from "@/lib/home/lane";
 import { lerp, ramp, smootherstep } from "@/lib/home/math";
-import { CARRIER_POINTS, NETWORK_HUBS } from "@/lib/home/trips";
+import { OPAQUE, tint } from "@/lib/home/palette";
+import { CARRIER_POINTS } from "@/lib/home/trips";
 
 interface Dot {
     position: LonLat;
     radius: number;
-    colour: [number, number, number, number];
+    colour: Rgba;
 }
 
-const OPAQUE = 255;
+interface RouteStyle {
+    colour: Rgba;
+    width: number;
+    metres?: boolean;
+    glow: Glows[keyof Glows];
+    time: number;
+    opacity: number;
+}
+
 const BOOK_TAIL = 0.04;
 const TRACK_FADE = { before: 0.02, after: 0.03 };
-const FULL_LANE = laneSlice(0, 1);
-
-const tint = (colour: Rgb, alpha: number): [number, number, number, number] => [...colour, Math.round(alpha)];
+const LANE_ROUTE: Route[] = [{ path: LANE_PATH, timestamps: LANE_TIMES }];
 
 function carrierDots(palette: MapPalette, progress: number): Dot[] {
     const book = ramp(progress, SCENES.book[0], SCENES.book[1] - BOOK_TAIL);
@@ -38,71 +47,61 @@ function carrierDots(palette: MapPalette, progress: number): Dot[] {
     });
 }
 
-export function loadLayers(palette: MapPalette, frame: MapFrame): Layer[] {
+const route = (id: string, data: Route[], style: RouteStyle) =>
+    new GlowTripsLayer<Route>({
+        id,
+        data,
+        getPath: (lane) => lane.path,
+        getTimestamps: (lane) => lane.timestamps,
+        getColor: style.colour,
+        getWidth: style.metres ? style.width : 1,
+        widthUnits: style.metres ? "meters" : "pixels",
+        widthMinPixels: style.metres ? 0 : style.width,
+        currentTime: style.time,
+        trailLength: LANE.draw,
+        fadeTrail: false,
+        capRounded: !style.metres,
+        jointRounded: true,
+        opacity: style.opacity,
+        extensions: [style.glow],
+    });
+
+const solid = (colour: Rgb) => tint(colour, OPAQUE);
+
+export function loadLayers(palette: MapPalette, frame: MapFrame, glows: Glows): Layer[] {
     const drawn = smootherstep(ramp(frame.intro, INTRO.laneStart, 1));
     const travelled = truckAt(frame.progress);
-    const tracking = ramp(
-        frame.progress,
-        SCENES.track[0] - TRACK_FADE.before,
-        SCENES.track[0] + TRACK_FADE.after,
-    );
-    const lane = drawn >= 1 ? FULL_LANE : laneSlice(0, drawn);
-    const truck = lanePoint(travelled);
+    const tracking = ramp(frame.progress, SCENES.track[0] - TRACK_FADE.before, SCENES.track[0] + TRACK_FADE.after);
 
     const dots: Dot[] = [
-        ...NETWORK_HUBS.map((hub) => ({
-            position: hub.position,
-            radius: MAP_DOT.hub,
-            colour: tint(palette.muted, OPAQUE * drawn),
-        })),
         ...carrierDots(palette, frame.progress),
         { position: LANE_ORIGIN, radius: MAP_DOT.terminal, colour: tint(palette.accent, OPAQUE * drawn) },
-        {
-            position: LANE_DESTINATION,
-            radius: MAP_DOT.terminal,
-            colour: tint(palette.accent, drawn >= 1 ? OPAQUE : 0),
-        },
-        { position: truck, radius: MAP_DOT.halo, colour: tint(palette.accent, MAP_ALPHA.halo * tracking) },
-        { position: truck, radius: MAP_DOT.truck, colour: tint(palette.headlight, OPAQUE * tracking) },
+        { position: LANE_DESTINATION, radius: MAP_DOT.terminal, colour: tint(palette.accent, drawn >= 1 ? OPAQUE : 0) },
+        { position: lanePoint(travelled), radius: MAP_DOT.truck, colour: tint(palette.accent, OPAQUE * tracking) },
     ];
 
     return [
-        new SolidPolygonLayer<LonLat[]>({
-            id: "beam",
-            data: [beamPolygon(travelled)],
-            getPolygon: (polygon) => polygon,
-            getFillColor: tint(palette.accent, MAP_ALPHA.beam * tracking),
-            visible: tracking > 0,
+        route("beam", beamRoute(travelled), {
+            colour: tint(palette.accent, BEAM.alpha),
+            width: beamWidth(travelled),
+            metres: true,
+            glow: glows.beam,
+            time: 1,
+            opacity: tracking,
         }),
-        new PathLayer<LonLat[]>({
-            id: "lane-glow",
-            data: [lane],
-            getPath: (path) => path,
-            getColor: tint(palette.accent, MAP_ALPHA.laneGlow),
-            widthMinPixels: MAP_WIDTH.laneGlow,
-            capRounded: true,
-            jointRounded: true,
-            visible: drawn > 0,
+        route("lane", LANE_ROUTE, {
+            colour: solid(palette.accent),
+            width: MAP_WIDTH.lane,
+            glow: glows.lane,
+            time: drawn * (1 + LANE.draw),
+            opacity: 1,
         }),
-        new PathLayer<LonLat[]>({
-            id: "lane",
-            data: [lane],
-            getPath: (path) => path,
-            getColor: tint(palette.accent, OPAQUE),
-            widthMinPixels: MAP_WIDTH.lane,
-            capRounded: true,
-            jointRounded: true,
-            visible: drawn > 0,
-        }),
-        new PathLayer<LonLat[]>({
-            id: "travelled",
-            data: [laneSlice(0, travelled)],
-            getPath: (path) => path,
-            getColor: tint(palette.headlight, OPAQUE * tracking),
-            widthMinPixels: MAP_WIDTH.travelled,
-            capRounded: true,
-            jointRounded: true,
-            visible: tracking > 0 && travelled > 0,
+        route("travelled", LANE_ROUTE, {
+            colour: solid(palette.headlight),
+            width: MAP_WIDTH.travelled,
+            glow: glows.travelled,
+            time: travelled,
+            opacity: tracking,
         }),
         new ScatterplotLayer<Dot>({
             id: "dots",
@@ -112,6 +111,7 @@ export function loadLayers(palette: MapPalette, frame: MapFrame): Layer[] {
             getFillColor: (dot) => dot.colour,
             radiusUnits: "pixels",
             billboard: true,
+            extensions: [glows.dot],
         }),
     ];
 }

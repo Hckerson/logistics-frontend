@@ -1,6 +1,6 @@
 import type { HubArc, LonLat, NetworkHub, Trip } from "@/lib/types";
 import { HUBS } from "@/lib/data/home/hubs";
-import { ARCS, CARRIERS, TRIPS } from "@/lib/home/constants";
+import { ARCS, CARRIERS, TRIPS } from "@/lib/home/map-constants";
 import { LANE_ORIGIN } from "@/lib/home/lane";
 import { lerp } from "@/lib/home/math";
 
@@ -19,9 +19,12 @@ const seeded = (seed: number) => {
 
 const span = (a: LonLat, b: LonLat) => Math.hypot(a[0] - b[0], a[1] - b[1]);
 
-export function buildTrips(roads: LonLat[][]): Trip[] {
+const strided = (road: LonLat[]) =>
+    road.filter((_, index) => index % TRIPS.stride === 0 || index === road.length - 1);
+
+export function buildTrips(roads: LonLat[][], count: number): Trip[] {
     const random = seeded(TRIPS.seed);
-    const usable = roads.filter((road) => road.length >= TRIPS.minPoints);
+    const usable = roads.map(strided).filter((road) => road.length >= TRIPS.minPoints);
     const total = usable.reduce((sum, road) => sum + road.length, 0);
 
     const pick = () => {
@@ -33,12 +36,12 @@ export function buildTrips(roads: LonLat[][]): Trip[] {
         return usable[0];
     };
 
-    return Array.from({ length: TRIPS.count }, () => {
+    return Array.from({ length: count }, (): Trip[] => {
         const road = pick();
         const directed = random() > 0.5 ? road : [...road].reverse();
         const start = Math.floor(random() * (directed.length - TRIPS.minPoints));
         const budget = lerp(TRIPS.duration[0], TRIPS.duration[1], random());
-        const departure = random() * (TRIPS.loop - budget);
+        const departure = random() * TRIPS.loop;
         const path: LonLat[] = [];
         const timestamps: number[] = [];
         let elapsed = 0;
@@ -49,13 +52,17 @@ export function buildTrips(roads: LonLat[][]): Trip[] {
             timestamps.push(departure + elapsed);
         }
 
-        return { path, timestamps, accent: random() < TRIPS.accentShare };
-    });
+        const trip = { path, timestamps, accent: random() < TRIPS.accentShare };
+        const wraps = timestamps[timestamps.length - 1] + TRIPS.trail > TRIPS.loop;
+        return wraps ? [trip, { ...trip, timestamps: timestamps.map((time) => time - TRIPS.loop) }] : [trip];
+    }).flat();
 }
 
 export const NETWORK_HUBS: NetworkHub[] = HUBS.map((hub) => ({ ...hub, position: [hub.lon, hub.lat] }));
 
 export const MAJOR_HUBS = NETWORK_HUBS.filter((hub) => hub.major);
+
+export const MAJOR_CODES = MAJOR_HUBS.map((hub) => hub.code);
 
 export const HUB_ARCS: HubArc[] = (() => {
     const random = seeded(ARCS.seed);

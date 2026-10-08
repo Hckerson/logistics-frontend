@@ -1,5 +1,5 @@
-import type { FlightView, LonLatAlt, NetworkHub, QuoteLane } from "@/lib/types";
-import { QUOTE_MAP } from "@/lib/home/constants";
+import type { FlightView, LonLat, LonLatAlt, NetworkHub, QuoteLane } from "@/lib/types";
+import { QUOTE_MAP } from "@/lib/home/map-constants";
 import { lerp } from "@/lib/home/math";
 import { NETWORK_HUBS } from "@/lib/home/trips";
 
@@ -50,15 +50,11 @@ export function quoteView(lane: QuoteLane | null, width: number): FlightView {
     };
 }
 
-export function arcPath({ from, to }: QuoteLane, drawn: number): LonLatAlt[] {
-    const reach = Math.hypot(to.lon - from.lon, to.lat - from.lat) * QUOTE_MAP.metresPerDegree;
+export function arcPath(from: LonLat, to: LonLat, drawn: number, height: number): LonLatAlt[] {
+    const reach = Math.hypot(to[0] - from[0], to[1] - from[1]) * QUOTE_MAP.metresPerDegree;
     const steps = Math.max(Math.round(QUOTE_MAP.samples * drawn), 1);
     return Array.from({ length: steps + 1 }, (_, index) => {
         const t = (index / QUOTE_MAP.samples) * (drawn > 0 ? 1 : 0);
-        return [
-            lerp(from.lon, to.lon, t),
-            lerp(from.lat, to.lat, t),
-            Math.sin(Math.PI * t) * reach * QUOTE_MAP.arcHeight,
-        ];
+        return [lerp(from[0], to[0], t), lerp(from[1], to[1], t), Math.sin(Math.PI * t) * reach * height];
     });
 }

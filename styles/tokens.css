@@ -267,6 +267,7 @@
     --haulr-state-line: #2a2e35;
     --haulr-road: #3a3f48;
     --haulr-headlight: #ffe9c4;
+    --haulr-hot: #fff8ee;
     --haulr-glow: rgba(255, 90, 31, 0.22);
 
     --haulr-display: clamp(2.5rem, 5.6vw, 5rem);
