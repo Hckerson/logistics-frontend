@@ -5,6 +5,7 @@ export const PAY_COPY = {
     title: "Paid in three days. Not thirty.",
     lead: "Pay starts counting at verified proof of delivery, and quick pay lands the same day. The rate you booked is the rate you get.",
     axis: "Days from delivery to pay",
+    scale: { start: "Delivered", end: "Day 30" },
     note: "Comparison with typical broker terms. Sample figures.",
 } as const;
 
