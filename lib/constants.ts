@@ -10,6 +10,8 @@ export const HOME_ROUTE = "/";
 
 export const REGISTER_ROUTE = `${AUTH_ROUTE_PREFIX}/register`;
 
+export const FORGOT_PASSWORD_ROUTE = `${AUTH_ROUTE_PREFIX}/forgot-password`;
+
 export const RATE_ESTIMATOR_ROUTE = "/tools/rate-estimator";
 
 export const HELP_ROUTE = "/help";

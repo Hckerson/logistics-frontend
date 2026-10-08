@@ -254,6 +254,8 @@
 
     --colors-success: #5fd38d;
     --colors-success-light: #12261b;
+    --colors-error: #ff5c7a;
+    --colors-error-light: #2a1218;
 
     --colors-border: #23262b;
     --colors-border-light: #1a1d21;

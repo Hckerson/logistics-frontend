@@ -10,3 +10,8 @@ const credentials = {
 export const loginSchema = loginDtoSchema.extend(credentials);
 
 export const registerSchema = registerDtoSchema.extend(credentials);
+
+export const signInSchema = loginDtoSchema.extend({
+    email: z.string().trim().min(1, "missing").email("invalid"),
+    password: z.string().min(1, "missing"),
+});
