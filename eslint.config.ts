@@ -13,7 +13,13 @@ const SOURCE = [...VIEWS, "lib/**/*.{ts,tsx}"];
 const ROUTES = ["app/**/page.tsx"];
 const COMPONENTS = ["components/**/*.tsx"];
 const TESTS = ["**/*.test.ts"];
-const CINEMATIC = ["app/page.tsx", "components/home/**/*.tsx", "components/auth/**/*.tsx"];
+const CINEMATIC = [
+    "app/page.tsx",
+    "components/home/**/*.tsx",
+    "components/auth/**/*.tsx",
+    "components/common/login-form.tsx",
+    "components/common/hud-panel.tsx",
+];
 
 type RestrictedPath = { name: string; message: string };
 
