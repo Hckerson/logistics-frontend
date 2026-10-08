@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import HudCorners from "@/components/home/hud-corners";
+import HudCorners from "@/components/common/hud-corners";
 
 interface Props {
     label: string;
