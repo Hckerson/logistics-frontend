@@ -12,12 +12,13 @@ const SECONDS = 0.9;
 export default function HeroHeadline({ id, lines }: Props) {
     return (
         <h1 className="haulr-display text-text">
-            <AnimatePresence mode="wait" initial>
+            <AnimatePresence mode="wait" initial={false}>
                 <motion.span key={id} className="block">
                     {lines.map((line, index) => (
                         <span key={line} className="block overflow-hidden pb-[0.08em]">
                             <motion.span
-                                className="block"
+                                className="haulr-rise block"
+                                style={{ animationDelay: `${index * HEADLINE_STAGGER}s` }}
                                 initial={{ y: "105%" }}
                                 animate={{ y: 0 }}
                                 exit={{ y: "-105%" }}
