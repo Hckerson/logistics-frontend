@@ -3,7 +3,7 @@ import clsx from "clsx";
 import type { ReactNode } from "react";
 
 type Tone = "accent" | "ink" | "ghost";
-type Size = "sm" | "lg";
+type Size = "sm" | "lg" | "xl";
 
 interface Props {
     href: string;
@@ -22,6 +22,7 @@ const tones: Record<Tone, string> = {
 const sizes: Record<Size, string> = {
     sm: "h-9 px-4 text-sm",
     lg: "h-12 px-6 text-base",
+    xl: "h-14 px-6 text-lg",
 };
 
 export const haulrButtonClass = (tone: Tone = "accent", size: Size = "lg", className?: string) =>

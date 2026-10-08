@@ -1,4 +1,5 @@
 import type { ChangeEvent } from "react";
+import Input from "@/components/ui/input";
 
 interface Props {
     id: string;
@@ -16,7 +17,7 @@ export default function LaneField({ id, name, label, placeholder, list, value, o
             <label htmlFor={id} className="haulr-label text-text-muted">
                 {label}
             </label>
-            <input
+            <Input
                 id={id}
                 name={name}
                 type="text"
@@ -26,7 +27,6 @@ export default function LaneField({ id, name, label, placeholder, list, value, o
                 placeholder={placeholder}
                 value={value}
                 onChange={onChange}
-                className="border-border-dark bg-background text-text placeholder:text-text-muted focus:border-text h-14 w-full rounded-sm border px-4 text-lg transition-colors focus:outline-none"
             />
         </div>
     );
