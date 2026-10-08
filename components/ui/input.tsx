@@ -12,9 +12,9 @@ const Input = forwardRef<HTMLInputElement, Props>(function Input({ invalid = fal
             ref={ref}
             aria-invalid={invalid || undefined}
             className={clsx(
-                "bg-background text-text placeholder:text-text-muted h-12 w-full rounded-sm border px-4 text-base transition-colors duration-300",
-                "focus-visible:border-text read-only:text-text-secondary focus-visible:outline-none",
-                invalid ? "border-error" : "border-border-dark hover:border-text-muted",
+                "bg-background text-text placeholder:text-text-muted caret-accent h-14 w-full rounded-sm border px-4 text-lg transition-colors focus:outline-none",
+                "read-only:text-text-secondary autofill:shadow-[inset_0_0_0_100vmax_var(--colors-background)] autofill:[-webkit-text-fill-color:var(--colors-text)]",
+                invalid ? "border-error focus:border-error" : "border-border-dark hover:border-text-muted focus:border-text",
                 className,
             )}
         />
