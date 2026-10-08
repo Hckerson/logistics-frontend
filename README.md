@@ -25,7 +25,7 @@ Brand identity is the swappable default. To rebrand, edit only these three sourc
 2. **Fonts** — `public/fonts/font.ts`. Swap the `next/font` families; the `--nf-display` / `--nf-body` / `--nf-mono` CSS variables stay the same, so nothing downstream changes.
 3. **Page metadata** — the `metadata` export in `app/layout.tsx` (title, description).
 
-Then build UI with the **elegant-ui** skill, which composes against these tokens (text-text, bg-background, font-display, text-h*, ease-smooth) and keeps everything consistent.
+Then build UI against these tokens (text-text, bg-background, font-display, text-h*, ease-smooth) so everything stays consistent.
 
 ## Learn More
 
