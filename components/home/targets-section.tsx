@@ -4,7 +4,7 @@ import { TARGETS, TARGETS_COPY } from "@/lib/data/home/targets";
 
 export default function TargetsSection() {
     return (
-        <section aria-labelledby="targets-title" className="haulr-section border-border border-t">
+        <section aria-labelledby="targets-title" className="haulr-section">
             <div className="haulr-shell flex flex-col gap-16">
                 <header className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
                     <div className="flex flex-col gap-5">
