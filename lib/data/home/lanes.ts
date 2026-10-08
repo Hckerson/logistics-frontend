@@ -4,7 +4,7 @@ export const LANES_COPY = {
     label: "Lanes moving now",
     title: "Real loads, priced before anyone calls.",
     note: "Sample figures. Placeholder data for a design study.",
-    columns: { rate: "Rate", transit: "Transit", onTime: "On time" },
+    columns: { lane: "Lane", equipment: "Equipment", rate: "Rate", transit: "Transit", onTime: "On time" },
 } as const;
 
 export const LANE_SAMPLES: readonly LaneSample[] = [
