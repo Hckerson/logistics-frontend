@@ -47,8 +47,8 @@ export default function LaneArt({ art, tag }: Props) {
                         pathLength={1}
                         fill="none"
                         strokeDasharray={`${run.dash} 2`}
-                        className="haulr-traffic stroke-(--haulr-headlight) opacity-70"
-                        strokeWidth={1.25}
+                        className="haulr-traffic stroke-(--haulr-hot) opacity-40"
+                        strokeWidth={1}
                         strokeLinecap="round"
                         style={{ animationDuration: `${run.duration}s`, animationDelay: `${run.delay}s` }}
                     />
@@ -63,17 +63,25 @@ export default function LaneArt({ art, tag }: Props) {
                     <span
                         className={clsx(
                             "block rounded-full",
-                            hub.stop ? "border-accent bg-background size-3 border-2" : "bg-text-muted/60 ml-0.5 size-2",
+                            hub.stop ? "border-accent bg-background size-3 border-2" : "bg-text-muted/30 ml-0.5 size-1.5",
                         )}
                     />
-                    {hub.stop || hub.major ? (
-                        <span className={clsx("haulr-label", hub.stop ? "text-text-secondary" : "text-text-muted")}>
+                    {hub.stop ? (
+                        <span className="haulr-label text-text-secondary">
                             {hub.code}
                         </span>
                     ) : null}
                 </span>
             ))}
-            <LaneTruck width={width} height={height} route={art.route} points={art.points} times={art.times} tag={tag} />
+            <LaneTruck
+                width={width}
+                height={height}
+                route={art.route}
+                points={art.points}
+                times={art.times}
+                midway={art.midway}
+                tag={tag}
+            />
         </div>
     );
 }

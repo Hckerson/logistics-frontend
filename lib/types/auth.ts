@@ -1,19 +1,26 @@
 export type SignInField = "email" | "password";
 
-export interface FormProblem {
-    field?: SignInField;
-    message: string;
-}
+export type AccountField = "side" | "fullName" | "email" | "password" | "consent";
 
-export interface Credentials {
-    email: string;
-    password: string;
-}
+export type SignInStep = "email" | "password";
+
+export type AuthSignal = "origin" | "midway" | "pending" | "arrived" | "held";
 
 export interface AuthLink {
     id: string;
     label: string;
     href: string;
+}
+
+export interface FormProblem {
+    field?: AccountField;
+    message: string;
+    links?: readonly AuthLink[];
+}
+
+export interface Credentials {
+    email: string;
+    password: string;
 }
 
 export type LanePoint = [number, number];
@@ -41,10 +48,11 @@ export interface LaneArtData {
     roads: string;
     traffic: LaneRun[];
     hubs: LaneHub[];
+    midway: number;
 }
 
 export interface LaneTag {
     title: string;
     route: string;
-    detail: string;
+    status: Record<AuthSignal, string>;
 }

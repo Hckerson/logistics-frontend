@@ -254,8 +254,8 @@
 
     --colors-success: #5fd38d;
     --colors-success-light: #12261b;
-    --colors-error: #ff5c7a;
-    --colors-error-light: #2a1218;
+    --colors-error: #ff4d4f;
+    --colors-error-light: #2a1112;
 
     --colors-border: #23262b;
     --colors-border-light: #1a1d21;
@@ -278,6 +278,8 @@
     --haulr-figure: clamp(4rem, 9.5vw, 9rem);
     --haulr-gutter: clamp(1.25rem, 4vw, 3rem);
     --haulr-shell: 84rem;
+    --haulr-auth-form: 24rem;
+    --haulr-auth-band: 26svh;
     --haulr-header: 4.5rem;
     --haulr-section: clamp(5rem, 11vw, 9rem);
     --haulr-wide: 125%;
