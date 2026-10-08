@@ -1,6 +1,9 @@
+import clsx from "clsx";
 import type { ReactNode } from "react";
-import AuthAside from "@/components/auth/auth-aside";
+import LaneScene from "@/components/auth/lane-scene";
 import HaulrWordmark from "@/components/home/haulr-wordmark";
+import { AUTH_COLUMNS } from "@/lib/auth/constants";
+import { HAULR_BRAND } from "@/lib/data/home/brand";
 
 interface Props {
     children: ReactNode;
@@ -8,16 +11,15 @@ interface Props {
 
 export default function AuthShell({ children }: Props) {
     return (
-        <div className="grid min-h-svh lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
-            <AuthAside />
-            <main className="bg-background-alt flex flex-col">
-                <header className="haulr-shell flex h-(--haulr-header) items-center lg:hidden">
-                    <HaulrWordmark />
-                </header>
-                <div className="flex flex-1 items-start justify-center px-(--haulr-gutter) py-12 lg:items-center lg:py-16">
-                    <div className="flex w-full max-w-md flex-col gap-10">{children}</div>
-                </div>
-            </main>
+        <div className="bg-background relative isolate flex min-h-svh flex-col overflow-hidden">
+            <LaneScene />
+            <header className="haulr-shell flex h-(--haulr-header) shrink-0 items-center gap-10">
+                <HaulrWordmark />
+                <p className="haulr-label text-text-muted hidden lg:block">{HAULR_BRAND.tag}</p>
+            </header>
+            <div className={clsx("haulr-shell grid flex-1 items-center pt-[11svh] pb-3 lg:pt-0 lg:pb-8", AUTH_COLUMNS)}>
+                <main className="lg:col-start-2">{children}</main>
+            </div>
         </div>
     );
 }

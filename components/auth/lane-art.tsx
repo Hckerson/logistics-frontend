@@ -1,89 +1,79 @@
-"use client";
-import { useEffect } from "react";
-import { animate, motion, useMotionValue, useTransform } from "motion/react";
-import { pointAlong } from "@/lib/auth/point-along";
-import { REVEAL_EASE } from "@/lib/home/constants";
-import { useReduced } from "@/lib/hooks/use-reduced";
-
-type Point = [number, number];
-
-interface Stop {
-    code: string;
-    at: Point;
-}
+import clsx from "clsx";
+import LaneTruck from "@/components/auth/lane-truck";
+import { percentOf } from "@/lib/auth/point-along";
+import type { LaneArtData, LaneTag } from "@/lib/types";
 
 interface Props {
-    width: number;
-    height: number;
-    route: string;
-    roads: string;
-    points: readonly Point[];
-    times: readonly number[];
-    stops: readonly Stop[];
+    art: LaneArtData;
+    tag: LaneTag;
 }
 
-const DRAW = { delay: 0.4, duration: 2.6 } as const;
+const LAYER = "absolute inset-0 size-full overflow-visible";
 
-const share = (value: number, of: number) => `${(value / of) * 100}%`;
-
-export default function LaneArt({ width, height, route, roads, points, times, stops }: Props) {
-    const reduced = useReduced();
-    const drawn = useMotionValue(0);
-    const left = useTransform(drawn, (t) => share(pointAlong(points, times, t)[0], width));
-    const top = useTransform(drawn, (t) => share(pointAlong(points, times, t)[1], height));
-
-    useEffect(() => {
-        if (reduced) {
-            drawn.set(1);
-            return;
-        }
-        const controls = animate(drawn, 1, { ...DRAW, ease: REVEAL_EASE });
-        return () => controls.stop();
-    }, [drawn, reduced]);
+export default function LaneArt({ art, tag }: Props) {
+    const { width, height } = art;
+    const viewBox = `0 0 ${width} ${height}`;
 
     return (
         <div
-            aria-hidden
             className="relative"
             style={{ aspectRatio: `${width} / ${height}`, width: `min(100cqw, ${width / height} * 100cqh)` }}
         >
-            <svg viewBox={`0 0 ${width} ${height}`} className="absolute inset-0 size-full overflow-visible">
-                <path d={roads} fill="none" className="stroke-border" strokeWidth={1} vectorEffect="non-scaling-stroke" />
+            <svg viewBox={viewBox} className={LAYER}>
+                <path d={art.roads} fill="none" className="stroke-border" strokeWidth={1} vectorEffect="non-scaling-stroke" />
                 <path
-                    d={route}
+                    d={art.route}
+                    pathLength={1}
                     fill="none"
-                    className="stroke-border-dark"
-                    strokeWidth={2}
-                    strokeLinejoin="round"
-                    vectorEffect="non-scaling-stroke"
+                    className="haulr-draw stroke-accent/25 blur-[6px]"
+                    strokeWidth={8}
+                    strokeLinecap="round"
                 />
-                <motion.path
-                    d={route}
+                <path
+                    d={art.route}
+                    pathLength={1}
                     fill="none"
-                    className="stroke-accent drop-shadow-[0_0_6px_var(--colors-accent)]"
-                    strokeWidth={2.5}
+                    className="haulr-draw stroke-accent"
+                    strokeWidth={1.75}
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    vectorEffect="non-scaling-stroke"
-                    style={{ pathLength: drawn }}
                 />
             </svg>
-            {stops.map((stop) => (
+            <svg viewBox={viewBox} className={clsx(LAYER, "will-change-transform motion-reduce:hidden")}>
+                {art.traffic.map((run) => (
+                    <path
+                        key={run.d}
+                        d={run.d}
+                        pathLength={1}
+                        fill="none"
+                        strokeDasharray={`${run.dash} 2`}
+                        className="haulr-traffic stroke-(--haulr-headlight) opacity-70"
+                        strokeWidth={1.25}
+                        strokeLinecap="round"
+                        style={{ animationDuration: `${run.duration}s`, animationDelay: `${run.delay}s` }}
+                    />
+                ))}
+            </svg>
+            {art.hubs.map((hub) => (
                 <span
-                    key={stop.code}
-                    className="absolute flex -translate-x-1.5 -translate-y-1/2 items-center gap-2"
-                    style={{ left: share(stop.at[0], width), top: share(stop.at[1], height) }}
+                    key={hub.code}
+                    className={clsx("absolute -translate-x-1.5 -translate-y-1/2 items-center gap-2", hub.stop ? "flex" : "hidden lg:flex")}
+                    style={{ left: percentOf(hub.at[0], width), top: percentOf(hub.at[1], height) }}
                 >
-                    <span className="border-accent bg-background size-3 rounded-full border-2" />
-                    <span className="haulr-label text-text-muted">{stop.code}</span>
+                    <span
+                        className={clsx(
+                            "block rounded-full",
+                            hub.stop ? "border-accent bg-background size-3 border-2" : "bg-text-muted/60 ml-0.5 size-2",
+                        )}
+                    />
+                    {hub.stop || hub.major ? (
+                        <span className={clsx("haulr-label", hub.stop ? "text-text-secondary" : "text-text-muted")}>
+                            {hub.code}
+                        </span>
+                    ) : null}
                 </span>
             ))}
-            <motion.span
-                className="bg-accent/25 absolute grid size-7 -translate-1/2 place-items-center rounded-full"
-                style={{ left, top }}
-            >
-                <span className="size-2.5 rounded-full bg-(--haulr-hot)" />
-            </motion.span>
+            <LaneTruck width={width} height={height} route={art.route} points={art.points} times={art.times} tag={tag} />
         </div>
     );
 }

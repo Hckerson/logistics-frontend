@@ -1,5 +1,9 @@
-import type { AuthLink } from "@/lib/types";
+import type { AuthLink, LaneTag } from "@/lib/types";
 import { FORGOT_PASSWORD_ROUTE, HELP_ROUTE, INVALID_CREDENTIALS, REGISTER_ROUTE } from "@/lib/constants";
+import { HERO_LANE } from "@/lib/data/home/hubs";
+import { LANE_SAMPLES } from "@/lib/data/home/lanes";
+
+const [heroSample] = LANE_SAMPLES;
 
 export const SIGN_IN_COPY = {
     label: "Sign in",
@@ -29,9 +33,9 @@ export const SIGN_IN_COPY = {
             { id: "help", label: "Get help signing in", href: HELP_ROUTE },
         ] satisfies AuthLink[],
     },
-    aside: {
-        title: ["Back on", "the lane."],
-        body: "Every load you price, book, track or haul is waiting on the same record you left it on.",
-        route: { from: "CHI", to: "DAL" },
-    },
+    tag: {
+        title: HERO_LANE.load,
+        route: `${HERO_LANE.from} → ${HERO_LANE.to}`,
+        detail: `${heroSample.equipment} · ${heroSample.transit}`,
+    } satisfies LaneTag,
 } as const;
