@@ -1,8 +1,12 @@
+export type AccountSide = "shipper" | "carrier";
+
 export type SignInField = "email" | "password";
 
 export type AccountField = "side" | "fullName" | "email" | "password" | "consent";
 
 export type SignInStep = "email" | "password";
+
+export type RegisterStep = "side" | "details";
 
 export type AuthSignal = "origin" | "midway" | "pending" | "arrived" | "held";
 
@@ -21,6 +25,14 @@ export interface FormProblem {
 export interface Credentials {
     email: string;
     password: string;
+}
+
+export interface AccountDraft {
+    side: AccountSide | null;
+    fullName: string;
+    email: string;
+    password: string;
+    consent: boolean;
 }
 
 export type LanePoint = [number, number];

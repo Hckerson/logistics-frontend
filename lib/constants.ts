@@ -1,3 +1,5 @@
+import type { AccountSide } from "@/lib/types";
+
 export const DATE_VALUE_FORMAT = "yyyy-MM-dd";
 
 export const SESSION_COOKIE = "session";
@@ -12,6 +14,8 @@ export const REGISTER_ROUTE = `${AUTH_ROUTE_PREFIX}/register`;
 
 export const FORGOT_PASSWORD_ROUTE = `${AUTH_ROUTE_PREFIX}/forgot-password`;
 
+export const VERIFY_ROUTE = `${AUTH_ROUTE_PREFIX}/verify`;
+
 export const RATE_ESTIMATOR_ROUTE = "/tools/rate-estimator";
 
 export const HELP_ROUTE = "/help";
@@ -20,8 +24,9 @@ export const SUPPORT_ROUTE = "/support";
 
 export const legalRoute = (document: string) => `/legal/${document}`;
 
-export const registerRoute = (side: "shipper" | "carrier") =>
-    `${REGISTER_ROUTE}?side=${side}`;
+export const ACCOUNT_SIDES = ["shipper", "carrier"] as const satisfies readonly AccountSide[];
+
+export const registerRoute = (side: AccountSide) => `${REGISTER_ROUTE}?side=${side}`;
 
 export const PROTECTED_ROUTE_PREFIXES = ["/dashboard"];
 
