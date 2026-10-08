@@ -10,11 +10,11 @@ export const QUOTE_PANEL = {
     to: "Dallas, TX",
     facts: [
         { id: "equipment", label: "Equipment", value: "53' dry van" },
-        { id: "distance", label: "Distance", value: "925 mi" },
+        { id: "distance", label: "Distance", value: "955 mi" },
         { id: "pickup", label: "Pickup", value: "Wed 16:00 to 18:00" },
     ] satisfies SceneReadout[],
     rate: "$2,340",
-    perMile: "$2.53 per mile",
+    perMile: "$2.45 per mile",
     range: { label: "Confidence range", low: "$2,250", high: "$2,430", marker: 50 },
     action: "Book this rate",
     validity: "Rate held for 30 minutes",
@@ -44,7 +44,7 @@ export const TRACK_PANEL = {
     eta: { label: "Estimated arrival", value: "Thu 14:20", prefix: "± ", unit: "min" },
     remaining: { label: "Remaining", unit: "mi" },
     confidence: { from: 38, to: 6 },
-    miles: { from: 925, to: 0 },
+    miles: { from: 955, to: 0 },
     stops: [
         { id: "pickup", label: "Chicago, IL", value: "Picked up Wed 16:40" },
         { id: "delivery", label: "Dallas, TX", value: "Appointment Thu 14:00 to 16:00" },

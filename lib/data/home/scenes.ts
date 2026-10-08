@@ -29,7 +29,13 @@ export const TRACK_SCENE = {
         remaining: { label: "Remaining", unit: "mi" },
     },
     confidence: { from: 38, to: 6 },
-    miles: { from: 925, to: 0 },
+    miles: { from: 955, to: 0 },
+} as const;
+
+export const ETA_SCENE = {
+    label: "Arrive",
+    title: "Every mile tightens the window.",
+    body: "The arrival estimate starts wide and narrows as the truck closes in, so the receiving dock knows when to be ready.",
 } as const;
 
 export const DELIVER_SCENE = {
