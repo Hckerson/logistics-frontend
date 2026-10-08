@@ -19,6 +19,10 @@ export default function PaySection() {
                             <PayBar key={term.id} term={term} order={index} />
                         ))}
                     </dl>
+                    <p aria-hidden className="haulr-label text-text-muted -mt-4 flex justify-between">
+                        <span>{PAY_COPY.scale.start}</span>
+                        <span>{PAY_COPY.scale.end}</span>
+                    </p>
                     <p className="haulr-label text-text-muted">{PAY_COPY.note}</p>
                 </div>
             </div>
