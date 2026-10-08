@@ -1,6 +1,6 @@
 # Phase 4 — Page Blueprints
 
-`Haulr Design OS` · `Version 1.1.0` · `2026-09-30` · Previous: [Phase 3 — Information Architecture](./phase-3-information-architecture.md) · Next: [Phase 5 — Section Blueprints](./phase-5-section-blueprints.md)
+`Haulr Design OS` · `Version 1.1.1` · `2026-10-09` · Previous: [Phase 3 — Information Architecture](./phase-3-information-architecture.md) · Next: [Phase 5 — Section Blueprints](./phase-5-section-blueprints.md)
 
 A functional blueprint for each of the 64 pages in the [Phase 3 sitemap](./phase-3-information-architecture.md#3-sitemap). Each blueprint says what the page is for, what users come to get done, what data and permissions it needs, and what happens in every state. It never says what the page contains or how it looks; that is decided when the page is built, with the owner.
 
@@ -10,7 +10,7 @@ States describe what happens and what the user is told, never where it appears.
 
 1. [Blueprint Format](#1-blueprint-format)
 2. [Shared State Behaviour](#2-shared-state-behaviour)
-3. [Public Pages](#3-public-pages) — PG-01 … PG-09
+3. [Public Pages](#3-public-pages) — PG-01 … PG-03, PG-05 … PG-09
 4. [Access Pages](#4-access-pages) — PG-10 … PG-15
 5. [Onboarding](#5-onboarding) — PG-16, PG-17
 6. [Role Dashboards](#6-role-dashboards) — PG-18 … PG-25
@@ -172,7 +172,7 @@ Every task a page supports on DV-DESK must also be possible on DV-AT. DV-PHONE a
 - **Empty states:** EM-4: no position yet (not yet picked up) → tracking starts at pickup, with the scheduled pickup window in the facility's time zone.
 - **Error states:** E-NOT-FOUND: invalid, tampered or revoked token → a not-found message that never reveals whether a load exists. Expired token (7 days after delivery, BR-21) → state that tracking ended and when the load was delivered. Position stale beyond 60 min (§2.6) → the last known position and its age (PP-03), not an error. E-RATE-LIMIT (SEC-10) → the wait from `Retry-After`; polling resumes after it. E-UNAVAILABLE from the ETA service → status and stops remain; the ETA is withheld with a statement that it is temporarily unavailable. E-SERVER on refresh → values kept with their age; reads retried per §2.2.
 - **Success states:** SU-1 (passive): on `Delivered`, the delivery time is confirmed and announced politely once if it arrives during the visit; polling stops.
-- **Dependencies:** Tracking token service, ETA service, map library (pending approval, Phase 7 §15).
+- **Dependencies:** Tracking token service, ETA service, map base layer (pending approval; deck.gl installed, Phase 7 §15).
 - **Implementation notes:** `noindex, nofollow`; no rates, contacts or documents in the payload (BR-21); polling through TanStack Query `refetchInterval`, paused when the tab is hidden; a text equivalent of the map is always present (PP-08). Acceptance: given a token 8 days past delivery, when it is opened, then the expired state is shown and the response carries no position; given the tab is hidden for 10 minutes, then no tracking request is made; given a position older than 60 min, then its age is stated in words. Analytics: `tracking.page.viewed`, `tracking.token.expired`, `tracking.token.invalid` (token ID only). No audit events here (read-only); link issuance and revocation are audited on PG-40. Query key `trackingKeys.public(token)` through `useTracking`; responses `Cache-Control: private, no-store`; built for 100,000 views per hour (NFR-CAP-1) at 99.95% availability (NFR-AV-2).
 
 ### PG-03 — Carrier Public Profile
@@ -227,7 +227,7 @@ Every task a page supports on DV-DESK must also be possible on DV-AT. DV-PHONE a
 - **Error states:** E-UNAVAILABLE: the search index fails to load → category browsing remains fully usable and search states it is unavailable. E-SERVER on the role-specific part → that part is omitted; the rest is unaffected.
 - **Success states:** SU-2: the user reaches an article (PG-07) or PG-08 with context.
 - **Dependencies:** Help content source, PG-07, PG-08.
-- **Implementation notes:** Content source is decided in Phase 7 (markdown in-repo by default); search runs over a build-time index. Acceptance: given the index fails to load, when the page renders, then every category remains reachable by keyboard; given a no-result search, then PG-08 opens with the query as context. Analytics: `help.search.performed` (result count only; never the query text, NFR-PRIV-3), `help.search.no_results`, `help.article.opened`. No audit events (no mutations). `useHelpSearch` loads the index lazily on focus of the search; static pages revalidate on content publish.
+- **Implementation notes:** Content source is decided in Phase 7 (typed modules in `lib/data/help/` until a CMS exists, D-3); search runs over a build-time index. Acceptance: given the index fails to load, when the page renders, then every category remains reachable by keyboard; given a no-result search, then PG-08 opens with the query as context. Analytics: `help.search.performed` (result count only; never the query text, NFR-PRIV-3), `help.search.no_results`, `help.article.opened`. No audit events (no mutations). `useHelpSearch` loads the index lazily on focus of the search; static pages revalidate on content publish.
 
 ### PG-07 — Help Article
 
@@ -258,9 +258,9 @@ Every task a page supports on DV-DESK must also be possible on DV-AT. DV-PHONE a
 - **Required data:** Ticket categories, context from the originating page (load reference, page, error digest), the user's tickets and their status. Ticket text and attachments are Confidential (may contain personal data); the anonymous requester's email is Confidential; originating context is Internal.
 - **Permissions:** Everyone can open a ticket (anonymous submissions rate-limited, SEC-10); history requires sign-in and shows the user's own tickets only. View-as (BR-27): history readable as the member; opening a ticket as the member requires write consent.
 - **Device needs:** DV-PHONE and DV-CAB: report a problem from the road with a photo (IC-25) and the load reference prefilled. DV-DESK: detailed tickets with several attachments (IC-24). DV-AT: full parity.
-- **Loading states:** LS-1: ticket history streams in its own boundary; the form is usable immediately. LS-5 on submission ("Sending…"), duplicates blocked. Attachments show per-file progress, with completion announced politely.
-- **Empty states:** EM-1: signed in with no tickets → nothing to follow yet; the form is the next step. Signed out → EM-5 for history: it is not offered until sign-in.
-- **Error states:** E-VALIDATION: missing category or description → IC-02 summary, entries kept. E-OFFLINE, E-SERVER or E-TIMEOUT on submission → draft preserved locally, retry offered (IC-60); the idempotency key prevents a duplicate ticket. E-RATE-LIMIT (anonymous) → the wait stated. Attachment rejected (type, limit or failed scan, SEC-7) → that file named with the reason; other files kept. E-AUTH on history → history withheld; the form remains usable.
+- **Loading states:** LS-1: ticket history streams in its own boundary; a ticket can be opened immediately. LS-5 on submission ("Sending…"), duplicates blocked. Attachments show per-file progress, with completion announced politely.
+- **Empty states:** EM-1: signed in with no tickets → nothing to follow yet; opening a ticket is the next step. Signed out → EM-5 for history: it is not offered until sign-in.
+- **Error states:** E-VALIDATION: missing category or description → IC-02 summary, entries kept. E-OFFLINE, E-SERVER or E-TIMEOUT on submission → draft preserved locally, retry offered (IC-60); the idempotency key prevents a duplicate ticket. E-RATE-LIMIT (anonymous) → the wait stated. Attachment rejected (type, limit or failed scan, SEC-7) → that file named with the reason; other files kept. E-AUTH on history → history withheld; opening a ticket remains possible.
 - **Success states:** SU-1: ticket reference (`TKT-`) returned and the expected response time stated from the OPS-2 tier; the draft is cleared.
 - **Dependencies:** Support system, XS-07.
 - **Implementation notes:** Ticket creation through a Server Action; draft persistence via `useSyncExternalStore` + `localStorage`; anonymous submissions protected by rate limiting on the backend. Acceptance: given a network failure on submit, when the page is reloaded, then the draft is restored intact; given an urgent category, then the stated response time is ≤ 15 min (OPS-2). Analytics: `support.ticket.created` (category, has-context flag), `support.ticket.failed` (error class). Audit: `ticket.created`. `useCreateTicket` uses a `nanoid` idempotency key; history via `useTickets` keyed `ticketKeys.mine()`, refetched on focus; drafts expire after 30 days (NFR-PRIV-4).
@@ -289,7 +289,7 @@ Every task a page supports on DV-DESK must also be possible on DV-AT. DV-PHONE a
 
 ### PG-10 — Sign In
 
-`/auth/login` (exists) · Serves XS-01 · Sections: [SC-10.x](./phase-5-section-blueprints.md#pg-10--sign-in)
+`/auth/login` · Serves XS-01, XS-13 · Sections: [SC-10.x](./phase-5-section-blueprints.md#pg-10--sign-in)
 
 - **Purpose:** Authenticate returning users.
 - **Business objective:** Secure, low-friction access.
@@ -299,11 +299,11 @@ Every task a page supports on DV-DESK must also be possible on DV-AT. DV-PHONE a
 - **Permissions:** Signed-out users; signed-in users are redirected to their role root. When an organisation requires SSO, its members are routed to their identity provider and cannot use password sign-in, except the one designated break-glass admin (BR-24). An organisation IP allow-list for internal-facing roles is enforced at sign-in. View-as never starts here (XS-16).
 - **Device needs:** DV-PHONE: sign in with password manager autofill or a passkey. DV-DESK: the same by keyboard alone. DV-CAB: drivers usually stay signed in; autofill must still work. DV-AT: full parity; errors announced assertively and tied to their field (IC-02, WCAG 3.3.1).
 - **Loading states:** LS-5: pending submission is announced ("Signing in…"); the submitting action is disabled against double submission. Identity-policy discovery after the email is entered is LS-5 ("Checking your organisation…") and clears no entry.
-- **Empty states:** EM-5: a sign-in form has no collection that could be empty.
+- **Empty states:** EM-5: signing in involves no collection that could be empty.
 - **Error states:** E-VALIDATION: missing fields → IC-02. Wrong credentials → generic message (`INVALID_CREDENTIALS`) that never reveals whether the account exists. Locked account → cooldown explained. E-RATE-LIMIT → the wait from `Retry-After` (SEC-10). E-FORBIDDEN: password sign-in disabled by SSO policy → route to the identity provider; address outside the IP allow-list → the reason and to contact the organisation's security admin. Identity-provider failure on return → the failing step and a support reference. E-OFFLINE, E-SERVER, E-TIMEOUT → retry, email kept, password cleared.
 - **Success states:** SU-2: redirect to the validated return path or role root; MFA challenge to PG-14 when enrolled and not enforced by the identity provider; SSO members return already verified.
-- **Dependencies:** `app/api/session`, `lib/hooks/use-login.ts`, `proxy.ts`.
-- **Implementation notes:** Already built in the starter (`components/common/login-form.tsx`); extend with MFA hand-off and role resolution. Status in [Phase 8](./phase-8-implementation-roadmap.md#9-per-feature-build-status). SSO discovery and hand-off use `useSsoDiscovery` (SC-10.3, XS-13). Acceptance: given a member of an SSO-required organisation, when they enter their email, then no password entry is offered and they reach their identity provider; given the break-glass admin, then password sign-in and Haulr MFA remain available; given an unknown email and a wrong password, then both produce the identical message and timing. Analytics: `auth.signin.succeeded` (method), `auth.signin.failed` (reason enum), `auth.sso.redirected`. Audit: `session.created` (method password, passkey or SSO; identity provider), `session.signin_failed`. Session rotated on sign-in (SEC-3); the page is dynamic and never cached.
+- **Dependencies:** `app/api/session`, `lib/hooks/use-sign-in-flow.ts` (wraps `lib/hooks/use-login.ts`), `proxy.ts`.
+- **Implementation notes:** Identity-first: the email is taken first and the organisation's identity policy resolved through `useSsoDiscovery` (SC-10.3, XS-13) before any password is asked for; `useSignInFlow` sequences the email and password steps over `useLogin`, then MFA hand-off (PG-14) and role resolution follow. Build status lives in [Phase 8](./phase-8-implementation-roadmap.md#9-per-feature-build-status). Acceptance: given a member of an SSO-required organisation, when they enter their email, then no password entry is offered and they reach their identity provider; given the break-glass admin, then password sign-in and Haulr MFA remain available; given an unknown email and a wrong password, then both produce the identical message and timing. Analytics: `auth.signin.succeeded` (method), `auth.signin.failed` (reason enum), `auth.sso.redirected`. Audit: `session.created` (method password, passkey or SSO; identity provider), `session.signin_failed`. Session rotated on sign-in (SEC-3); the page is dynamic and never cached.
 
 ### PG-11 — Register
 
@@ -317,10 +317,10 @@ Every task a page supports on DV-DESK must also be possible on DV-AT. DV-PHONE a
 - **Permissions:** Signed-out only; signed-in users are redirected to their role root. An email on a verified domain whose organisation requires SSO is refused here and routed to the identity provider (BR-24, XS-13). Bot protection applies (SEC-10).
 - **Device needs:** DV-PHONE: carriers often register on phones; the whole flow works one-handed with autofill. DV-DESK: shippers mostly. DV-AT: full parity; password rules announced with the field (IC-03).
 - **Loading states:** LS-5: pending submission announced ("Creating your account…"); duplicates blocked.
-- **Empty states:** EM-5: a registration form has no collection that could be empty.
+- **Empty states:** EM-5: registering involves no collection that could be empty.
 - **Error states:** E-CONFLICT: email already used → offer sign-in and reset. E-VALIDATION: password shorter than `PASSWORD_MIN_LENGTH` or found in the breached-password check (SEC-1) → explain the rule; consent not given → required. E-FORBIDDEN: domain requires SSO → route to the identity provider. E-RATE-LIMIT or failed bot check → the wait or a retry. Session creation fails after account creation → `SESSION_UNAVAILABLE` and route to sign-in.
 - **Success states:** SU-2: account created, consent recorded with document version, verification email sent; user continues to PG-14.
-- **Dependencies:** `app/api/register` (exists), `lib/hooks/use-register.ts`, PG-14, PG-09.
+- **Dependencies:** `app/api/register`, `lib/hooks/use-register.ts`, PG-14, PG-09.
 - **Implementation notes:** Side preselected by `?side=` from PG-01 or PG-02; schema composes over the generated register DTO. Acceptance: given `?side=carrier`, then the carrier side is preselected; given a breached password, then the account is not created and entries except the password are kept; given success, then the recorded consent version equals the PG-09 version served. Analytics: `auth.account.registered` (side), `auth.registration.failed` (reason enum). Audit: `user.registered`, `consent.recorded` (document, version, IP). Never cached.
 
 ### PG-12 — Forgot Password
@@ -335,7 +335,7 @@ Every task a page supports on DV-DESK must also be possible on DV-AT. DV-PHONE a
 - **Permissions:** Signed-out. Members of an SSO-required organisation receive the same on-page confirmation, but the email directs them to their identity provider instead of a reset (BR-24).
 - **Device needs:** DV-PHONE and DV-DESK: request a link in one step. DV-AT: full parity; the confirmation is announced politely.
 - **Loading states:** LS-5: pending announced ("Sending…").
-- **Empty states:** EM-5: a single-field form cannot be empty.
+- **Empty states:** EM-5: requesting a link involves no collection that could be empty.
 - **Error states:** E-VALIDATION: malformed email → IC-02. E-RATE-LIMIT → explain the wait from `Retry-After`. E-SERVER or E-TIMEOUT → retry with the entry kept.
 - **Success states:** SU-1: the same confirmation whether or not the email exists (no enumeration), stating that a link valid for 30 minutes was sent if an account exists.
 - **Dependencies:** Backend auth reset endpoint.
@@ -353,7 +353,7 @@ Every task a page supports on DV-DESK must also be possible on DV-AT. DV-PHONE a
 - **Permissions:** Valid, unexpired, unused reset token; no session required.
 - **Device needs:** DV-PHONE: often opened from email; password manager generation supported. DV-DESK: the same. DV-AT: full parity; rules announced with the field (IC-03).
 - **Loading states:** Token validated on the server before rendering, so no LS-1 state is shown; LS-5 on submit ("Saving…").
-- **Empty states:** EM-5: a single-purpose form cannot be empty.
+- **Empty states:** EM-5: setting a password involves no collection that could be empty.
 - **Error states:** E-NOT-FOUND: token invalid, used or expired → say so and route to PG-12. E-VALIDATION: shorter than `PASSWORD_MIN_LENGTH` or breached (SEC-1) → explain. E-RATE-LIMIT → the wait. E-SERVER → retry while the token remains valid.
 - **Success states:** SU-2: password changed; all other sessions revoked (SEC-3); user signed in or sent to PG-10; a security notification is emailed.
 - **Dependencies:** Backend auth.
@@ -371,7 +371,7 @@ Every task a page supports on DV-DESK must also be possible on DV-AT. DV-PHONE a
 - **Permissions:** Partially authenticated session; a full session is issued only on success. MFA is required for `*.admin`, `*.finance`, `shipper.approver`, `org.security` and every internal role (SEC-1). Members who sign in through SSO skip the Haulr challenge because the identity provider enforces MFA (BR-24); the break-glass admin always completes it.
 - **Device needs:** DV-PHONE: paste or autofill one-time codes; passkey on the device. DV-DESK: the same by keyboard. DV-AT: full parity; attempts remaining announced assertively.
 - **Loading states:** LS-5: pending verification announced ("Verifying…"); resend is LS-5 ("Sending…").
-- **Empty states:** EM-5: a challenge form cannot be empty.
+- **Empty states:** EM-5: a challenge involves no collection that could be empty.
 - **Error states:** E-VALIDATION: wrong code → attempts remaining stated. Expired email link → resend. E-RATE-LIMIT: too many attempts → cooldown stated. E-AUTH: partial session expired → PG-10 with the return path. Lost device → backup code, else PG-08 with the account recovery category.
 - **Success states:** SU-2: full session issued and rotated (SEC-3); continue to onboarding (PG-16, PG-17), the return path or the role root. Email verification is confirmed and announced politely.
 - **Dependencies:** Backend auth, PG-16, PG-17.
@@ -470,7 +470,7 @@ All dashboards follow XD rules in [Phase 2 §3](./phase-2-experience-maps.md#3-r
 - **Required data:** Loads needing assignment with their BR-09 deadline, active loads with status, exceptions and any amendment awaiting response (BR-25), recommended loads by truck availability, pending settlements with expected dates, compliance standing and expiring documents. Settlement amounts are Confidential.
 - **Permissions:** `carrier.admin`, `carrier.dispatcher`, own carrier only; settlement amounts visible to admin, dates visible to dispatcher (response shaping, Phase 3 §5.2). Acting happens on PG-33, PG-35 and PG-40. View-as (BR-27): read-only; settlements and payout data are never writable in view-as.
 - **Device needs:** DV-PHONE: owner-operators run their business from here. DV-DESK: dispatchers with many trucks. DV-AT: full parity.
-- **Loading states:** LS-1 per part; LS-2 every 60 s and on focus, paused when hidden; stale label after 5 min.
+- **Loading states:** LS-1 per part; LS-2 every 60 s and on focus, paused when hidden, except recommendations every 5 min and settlements on focus only (§2.6, Phase 7 §13); stale label after 5 min, or 15 min for recommendations.
 - **Empty states:** EM-1: no active loads → go to the load board. EM-4: not yet approved → onboarding status and what is missing (SH-06). EM-3: every load assigned → clear, with the last-checked time. Recommendations EM-2: nothing matches current truck availability → search PG-33 with wider criteria.
 - **Error states:** Per part: E-SERVER, E-UNAVAILABLE → that part names what failed and offers retry; others unaffected. E-CONFLICT: a recommended load was booked by someone else → marked as gone. E-FORBIDDEN on booking from a recommendation while ineligible → the BR-03 reason and the fix.
 - **Success states:** SU-1: assignments and bookings reflect immediately, announced politely.
@@ -487,10 +487,10 @@ All dashboards follow XD rules in [Phase 2 §3](./phase-2-experience-maps.md#3-r
 - **Primary tasks:** "Open my current trip." "What's next after this?" "Did my updates go through?"
 - **Required data:** Current trip, upcoming trips, location consent state, offline queue state. Stop contacts are Confidential; the driver's precise location is Restricted and leaves the device only as tracking events.
 - **Permissions:** `carrier.driver`; own assigned trips only. View-as (BR-27): read-only as the driver; stop events are never recorded through view-as.
-- **Device needs:** DV-CAB is the target: glanceable, operable with gloves, legible in glare, one action to the current trip. DV-PHONE: the same. DV-AT: full parity. DV-DESK: not targeted.
+- **Device needs:** DV-CAB is the target: reach the current trip in one action, with gloves, in glare and with seconds of attention. DV-PHONE: the same. DV-AT: full parity. DV-DESK: not targeted.
 - **Loading states:** LS-6: cached trip shown instantly with its age ("Saved 14 min ago") while LS-2 refreshes silently (SSB-2). LS-1 only on a device with no cached trip.
 - **Empty states:** EM-1: no trip → how to reach dispatch (the carrier's dispatch contact). EM-4: next trip assigned but not yet dispatched → when it starts.
-- **Error states:** Location permission off → how to turn it on and why (a consent state, not an E-class). E-OFFLINE → SSB-4, queued events count, cached trip remains. E-AUTH → the queue is retained for the same driver and replayed after sign-in; it is purged only on sign-out or account switch (SSB-10). E-SERVER on refresh → cached trip remains with its age.
+- **Error states:** Location permission off → how to turn it on and why (a consent state, not an E-class). E-OFFLINE → SSB-4, queued events count, cached trip remains. E-AUTH → the queue is retained for the same driver and replayed after sign-in; it leaves the device only by replay or an explicit discard confirmed with IC-12, and another account never sees it (SSB-10 driver exception, NFR-AV-6). E-SERVER on refresh → cached trip remains with its age.
 - **Success states:** SU-1: queue drained confirmation, announced politely with the number of events synced.
 - **Dependencies:** XF-06, PG-39.
 - **Implementation notes:** Active trip cached for offline; if exactly one active trip exists, the page offers to go straight to it. Acceptance: given the device is offline, when the page opens, then the cached trip renders within 1 s with its age; given 3 queued events, when connectivity returns, then all 3 sync in order and the drained confirmation states 3. Analytics: `driver.home.viewed` (offline flag), `driver.queue.drained` (count). No mutations on this page, so no audit events (stop events are audited on PG-39). `useDriverTrips` persisted to IndexedDB; initial JS ≤ 150 KB (Phase 7 §18).
@@ -604,7 +604,7 @@ All dashboards follow XD rules in [Phase 2 §3](./phase-2-experience-maps.md#3-r
 - **Empty states:** EM-1: no loads → start a quote (PG-27) or import a file (PG-56). EM-2: filters match nothing → active filter count and a way to clear them.
 - **Error states:** Per part E-SERVER, E-TIMEOUT → retry (IC-60); the other part stays usable. Map failure (E-UNAVAILABLE) → list remains fully usable (PP-08). E-VALIDATION: malformed URL parameters → defaults applied and stated. Bulk partial failure → per-record outcome reported; failed rows never block the successful ones (BR-28).
 - **Success states:** SU-1: bulk share tracking confirmed with the count of links created and any failures per load. SU-3: export accepted, reference returned, notification when ready (LS-7).
-- **Dependencies:** PG-40, PG-27, PG-56, XF-07, XF-14, map library (pending approval).
+- **Dependencies:** PG-40, PG-27, PG-56, XF-07, XF-14, map base layer (pending approval; deck.gl installed, Phase 7 §15).
 - **Implementation notes:** Filters, view and cursor in the URL (Phase 3 §10); positions subscribed only for loads in view; export generated server-side. Acceptance: given 150 selected loads, when the user exports, then scope and total are stated before running (IC-23) and the export runs as a background job; given 3 of 20 share-tracking requests fail, then each failure is named with its reason and the 17 links are kept; the page of 50 loads returns within 800 ms at p95 (NFR-PERF-3). Analytics: `load.list.viewed` (view, filter count), `load.list.filtered`, `load.export.requested` (count), `tracking.link.bulk_created` (count). Audit: `export.requested` (scope, count), `tracking_link.created` per load. `useLoads` keyed `loadKeys.list(params)` with page size 50 (maximum 200); `useLoadPositions` 60 s; `useExportLoads`.
 
 ### PG-27 — Post a Load
@@ -619,7 +619,7 @@ All dashboards follow XD rules in [Phase 2 §3](./phase-2-experience-maps.md#3-r
 - **Permissions:** `shipper.member`, `shipper.admin`; posting requires an active organisation (XF-13). A member with a spend limit can always submit; the server decides whether the load posts or enters `PendingApproval`, and the client never hides the action because of a limit (Phase 3 §5.2). View-as (BR-27): read-only; posting requires write consent on the linked ticket.
 - **Device needs:** DV-DESK: fast keyboard entry, many loads in a row. DV-PHONE: post a simple single-stop load. DV-AT: full parity, including the quote countdown (IC-46) announced at thresholds only.
 - **Loading states:** LS-5 while the quote is requested ("Getting your price…", announced politely); quote validity counts down (BR-06, IC-46). LS-3 after 5 s; LS-4 at 30 s. LS-5 on posting ("Posting…").
-- **Empty states:** EM-5: the form always renders its current step; prefilled from `?from=<loadId>` (duplicate) or `?lane=` (estimator).
+- **Empty states:** EM-5: the flow always renders its current step; prefilled from `?from=<loadId>` (duplicate) or `?lane=` (estimator).
 - **Error states:** E-VALIDATION per field (IC-02), entries kept. Quote expired → re-quote keeping all entries. Unserviceable lane → custom quote request. E-FORBIDDEN: posting blocked → route to onboarding. E-UNAVAILABLE from pricing → entries kept, draft saved, retry offered. E-TIMEOUT on posting → retried automatically with the same idempotency key, never duplicated. Approval required is not an error: the user is told approval is needed, who can approve and by when (quote expiry).
 - **Success states:** SU-2: load posted; user lands on PG-40 with tender progress. SU-2: approval required → load in `PendingApproval` on PG-40, stating approvers and the deadline; approvers notified (XF-16).
 - **Dependencies:** XF-01, XF-04, XF-13, XF-16, PG-32, PG-29.
@@ -750,7 +750,7 @@ All dashboards follow XD rules in [Phase 2 §3](./phase-2-experience-maps.md#3-r
 - **Device needs:** DV-PHONE and DV-DESK: complete booking and signing in one sitting. DV-AT: full parity; the rate confirmation is available as accessible text (IC-26, IC-58).
 - **Loading states:** Eligibility and availability checked server-side before rendering. LS-5 on booking ("Booking…") and signing ("Signing…"); duplicates blocked.
 - **Empty states:** EM-5: the page renders only for a bookable load.
-- **Error states:** E-CONFLICT: load no longer available (409, taken) → offer similar loads. E-FORBIDDEN: ineligible → exact reason and route to the fix (BR-03). Signature fails → retry within the grace period (XF-02). E-TIMEOUT → retried with the same idempotency key. E-UNAVAILABLE from e-signature → booking held for the grace period and the user told.
+- **Error states:** E-CONFLICT: load no longer available (409, taken) → offer similar loads. E-FORBIDDEN: ineligible → exact reason and route to the fix (BR-03). Signature fails (E-SERVER) → retry (IC-60) within the grace period (XF-02). E-TIMEOUT → retried with the same idempotency key. E-UNAVAILABLE from e-signature → booking held for the grace period and the user told.
 - **Success states:** SU-2: booked; rate confirmation stored; user continues to driver assignment (XF-05).
 - **Dependencies:** XF-02, XF-05, e-signature.
 - **Implementation notes:** Booking through a Server Action with a `nanoid` idempotency key; conflict response (409) handled as "load taken". Acceptance: given two carriers book simultaneously, then exactly one succeeds and the other sees "load taken" with similar loads; given acceptance, then the stored evidence contains user, time, IP and document version (BR-04, CMP-4). Analytics: `load.booking.started`, `load.booked`, `load.booking.conflicted`. Audit: `load.booked`, `rate_confirmation.accepted` (version, IP). `useBookLoad`, `useSignAgreement`; success invalidates `loadKeys.detail(loadId)` and `loadBoardKeys`.
@@ -844,7 +844,7 @@ All dashboards follow XD rules in [Phase 2 §3](./phase-2-experience-maps.md#3-r
 - **Device needs:** DV-CAB: single-handed, gloves, glare, intermittent signal, seconds of attention; every stop event reachable in one action. DV-PHONE: the same. DV-AT: full parity, every event operable by voice control and screen reader. DV-DESK: not targeted.
 - **Loading states:** LS-6: cached trip available immediately with its age; LS-2 refresh is silent (SSB-2). LS-5 on each event is optimistic (IC-29): acknowledged at once and confirmed once synced. POD uploads show progress and resume after connectivity returns.
 - **Empty states:** EM-5: the page renders only for an assigned trip; a trip with no remaining stops shows the delivered state.
-- **Error states:** E-OFFLINE → events queued with count (SSB-4). Upload failed → retried automatically. Permission revoked → re-grant guidance. Wrong event → undo within 5 minutes. E-CONFLICT: event no longer legal (operations moved the state) → the new state explained and the queued event discarded with notice. E-NOT-FOUND: driver unassigned → the trip is withdrawn and the driver told to contact dispatch. Amendment accepted during the trip → the updated stops are announced assertively once.
+- **Error states:** E-OFFLINE → events queued with count (SSB-4). Upload interrupted (E-OFFLINE, E-TIMEOUT or E-UNAVAILABLE) → retried automatically from the queue under its event ID (§2.2). Permission revoked → re-grant guidance. Wrong event → undo within 5 minutes. E-CONFLICT: event no longer legal (operations moved the state) → the new state explained and the queued event discarded with notice. E-NOT-FOUND: driver unassigned → the trip is withdrawn and the driver told to contact dispatch. Amendment accepted during the trip → the updated stops are announced assertively once.
 - **Success states:** SU-1: each event acknowledged immediately (optimistic) and confirmed once synced; the driver is told when an accepted amendment changed the trip.
 - **Dependencies:** XF-06, XF-09, XF-15, geolocation, camera.
 - **Implementation notes:** Offline event queue persisted in IndexedDB through browser-native APIs (no new dependency unless approved); events carry device time and a `nanoid` event ID for de-duplication; location collected through the browser only while the page is open (A8). Acceptance: given the device is offline, when the driver records arrival, then the event is queued with device time and replayed exactly once on reconnect; given an amendment is accepted, then the trip reflects the new stops on the next refresh and the driver is notified; queued events survive a browser restart for 7 days (NFR-AV-6). Analytics: `driver.stop_event.recorded` (event type, offline flag), `driver.pod.captured`, `driver.issue.reported`, `driver.event.undone`. Audit: `stop_event.recorded` (event, device time, source), `pod.uploaded`, `stop_event.undone`, `issue.reported`. `useTrip`, `useStopEvents`, `usePodUpload`; initial JS ≤ 150 KB; 99.95% availability (NFR-AV-2).
@@ -884,7 +884,7 @@ All dashboards follow XD rules in [Phase 2 §3](./phase-2-experience-maps.md#3-r
 - **Device needs:** DV-PHONE and DV-DESK equally: read and reply. DV-CAB: drivers reach threads from PG-39 for short replies. DV-AT: full parity; new messages in the open thread announced politely (IC-35).
 - **Loading states:** LS-1 for threads and the open thread separately; LS-2: the open thread refreshes every 10 s and the thread index every 60 s (Phase 7 §13), paused when hidden. Sending is optimistic (SH-04) with a pending state.
 - **Empty states:** EM-1: no conversations → they start on loads (PG-40) or tickets (PG-08). EM-2: search matches nothing → clear it.
-- **Error states:** Failed send kept with retry (XS-04). E-OFFLINE → message kept as unsent and sent on reconnect only after the user confirms. E-NOT-FOUND: thread no longer accessible (removed from the load) → state it. Attachment rejected (type, limit or scan) → reason named.
+- **Error states:** Failed send (E-SERVER, E-TIMEOUT) kept with retry (IC-60, XS-04). E-OFFLINE → message kept as unsent and sent on reconnect only after the user confirms. E-NOT-FOUND: thread no longer accessible (removed from the load) → state it. Attachment rejected (type, limit or scan) → reason named.
 - **Success states:** SU-1: sent and delivered states shown; the thread reflects the new message.
 - **Dependencies:** XS-04, PG-40.
 - **Implementation notes:** Selected thread in `?thread=`; polling or server-sent events chosen in Phase 7 §13. Acceptance: given a send fails, then the text is kept and can be resent without re-typing; given a new message while the thread is open, then it is visible within 10 s and announced politely once. Analytics: `message.sent` (thread type, has attachment), `message.send.failed`, `thread.opened`. Audit: `message.sent` (thread, never the text in analytics). `useThreads`, `useMessages` (`refetchInterval` 10 s), `useSendMessage` with a `nanoid` client ID for de-duplication.
@@ -920,7 +920,7 @@ All dashboards follow XD rules in [Phase 2 §3](./phase-2-experience-maps.md#3-r
 - **Device needs:** DV-DESK mostly: filter, preview and download in bulk. DV-PHONE: find and preview a single document. DV-AT: full parity; previews have text alternatives (IC-58).
 - **Loading states:** LS-1; LS-2 on filter change keeps results and announces the count; LS-5 on upload with per-file progress; bulk download: LS-5 up to 100 documents, LS-7 over 100.
 - **Empty states:** EM-1: none → when documents arrive (booking, delivery, onboarding). EM-2: filters (`docType`, `load`) match nothing → clear them.
-- **Error states:** Download failure → retry; signed URL expired (5 minutes, SEC-7) → a fresh one is requested automatically once. Upload rejected (type, limit, failed scan) → reason named. E-NOT-FOUND: document no longer accessible → "no longer available". E-PRECONDITION: replaced by a colleague meanwhile → the newer version named.
+- **Error states:** Download failure (E-SERVER, E-TIMEOUT) → retry (IC-60); signed URL expired (5 minutes, SEC-7) → a fresh one is requested automatically once. Upload rejected (type, limit, failed scan) → reason named. E-NOT-FOUND: document no longer accessible → "no longer available". E-PRECONDITION: replaced by a colleague meanwhile → the newer version named.
 - **Success states:** SU-1: upload or replacement confirmed with version. SU-3: bulk download accepted with reference and notification when ready.
 - **Dependencies:** XS-12, PG-40.
 - **Implementation notes:** Downloads through short-lived signed URLs from the backend. Acceptance: given a replaced certificate, then earlier versions remain retrievable for 7 years (BR-20); given 250 selected documents, then scope is stated before running (IC-23) and the download runs as a background job. Analytics: `document.previewed` (type), `document.downloaded` (type, count), `document.uploaded` (type). Audit: `document.uploaded`, `document.replaced` (version), `document.downloaded` (Confidential and Restricted types). `useDocuments` (page size 50, maximum 200), `useDocumentUpload`; documents refetched on focus (§2.6).
@@ -976,7 +976,7 @@ All dashboards follow XD rules in [Phase 2 §3](./phase-2-experience-maps.md#3-r
 - **Empty states:** EM-5: a profile always exists for a signed-in user; optional fields not yet filled state what they are used for.
 - **Error states:** E-VALIDATION per field (IC-02). E-CONFLICT: new email already in use. E-PRECONDITION: profile changed in another session (SSB-8). Avatar rejected (type, limit) → reason.
 - **Success states:** SU-1: saved and announced politely; email change pending until verified.
-- **Dependencies:** Backend `users` module (`GET /users/me` exists).
+- **Dependencies:** Backend `users` module (`GET /users/me`).
 - **Implementation notes:** Email change requires verification. Acceptance: given an email change, then the old email stays active until the new one is verified and the old address is notified; given an SSO member, then name and email are read-only. Analytics: `profile.updated` (field names only), `profile.email.change_requested`. Audit: `user.profile_updated` (changed fields), `user.email_change_requested`, `user.email_changed`. `useProfile`, `useChangeEmail`.
 
 ### PG-47 — Settings
@@ -1106,7 +1106,7 @@ All dashboards follow XD rules in [Phase 2 §3](./phase-2-experience-maps.md#3-r
 - **Empty states:** EM-2: no search results → check the email or organisation name. Audit history EM-1: no events yet for a new organisation.
 - **Error states:** Change conflicts with active loads → impact explained. E-VALIDATION: reason missing (SSB-9). E-FORBIDDEN: re-authentication older than 10 minutes → IC-13; view-as without ticket → refused. E-PRECONDITION: account changed by another admin (SSB-8).
 - **Success states:** SU-1: change applied and audited; the organisation's admins notified of security-relevant changes (MFA reset, suspension).
-- **Dependencies:** Backend `users` module (CRUD exists), extended with organisations.
+- **Dependencies:** Backend `users` module (user CRUD), extended with organisations.
 - **Implementation notes:** Reason required; re-authentication. Acceptance: given a suspension, then all member sessions end within 5 minutes (SEC-3); given any attempt to edit or delete an audit event, then no such action exists and the API refuses it; given an MFA reset, then the user must re-enrol on next sign-in. Analytics: `admin.account.searched` (result count), `admin.account.changed` (action). Audit: `organization.suspended`, `organization.reinstated`, `user.suspended`, `mfa.reset`, `sso.override_changed` (all with reason). `useAccounts`, `useAuditLog` keyed per organisation.
 
 ---
@@ -1115,7 +1115,7 @@ All dashboards follow XD rules in [Phase 2 §3](./phase-2-experience-maps.md#3-r
 
 ### PG-53 — Not Found
 
-Mechanism in [Phase 3 §3.5](./phase-3-information-architecture.md#35-system-pages) · Sections: [SC-53.x](./phase-5-section-blueprints.md#pg-53--not-found)
+Mechanism in [Phase 3 §3.5](./phase-3-information-architecture.md#35-system-pages) · Serves Phase 3 §14 fallbacks · Sections: [SC-53.x](./phase-5-section-blueprints.md#pg-53--not-found)
 
 - **Purpose:** Recover from a missing or inaccessible page or record.
 - **Business objective:** Keep users in the product.
@@ -1133,7 +1133,7 @@ Mechanism in [Phase 3 §3.5](./phase-3-information-architecture.md#35-system-pag
 
 ### PG-54 — Server Error
 
-Mechanism in Phase 3 §3.5 · Sections: [SC-54.x](./phase-5-section-blueprints.md#pg-54--server-error)
+Mechanism in Phase 3 §3.5 · Serves Phase 3 §14 fallbacks · Sections: [SC-54.x](./phase-5-section-blueprints.md#pg-54--server-error)
 
 - **Purpose:** Recover from an unexpected failure.
 - **Business objective:** Trust; diagnosability.
@@ -1151,7 +1151,7 @@ Mechanism in Phase 3 §3.5 · Sections: [SC-54.x](./phase-5-section-blueprints.m
 
 ### PG-55 — Access Denied
 
-Mechanism in Phase 3 §3.5 · Sections: [SC-55.x](./phase-5-section-blueprints.md#pg-55--access-denied)
+Mechanism in Phase 3 §3.5 · Serves Phase 3 §14 fallbacks · Sections: [SC-55.x](./phase-5-section-blueprints.md#pg-55--access-denied)
 
 - **Purpose:** Explain that the route is outside the user's role.
 - **Business objective:** Clear permissions; fewer tickets.
@@ -1165,7 +1165,7 @@ Mechanism in Phase 3 §3.5 · Sections: [SC-55.x](./phase-5-section-blueprints.m
 - **Error states:** No error state of its own: it fetches nothing that could fail; a render failure falls through to PG-54.
 - **Success states:** SU-2: user returns to their role root.
 - **Dependencies:** Phase 3 §5.
-- **Implementation notes:** HTTP 403 via `forbidden()` (requires the `authInterrupts` flag; confirm availability in Next.js 16 during Sprint 1). Acceptance: given a `shipper.member` opening `/shipper/invoices`, then HTTP 403 with the admins named; given an internal route requested by a customer, then the response does not confirm which internal role would grant it. Analytics: `system.forbidden.viewed` (route pattern, role), mirroring E-FORBIDDEN telemetry (§2.2). No audit events.
+- **Implementation notes:** HTTP 403 via `forbidden()`, which is experimental in Next.js 16 and requires `experimental.authInterrupts` in `next.config.ts`. Acceptance: given a `shipper.member` opening `/shipper/invoices`, then HTTP 403 with the admins named; given an internal route requested by a customer, then the response does not confirm which internal role would grant it. Analytics: `system.forbidden.viewed` (route pattern, role), mirroring E-FORBIDDEN telemetry (§2.2). No audit events.
 
 ## 12a. Enterprise Pages
 
@@ -1203,7 +1203,7 @@ Added in version 1.1.0 to meet Phase 1 §18–22. Same format and shared state b
 - **User objective:** Never re-key a lane that ships every week.
 - **Primary tasks:** "Save this load as a template." "Post from a template." "Ship this lane every Tuesday and Thursday." "Pause the recurrence while the plant is shut."
 - **Required data:** Templates (lane, stops, freight, equipment, references pattern, tender strategy, owner, shared flag); recurrences (days, horizon up to 12 weeks, generation lead time 72 h, auto-post flag, price guardrail); upcoming occurrences with status. Classification: Internal, with guardrail amounts Confidential.
-- **Permissions:** Act on own templates: `shipper.member`. Act on shared templates: `shipper.admin`. Auto-post recurrences: only when the template owner's spend limit covers the guardrail (BR-23). View-as: read-only.
+- **Permissions:** Act on own templates: `shipper.member`. Act on shared templates: `shipper.admin`. Auto-post recurrences: only when the template owner's spend limit covers the guardrail (BR-23). Read: `internal.support` with a ticket (Phase 3 §5.1a). View-as: read-only.
 - **Device needs:** DV-DESK: create and manage templates and recurrences. DV-PHONE: post from a template and pause a recurrence. DV-AT: full parity.
 - **Loading states:** LS-1 for the template collection; LS-2 on focus; LS-5 for save, post-from-template and pause.
 - **Empty states:** EM-1: explains saving from a posted load in PG-40 or PG-27. EM-2 for template search.
@@ -1240,7 +1240,7 @@ Added in version 1.1.0 to meet Phase 1 §18–22. Same format and shared state b
 - **Dependencies:** XF-16, BR-06, BR-23, IC-62, XS-03.
 - **Implementation notes:** Decisions use an idempotent Server Action with the request version (SSB-8). Acceptance criteria:
   - An approval completes the original action within 5 s when it is still valid.
-  - An approver cannot see decision controls on their own requests, and the server rejects the attempt anyway.
+  - An approver is never offered a decision on their own requests, and the server rejects the attempt anyway.
 
   Analytics: `approval.requested`, `approval.decided`, including time-to-decision. Audit: `approval.approved` and `approval.rejected` with reason, `approval.delegated`.
 
@@ -1260,7 +1260,7 @@ Added in version 1.1.0 to meet Phase 1 §18–22. Same format and shared state b
   - "Export for my finance team."
 - **Required data:** Server-computed aggregates for a fixed report catalogue: spend, lane cost per mile, service (on-time pickup and delivery, tracking compliance), carrier scorecards, accessorials, facility dwell and detention, invoice ageing. Each has filters (period, lanes, facilities, carriers, equipment) and a definition. Classification: Confidential.
 - **Permissions:** `shipper.admin` and `shipper.approver`: all reports. `shipper.finance`: spend, accessorial and invoice reports only. Report scheduling is available to the same roles. View-as: read-only.
-- **Device needs:** DV-DESK: explore, filter, export and schedule. DV-PHONE: read the headline figures of a saved report. DV-AT: every chart has a data table (IC-45).
+- **Device needs:** DV-DESK: explore, filter, export and schedule. DV-PHONE: read the headline figures of a saved report. DV-AT: full parity; every trend and distribution has a data equivalent (IC-45).
 - **Loading states:** LS-1 per report; LS-3 for periods over 12 months; LS-7 for exports and scheduled deliveries.
 - **Empty states:** EM-4: not enough history, stating how many delivered loads each report needs. EM-2: filters exclude all data.
 - **Error states:**
@@ -1284,7 +1284,7 @@ Added in version 1.1.0 to meet Phase 1 §18–22. Same format and shared state b
 - **User objective:** Connect the identity provider, enforce it safely, and never lock the company out.
 - **Primary tasks:** "Verify our domain." "Connect Okta (or Entra ID)." "Test it with my account." "Map our groups to Haulr roles." "Turn on SCIM." "Require SSO." "Set a 30-minute idle timeout." "Restrict admin access to our office IPs."
 - **Required data:** Verified domains with DNS TXT challenge; SSO connection (protocol, metadata, certificate expiry, last successful sign-in); group-to-role mappings; SCIM status, last sync and token metadata (never the token after creation); enforcement state and break-glass admin; session policy (idle timeout, IP allow-list); policy change history. Classification: Restricted (certificates and tokens), Confidential (policy).
-- **Permissions:** Act: `org.security`; `shipper.admin` and `carrier.admin` when the organisation has no `org.security` member. Every change is a sensitive action (Phase 4 §2.8): re-authentication (IC-13), admin notification and audit with reason. View-as: never permitted to write; read is permitted.
+- **Permissions:** Act: `org.security`, `shipper.admin` and `carrier.admin` (Phase 3 §5.1a). Every change is a sensitive action (Phase 4 §2.8): re-authentication (IC-13), admin notification and audit with reason. View-as: never permitted to write; read is permitted.
 - **Device needs:** DV-DESK: the full configuration journey. DV-PHONE: read status and receive certificate-expiry warnings; configuration is not supported on phones and the page says so. DV-AT: full parity.
 - **Loading states:** LS-1 for each part; LS-5 during a connection test, which may take up to 30 s while the identity-provider round trip completes.
 - **Empty states:** EM-1: no SSO connection; explains prerequisites (verified domain, identity-provider admin access) and links the setup article.
@@ -1316,7 +1316,7 @@ Added in version 1.1.0 to meet Phase 1 §18–22. Same format and shared state b
   - EDI connections: partner, transaction sets, status, last transaction.
   - Rate-limit usage.
   - Classification: Restricted (secrets, shown once).
-- **Permissions:** Act: `org.security` and `shipper.admin`. Read: `internal.support` with a ticket. Key and secret creation, rotation and revocation are sensitive actions (IC-13). View-as: read-only; secrets are never revealed.
+- **Permissions:** Act: `org.security` and `shipper.admin` (Phase 3 §5.1a). Read: `internal.support` with a ticket (not yet granted in Phase 3 §5.1a; awaiting the maintainer). Key and secret creation, rotation and revocation are sensitive actions (IC-13). View-as: read-only; secrets are never revealed.
 - **Device needs:** DV-DESK: the full journey, including copying secrets. DV-PHONE: read health and revoke a compromised key. DV-AT: full parity; secrets are announced only on explicit request.
 - **Loading states:** LS-1; LS-2 for the delivery log every 60 s while viewed; LS-5 for a test delivery (up to 10 s).
 - **Empty states:** EM-1: no keys or endpoints; links developer documentation. EM-3: no failed deliveries in 30 days.
@@ -1390,7 +1390,7 @@ Added in version 1.1.0 to meet Phase 1 §18–22. Same format and shared state b
 - **Primary tasks:** "What changed?" "Does the pay change?" "Can my driver still make it?" "Accept." "Decline and cancel without penalty."
 - **Required data:** Previous and proposed terms field by field (stops, appointments, equipment, weight, accessorial terms), carrier pay before and after (carrier view) or shipper price before and after (shipper view) (BR-05), materiality classification, response deadline, amendment document version, and assigned driver and current trip progress. Classification: Confidential.
 - **Permissions:** Act (accept or decline): `carrier.dispatcher`, `carrier.admin` of the booked carrier. Act (withdraw): the proposing shipper roles, operations. Read: shipper roles and internal roles. View-as: read-only.
-- **Device needs:** DV-PHONE: owner-operators review and accept from a notification with the full comparison. DV-DESK: dispatchers handle several amendments. DV-AT: the comparison is available as a table with "before" and "after" headers.
+- **Device needs:** DV-PHONE: owner-operators review and accept from a notification with the full comparison. DV-DESK: dispatchers handle several amendments. DV-AT: full parity; every compared term is announced with its previous and proposed value (IC-66).
 - **Loading states:** LS-1 server-rendered; LS-5 while signing.
 - **Empty states:** EM-5: the page exists only for an existing amendment.
 - **Error states:**
@@ -1401,7 +1401,7 @@ Added in version 1.1.0 to meet Phase 1 §18–22. Same format and shared state b
 - **Dependencies:** XF-15, BR-04, BR-25, IC-26, IC-66, SH-14.
 - **Implementation notes:** Signature evidence is identical to PG-34 (CMP-4). Acceptance criteria:
   - Acceptance is impossible after the deadline or once the affected stop is completed.
-  - The previous version remains downloadable forever (CMP-3).
+  - The previous version remains downloadable for the full retention period (7 years, BR-20; CMP-3).
 
   Analytics: `amendment.viewed`, `amendment.decided`, including time-to-decision. Audit: `amendment.accepted`, `amendment.declined`, `amendment.withdrawn`.
 
@@ -1417,22 +1417,22 @@ Added in version 1.1.0 to meet Phase 1 §18–22. Same format and shared state b
 | PG-04 | XS-05, XF-02 | PG-32 | XF-01, XS-11 |
 | PG-05 | XS-10, XF-01 | PG-33 | XF-02, XF-03, XS-09 |
 | PG-06, PG-07, PG-08 | XS-07 | PG-34 | XF-02 |
-| PG-09 | XS-01 | PG-35 | XF-05, XF-06, XF-07 |
-| PG-10 … PG-14 | XS-01, XS-13 (PG-10) | PG-36 | XS-09 |
+| PG-09 | XS-01 | PG-35 | XF-05, XF-06, XF-07, XF-15 |
+| PG-10 … PG-14 | XS-01; XS-13 (PG-10); XF-12, XF-13 (PG-11) | PG-36 | XS-09 |
 | PG-15 | XS-02 | PG-37 | XF-05, XS-02 |
 | PG-16 | XF-13 | PG-38 | XF-11 |
-| PG-17 | XF-12 | PG-39 | XF-06, XF-09 |
+| PG-17 | XF-12 | PG-39 | XF-06, XF-09, XF-15 |
 | PG-18 | XD-01 | PG-40 | XF-01 … XF-11, XF-15, XF-16, XS-04 … XS-06 |
 | PG-19 | XD-02 | PG-41 | XS-04 |
 | PG-20 | XD-03 | PG-42 | XS-03 |
 | PG-21 | XD-04 | PG-43 | XS-12, XF-09 |
 | PG-22 | XD-05 | PG-44, PG-45 | XS-06 |
 | PG-23 | XD-06 | PG-46 | XS-11 |
-| PG-24 | XD-07, XS-07, XS-16 | PG-47 | XS-03, XS-11 |
-| PG-25 | XD-08 | PG-48 | XS-02, XF-16 |
-| PG-26 | XF-01, XF-07, XD-01 | PG-49 | XS-08 |
-| PG-27 | XF-01, XF-04 | PG-50 | XF-08 |
-| PG-28 | XF-03 | PG-51 | XF-12 |
+| PG-24 | XD-07, XS-07, XS-16 | PG-47 | XS-03, XS-11, XS-13 |
+| PG-25 | XD-08 | PG-48 | XS-02, XS-13, XF-16 |
+| PG-26 | XF-01, XF-07, XF-14, XD-01 | PG-49 | XS-08 |
+| PG-27 | XF-01, XF-04, XF-16 | PG-50 | XF-08 |
+| PG-28 | XF-03, XF-16 | PG-51 | XF-12 |
 | PG-52 | XD-08, XS-02, XS-16 | PG-53 … PG-55 | Phase 3 §14 |
 | PG-56 | XF-14, XF-16 | PG-57 | XF-14 |
 | PG-58 | XF-16 | PG-59 | XD-01 |

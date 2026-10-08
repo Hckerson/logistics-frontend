@@ -1,6 +1,6 @@
 # Haulr Design OS
 
-`Version 1.1.0` · `2026-09-30` · Start: [START_HERE](./START_HERE.md) · Index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
+`Version 1.1.1` · `2026-10-09` · Start: [START_HERE](./START_HERE.md) · Index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
 
 ## In 30 Seconds
 
@@ -30,7 +30,7 @@ The design OS defines **what the product does**: its users, journeys, pages, sec
 | [phase-6-interaction-contracts.md](./phase-6-interaction-contracts.md) | 67 behavioural contracts: states, keyboard, ARIA, validation, loading, errors, content rules |
 | [phase-7-frontend-architecture.md](./phase-7-frontend-architecture.md) | Folder and route structure, layouts, providers, hooks, API organisation, real-time and offline, libraries, naming, performance, security, enforcement, observability, flags, caching, tenancy, i18n, concurrency, analytics catalogue, error taxonomy |
 | [phase-8-implementation-roadmap.md](./phase-8-implementation-roadmap.md) | 8 sprints, 5 milestones, dependencies, 17 risks, testing strategy, per-feature build status with sizing, deployment readiness, Definition of Ready and Done, RACI, capacity, release management, go/no-go and hypercare |
-| [phase-9-qa-checklist.md](./phase-9-qa-checklist.md) | 266 QA items across 16 categories, with sign-off rules |
+| [phase-9-qa-checklist.md](./phase-9-qa-checklist.md) | 267 QA items across 16 categories, with sign-off rules |
 
 ### Guides
 
@@ -85,7 +85,7 @@ The design OS defines **what the product does**: its users, journeys, pages, sec
 | Sections | 230 (15 shared, 215 page) |
 | Interaction contracts | 67 |
 | Timeline | 16 weeks, 8 sprints, 5 milestones |
-| QA items | 266 |
+| QA items | 267 |
 | Non-functional, compliance and security requirements | 45 (NFR-, CMP-, SEC-, NFR-PRIV-, OPS-) |
 
 ---

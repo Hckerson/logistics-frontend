@@ -1,6 +1,6 @@
 # Implementation Prompt — Haulr
 
-`Version 1.1.0` · `2026-09-30` · Start: [START_HERE](./START_HERE.md) · Setup: [SETUP-CHECKLIST](./SETUP-CHECKLIST.md) · Index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
+`Version 1.1.1` · `2026-10-09` · Start: [START_HERE](./START_HERE.md) · Setup: [SETUP-CHECKLIST](./SETUP-CHECKLIST.md) · Index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
 
 Copy this entire file into a new Claude Code session at the repository root, then name the sprint, page or feature to build.
 
@@ -75,7 +75,7 @@ These bind every change. Host rules come from `.claude/CLAUDE.md` and win over a
 ### 4.1 Host rules (summary; read the file)
 
 1. **No hardcoding.** Routes, durations, enums and repeated copy live in `lib/constants.ts` or `lib/<feature>/constants.ts`. Endpoints come from `lib/contract` (generated) or `lib/api-routes.ts`. Shapes come from Zod. Seed data lives in `lib/data/`.
-2. **Match the architecture.** Do not invent patterns or locations. Phase 7 decisions D-1 … D-13 are the only sanctioned extensions.
+2. **Match the architecture.** Do not invent patterns or locations. Phase 7 decisions D-1 … D-14 are the only sanctioned extensions.
 3. **Single source of truth.** Define once, reference everywhere.
 4. **Minimise lines of code.** Shortest maintainable solution.
 5. **No `console.*` or debug statements.**
@@ -121,23 +121,28 @@ Authoritative source: [Phase 7](./phase-7-frontend-architecture.md).
 
 ```text
 app/
-  layout.tsx  not-found.tsx  global-error.tsx  forbidden.tsx  sitemap.ts  robots.ts
+  layout.tsx  page.tsx (exist; page.tsx moves into (public)/)
+  not-found.tsx  global-error.tsx  forbidden.tsx  sitemap.ts  robots.ts
   api/session/  api/register/                                   (exist)
   api/tracking/[token]/  api/loads/[loadId]/positions/  api/loads/[loadId]/bids/
   api/exceptions/  api/threads/[threadId]/messages/  api/notifications/  api/rate-estimate/
+  api/imports/[batchId]/  api/exports/  api/approvals/  api/attention/
+  api/webhooks/[endpointId]/deliveries/  api/auth/sso/[...step]/
   auth/  (public)/  (workspace)/  (internal)/
 components/ui/  components/common/  components/wrappers/  components/providers/   (flat)
+components/home/  components/auth/                              (exist; page-domain, D-14)
 lib/actions/  lib/contract/ (generated)  lib/data/  lib/enums/  lib/hooks/  lib/types/
 lib/utils/  lib/validations/  lib/loads/  lib/tracking/  lib/billing/  lib/compliance/  lib/ops/
+lib/home/  lib/auth/                                            (exist)
 lib/constants.ts  lib/api-client.ts  lib/api-routes.ts  lib/api-server.ts
-proxy.ts
+instrumentation.ts  proxy.ts
 ```
 
 ### 5.2 Route structure (exact routes)
 
 | Route | File | Page |
 | --- | --- | --- |
-| `/` | `app/(public)/page.tsx` | PG-01 |
+| `/` | `app/(public)/page.tsx` (exists as `app/page.tsx`; move in S1) | PG-01 |
 | `/track/[token]` | `app/(public)/track/[token]/page.tsx` | PG-02 |
 | `/carriers/[carrierId]` | `app/(public)/carriers/[carrierId]/page.tsx` | PG-03 |
 | `/tools/rate-estimator` | `app/(public)/tools/rate-estimator/page.tsx` | PG-05 |
@@ -207,6 +212,7 @@ Every data-bearing segment adds `loading.tsx` and `error.tsx`; each route group 
 
 - Keep `components/providers/provider.tsx` (Query client, `MotionConfig reducedMotion="user"`). Compose new providers inside it.
 - Add `announcer-provider.tsx` (single live region for IC-14), `session-provider.tsx` (read-only session: user, role, organisation), `offline-queue-provider.tsx` (mounted only in `driver/layout.tsx`).
+- `auth-signal-provider.tsx` exists: sign-in step state for the access pages, mounted by `components/auth/auth-shell.tsx`, never app-wide.
 - No global store (D-6). No context holds server data.
 
 ### 5.4 Guards
@@ -219,7 +225,7 @@ Every data-bearing segment adds `loading.tsx` and `error.tsx`; each route group 
 
 ### 5.5 Hooks organisation
 
-One file per resource in `lib/hooks/use-<resource>.ts`, exporting that resource's query and mutation hooks and its query-key factory. The complete mapping from Phase 5 hook names to files is [Phase 7 §8](./phase-7-frontend-architecture.md#8-hooks). Existing hooks (`use-login`, `use-logout`, `use-register`, `use-create-user`, `use-debounced-search`) are kept.
+One file per resource in `lib/hooks/use-<resource>.ts`, exporting that resource's query and mutation hooks and its query-key factory. The complete mapping from Phase 5 hook names to files is [Phase 7 §8](./phase-7-frontend-architecture.md#8-hooks). Existing hooks (`use-login`, `use-logout`, `use-register`, `use-create-user`, `use-debounced-search`) are kept. So are the existing hooks without transport: `use-sign-in-flow` (wraps `useLogin` for the identity-first SC-10.1), `use-caps-lock` (IC-03), `use-side` (SC-01.1), `use-reduced`, and the PG-01 scene hooks (Phase 7 §8).
 
 Transport per hook: authenticated mutations and non-polled reads → Server Action; polled authenticated reads → Route Handler via `local` (D-2, pending confirmation); anonymous public reads → Route Handler.
 
@@ -227,8 +233,9 @@ Transport per hook: authenticated mutations and non-polled reads → Server Acti
 
 | Folder | Holds | Built from |
 | --- | --- | --- |
-| `components/ui/` | Domain-free primitives, one per Phase 6 contract (or native element) | Phase 6 |
+| `components/ui/` | Domain-free primitives, one per Phase 6 contract (or native element); `button.tsx`, `input.tsx` exist | Phase 6 |
 | `components/common/` | Shared sections (SH-01 … SH-15) and page sections, domain-prefixed filenames | Phase 5 |
+| `components/home/`, `components/auth/` | Sections used by one public or access page (exist; D-14, pending confirmation) | Phase 5 |
 | `components/wrappers/` | `section-boundary.tsx` (Suspense + error boundary per section), `motion-wrapper.tsx` (exists) | Phase 4 SSB-1, SSB-3 |
 | `components/providers/` | §5.3 | Phase 7 §5 |
 
@@ -282,7 +289,7 @@ Authoritative source: [Phase 8 §3](./phase-8-implementation-roadmap.md#3-sprint
 - **Shared sections:** SH-02 live position and ETA, SH-15 assignment.
 - **Pages and flows:** PG-37, PG-35 (SC-35.2), PG-20, PG-39, PG-02, PG-40 (SC-40.5, 40.6, 40.12, 40.15, 40.16), PG-26 (SC-26.2, 26.3). Enterprise track: PG-64. Flows XF-05, XF-06, XF-07, XF-09 (capture), XD-03, XF-15.
 - **Sequencing:** PG-37 → SH-15 → PG-39 (with offline queue) → SH-02 → PG-02; SC-40.16 → PG-64.
-- **Needs:** map library approval.
+- **Needs:** map base layer approval (deck.gl is installed and reused; Phase 7 §15).
 
 ### Sprint 6 — Money (2026-12-14 → 2027-01-08, holiday weeks excluded)
 
@@ -326,7 +333,7 @@ Authoritative source: [Phase 8 §3](./phase-8-implementation-roadmap.md#3-sprint
 
 ## 7. Phase 9 Implementation — QA Checklist
 
-Authoritative source: [Phase 9](./phase-9-qa-checklist.md). A feature is **Verified** only when every applicable blocking item passes. The complete list follows, organised by category (266 items; **[B]** marks blocking).
+Authoritative source: [Phase 9](./phase-9-qa-checklist.md). A feature is **Verified** only when every applicable blocking item passes. The complete list follows, organised by category (267 items; **[B]** marks blocking).
 
 ### 7.1 Accessibility
 
@@ -350,7 +357,7 @@ Authoritative source: [Phase 9](./phase-9-qa-checklist.md). A feature is **Verif
 - [ ] **QA-018** Industry terms have an accessible explanation available _(IC-56, PP-07)_
 - [ ] **QA-019** Driver workflow targets meet 44 × 44 CSS px _(G-2)_ **[B]**
 - [ ] **QA-020** Camera capture relies on native file input with capture _(IC-25)_ **[B]**
-- [ ] **QA-021** Payment processor entry passes an axe scan and a keyboard pass _(IC-42)_ **[B]**
+- [ ] **QA-021** Payment processor entry passes an axe scan (proposed, Phase 7 §15) and a keyboard pass _(IC-42)_ **[B]**
 - [ ] **QA-022** Keyboard shortcuts can be turned off or are scoped to focus _(IC-49)_ **[B]**
 - [ ] **QA-023** Skip link present on every page and moves focus to the main landmark _(IC-52)_ **[B]**
 - [ ] **QA-024** Session timeout warns 2 minutes ahead and allows extension _(IC-54)_ **[B]**
@@ -383,6 +390,7 @@ Authoritative source: [Phase 9](./phase-9-qa-checklist.md). A feature is **Verif
 - [ ] **QA-048** Target size minimum 24 × 24 _(2.5.8)_ **[B]**
 - [ ] **QA-049** Error identification, suggestion and prevention for money and legal steps _(3.3.1, 3.3.3, 3.3.4)_ **[B]**
 - [ ] **QA-050** Redundant entry avoided; accessible authentication (paste and password managers allowed) _(3.3.7, 3.3.8)_ **[B]**
+- [ ] **QA-267** Help routes repeated across pages (PG-06, PG-08 with context; Phase 3 §8) keep the same order relative to other page content _(3.2.6)_ **[B]**
 
 ### 7.3 Behavioural Consistency
 
@@ -479,7 +487,7 @@ Authoritative source: [Phase 9](./phase-9-qa-checklist.md). A feature is **Verif
 - [ ] **QA-126** 403/404 on a record renders PG-53 without confirming existence _(Phase 3 §5.2)_ **[B]**
 - [ ] **QA-127** 409 on booking renders "load taken" and similar loads _(IC-27)_ **[B]**
 - [ ] **QA-128** 409 on a state transition refreshes and explains the new state _(SC-40.2)_ **[B]**
-- [ ] **QA-129** 429 explains the wait _(Phase 7 §11)_
+- [ ] **QA-129** 429 explains the wait _(Phase 4 §2.2, Phase 7 §28)_
 - [ ] **QA-130** 5xx offers retry; after 3 failures, a support route with context _(IC-60)_ **[B]**
 - [ ] **QA-131** Error messages come from constants; no raw server text is shown _(SSB-3)_ **[B]**
 - [ ] **QA-132** Form entries are never lost on error _(IC-02)_ **[B]**
@@ -514,7 +522,7 @@ Authoritative source: [Phase 9](./phase-9-qa-checklist.md). A feature is **Verif
 - [ ] **QA-155** Enums derive from the generated contract _(Phase 7 §10)_ **[B]**
 - [ ] **QA-156** `PROTECTED_ROUTE_PREFIXES` covers every workspace and internal prefix _(D-7)_ **[B]**
 - [ ] **QA-157** Internal prefixes reject non-internal roles at the edge _(D-7)_ **[B]**
-- [ ] **QA-158** `appRoutes` used for every internal path _(IC-51)_ **[B]**
+- [ ] **QA-158** `appRoutes` used for every internal path (ESLint rule proposed in Phase 7 §20) _(IC-51, Phase 7 §20)_ **[B]**
 - [ ] **QA-159** Idempotency keys generated with `nanoid` for book, accept, pay, quick pay _(Phase 7 §19)_ **[B]**
 - [ ] **QA-160** Seed data fallbacks live only in `lib/data/` behind hooks _(Phase 7 §11)_ **[B]**
 - [ ] **QA-161** Every shared section in Phase 5 has one implementation in `components/common/` _(Phase 7 §12)_ **[B]**
@@ -585,7 +593,7 @@ Authoritative source: [Phase 9](./phase-9-qa-checklist.md). A feature is **Verif
 - [ ] **QA-211** Driver location collected only for active assigned trips with consent _(Phase 1 §12)_ **[B]**
 - [ ] **QA-212** Sensitive changes require re-authentication within 10 minutes _(XS-11, IC-13)_ **[B]**
 - [ ] **QA-213** No raw payment data in Haulr code, logs or network calls to Haulr _(A6)_ **[B]**
-- [ ] **QA-214** Return paths cannot redirect off-site _(`internal-path.ts`)_ **[B]**
+- [ ] **QA-214** Return paths cannot redirect off-site _(Phase 3 §14, Phase 7 §19)_ **[B]**
 - [ ] **QA-215** Rate limits enforced on anonymous endpoints _(Phase 8 §10)_ **[B]**
 - [ ] **QA-216** CSP blocks non-allow-listed origins _(Phase 7 §19)_ **[B]**
 
@@ -931,13 +939,21 @@ Authoritative source: [Phase 8 §8](./phase-8-implementation-roadmap.md#8-testin
 | Quick pay settlement | XF-11 | PG-38 |
 | File and resolve a claim | XS-06 | PG-45 |
 | Exception raised, claimed, resolved | XF-08 | PG-50, PG-40 |
+| Import a file with duplicate references and unknown columns; post from a template | XF-14 | PG-56, PG-57 |
+| Amend a booked load; carrier accepts; a second amendment arrives past the affected stop | XF-15 | PG-40, PG-64 |
+| Over-limit post routes to approval; approval after quote expiry re-quotes | XF-16 | PG-27, PG-58 |
+| Enforce SSO without locking out the configuring admin; SCIM deactivation ends open sessions | XS-13 | PG-60, PG-10 |
+| Create an API key (reveal once); webhook endpoint fails and deliveries retry | XS-14 | PG-61 |
+| Request an organisation export; download link expires and is re-issued | XS-15 | PG-62 |
+| View-as without a linked ticket is refused; with consent, a write is audited | XS-16 | PG-24 |
+| Filter the audit log beyond retention; export the result | XS-17 | PG-63 |
 | Permission boundaries: every role against every prefix | Phase 3 §5 | All |
 
 ### 9.4 Accessibility testing
 
 - axe in every E2E scenario, at every state.
 - Component tests assert each contract's keyboard and ARIA behaviour.
-- Manual screen reader pass per sprint (§7.16).
+- Manual screen reader pass per sprint (§7.17).
 
 ---
 
@@ -950,7 +966,7 @@ For each page in the current sprint:
 3. **Check dependencies.** Primitives for the cited contracts exist; hooks exist or can read seed data; backend endpoints available or seeded.
 4. **Visual concept.** Load the UI skill, produce the concept, present it to the owner, wait for approval ([Visual Design Hand-off](#visual-design-hand-off)).
 5. **Scaffold.** `page.tsx`, `loading.tsx`, `error.tsx` at the Phase 7 path; `generateMetadata`; route guard via the role layout.
-6. **Build sections.** One file each in `components/common/`; reuse SH- implementations; wrap each in `SectionBoundary`.
+6. **Build sections.** One file each in `components/common/` (or the page-domain folder for a public or access page, D-14); reuse SH- implementations; wrap each in `SectionBoundary`.
 7. **Wire data.** Hooks from Phase 7 §8; Server Actions or Route Handlers per D-2; seed data behind hooks if needed.
 8. **Implement every state.** Loading, empty, error, success from Phase 4 and 5, with copy in constants.
 9. **Test.** Unit (logic), component (contracts), E2E (flows), axe.
@@ -988,7 +1004,7 @@ Authoritative source: [Phase 8 §10](./phase-8-implementation-roadmap.md#10-depl
 - Observability: Web Vitals, error reporting service, action and handler error rates, KPI events (Phase 1 §10).
 - Rate limits verified on anonymous endpoints (PG-05, PG-08, PG-12).
 - Rollout: internal network from M3; invited pilot after M4.
-- Launch gate: all pages Verified; Phase 9 §1, §2, §8, §15 pass; owner sign-off on every page.
+- Launch gate: every page Verified or formally Deferred; Phase 9 §1, §2, §8, §15 and §16 pass; owner sign-off on every page; go/no-go per [Phase 8 §15](./phase-8-implementation-roadmap.md#15-gono-go-and-hypercare).
 
 ---
 

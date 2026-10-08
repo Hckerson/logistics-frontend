@@ -1,8 +1,8 @@
 # Phase 1 — Product Vision
 
-`Haulr Design OS` · `Version 1.1.0` · `2026-09-30` · Next: [Phase 2 — Experience Maps](./phase-2-experience-maps.md) · Index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
+`Haulr Design OS` · `Version 1.1.1` · `2026-10-09` · Next: [Phase 2 — Experience Maps](./phase-2-experience-maps.md) · Index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
 
-This document is the single source of truth for what Haulr is, who it serves and which rules it obeys. Every later phase cites the IDs defined here (`PR-` personas, `BR-` business rules, `PP-` product principles, `KPI-` metrics).
+This document is the single source of truth for what Haulr is, who it serves and which rules it obeys. Every later phase cites the IDs defined here (`A` assumptions, `BG-` goals, `PR-` personas, `JTBD-` jobs, `BR-` business rules, `KPI-` metrics, `PP-` product principles, and the `NFR-`, `CMP-`, `SEC-` and `OPS-` requirements).
 
 This design OS defines what the product does. How anything looks is decided when each page is built, with the owner.
 
@@ -49,13 +49,13 @@ The master prompt's placeholders were resolved as follows. The maintainer chose 
 | `{{ROLE_DASHBOARDS}}` | XD-01 … XD-08 ([Phase 2](./phase-2-experience-maps.md)) | One per operating role |
 | `{{DOMAIN_TOOL}}` | Lane Rate Estimator | Price discovery is the most common reason shippers visit |
 | `{{DOMAIN_TRANSACTION}}` | Load booking (rate confirmation) | The moment a carrier commits to move a load |
-| `{{DOMAIN_SPECIFIC_LIBS}}` | Map rendering library (proposed, pending approval) | Tracking requires an interactive map |
+| `{{DOMAIN_SPECIFIC_LIBS}}` | Map rendering: deck.gl (installed, reused); a map base layer is proposed, pending approval ([Phase 7 §15](./phase-7-frontend-architecture.md#15-shared-libraries)) | Tracking requires an interactive map |
 | `{{SCALE_TARGET}}` | 5 million loads per year, 250,000 carriers, 40,000 shipper organisations, 1.5 million location updates per hour at peak | Mid-size national marketplace at year three |
 | `{{COMPONENT_COUNT}}` | 67 interaction contracts | [Phase 6](./phase-6-interaction-contracts.md) |
 | `{{SECTION_COUNT}}` | 230 sections (15 shared, 215 page) | [Phase 5](./phase-5-section-blueprints.md) |
 | `{{PAGE_COUNT}}` | 64 pages | [Phase 4](./phase-4-page-blueprints.md) |
 | `{{TIMELINE_WEEKS}}` | 16 weeks (8 two-week sprints) | [Phase 8](./phase-8-implementation-roadmap.md) |
-| `{{QA_ITEM_COUNT}}` | 266 QA items | [Phase 9](./phase-9-qa-checklist.md) |
+| `{{QA_ITEM_COUNT}}` | 267 QA items | [Phase 9](./phase-9-qa-checklist.md) |
 | `{{OUTPUT_DIR}}` | `design-os/generated/` | Host repo convention |
 
 Domain assumptions:
@@ -189,7 +189,7 @@ A user holds exactly one organisation membership and one or more roles within it
 
 | ID | Rule |
 | --- | --- |
-| BR-01 | **Load lifecycle.** A load moves through `Draft → Posted → Booked → Dispatched → AtPickup → InTransit → AtDelivery → Delivered → PodVerified → Invoiced → Paid → Closed`. Side states: `Cancelled`, `Expired`, `OnHold`, `Disputed`. Only the transitions in [Phase 2 §5](./phase-2-experience-maps.md#5-load-state-machine) are legal. |
+| BR-01 | **Load lifecycle.** A load moves through `Draft → Posted → Booked → Dispatched → AtPickup → InTransit → AtDelivery → Delivered → PodVerified → Invoiced → Paid → Closed`. Side states: `PendingApproval` (BR-23), `Cancelled`, `Expired`, `OnHold`, `Disputed`. Only the transitions in [Phase 2 §5](./phase-2-experience-maps.md#5-load-state-machine) are legal. |
 | BR-02 | **Bid lifecycle.** `Submitted → Countered ↔ Submitted → Accepted | Declined | Withdrawn | Expired`. Accepting a bid books the load and expires every other open bid on it. |
 | BR-03 | **Booking eligibility.** A carrier can book or bid only when its compliance status is `Approved`, its authority is active, its insurance meets the load's minimums and it has the equipment type the load requires. |
 | BR-04 | **Rate confirmation.** A booking is binding only after the carrier accepts the rate confirmation. Acceptance records user, time, IP and document version. |
@@ -267,7 +267,7 @@ Success metrics per persona: PR-01 time from quote to coverage; PR-02 revenue pe
 - **Connectivity.** Drivers work on intermittent mobile networks; the driver workflow must tolerate going offline and replay in order.
 - **Location privacy.** Driver location is collected only while a load is active and assigned to that driver, with explicit consent.
 - **Accessibility.** WCAG 2.2 AA for every surface, including the driver workflow and the map (with a non-map equivalent).
-- **Performance budgets.** Largest Contentful Paint ≤ 2.5 s and Interaction to Next Paint ≤ 200 ms at the 75th percentile on a mid-range phone over 4G.
+- **Performance budgets.** Page-experience budgets at the 75th percentile on a mid-range phone over 4G are set once, in NFR-PERF-1 (§18.2).
 - **Browser support.** Current and previous major versions of Chrome, Edge, Firefox and Safari, plus Safari on iOS 16+ and Chrome on Android 10+.
 
 ## 13. Product Principles
@@ -311,7 +311,7 @@ How Haulr behaves and treats its users. None of these is a visual decision.
 - **Multi-stop and drop-trailer.** Stops are an ordered list from the start; drop-and-hook is an attribute of a stop.
 - **Cross-border (Canada, Mexico).** Currency, units, customs documents and locale are kept separate from the model so they can be added without migrations to the UI contract.
 - **Native driver app.** The driver workflow's offline event queue uses the same backend endpoints a native app would.
-- **API and EDI for enterprise shippers.** Load creation and status are backend-first operations, so EDI 204/214/210 and a public API reuse them.
+- **API and EDI for enterprise shippers.** Load creation and status are backend-first operations, so EDI 204/990/214/210 and the API reuse them. Both are launch scope (A9, BR-29); this consideration keeps later channels and partners on the same operations.
 - **Scale.** List views paginate by cursor and never load unbounded collections. Location streams subscribe per visible load. Search is backed by a search index, not a database scan.
 - **Internationalisation.** All user-facing copy is externalised in constants so a translation layer can wrap it.
 

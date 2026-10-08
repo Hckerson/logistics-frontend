@@ -1,6 +1,6 @@
 # Phase 8 — Implementation Roadmap
 
-`Haulr Design OS` · `Version 1.1.0` · `2026-09-30` · Previous: [Phase 7 — Frontend Architecture](./phase-7-frontend-architecture.md) · Next: [Phase 9 — QA Checklist](./phase-9-qa-checklist.md)
+`Haulr Design OS` · `Version 1.1.1` · `2026-10-09` · Previous: [Phase 7 — Frontend Architecture](./phase-7-frontend-architecture.md) · Next: [Phase 9 — QA Checklist](./phase-9-qa-checklist.md)
 
 The plan for building Phases 1–7 in 16 weeks (8 two-week sprints), plus the single record of build status for every page, section, interaction contract and flow. Status lives here and nowhere else; the blueprints in Phases 1–7 record intent and are never edited to reflect progress (Critical Rules › Scope Preservation).
 
@@ -103,7 +103,7 @@ Every page is built from its Phase 4 blueprint, Phase 5 sections and Phase 6 con
 - **Shared sections:** SH-02, SH-15.
 - **Pages:** PG-37, PG-35 (assignment), PG-20, PG-39, PG-02, PG-40 (SC-40.5, 40.6, 40.12, 40.15, 40.16), PG-26 (map, sharing); enterprise track: PG-64.
 - **Flows:** XF-05, XF-06, XF-07, XF-09 (capture), XD-03, XF-15.
-- **Library approval needed:** map library.
+- **Library approval needed:** map base layer (deck.gl is installed and reused; Phase 7 §15).
 
 ### Sprint 6 — Money (2026-12-14 → 2027-01-08, holiday weeks excluded)
 
@@ -150,7 +150,7 @@ Every page is built from its Phase 4 blueprint, Phase 5 sections and Phase 6 con
 | Invoices, settlements, payments processor, claims, audit store, export jobs | S6 | Backend, finance | Processor sandbox |
 | Messages, notifications, metrics, tickets, reporting service, API keys, webhooks | S7 | Backend | Same seed-data fallback |
 | Exceptions, admin config, view-as sessions | S8 | Backend | Same seed-data fallback |
-| Library approvals (Phase 7 §15) | S1 forms, tests, observability; S5 maps; S6 processor SDK; S7 charts, analytics | Maintainer | Build contracts without the library only where the host allows (for example native form handling) |
+| Library approvals (Phase 7 §15) | S1 forms, tests, observability; S5 map base layer; S6 processor SDK; S7 charts, analytics | Maintainer | Build contracts without the library only where the host allows (for example native form handling) |
 | Per-page visual concept approval | Before each page starts | Owner, designer | Page is not started until approved |
 | `pnpm contract` regeneration after each backend change | Continuous | Frontend | `pnpm contract:check` fails the gate |
 | Legal: carrier agreement, shipper terms, privacy notice, DPA, sub-processor list | S2 (agreements), S6 (DPA) | Legal | Launch blocked without them (CMP-4, CMP-7) |
@@ -201,7 +201,7 @@ Every page is built from its Phase 4 blueprint, Phase 5 sections and Phase 6 con
 | Integration | Vitest + mocked `backendFetch` | Server Actions and Route Handlers: parsing, error mapping (Phase 4 §2.2), `withAction` guards, version handling (IC-67) | Every action and handler |
 | End-to-end | Playwright (proposed) | Every XF- and XS- flow's happy path plus listed failure paths | Every flow in Phase 2 |
 | Accessibility | axe with Playwright (proposed) + manual screen reader passes (NVDA + Firefox, VoiceOver + Safari iOS) | Every page, every state class | Zero serious or critical violations; VPAT at launch |
-| Performance | Lighthouse CI + field RUM | Budgets in Phase 7 §18 | All budgets met at p75 |
+| Performance | Lighthouse CI (proposed) + field RUM | Budgets in Phase 7 §18 | All budgets met at p75 |
 | Load | k6 (proposed) against staging | NFR-CAP-1 … 3, NFR-PERF-3 … 5 | Targets met at 1.5× peak |
 | Resilience | Dependency failure injection in staging | Pricing, maps, registry, processor, e-signature, SMS each down in turn | Only the dependent capability degrades (NFR-AV-4) |
 | Security | OWASP ZAP (proposed) in CI against preview; ASVS L2 checklist; third-party penetration test | SEC-1 … SEC-10 | No open critical or high findings |
@@ -226,6 +226,11 @@ Every page, section, interaction contract and flow carries exactly one status:
 A feature with no implementation is **Specified**, not absent. Status is never resolved by deletion.
 
 **Baseline as of 2026-09-30:** the starter already contains a sign-in page (`app/auth/login`), login form, session and register route handlers, login/register/logout hooks and a button primitive. Those items are **In progress** (they exist but need Haulr extensions and Phase 9 verification). Everything else is **Scheduled**.
+
+**Update 2026-10-09:**
+
+- **PG-01 Home** was built ahead of its S3 slot at `app/page.tsx`, so it is **In progress** with SC-01.1, SC-01.2 and SC-01.4. Still open: SC-01.2 suggestions use a static list, not IC-05 (`use-location-suggestions`), and SC-01.4 is not yet session-aware. SC-01.3 stays **Scheduled**. The page states product targets, not the network statistics SC-01.3 requires from the `stats` endpoint.
+- **PG-10 Sign In** is now identity-first (email, then password), the shape SC-10.3 needs for SSO discovery. SC-10.2 is **In progress** (`components/auth/recovery-nav.tsx`). IC-01, IC-02 and IC-03 are **In progress**: `components/ui/input.tsx`, `components/common/panel-field.tsx` (label, error wiring and reveal), `components/common/error-summary.tsx` and `lib/hooks/use-caps-lock.ts`.
 
 ### 9.2 Flows
 
@@ -263,7 +268,7 @@ Size: **S** ≈ 2 engineer-days, **M** ≈ 5, **L** ≈ 10, **XL** ≈ 15, exclu
 
 | ID | Page | Size | Status | Sprint | ID | Page | Size | Status | Sprint |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| PG-01 | Home | M | Scheduled | S3 | PG-33 | Load Board | L | Scheduled | S4 |
+| PG-01 | Home | M | In progress | S3 (started early) | PG-33 | Load Board | L | Scheduled | S4 |
 | PG-02 | Public Tracking | M | Scheduled | S5 | PG-34 | Book Load | M | Scheduled | S4 |
 | PG-03 | Carrier Public Profile | S | Scheduled | S4 | PG-35 | My Loads (carrier) | M | Scheduled | S4–S5 |
 | PG-04 | Shipper Public Profile | S | Scheduled | S4 | PG-36 | Saved Loads and Searches | S | Scheduled | S4 |
@@ -308,11 +313,12 @@ Each section appears once. Where a group of sections shares one status and sprin
 | SH-02, SH-15 | Scheduled | S5 |
 | SH-11 | Scheduled | S6 |
 | SH-04, SH-07, SH-08, SH-10, SH-12 | Scheduled | S7 |
-| SC-10.1 | In progress | S1 |
+| SC-10.1, SC-10.2 | In progress | S1 |
 | SC-11.2 | In progress | S1 |
-| SC-10.2, SC-11.1, SC-12.1, SC-13.1, SC-14.1, SC-14.2, SC-15.1, SC-15.2, SC-53.1, SC-54.1, SC-55.1 | Scheduled | S1 |
+| SC-01.1, SC-01.2, SC-01.4 | In progress | S3 (started early) |
+| SC-11.1, SC-12.1, SC-13.1, SC-14.1, SC-14.2, SC-15.1, SC-15.2, SC-53.1, SC-54.1, SC-55.1 | Scheduled | S1 |
 | SC-09.1, SC-10.3, SC-16.1 … SC-16.4, SC-17.1 … SC-17.6, SC-46.1, SC-46.2, SC-47.1, SC-47.2, SC-48.1 … SC-48.3, SC-60.1 … SC-60.5 | Scheduled | S2 |
-| SC-01.1 … SC-01.4, SC-05.1 … SC-05.4, SC-26.1, SC-27.1 … SC-27.6, SC-32.1, SC-32.2, SC-40.1, SC-40.2, SC-40.3, SC-40.7, SC-40.8, SC-57.1 … SC-57.3 | Scheduled | S3 |
+| SC-01.3, SC-05.1 … SC-05.4, SC-26.1, SC-27.1 … SC-27.6, SC-32.1, SC-32.2, SC-40.1, SC-40.2, SC-40.3, SC-40.7, SC-40.8, SC-57.1 … SC-57.3 | Scheduled | S3 |
 | SC-03.1 … SC-03.3, SC-04.1, SC-04.2, SC-22.1 … SC-22.3, SC-28.1 … SC-28.4, SC-29.1, SC-29.2, SC-33.1 … SC-33.5, SC-34.1 … SC-34.4, SC-35.1, SC-36.1, SC-36.2, SC-40.4, SC-40.17, SC-48.4, SC-51.1 … SC-51.5, SC-56.1 … SC-56.4, SC-58.1 … SC-58.4 | Scheduled | S4 |
 | SC-02.1 … SC-02.3, SC-20.1 … SC-20.3, SC-26.2, SC-26.3, SC-35.2, SC-37.1, SC-37.2, SC-39.1 … SC-39.7, SC-40.5, SC-40.6, SC-40.12, SC-40.15, SC-40.16, SC-64.1 … SC-64.4 | Scheduled | S5 |
 | SC-23.1, SC-30.1 … SC-30.3, SC-31.1 … SC-31.4, SC-38.1 … SC-38.4, SC-40.9, SC-40.10, SC-40.13, SC-43.1, SC-43.2, SC-44.1, SC-44.2, SC-45.1 … SC-45.4, SC-49.1 … SC-49.3, SC-62.1, SC-62.2, SC-63.1, SC-63.2 | Scheduled | S6 |
@@ -326,7 +332,8 @@ Check: 15 shared + 215 page sections = 230, matching [Phase 5 §13](./phase-5-se
 | Contracts | Status | Sprint |
 | --- | --- | --- |
 | IC-11 | In progress (starter `button.tsx`) | S1 |
-| IC-01, IC-02, IC-03, IC-04, IC-07, IC-09, IC-12, IC-14, IC-41, IC-51, IC-52, IC-59, IC-60 | Scheduled | S1 |
+| IC-01, IC-02, IC-03 | In progress (`input.tsx`, `panel-field.tsx`, `error-summary.tsx`, `use-caps-lock.ts`) | S1 |
+| IC-04, IC-07, IC-09, IC-12, IC-14, IC-41, IC-51, IC-52, IC-59, IC-60 | Scheduled | S1 |
 | IC-05, IC-13, IC-15, IC-24, IC-26, IC-38, IC-39, IC-58, IC-63, IC-67 | Scheduled | S2 |
 | IC-08, IC-19, IC-20, IC-21, IC-22, IC-23, IC-32, IC-40, IC-46, IC-56, IC-57 | Scheduled | S3 |
 | IC-18, IC-27, IC-28, IC-33, IC-34, IC-61, IC-62 | Scheduled | S4 |
@@ -339,7 +346,7 @@ Check: 67 contracts, matching [Phase 6 §13](./phase-6-interaction-contracts.md#
 
 ### 9.6 Deferred register
 
-Empty at version 1.1.0. An entry requires: the item's ID, the reason, the revisit trigger (date, milestone or dependency) and the maintainer who approved the deferral. Pre-agreed deferral candidates if capacity (§13) falls short are listed there; they remain **Scheduled** until the maintainer approves a deferral.
+Empty at version 1.1.1. An entry requires: the item's ID, the reason, the revisit trigger (date, milestone or dependency) and the maintainer who approved the deferral. Pre-agreed deferral candidates if capacity (§13) falls short are listed there; they remain **Scheduled** until the maintainer approves a deferral.
 
 ## 10. Deployment Readiness
 
