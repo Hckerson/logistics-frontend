@@ -59,6 +59,8 @@ export const PRICE_ANCHOR = `/#${PRICE_SECTION_ID}`;
 
 export const COUNT_SECONDS = 1.8;
 
+export const REVEAL_VIEWPORT = { once: true, margin: "-10% 0px" } as const;
+
 export const WORDMARK = { width: 1000, height: 200, baseline: 196, size: 262 } as const;
 
 export const SIGNATURE_PATH =

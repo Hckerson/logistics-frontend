@@ -1,7 +1,7 @@
 "use client";
 import clsx from "clsx";
 import { motion } from "motion/react";
-import { LANE_DRAW_SECONDS, LANE_RULE, REVEAL_EASE } from "@/lib/home/constants";
+import { LANE_DRAW_SECONDS, LANE_RULE, REVEAL_EASE, REVEAL_VIEWPORT } from "@/lib/home/constants";
 
 interface Props {
     state?: "moving" | "settled";
@@ -9,7 +9,6 @@ interface Props {
     className?: string;
 }
 
-const VIEWPORT = { once: true, margin: "-10%" } as const;
 const DOT = "bg-accent absolute top-1/2 block size-2.5 -translate-y-1/2 rounded-full";
 const BAND = `polygon(${LANE_RULE.load}% 50%, 100% ${LANE_RULE.spread}%, 100% ${100 - LANE_RULE.spread}%)`;
 
@@ -24,7 +23,7 @@ export default function LaneRule({ state = "moving", still = false, className }:
                     style={{ clipPath: BAND }}
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 1 }}
-                    viewport={VIEWPORT}
+                    viewport={REVEAL_VIEWPORT}
                     transition={{ duration: LANE_DRAW_SECONDS, delay: LANE_DRAW_SECONDS / 2 }}
                 />
             ) : null}
@@ -32,7 +31,7 @@ export default function LaneRule({ state = "moving", still = false, className }:
                 className="bg-accent absolute inset-x-0 top-1/2 block h-0.5 origin-left -translate-y-1/2"
                 initial={still ? false : { scaleX: 0 }}
                 whileInView={{ scaleX: 1 }}
-                viewport={VIEWPORT}
+                viewport={REVEAL_VIEWPORT}
                 transition={{ duration: LANE_DRAW_SECONDS, ease: REVEAL_EASE }}
             />
             <span className={clsx(DOT, "left-0")} />
