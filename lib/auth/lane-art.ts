@@ -80,6 +80,14 @@ const TRAFFIC = RUNS.filter((run) => run.some(near))
 
 const ROUTE = LANE_PATH.map(project);
 
+const timeAt = ([lon, lat]: LonLat) => {
+    const target = project([lon, lat]);
+    const nearest = ROUTE.reduce((best, point, index) => (gap(point, target) < gap(ROUTE[best], target) ? index : best), 0);
+    return LANE_TIMES[nearest];
+};
+
+const midHub = HUBS.find((hub) => hub.code === LANE_STOPS[1]);
+
 export const LANE_ART: LaneArtData = {
     width,
     height,
@@ -94,4 +102,5 @@ export const LANE_ART: LaneArtData = {
         stop: LANE_STOPS.includes(hub.code),
         major: hub.major,
     })),
+    midway: midHub ? timeAt([midHub.lon, midHub.lat]) : 0.5,
 };
