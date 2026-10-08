@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import type { ReactNode } from "react";
+import HudCorners from "@/components/home/hud-corners";
 import { PANEL_NOTE } from "@/lib/data/home/panels";
 
 interface Props {
@@ -16,10 +17,11 @@ export default function PanelFrame({ label, status, summary, className, children
             role="img"
             aria-label={summary}
             className={clsx(
-                "border-border-dark bg-background-alt hidden w-full max-w-sm shrink-0 rounded-md border shadow-2xl md:block motion-reduce:block",
+                "border-border/70 bg-background/85 relative hidden w-full max-w-sm shrink-0 border md:block motion-reduce:block",
                 className,
             )}
         >
+            <HudCorners />
             <div aria-hidden className="flex flex-col">
                 <div className="border-border flex items-center justify-between gap-4 border-b px-5 py-3">
                     <p className="haulr-label text-text-muted">{label}</p>
@@ -28,9 +30,11 @@ export default function PanelFrame({ label, status, summary, className, children
                         {status}
                     </p>
                 </div>
-                <div className="flex flex-col gap-5 p-5">{children}</div>
-                <p className="haulr-label text-text-muted border-border border-t px-5 py-3">{PANEL_NOTE}</p>
+                <div className="flex flex-col gap-5 px-5 pt-5 pb-7">{children}</div>
             </div>
+            <p aria-hidden className="haulr-label text-text-muted bg-background absolute right-8 bottom-0 translate-y-1/2 px-2">
+                {PANEL_NOTE}
+            </p>
         </div>
     );
 }
