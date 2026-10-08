@@ -24,7 +24,7 @@ export const registerRoute = (side: "shipper" | "carrier") =>
 export const PROTECTED_ROUTE_PREFIXES = ["/dashboard"];
 
 export const API_BASE_URL =
-    process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000";
+    process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5100";
 
 export const SESSION_MAX_AGE = 60 * 60 * 24 * 7;
 
