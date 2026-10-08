@@ -1,25 +1,15 @@
 "use client";
-import { motion, useTransform, type MotionValue } from "motion/react";
+import { motion, type MotionValue } from "motion/react";
 import PanelFrame from "@/components/home/panel-frame";
 import { TRACK_PANEL as PANEL } from "@/lib/data/home/panels";
-import { truckAt } from "@/lib/home/lane";
-import { lerp } from "@/lib/home/math";
+import { useTruckReadouts } from "@/lib/hooks/use-truck-readouts";
 
 interface Props {
     progress: MotionValue<number>;
 }
 
 export default function TrackPanel({ progress }: Props) {
-    const travelled = useTransform(progress, truckAt);
-    const confidence = useTransform(
-        travelled,
-        (share) =>
-            `${PANEL.eta.prefix}${Math.round(lerp(PANEL.confidence.from, PANEL.confidence.to, share))} ${PANEL.eta.unit}`,
-    );
-    const remaining = useTransform(
-        travelled,
-        (share) => `${Math.round(lerp(PANEL.miles.from, PANEL.miles.to, share))} ${PANEL.remaining.unit}`,
-    );
+    const { travelled, eta: confidence, remaining } = useTruckReadouts(progress);
 
     return (
         <PanelFrame label={PANEL.label} status={PANEL.status} summary={PANEL.summary}>

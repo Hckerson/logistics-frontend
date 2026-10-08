@@ -38,4 +38,4 @@ export const HUBS: readonly Hub[] = [
     { code: "BOS", name: "Boston, MA", lon: -71.06, lat: 42.36, major: false },
 ];
 
-export const HERO_LANE = { from: "CHI", to: "DAL" } as const;
+export const HERO_LANE = { from: "CHI", to: "DAL", load: "HL-48213" } as const;
