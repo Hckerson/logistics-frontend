@@ -9,7 +9,7 @@ pnpm install
 pnpm dev
 ```
 
-Open http://localhost:3000. Edit `app/page.tsx`; the page hot-reloads.
+Open http://localhost:3100. Edit `app/page.tsx`; the page hot-reloads.
 
 Scripts: `pnpm dev` · `pnpm build` · `pnpm start` · `pnpm type-check` · `pnpm lint` · `pnpm format`.
 

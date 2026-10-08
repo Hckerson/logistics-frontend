@@ -105,7 +105,7 @@ This repository is already a Next.js 16 App Router project. **Do not run `create
 
 | Variable | Purpose | Where it comes from |
 | --- | --- | --- |
-| `NEXT_PUBLIC_API_URL` | Backend base URL (defaults to `http://localhost:5000`) | Backend `.env` port |
+| `NEXT_PUBLIC_API_URL` | Backend base URL (defaults to `http://localhost:5100`) | Backend `.env` port |
 | `JWT_PUBLIC_KEY` | RS256 public key for session verification in `proxy.ts` and the session route | Backend `pnpm keys:generate` output |
 | `CONTRACT_SOURCE` | Location of the backend `openapi.json` for `pnpm contract` | Path to `../backend/openapi.json` |
 
@@ -133,7 +133,7 @@ This repository is already a Next.js 16 App Router project. **Do not run `create
 ## 4. Backend Pairing
 
 - [ ] In `../backend`, follow its README: `pnpm install`, `cp .env.example .env`, `pnpm keys:generate`, `pnpm exec prisma migrate dev`, `pnpm db:seed`, `pnpm start:dev`.
-- [ ] Confirm the API responds at `http://localhost:5000/api/health` and Swagger at `/api/docs`.
+- [ ] Confirm the API responds at `http://localhost:5100/api/health` and Swagger at `/api/docs`.
 - [ ] Generate the contract here:
   ```bash
   pnpm contract
@@ -284,7 +284,7 @@ Everything installed and ready when all of these are true:
 - [ ] `pnpm type-check` passes.
 - [ ] `pnpm lint` passes.
 - [ ] `pnpm test` passes.
-- [ ] `pnpm dev` serves `http://localhost:3000`.
+- [ ] `pnpm dev` serves `http://localhost:3100`.
 - [ ] Signing in at `/auth/login` with the seeded admin sets the session cookie, and a protected prefix redirects when signed out.
 - [ ] Sprint 1 library approvals are recorded (approved or declined).
 - [ ] D-2 and assumptions A1–A8 are confirmed or amended.
