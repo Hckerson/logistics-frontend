@@ -8,6 +8,7 @@ import PaySection from "@/components/home/pay-section";
 import ProductsSection from "@/components/home/products-section";
 import QuoteClose from "@/components/home/quote-close";
 import TargetsSection from "@/components/home/targets-section";
+import TrailRule from "@/components/home/trail-rule";
 
 export default function Home() {
     return (
@@ -15,14 +16,17 @@ export default function Home() {
             <HaulrNav />
             <main>
                 <Lifecycle />
+                <TrailRule />
                 <TargetsSection />
                 <ProductsSection />
                 <LanesBand />
                 <PaySection />
                 <EnterpriseSection />
                 <ForkSection />
+                <TrailRule />
                 <QuoteClose />
             </main>
+            <TrailRule />
             <HaulrFooter />
         </>
     );

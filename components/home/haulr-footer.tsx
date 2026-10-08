@@ -6,7 +6,7 @@ import { WORDMARK } from "@/lib/home/constants";
 
 export default function HaulrFooter() {
     return (
-        <footer className="border-border overflow-hidden border-t">
+        <footer className="overflow-hidden">
             <div className="haulr-shell flex flex-col gap-16 pt-14">
                 <div className="grid gap-12 lg:grid-cols-12">
                     <div className="flex flex-col gap-5 lg:col-span-5">

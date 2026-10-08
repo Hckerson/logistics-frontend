@@ -7,7 +7,7 @@ export default function QuoteClose() {
         <section
             id={PRICE_SECTION_ID}
             aria-labelledby="price-title"
-            className="haulr-section border-border scroll-mt-(--haulr-header) border-t"
+            className="haulr-section scroll-mt-(--haulr-header)"
         >
             <div className="haulr-shell flex flex-col gap-14">
                 <header className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
