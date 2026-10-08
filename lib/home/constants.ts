@@ -46,11 +46,10 @@ export const LANE_RULE = { load: 38, spread: 16 } as const;
 export const TRAIL_RULE = { offset: ["start end", "start start"], travel: ["-100%", "200%"] } as const;
 
 export const FORK_LANE = {
-    width: 1200,
-    height: 112,
-    stem: 28,
+    rail: 8,
+    drop: 52,
     dot: 5,
-    targets: { ship: [7 / 24, 19 / 24], haul: [5 / 24, 17 / 24] },
+    exits: { ship: [0.004, 0.594], haul: [0.004, 0.424] },
 } as const;
 
 export const PRICE_SECTION_ID = "price";
