@@ -77,7 +77,18 @@ export interface ConsoleLoad {
 export interface DriverStep {
     id: string;
     label: string;
-    done: boolean;
+}
+
+export interface RecordBeat {
+    id: string;
+    status: string;
+    tone: ConsoleLoad["tone"];
+    eta: string;
+    done: number;
+    action: string;
+    pod: string;
+    document: string | null;
+    caption: string;
 }
 
 export interface PayTerm {

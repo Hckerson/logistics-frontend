@@ -184,9 +184,12 @@
     }
 }
 
-@utility haulr-pan-track {
+@utility haulr-record-track {
     position: relative;
-    height: 240svh;
+
+    @media (width >= 64rem) {
+        height: 260svh;
+    }
 
     @media (prefers-reduced-motion: reduce) {
         height: auto;
