@@ -26,19 +26,32 @@ export default function DoorCard({ door, active, order, shown }: Props) {
             animate={{ clipPath: shown ? OPEN : CLOSED }}
             transition={{ duration: LANE_DRAW_SECONDS, delay: order * STAGGER, ease: REVEAL_EASE }}
             className={clsx(
-                "flex flex-col gap-8 rounded-sm border p-6 transition-colors duration-500 sm:p-10",
-                active
-                    ? "border-text bg-text text-text-inverse lg:col-span-7"
-                    : "border-border-dark bg-background text-text lg:col-span-5",
+                "border-border flex flex-col gap-7 border-t pt-8 lg:border-t-0 lg:pt-0",
+                active ? "lg:col-span-7" : "lg:col-span-5",
             )}
         >
-            <p className={clsx("haulr-label", active ? "text-accent" : "text-text-muted")}>{door.label}</p>
-            <h3 className="text-3xl leading-tight font-normal tracking-tight sm:text-4xl">{door.title}</h3>
+            <p className={clsx("haulr-label transition-colors duration-500", active ? "text-accent" : "text-text-muted")}>
+                {door.label}
+            </p>
+            <h3
+                className={clsx(
+                    "max-w-xl text-3xl leading-tight font-normal tracking-tight transition-colors duration-500 sm:text-4xl",
+                    active ? "text-text" : "text-text-secondary",
+                )}
+            >
+                {door.title}
+            </h3>
             <ul className="flex flex-col gap-3">
                 {door.points.map((point) => (
                     <li key={point} className="flex items-baseline gap-3">
-                        <span aria-hidden className="bg-accent size-1.5 shrink-0 -translate-y-0.5 rounded-full" />
-                        <span className={active ? "text-text-inverse/80" : "text-text-secondary"}>{point}</span>
+                        <span
+                            aria-hidden
+                            className={clsx(
+                                "size-1.5 shrink-0 -translate-y-0.5 rounded-full transition-colors duration-500",
+                                active ? "bg-accent" : "bg-border-dark",
+                            )}
+                        />
+                        <span className="text-text-secondary">{point}</span>
                     </li>
                 ))}
             </ul>
