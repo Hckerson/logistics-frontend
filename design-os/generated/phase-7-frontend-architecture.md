@@ -2,7 +2,7 @@
 
 `Haulr Design OS` · `Version 1.1.0` · `2026-09-30` · Previous: [Phase 6 — Interaction Contracts](./phase-6-interaction-contracts.md) · Next: [Phase 8 — Implementation Roadmap](./phase-8-implementation-roadmap.md)
 
-How the code is organised to deliver Phases 1–6. This phase names files and folders because its job is code organisation. It says nothing about how anything looks; styling organisation follows the host repo's conventions (`styles/tokens.css`, `styles/globals.css`, `.claude/skills/elegant-ui`) and is not specified here.
+How the code is organised to deliver Phases 1–6. This phase names files and folders because its job is code organisation. It says nothing about how anything looks; styling organisation follows the host repo's conventions (`styles/tokens.css`, `styles/globals.css`) and is not specified here.
 
 **The host `.claude/CLAUDE.md` wins.** Every decision below was reconciled against it. Where this phase extends a host convention, the extension and its reason are recorded as a decision (`D-n`).
 

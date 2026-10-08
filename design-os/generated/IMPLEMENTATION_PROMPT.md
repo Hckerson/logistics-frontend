@@ -60,7 +60,7 @@ This design OS defines what each page must do, not how it looks. The look of eac
 
 **Applying it in this repo.**
 
-- The repo's UI skills are `.claude/skills/elegant-ui` (house mechanics for every React UI: tokens, primitives, structure, icons, accessibility) and `.claude/skills/cinematic-web` (motion-led marketing register, for PG-01 and other public acquisition pages only if the owner chooses that register). Load the relevant skill before producing a concept.
+- House mechanics for every React UI (tokens, primitives, structure, icons, accessibility) come from `.claude/CLAUDE.md`. The repo's UI skill is `.claude/skills/cinematic-web` (motion-led marketing register, for PG-01 and other public acquisition pages only if the owner chooses that register); load it before producing a concept in that register.
 - A concept responds to the page's Phase 4 purpose, primary tasks and device needs and to its Phase 5 sections. It must not remove or merge sections, change behaviour defined in Phase 6, or add scope.
 - Present the concept and wait for explicit approval. Record the approval (link or note) in the pull request.
 - After implementation, render the page (`pnpm dev`) and have the owner review the result before the status moves to **Built**.
