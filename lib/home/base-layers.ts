@@ -33,27 +33,20 @@ const lines = (id: string, data: Route[], colour: Rgba, width: number, glows: Gl
         extensions: [glows.line],
     });
 
-export function baseLayers(
-    prefix: string,
-    trips: Trip[],
-    palette: MapPalette,
-    time: number,
-    glows: Glows,
-    fade: Fade,
-): Layer[] {
+export function baseLayers(trips: Trip[], palette: MapPalette, time: number, glows: Glows, fade: Fade): Layer[] {
     return [
         new GeoJsonLayer({
-            id: `${prefix}states`,
+            id: "states",
             data: CONTIGUOUS_STATES,
             filled: true,
             stroked: false,
             getFillColor: tint(palette.land, OPAQUE),
             opacity: fade.land,
         }),
-        lines(`${prefix}borders`, BORDERS, tint(palette.stateLine, OPAQUE), MAP_WIDTH.border, glows, fade.land),
-        lines(`${prefix}roads`, ROADS, tint(palette.road, MAP_ALPHA.road), MAP_WIDTH.road, glows, fade.network),
+        lines("borders", BORDERS, tint(palette.stateLine, OPAQUE), MAP_WIDTH.border, glows, fade.land),
+        lines("roads", ROADS, tint(palette.road, MAP_ALPHA.road), MAP_WIDTH.road, glows, fade.network),
         new ScatterplotLayer<NetworkHub>({
-            id: `${prefix}hubs`,
+            id: "hubs",
             data: NETWORK_HUBS,
             getPosition: (hub) => hub.position,
             getRadius: MAP_DOT.hub,
@@ -65,7 +58,7 @@ export function baseLayers(
             extensions: [glows.hub],
         }),
         new GlowTripsLayer<Trip>({
-            id: `${prefix}trips`,
+            id: "trips",
             data: trips,
             getPath: (trip) => trip.path,
             getTimestamps: (trip) => trip.timestamps,

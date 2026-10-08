@@ -14,6 +14,11 @@ export const CLOSE_COPY = {
         { value: "flatbed", label: "Flatbed" },
     ],
     submit: "Get a price",
-    map: { idle: "Type two cities to light the lane", unit: "mi straight line" },
+    ticket: {
+        label: "Your lane",
+        note: "Sample preview",
+        idle: "Type two cities to light the lane.",
+        unit: "miles, straight line.",
+    },
     listId: "haulr-hubs",
 } as const;

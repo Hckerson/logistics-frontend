@@ -78,15 +78,4 @@ export const GLOW = {
     beam: { shape: "line", core: 0.02, halo: 1, spread: 2.6, heat: 0, taper: 0.8 },
 } as const satisfies Record<GlowName, GlowProfile>;
 
-export const QUOTE_MAP = {
-    home: { longitude: -96.5, latitude: 38.2, span: 62, pitch: 32, bearing: 0 },
-    lane: { margin: 9, latitudeWeight: 1.7, pitch: 48, bearing: 12 },
-    trips: 900,
-    warmMargin: "100% 0px",
-    ease: 0.06,
-    drawEase: 0.045,
-    arcHeight: 0.16,
-    samples: 48,
-    tile: 512,
-    metresPerDegree: 111320,
-} as const;
+export const ARC_PATH = { samples: 48, metresPerDegree: 111320 } as const;

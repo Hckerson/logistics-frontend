@@ -24,7 +24,7 @@ export function mapLayers(trips: Trip[], palette: MapPalette, frame: MapFrame, g
     const arcs = fade(frame.intro, INTRO.laneStart, 1) * (1 - fade(frame.progress, SCENES.hero[0], SCENES.quote[0] + 0.07));
 
     return [
-        ...baseLayers("", trips, palette, frame.time, glows, introFades(frame.intro)),
+        ...baseLayers(trips, palette, frame.time, glows, introFades(frame.intro)),
         new GlowTripsLayer<Route>({
             id: "arcs",
             data: ARC_ROUTES,
