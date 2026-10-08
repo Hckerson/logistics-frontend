@@ -43,6 +43,8 @@ export const SIDE_CHANGE_EVENT = "haulr:side";
 
 export const LANE_RULE = { load: 38, spread: 16 } as const;
 
+export const FOOTER_ROUTE = { from: -130, to: 430, streak: 0.25 } as const;
+
 export const TRAIL_RULE = { offset: ["start end", "start start"], travel: ["-100%", "200%"] } as const;
 
 export const FORK_LANE = {

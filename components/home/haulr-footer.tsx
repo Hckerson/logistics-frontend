@@ -1,4 +1,5 @@
 import Link from "next/link";
+import FooterRoute from "@/components/home/footer-route";
 import HaulrWordmark from "@/components/home/haulr-wordmark";
 import { HAULR_BRAND } from "@/lib/data/home/brand";
 import { FOOTER_COPY, FOOTER_GROUPS } from "@/lib/data/home/footer";
@@ -36,6 +37,7 @@ export default function HaulrFooter() {
                         ))}
                     </nav>
                 </div>
+                <FooterRoute />
                 <svg aria-hidden viewBox={`0 0 ${WORDMARK.width} ${WORDMARK.height}`} className="w-full">
                     <text
                         x={WORDMARK.width / 2}
