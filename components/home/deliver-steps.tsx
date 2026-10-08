@@ -19,7 +19,7 @@ export default function DeliverSteps({ progress, reduced }: Props) {
         <div className="relative pl-8">
             <span aria-hidden className="bg-border-dark absolute top-2 bottom-2 left-[5px] w-px">
                 <motion.span
-                    style={reduced ? undefined : { scaleY: fill }}
+                    style={{ scaleY: reduced ? 1 : fill }}
                     className="bg-accent absolute inset-0 origin-top"
                 />
             </span>

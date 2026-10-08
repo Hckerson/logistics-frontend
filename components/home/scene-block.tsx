@@ -16,6 +16,7 @@ interface Props {
 const DRIFT = 28;
 const HIDDEN = 0.02;
 const EASE = cubicBezier(...REVEAL_EASE);
+const STILL = { opacity: 1, y: 0, pointerEvents: "auto" } as const;
 
 const keyframes = ([start, end]: readonly [number, number], hold: Props["hold"]) => {
     if (hold === "start") return { input: [end - SCENE_FADE, end], opacity: [1, 0], y: [0, -DRIFT] };
@@ -35,7 +36,7 @@ export default function SceneBlock({ progress, range, hold, reduced, className, 
 
     return (
         <motion.div
-            style={reduced ? undefined : { opacity, y, pointerEvents }}
+            style={reduced ? STILL : { opacity, y, pointerEvents }}
             className={clsx("haulr-shell absolute inset-0 flex motion-reduce:static motion-reduce:py-10", className)}
         >
             {children}
