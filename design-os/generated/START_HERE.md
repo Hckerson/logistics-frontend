@@ -1,6 +1,6 @@
 # Start Here — Haulr Design OS
 
-`Version 1.1.0` · `2026-09-30` · Next: [README](./README.md)
+`Version 1.1.1` · `2026-10-09` · Next: [README](./README.md)
 
 Welcome. This folder is the complete specification for **Haulr**, a road freight marketplace where shippers post loads, carriers bid on and book them, drivers run each trip and everyone gets paid. It tells you what the product does and how the code is organised. How each page looks is decided when that page is built, with the owner.
 
@@ -20,7 +20,7 @@ The design OS has nine phases. Each one builds on the one before it.
 - [x] **Phase 6 — Interaction Contracts:** 67 contracts defining how every interactive element behaves
 - [x] **Phase 7 — Frontend Architecture:** folders, routes, hooks, libraries, reconciled with this repo
 - [x] **Phase 8 — Implementation Roadmap:** 8 sprints over 16 weeks, plus build status for every feature
-- [x] **Phase 9 — QA Checklist:** 266 checks a feature must pass before it counts as Verified
+- [x] **Phase 9 — QA Checklist:** 267 checks a feature must pass before it counts as Verified
 
 Plus six guides, including this one.
 
@@ -44,7 +44,7 @@ Plus six guides, including this one.
 | [phase-6-interaction-contracts.md](./phase-6-interaction-contracts.md) | 67 interaction contracts |
 | [phase-7-frontend-architecture.md](./phase-7-frontend-architecture.md) | Code organisation and library decisions |
 | [phase-8-implementation-roadmap.md](./phase-8-implementation-roadmap.md) | Sprints, milestones, risks, build status |
-| [phase-9-qa-checklist.md](./phase-9-qa-checklist.md) | 266 QA items |
+| [phase-9-qa-checklist.md](./phase-9-qa-checklist.md) | 267 QA items |
 
 ---
 
@@ -111,7 +111,7 @@ When you come back to this work:
 ## Three Things to Know Before You Start
 
 1. **This spec never decides how anything looks.** You won't find colours, layouts or component lists here. Each page's look is proposed, approved and built one page at a time.
-2. **The repo's own rules win.** `.claude/CLAUDE.md` governs code conventions. Phase 7 was reconciled against it, and any extension is recorded as a decision (D-1 … D-13) that you can challenge.
+2. **The repo's own rules win.** `.claude/CLAUDE.md` governs code conventions. Phase 7 was reconciled against it, and any extension is recorded as a decision (D-1 … D-14) that you can challenge.
 3. **Nothing gets deleted for being unbuilt.** If a feature isn't done, its status changes in Phase 8. It is never removed from the spec.
 
 ---

@@ -1,6 +1,6 @@
 # Phase 5 — Section Blueprints
 
-`Haulr Design OS` · `Version 1.1.0` · `2026-09-30` · Previous: [Phase 4 — Page Blueprints](./phase-4-page-blueprints.md) · Next: [Phase 6 — Interaction Contracts](./phase-6-interaction-contracts.md)
+`Haulr Design OS` · `Version 1.1.1` · `2026-10-09` · Previous: [Phase 4 — Page Blueprints](./phase-4-page-blueprints.md) · Next: [Phase 6 — Interaction Contracts](./phase-6-interaction-contracts.md)
 
 Every page from [Phase 4](./phase-4-page-blueprints.md) is broken into sections, one per job. A section is a unit of behaviour: what it is responsible for, the data it needs, how the user interacts with it, and what happens when it is loading, empty or failing. Sections never say what they show, which components or controls they use, how they are arranged, their order on screen, their size, imagery or animation.
 
@@ -29,7 +29,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 
 - **One job per section.** A section that would need two unrelated purposes is two sections.
 - **Independent failure.** Each section that fetches data owns its loading and error boundary (SSB-1, SSB-3 in [Phase 4 §2](./phase-4-page-blueprints.md#2-shared-state-behaviour)), so one failure never takes down the page.
-- **Instances inherit.** A page section marked "Instance of SH-nn" inherits every field of that shared section. It lists only its scope and overrides.
+- **Instances inherit.** A page section marked "Instance of SH-nn" (or of another page section, SC-nn.n) inherits every field of that section. It lists only its scope and overrides.
 - **Role shaping happens on the server.** A section never decides what a role may see. It renders what the role-shaped response contains (BR-05, Phase 3 §5.2).
 - **Every field is mandatory.** Where a field does not apply, it says "Not applicable" and why.
 
@@ -44,11 +44,11 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Data requirements:** `use-load-timeline(loadId, { category, cursor })` → timeline events (contract type `LoadTimelineEventDto[]`) with a next cursor; cursor pagination for long histories, ordered newest to oldest, page size 50 (maximum 200); event category vocabulary from `lib/enums/`; stop time zones from the parent `use-load(loadId)` record. Responses are role-shaped by the server; the client never filters out forbidden fields.
 - **Interaction model:** Read-only; the user can narrow by event category (IC-20) and expand an event for its evidence (IC-32: location, document link opening IC-58). Older pages load on request (IC-21). New events arrive with the load's refresh cycle, are merged by event ID and never move the user's focus or collapse an expanded event.
 - **Device needs:** DV-PHONE: skim the latest events and open the evidence of one. DV-DESK: audit the full history with category narrowing and keyboard-only operation. DV-CAB: need not audit history; the trip-scoped variant (PG-39) carries only the driver's own stop events. DV-WALL: not a supported context. DV-AT: full parity with DV-DESK.
-- **Accessibility requirements:** A labelled region ("Load timeline") containing an ordered list; each event exposes its name, actor role, source and absolute time as text, with relative time supplementary; new events are announced politely through IC-14 as one batched message per refresh ("2 new events") and only when the user has not moved into older history; category filters are a labelled group (IC-20); expanding keeps focus on the toggle (IC-32); state names use IC-59 text, never a visual-only cue (G-3; WCAG 1.3.1, 4.1.3).
+- **Accessibility requirements:** A labelled region ("Load timeline") containing an ordered list; each event exposes its name, actor role, source and absolute time as text, with relative time supplementary; new events are announced politely through IC-14 as one batched message per refresh ("2 new events") and only when the user has not moved into older history; category filters are a labelled group (IC-20); expanding leaves focus on the element that expanded the event (IC-32); state names use IC-59 text, never a visual-only cue (G-3; WCAG 1.3.1, 4.1.3).
 - **Loading states:** LS-1 for the initial page inside its own boundary; the rest of the host page stays usable. LS-2 on the load's refresh cycle (`TRACKING_REFRESH_MS`, 60 s, Phase 7 §13): known events stay and nothing is announced unless new events arrive. LS-5 while an older page is requested (IC-21), the request control busy. LS-3 after 5 s states "Still loading the timeline. You can keep working."
 - **Error states:** E-SERVER, E-TIMEOUT, E-UNAVAILABLE → "Couldn't load the timeline" with retry (IC-60); the rest of the page is unaffected; on a failed refresh the loaded events stay with their age (SSB-2). E-CONTRACT → treated as E-SERVER, never partially rendered, correlation ID given as the support reference. E-OFFLINE → cached events stay with "Saved <age> ago" (SSB-4). E-NOT-FOUND (access lost mid-session) → "This load is no longer available" and the host page applies PG-53.
 - **Empty states:** EM-4 for `Draft` and `PendingApproval` loads: "Events will be recorded once the load is posted." EM-2 when a category filter excludes every event: the active category count and a way to clear it.
-- **Reuse potential:** PG-40, PG-02 (public-scoped variant), PG-50, PG-39 (trip-scoped variant); implemented once as `components/common/load-timeline.tsx`.
+- **Reuse potential:** PG-40, PG-02 (public-scoped variant), PG-50, PG-39 (trip-scoped variant); implemented once and reused by reference (location per Phase 7 §12).
 - **Technical notes:** Events are immutable; key by event ID; query key `timelineKeys.list(loadId, category)`, stale time 60 s, invalidated by every successful `useLoadActions` mutation on the same load; times rendered with `lib/utils/date-formatter.ts` in the stop's time zone. Read-only: no audit event. Analytics `load.timeline.filtered` and `load.timeline_event.expanded` carry the load ID and category enum only (NFR-PRIV-3). Event locations finer than city are Restricted (NFR-PRIV-1) and returned only to roles that may view live location (Phase 3 §5.1); history retention follows BR-20.
 
 ### SH-02 — Live position and ETA
@@ -62,8 +62,8 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Loading states:** LS-1 streams the text equivalent without waiting for the map library, which loads separately (`next/dynamic`, Phase 7 §17). LS-2 every 60 s: last known values stay available during refresh (SSB-2) and only the age changes; polling pauses while the tab is hidden. LS-5 while a check call is being requested. LS-3 after 5 s keeps the last known values usable.
 - **Error states:** E-UNAVAILABLE or E-SERVER on the location feed → last known position with age, "Live updates paused" and retry (IC-60); automatic read retries per Phase 4 §2.2. Map library or tile failure (E-UNAVAILABLE for maps, NFR-AV-4) → text equivalent only, stated once. E-OFFLINE → last cached values with age. E-CONFLICT on a check-call request → a request is already open; state who requested it and when. E-RATE-LIMIT on check calls → state when another request is allowed. E-CONTRACT → as E-SERVER with correlation ID.
 - **Empty states:** EM-4 before pickup: "Tracking starts at pickup" with the pickup appointment window in facility-local time. EM-4 after delivery: final position replaced by the delivery time; no live tracking is expected.
-- **Reuse potential:** PG-40, PG-02, PG-26 (collection map), PG-35, PG-50; implemented once as `components/common/load-position.tsx`.
-- **Technical notes:** Polling via TanStack Query `refetchInterval` with `refetchIntervalInBackground: false`; query key `positionKeys.latest(loadId)`; subscriptions only for loads in view (Phase 7 §18); stale threshold from BR-10 in constants; map library pending approval (Phase 7 §15). Precise positions are Restricted (NFR-PRIV-1) and never leave the client in analytics; `tracking.position.viewed` and `tracking.check_call.requested` carry the load ID and source enum only. A check call emits the audit event `load.check_call_requested`. Position-to-visible latency target ≤ 90 s (NFR-PERF-5).
+- **Reuse potential:** PG-40, PG-02, PG-26 (collection map), PG-35, PG-50; implemented once and reused by reference (location per Phase 7 §12).
+- **Technical notes:** Polling via TanStack Query `refetchInterval` with `refetchIntervalInBackground: false`; query key `positionKeys.latest(loadId)`; subscriptions only for loads in view (Phase 7 §18); stale threshold from BR-10 in constants; map base layer pending approval (deck.gl installed; Phase 7 §15). Precise positions are Restricted (NFR-PRIV-1) and never leave the client in analytics; `tracking.position.viewed` and `tracking.check_call.requested` carry the load ID and source enum only. A check call emits the audit event `load.check_call_requested`. Position-to-visible latency target ≤ 90 s (NFR-PERF-5).
 
 ### SH-03 — Document set
 
@@ -74,9 +74,9 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Device needs:** DV-PHONE: photograph a document and upload it on a variable network, with progress surviving a brief signal loss. DV-CAB: capture only, through PG-39 (IC-25), queued offline (PP-06). DV-DESK: add several files at once and download many. DV-AT: full parity with DV-DESK, including upload by file selection.
 - **Accessibility requirements:** A labelled region per scope; the document collection is a list with type, version and time as text; upload progress is announced politely at start, at completion and on failure (IC-14), not at every percentage; preview (IC-58) has a text title and a download alternative; accepted file types and the byte limit are stated before upload (IC-24); verification state and expiry are text (G-3).
 - **Loading states:** LS-1 until the document set arrives, the rest of the page usable; LS-2 on window focus (documents are refetched on focus, Phase 4 §2.6); LS-5 per file with upload progress and a cancel action; LS-6 for driver captures queued offline ("Waiting to upload, saved 4 min ago").
-- **Error states:** E-VALIDATION (type, byte limit, failed virus scan) → reason per file and the accepted alternatives; other files unaffected. E-FORBIDDEN on upload → the role cannot add to this scope and who can. E-OFFLINE → capture queued where the section allows (PG-39), otherwise "Uploading needs a connection". E-SERVER or E-TIMEOUT on download → retry (IC-60); an expired signed URL is refreshed silently once. E-CONFLICT on a new version → another version was added meanwhile; state by whom and offer to add this one as the next version.
+- **Error states:** E-VALIDATION (type, byte limit, failed virus scan) → reason per file and the accepted alternatives; other files unaffected. E-FORBIDDEN on upload → the role cannot add to this scope and who can. E-OFFLINE → capture queued where the section allows (PG-39), otherwise "Uploading needs a connection". E-SERVER or E-TIMEOUT on download → retry (IC-60); an expired signed URL is refreshed silently once. E-PRECONDITION on a new version (SSB-8) → another version was added meanwhile; state by whom and offer to add this one as the next version.
 - **Empty states:** EM-1 for organisation scope: "No documents yet" with what compliance or billing expects. EM-4 for load scope before the event that produces the document ("POD will be expected after delivery"). EM-2 when a type filter matches nothing: active filter and a way to clear it.
-- **Reuse potential:** PG-40, PG-43, PG-45, PG-31, PG-17, PG-51; implemented once as `components/common/document-set.tsx`.
+- **Reuse potential:** PG-40, PG-43, PG-45, PG-31, PG-17, PG-51; implemented once and reused by reference (location per Phase 7 §12).
 - **Technical notes:** Upload is direct-to-storage via a presigned URL from the backend; client checks bytes and MIME before request; limits in constants; server scans every file (SEC-7). Query key `documentKeys.list(scope, scopeId, docType)`, invalidated on upload success. Audit events `document.uploaded`, `document.version_added`, `document.downloaded`; analytics `document.file.uploaded`, `document.file.downloaded` with type enum and byte count only. Tax IDs on W-9 and bank documents are Restricted (NFR-PRIV-1) and preview is limited to roles in Phase 3 §5.1. Retention 7 years for POD and rate confirmations (BR-20).
 
 ### SH-04 — Conversation
@@ -90,7 +90,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Loading states:** LS-1 until the latest page arrives; LS-2 every 10 s while the thread is open, paused when hidden; LS-5 per outgoing message with optimistic append; LS-3 after 5 s keeps the composer usable.
 - **Error states:** E-SERVER, E-TIMEOUT or E-OFFLINE on send → message kept with retry and the entered text never lost; the idempotent message ID prevents duplicates on retry. E-VALIDATION (empty, over length, attachment rejected) → field message per IC-02. E-FORBIDDEN → the thread is closed to this role (for example after the load closes) with the reason. E-NOT-FOUND → thread unavailable; retry not offered. E-SERVER on read → retry (IC-60) with known messages retained (SSB-2).
 - **Empty states:** EM-1: "No messages yet. Messages here are shared with everyone on this load." (ticket threads: "…shared with Haulr support").
-- **Reuse potential:** PG-40, PG-41, PG-24; implemented once as `components/common/conversation.tsx`.
+- **Reuse potential:** PG-40, PG-41, PG-24; implemented once and reused by reference (location per Phase 7 §12).
 - **Technical notes:** Optimistic append with a client `nanoid` message ID reconciled on server acknowledgement (Phase 7 §8 permits optimism here); the ID doubles as the idempotency key; transport per Phase 7 §13 (polling at launch, server-sent events later with the same hook signature). Query key `messageKeys.list(threadId)`. Message body limit `MESSAGE_MAX_LENGTH` from constants. Audit `message.sent`; analytics `thread.message.sent` with thread ID, attachment count and length band only; message bodies are Confidential and never reach analytics or error reports (NFR-PRIV-3).
 
 ### SH-05 — Record collection
@@ -104,7 +104,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Loading states:** LS-1 inside the collection's own boundary; LS-2 on criteria change or interval: previous results remain with a pending state during refetch (placeholder data) and the count is announced only when it changes; LS-3 after 5 s allows the user to keep working with previous results; LS-5 during a bulk action on up to 100 records; LS-7 for more than 100 records and for exports ("Started. We'll notify you when it's ready.", Phase 4 §2.8).
 - **Error states:** E-SERVER, E-TIMEOUT or E-UNAVAILABLE on the collection → previous results retained with age and retry (IC-60). E-VALIDATION on malformed URL parameters → invalid values dropped, the user told which filter was reset. Partial bulk-action failure → per-record outcome with the E-class reason for each (E-CONFLICT: state moved on; E-FORBIDDEN: not permitted for this record). E-RATE-LIMIT on export → wait from `Retry-After`. E-CONTRACT → as E-SERVER, never partially rendered.
 - **Empty states:** EM-1 when no records exist at all (guidance per route from Phase 3 §13, with the single next step); EM-2 when no records match criteria (active criteria count and a way to clear or widen them); EM-3 for work queues emptied by the user's work (clear, with time of last check).
-- **Reuse potential:** PG-26, PG-30, PG-33, PG-35, PG-38, PG-43, PG-44, PG-50, PG-52, PG-32, PG-22; implemented once as `components/common/record-collection.tsx`.
+- **Reuse potential:** PG-26, PG-30, PG-33, PG-35, PG-38, PG-43, PG-44, PG-50, PG-52, PG-32, PG-22; implemented once and reused by reference (location per Phase 7 §12).
 - **Technical notes:** URL parsing and serialisation through `lib/utils/query-string.ts`; parameter names from Phase 3 §10; query keys include every parameter (`<resource>Keys.list(params)`); `placeholderData: keepPreviousData`; no client-side totals over the collection (Phase 7 §18); initial page within NFR-PERF-3 (≤ 800 ms p95). Bulk actions carry one idempotency key per record and emit the per-record audit events of the underlying action plus `bulk.<action>.requested`; exports emit `export.requested` (Sensitive, Phase 4 §2.8). Analytics `<resource>.collection.filtered`, `<resource>.collection.exported` with filter names and counts, never search text (NFR-PRIV-3).
 
 ### SH-06 — Account standing notice
@@ -112,13 +112,13 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Purpose:** Tell the user when their organisation cannot do something and how to fix it.
 - **Responsibilities:** Detect blockers (onboarding incomplete, compliance hold, insurance expiring or lapsed, payment method missing or failed, credit limit reached, authority inactive per BR-18) and route to the exact fix; state which capabilities are affected (book, bid, post, pay) and, for expiring items, the date the block will start.
 - **Data requirements:** `use-account-standing()` → blockers with severity (blocking or warning), affected capabilities, effective date and fix route; scoped to the session's organisation; shared query key across every page.
-- **Interaction model:** The user follows the fix route (PG-17, PG-49, PG-48 per Phase 3 §8); non-blocking notices can be dismissed for the session; blocking notices cannot be dismissed. Actions elsewhere are never hidden because of a blocker; the server refuses them and the notice explains why (G-5).
+- **Interaction model:** The user follows the fix route (PG-17 or PG-49 per Phase 3 §8; PG-16 for incomplete shipper onboarding, SC-18.5); non-blocking notices can be dismissed for the session; blocking notices cannot be dismissed. Actions elsewhere are never hidden because of a blocker; the server refuses them and the notice explains why (G-5).
 - **Device needs:** DV-PHONE: the blocker is announced on load so users do not have to hunt for it, and the fix route is reachable in one step. DV-DESK: the same, persisting across pages until resolved. DV-AT: full parity with DV-DESK.
 - **Accessibility requirements:** Blocking notices are announced once on page load (assertive only for a state that became blocking since the last visit; polite otherwise); the notice is a labelled region naming the organisation; the fix route is a named link stating the destination ("Update insurance certificate"); dismissal returns focus to the next focusable element in reading order (SSB-6).
 - **Loading states:** LS-1 silently: nothing is announced while loading and the notice appears only when data resolves, so no empty region is ever exposed; LS-2 on window focus and after any mutation that may resolve a blocker.
 - **Error states:** E-SERVER, E-UNAVAILABLE or E-TIMEOUT → no notice, no error message (the server remains authoritative on every action and refusals carry their own reason via E-FORBIDDEN). E-CONTRACT → reported with correlation ID, no notice rendered.
 - **Empty states:** EM-5: no blockers → the section is absent; it renders only when at least one blocker exists.
-- **Reuse potential:** PG-18, PG-19, PG-33, PG-27, PG-34; implemented once as `components/common/account-standing.tsx`.
+- **Reuse potential:** PG-18, PG-19, PG-33, PG-27, PG-34; implemented once and reused by reference (location per Phase 7 §12).
 - **Technical notes:** Shared query key `organizationKeys.standing()` so resolving a blocker anywhere updates everywhere; stale time 60 s; invalidated by payment method, document and onboarding mutations. Dismissal held in session storage via `lib/utils/local-storage.ts`, keyed by user and blocker ID, cleared on sign-out (SSB-10). Read-only: no audit event. Analytics `account.standing_notice.viewed` and `account.standing_notice.fix_followed` with blocker type enum only. Standing mirrors BR-03 and BR-18; the client never decides eligibility.
 
 ### SH-07 — Attention queue
@@ -132,7 +132,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Loading states:** LS-1 inside its own boundary; LS-2 every 60 s (`ATTENTION_REFRESH_MS`) and on window focus, known items retained, paused when hidden; LS-5 on the triggering quick action, which is busy until settled; LS-3 after 5 s.
 - **Error states:** E-SERVER, E-UNAVAILABLE or E-TIMEOUT on read → retry (IC-60) with the stale age stated ("Last checked 6 min ago"). E-CONFLICT on a quick action → the item was handled elsewhere; refetch and state who handled it. E-FORBIDDEN → the action is outside the role; state who can act. E-PRECONDITION → the subject changed; open it instead. E-OFFLINE → quick actions unavailable, "needs a connection".
 - **Empty states:** EM-3: "Nothing needs you right now" with time of last check; EM-1 for a new organisation defers to SH-12.
-- **Reuse potential:** PG-18, PG-19, PG-22, PG-23, PG-24, PG-50; implemented once as `components/common/attention-queue.tsx`.
+- **Reuse potential:** PG-18, PG-19, PG-22, PG-23, PG-24, PG-50; implemented once and reused by reference (location per Phase 7 §12).
 - **Technical notes:** Item types are an enum; quick actions reuse the same mutation hooks as their full pages and invalidate `attentionKeys.list(role)` on success; stale time 60 s and stale label after 5 min (Phase 4 §2.6). Audit events are those of the underlying action (for example `bid.accepted`) plus `attention_item.acknowledged`. Analytics `attention.item.opened`, `attention.item.actioned` with type enum and time-to-action. Money values in items follow BR-05 shaping.
 
 ### SH-08 — Performance metrics
@@ -146,7 +146,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Loading states:** LS-1 per metric group, each in its own boundary; LS-2 on period change with previous values kept; values refresh on focus and at most every 60 s (Phase 4 §2.6), stale label after 5 min.
 - **Error states:** E-SERVER or E-UNAVAILABLE for one metric → its value withheld with reason and retry (IC-60); others unaffected. E-FORBIDDEN → the metric is absent, never shown as zero. E-VALIDATION on a custom period → IC-17 message (range outside retention or end before start).
 - **Empty states:** EM-4: not enough data → "Available after your first delivered load."; EM-2 for a period with no activity: "No activity in this period" with a way to widen it.
-- **Reuse potential:** PG-18, PG-19, PG-21, PG-23; implemented once as `components/common/metric-set.tsx`.
+- **Reuse potential:** PG-18, PG-19, PG-21, PG-23; implemented once and reused by reference (location per Phase 7 §12).
 - **Technical notes:** Chart library pending approval (Phase 7 §15), loaded with `next/dynamic` after the text values; numbers formatted by shared formatters (`lib/utils/currency.ts`, `lib/utils/units.ts`); query key `metricKeys.set(scope, period)`, stale time 60 s. Read-only: no audit event. Analytics `metrics.period.changed` and `metrics.metric.drilled` with metric ID and period enum. Spend values are Confidential (NFR-PRIV-1).
 
 ### SH-09 — Scorecard
@@ -157,10 +157,10 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Interaction model:** Read-only; the user can open each measure's definition (IC-56). No sorting, filtering or drilling on public pages.
 - **Device needs:** DV-PHONE: check a carrier's reliability in seconds. DV-DESK: compare two organisations in separate tabs. DV-AT: full parity with DV-DESK.
 - **Accessibility requirements:** A labelled region naming the organisation; values as text with units and period; rating expressed as "4.6 out of 5 from 132 ratings", never as a visual-only rating (G-3); definitions follow IC-56 and return focus to their trigger.
-- **Loading states:** LS-1 on workspace pages inside its own boundary; server-rendered with ISR on PG-03 and PG-04 (no client loading there).
+- **Loading states:** LS-1 on workspace pages inside its own boundary; server-rendered with ISR on PG-03 (no client loading there); PG-04 is signed-in only and follows LS-1 per part.
 - **Error states:** E-SERVER or E-UNAVAILABLE → values withheld with retry (IC-60), never replaced by zero. E-NOT-FOUND → handled by the host page (PG-53). E-CONTRACT → as E-SERVER.
 - **Empty states:** EM-4: too few loads → "Scorecard begins after 5 delivered loads." with the current count.
-- **Reuse potential:** PG-03, PG-04, PG-28, PG-29, PG-33; implemented once as `components/common/scorecard.tsx`.
+- **Reuse potential:** PG-03, PG-04, PG-28, PG-29, PG-33; implemented once and reused by reference (location per Phase 7 §12).
 - **Technical notes:** Minimum sample size from constants; query key `scorecardKeys.detail(orgId)`, stale time 5 min; public pages revalidate by tag on rating or compliance change. AggregateRating structured data only when the rating count is at least 5 (PG-03). Read-only: no audit event; analytics `scorecard.definition.opened` with measure enum. Individual ratings are never shown with the rater's identity (XS-05).
 
 ### SH-10 — Rating submission
@@ -216,7 +216,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Loading states:** LS-1 while a server draft is fetched; restoring a local draft is immediate and announced once ("Draft restored from 2 days ago"); LS-5 while a step saves to the server.
 - **Error states:** Draft restore failed or corrupt → start fresh and say so. E-VALIDATION → IC-02 summary on the current step, entries kept. E-PRECONDITION on a server draft edited on another device → IC-67: state what changed and when, keep both versions for the user to choose. E-OFFLINE → local draft keeps accumulating; server save retried on reconnect. E-AUTH → local draft kept, redirect to PG-10 with return path.
 - **Empty states:** EM-5: the flow always renders the entries of its opening step; there is no collection to be empty.
-- **Reuse potential:** PG-16, PG-17, PG-27, PG-45, PG-08; implemented once as `components/common/step-flow.tsx`.
+- **Reuse potential:** PG-16, PG-17, PG-27, PG-45, PG-08; implemented once and reused by reference (location per Phase 7 §12).
 - **Technical notes:** Reducer with typed actions; draft keyed by flow and user ID; drafts cleared on successful submission and on sign-out (SSB-10); drafts never contain Restricted values (passwords, bank details, tax IDs are re-entered, NFR-PRIV-1). Server drafts carry a version for SSB-8. Analytics `<flow>.step.completed`, `<flow>.draft.restored` with step index and duration; audit events are the flow's own (for example `onboarding.step_saved`).
 
 ### SH-14 — Money breakdown
@@ -230,7 +230,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Loading states:** LS-1 and LS-2 follow the parent record; no independent boundary.
 - **Error states:** Follows the parent record. E-CONTRACT on the money object → the whole breakdown is withheld, never partially rendered, because a partial amount would mislead (PP-01).
 - **Empty states:** EM-5: the parent record always carries a money object; the section is not rendered without one.
-- **Reuse potential:** PG-27, PG-28, PG-31, PG-33, PG-34, PG-38, PG-40; implemented once as `components/common/money-breakdown.tsx`.
+- **Reuse potential:** PG-27, PG-28, PG-31, PG-33, PG-34, PG-38, PG-40; implemented once and reused by reference (location per Phase 7 §12).
 - **Technical notes:** Currency formatting in one shared formatter (`lib/utils/currency.ts`); never computed client-side except display rounding; totals come from the server (Phase 7 §18). Rates, margins and pay are Confidential (NFR-PRIV-1) and never enter analytics; `money.breakdown.opened` carries the part enum only. Read-only: no audit event.
 
 ### SH-15 — Driver and truck assignment
@@ -244,7 +244,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Loading states:** LS-1 while the fleet loads; LS-5 while the assignment is submitted, the confirm action busy (G-6).
 - **Error states:** E-CONFLICT (driver or vehicle assigned to an overlapping load, load no longer booked) → reason and refreshed options. E-VALIDATION (equipment mismatch, missing reason on reassignment) → field message (IC-02). E-FORBIDDEN (`carrier.driver` or view-as without write consent) → who can assign. E-PRECONDITION → the load changed since opening (IC-67). E-SERVER, E-TIMEOUT → retry with selections kept.
 - **Empty states:** EM-1: no drivers → invite inline (XS-02) with what the driver receives; no eligible vehicle → route to PG-37 to add one.
-- **Reuse potential:** PG-40, PG-35, PG-19; implemented once as `components/common/assignment-picker.tsx`.
+- **Reuse potential:** PG-40, PG-35, PG-19; implemented once and reused by reference (location per Phase 7 §12).
 - **Technical notes:** Server validates equipment and availability; deadline from BR-09 in constants; query keys `fleetKeys.available(loadId)` and `loadKeys.detail(loadId)` invalidated on success. Audit `load.driver_assigned` and `load.driver_reassigned` (with reason); analytics `load.driver.assigned` with lead time before deadline. Driver phone numbers are Confidential (NFR-PRIV-1). View-as without write consent is read-only (BR-27).
 
 ---
@@ -309,7 +309,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 
 #### SC-02.1 — Status and ETA
 - **Purpose:** Tell an outside party the load's status and arrival estimate.
-- Instance of **SH-02**, scoped to a tracking token. Overrides: position is approximate (rounded to city level between stops); no check-call request; refresh every 2 minutes; expired token handled by SC-02.3. Data comes from `use-tracking(token)` polled at `PUBLIC_TRACKING_REFRESH_MS` (120 s, Phase 7 §13, paused when hidden), access is the token alone (`public.tracking`, one load, read-only, no session) and the payload never carries rates, contacts or documents (BR-21); EM-4 before pickup states "Tracking starts at pickup" with the scheduled pickup window, and after delivery the delivery time replaces the ETA. Analytics `tracking.public.viewed` carries the token's load ID hash only; no map interaction is required on DV-PHONE, and DV-WALL use on a dock computer refreshes unattended with its age stated.
+- Instance of **SH-02**, scoped to a tracking token. Overrides: position is approximate (rounded to city level between stops); no check-call request; refresh every 2 minutes; expired token handled by SC-02.3. Data comes from `use-tracking(token)` polled at `PUBLIC_TRACKING_REFRESH_MS` (120 s, Phase 7 §13, paused when hidden), access is the token alone (`public.tracking`, one load, read-only, no session) and the payload never carries rates, contacts or documents (BR-21); E-UNAVAILABLE from the ETA service → status and stops remain and the ETA is withheld with a statement that it is temporarily unavailable; EM-4 before pickup states "Tracking starts at pickup" with the scheduled pickup window, and after delivery the delivery time replaces the ETA. Analytics `tracking.public.viewed` carries the token's load ID hash only; no map interaction is required on DV-PHONE, and DV-WALL use on a dock computer refreshes unattended with its age stated.
 
 #### SC-02.2 — Stop progress
 - **Purpose:** Tell the outside party which stops are done and which remain.
@@ -354,8 +354,8 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Device needs:** DV-DESK and DV-PHONE: add a carrier after checking its profile. DV-AT: full parity with DV-DESK.
 - **Accessibility requirements:** Preferred state announced on change (IC-14) and exposed as text; unavailable add or remove actions state why (G-5); the region is labelled with the viewer's organisation name.
 - **Loading states:** LS-1 after hydration, separately after the public part, which is never delayed by it; LS-5 during add or remove.
-- **Error states:** E-SERVER, E-UNAVAILABLE on read → section withheld; the public profile stays. E-FORBIDDEN on a mutation → only admins manage preferred carriers. E-CONFLICT → already added or removed elsewhere; refresh and state the current state.
-- **Empty states:** EM-1: no shared history → "You haven't worked with this carrier yet." with the add-to-preferred route.
+- **Error states:** E-SERVER, E-UNAVAILABLE on read → the section says what could not load and offers retry (IC-60); the public profile stays. E-FORBIDDEN on a mutation → only admins manage preferred carriers. E-CONFLICT → already added or removed elsewhere; refresh and state the current state.
+- **Empty states:** EM-1: no shared history → "You haven't worked with this carrier yet." with posting a load with a preferred tender (PG-27) as the next step.
 - **Reuse potential:** SC-29.1.
 - **Technical notes:** Client-rendered after hydration so the page stays ISR-cacheable; query key `preferredCarrierKeys.relationship(carrierId)`. Audit `preferred_carrier.added`, `preferred_carrier.removed`; analytics `carrier.preferred.added`, `carrier.preferred.removed`. View-as can read only unless write consent exists (BR-27).
 
@@ -372,10 +372,10 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Error states:** E-NOT-FOUND: unknown shipper → PG-53. E-SERVER → retry (IC-60) with correlation ID.
 - **Empty states:** EM-5: identity fields are mandatory for every active shipper.
 - **Reuse potential:** Deliberately single-use: the internal view (SC-52.2) carries richer account data with different permissions.
-- **Technical notes:** No pricing fields in the DTO (BR-05); query key `profileKeys.shipper(shipperId)`, stale time 5 min. Analytics `shipper.profile.viewed` with viewer role enum.
+- **Technical notes:** No pricing fields in the DTO (BR-05); query key `profileKeys.shipper(shipperId)`, stale time 1 hour. Analytics `shipper.profile.viewed` with viewer role enum.
 
 #### SC-04.2 — Shipper scorecard
-- Instance of **SH-09** for the shipper: facility dwell time, detention frequency, accessorial approval rate, payment timeliness, carrier rating. Data from `use-scorecard(shipperId)`; readable by carrier roles and internal roles; EM-4 until 5 delivered loads; payment timeliness is a band, never an amount (BR-05).
+- Instance of **SH-09** for the shipper: facility dwell time, detention frequency, accessorial approval rate, payment timeliness, carrier rating. Data from `use-scorecard(shipperId)`; readable by `carrier.dispatcher`, `carrier.admin` and internal roles; LS-1 per part with aggregates cached for 1 hour; EM-4 until 5 rated loads; payment timeliness is a band, never an amount (BR-05).
 
 ### PG-05 — Lane Rate Estimator
 
@@ -388,7 +388,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Accessibility requirements:** Labelled inputs; errors per IC-02 with focus moved to the summary; date entry per IC-08 with the expected format stated.
 - **Loading states:** LS-2 for suggestions only (IC-05); the section itself never waits, because it holds entry state and fetches no data of its own.
 - **Error states:** E-VALIDATION: unresolvable location → suggestions; past date or missing field → IC-02. E-UNAVAILABLE on suggestions → free text accepted and resolved by the estimate request.
-- **Empty states:** EM-5: the entry form always renders; a URL without parameters shows empty entries.
+- **Empty states:** EM-5: the entry form always renders; a URL without parameters shows empty entries. A location query with no match is EM-2: check the spelling or enter a ZIP code.
 - **Reuse potential:** SC-01.2, SC-27.2 (same lane schema).
 - **Technical notes:** Lane schema in `lib/validations/lane.ts` composed over the contract; parameters `origin`, `destination`, `equipment`, `date` in the URL through `lib/utils/query-string.ts`. Analytics `lane.estimate.requested` with equipment enum and region codes.
 
@@ -399,11 +399,11 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Interaction model:** Read-only; open the basis explanation (IC-32).
 - **Device needs:** DV-PHONE: read the range in words. DV-DESK: compare several estimates across tabs. DV-AT: full parity with DV-DESK.
 - **Accessibility requirements:** Result announced politely when it arrives (IC-14, "Estimate ready: between $1,840 and $2,120"); range read as "between X and Y"; confidence as a word band, not a visual cue (G-3).
-- **Loading states:** LS-2: previous estimate retained while pending; LS-1 for the initial estimate ("Estimating…" after 1 s); LS-3 after 5 s; NFR-PERF-4 targets ≤ 3 s.
-- **Error states:** Low data (a result, not an error) → low-confidence statement and custom quote route. E-RATE-LIMIT → the wait and the sign-up route. E-UNAVAILABLE (pricing service, NFR-AV-4) → "Estimates are unavailable right now" with retry after the stated interval. E-VALIDATION → lane unresolvable, back to SC-05.1.
+- **Loading states:** LS-5 while the estimate is requested ("Estimating…", announced politely); LS-2: previous estimate retained while pending; LS-3 after 5 s; LS-4 at 15 s becomes E-TIMEOUT; NFR-PERF-4 targets ≤ 3 s.
+- **Error states:** Low data (a result, not an error) → low-confidence statement and custom quote route. E-RATE-LIMIT → the wait and the sign-up route. E-UNAVAILABLE (pricing service, NFR-AV-4) → "Estimates are unavailable right now" with retry after the stated interval. E-VALIDATION → lane unresolvable, back to SC-05.1. E-TIMEOUT or E-SERVER → retry (IC-60) with entries kept.
 - **Empty states:** EM-1: no lane yet → what to enter (origin, destination, equipment, date).
 - **Reuse potential:** SC-27.4 (instant quote uses the same money presentation via SH-14).
-- **Technical notes:** Anonymous calls go through a route handler that applies rate limiting (SEC-10); query key `quoteKeys.estimate(lane)`, stale time 15 min. Analytics `lane.estimate.delivered` with confidence band and duration; `lane.estimate.rate_limited`. No audit event.
+- **Technical notes:** Anonymous calls go through a route handler that applies rate limiting (SEC-10); query key `quoteKeys.estimate(lane)`, stale time 5 min. Analytics `lane.estimate.delivered` with confidence band and duration; `lane.estimate.rate_limited`. No audit event.
 
 #### SC-05.3 — Lane trend
 - **Purpose:** Show whether the lane is getting more or less expensive.
@@ -495,7 +495,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Device needs:** DV-PHONE and DV-DESK: answer in one action after reading. DV-AT: full parity with DV-DESK.
 - **Accessibility requirements:** The choice is a labelled group; result announced politely (IC-14); focus stays on the section's confirmation.
 - **Loading states:** LS-5: submission pending, the choice locked against duplicates (G-6) while the article stays readable.
-- **Error states:** E-SERVER, E-TIMEOUT, E-RATE-LIMIT → silent failure with no user impact beyond a retry offer.
+- **Error states:** E-SERVER, E-TIMEOUT, E-RATE-LIMIT → the user is told the feedback was not recorded, with a retry offer; reading is unaffected.
 - **Empty states:** EM-5: the choice always renders.
 - **Reuse potential:** Deliberately single-use: feedback is specific to help content.
 - **Technical notes:** Fire-and-forget mutation; one per session held in session storage. Comment limited in length and never sent to analytics; `help.article.rated` carries the yes or no value.
@@ -529,7 +529,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Technical notes:** Anonymous submissions require an email and are rate-limited by the backend; idempotency key from `lib/utils/reference-id.ts`. Audit `ticket.created`; analytics `support.ticket.created` with category and urgency enums. Descriptions are Confidential free text (NFR-PRIV-3).
 
 #### SC-08.2 — Ticket history
-- Instance of **SH-05** over the user's tickets. Overrides: signed-in only; filters by status only; each ticket opens its conversation (SH-04). Data from `use-tickets({ status, cursor })` scoped to the requesting user; EM-1 "No tickets yet" with what to do when something goes wrong; no bulk actions or export.
+- Instance of **SH-05** over the user's tickets. Overrides: signed-in only; filters by status only; each ticket opens its conversation (SH-04). Data from `use-tickets({ status, cursor })` scoped to the requesting user; E-AUTH on history → history withheld while the ticket form stays usable (no redirect); EM-1 "No tickets yet" with what to do when something goes wrong; no bulk actions or export.
 
 ### PG-09 — Legal
 
@@ -555,15 +555,15 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 #### SC-10.1 — Credential entry
 - **Purpose:** Authenticate a returning user.
 - **Responsibilities:** Accept email and password, submit, hand off to MFA when enrolled, redirect to the validated return path or role root; hand members of SSO-required organisations to their identity provider after the email is entered, keeping password entry only for the designated break-glass admin (BR-24).
-- **Data requirements:** `use-login` (exists); `app/api/session` (exists); the `next` return path read on the server and validated by `lib/utils/internal-path.ts`.
-- **Interaction model:** IC-01 inputs, IC-03 password, IC-11 submit; Enter submits; double submission prevented; validation on submit only (IC-02: submit never disabled for invalid state); on success, SU-2 to the return path, role root or PG-14 MFA challenge.
+- **Data requirements:** `use-sign-in-flow` (sequences the email and password steps over `use-login`); `app/api/session`; the `next` return path read on the server and validated by `lib/utils/internal-path.ts`.
+- **Interaction model:** Identity-first: the email is taken first (IC-01) and the identity policy resolved (SC-10.3) before any password is asked for (IC-03); IC-11 submit; Enter submits; double submission prevented; validation on submit only (IC-02: submit never disabled for invalid state); on success, SU-2 to the return path, role root or PG-14 MFA challenge.
 - **Device needs:** DV-PHONE: password manager and passkey autofill with one hand. DV-DESK: the same, keyboard only. DV-AT: full parity with DV-DESK.
 - **Accessibility requirements:** `autocomplete="username"` and `"current-password"`; error announced assertively and linked to the form; focus moves to the error summary (IC-02); the lockout cooldown is text with the time remaining (IC-46), not announced every second.
 - **Loading states:** LS-5: pending submission announced ("Signing in…"), the submit action busy (G-6); LS-4 after 30 s becomes E-TIMEOUT with entries kept.
-- **Error states:** `INVALID_CREDENTIALS` (generic; E-VALIDATION without revealing which field or whether the account exists); locked with cooldown (E-RATE-LIMIT, SEC-10) stating when to try again and the PG-12 route; E-OFFLINE, E-SERVER or E-TIMEOUT → network retry (IC-60) with the email kept and the password cleared; SSO required → the identity provider route instead of an error.
+- **Error states:** `INVALID_CREDENTIALS` (generic; E-VALIDATION without revealing which field or whether the account exists); locked with cooldown (E-RATE-LIMIT, SEC-10) stating when to try again and the PG-12 route; E-OFFLINE, E-SERVER or E-TIMEOUT → network retry (IC-60) with the email kept and the password cleared; E-FORBIDDEN: address outside the organisation's IP allow-list → the reason and to contact the organisation's security admin; SSO required → the identity provider route instead of an error.
 - **Empty states:** EM-5: the entry form always renders.
-- **Reuse potential:** Existing `components/common/login-form.tsx`.
-- **Technical notes:** Extend the existing form; do not fork it. Session cookie rotated on sign-in (SEC-3). Audit `session.signed_in` and `session.sign_in_failed` (server, with IP and user agent). Analytics `auth.sign_in.succeeded` and `auth.sign_in.failed` with method enum and failure class only. Credentials are Restricted (NFR-PRIV-1) and never persisted client-side.
+- **Reuse potential:** Deliberately single-use: password entry happens only on PG-10; re-authentication inside the workspace is IC-13, and SSO members leave through SC-10.3.
+- **Technical notes:** Credentials are submitted only through `use-login` (wrapped by `use-sign-in-flow`): one sign-in submission path, never forked. Session cookie rotated on sign-in (SEC-3). Audit `session.signed_in` and `session.sign_in_failed` (server, with IP and user agent). Analytics `auth.sign_in.succeeded` and `auth.sign_in.failed` with method enum and failure class only. Credentials are Restricted (NFR-PRIV-1) and never persisted client-side.
 
 #### SC-10.2 — Recovery routes
 - **Purpose:** Get users who cannot sign in to the right recovery.
@@ -588,7 +588,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Loading states:** LS-5 while discovering (≤ 1 s typical); LS-4 after 15 s becomes E-TIMEOUT.
 - **Error states:**
   - E-UNAVAILABLE: identity provider unreachable; the break-glass route is named for admins only, and support is named for others.
-  - Returned assertion failure: generic message plus correlation ID (details go to PG-60 diagnostics, never to the user).
+  - Returned assertion failure: the failing step in plain words plus the correlation ID as support reference (assertion details go to PG-60 diagnostics, never to the user).
   - E-RATE-LIMIT: discovery throttled per IP.
 - **Empty states:** EM-5: part of a form; always has input.
 - **Reuse potential:** PG-15 (invitation acceptance for SSO organisations) and PG-14 (step-up).
@@ -600,7 +600,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Purpose:** Establish whether the user ships or hauls.
 - **Responsibilities:** Record the side; accept preselection from `?side=`; state in plain words what each side means ("I ship freight", "I haul freight").
 - **Data requirements:** Side enum (shared with SC-01.1); consent document keys per side from constants.
-- **Interaction model:** IC-09 radio group; the choice changes which consent documents apply (shipper terms or carrier agreement) and is validated on submit with SC-11.2; changing side keeps every other entry.
+- **Interaction model:** IC-09 single choice; the choice changes which consent documents apply (shipper terms or carrier agreement) and is validated on submit with SC-11.2; changing side keeps every other entry.
 - **Device needs:** DV-PHONE: choose with one thumb. DV-DESK: choose by keyboard. DV-AT: full parity with DV-DESK.
 - **Accessibility requirements:** Group labelled with the question; a preselected side from the URL is exposed as checked, not only implied; the consent change is announced politely (IC-14).
 - **Loading states:** No data to load; no LS class applies.
@@ -612,12 +612,12 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 #### SC-11.2 — Account creation
 - **Purpose:** Create the account with valid consent.
 - **Responsibilities:** Capture name, work email, password, consent to the current terms version; submit; start email verification.
-- **Data requirements:** `use-register` (exists), `app/api/register` (exists); schema composed over the contract register DTO; current terms version `TERMS_VERSION` from constants.
+- **Data requirements:** `use-register`, `app/api/register`; schema composed over the contract register DTO; current terms version `TERMS_VERSION` from constants.
 - **Interaction model:** IC-01, IC-03 with policy feedback, IC-38 consent; submit via IC-11; all fields validated on submit with server re-validation (G-7); success is SU-2 to PG-14.
 - **Device needs:** DV-PHONE: complete one-handed with autofill. DV-DESK: complete by keyboard. DV-AT: full parity with DV-DESK.
 - **Accessibility requirements:** Password rules stated before entry; `autocomplete="name"`, `"email"` and `"new-password"`; consent links open the document without losing entries; errors per IC-02 with focus to the summary.
 - **Loading states:** LS-5: pending announced ("Creating your account…"), the submit action busy (G-6).
-- **Error states:** E-CONFLICT: email exists → sign-in and reset routes; `SESSION_UNAVAILABLE` → sign-in route (the account exists; only the session failed). E-VALIDATION: password short of policy or breached (SEC-1), missing consent. E-RATE-LIMIT: bot protection (SEC-10) with the wait. E-SERVER → retry with entries kept except the password.
+- **Error states:** E-CONFLICT: email exists → sign-in and reset routes; `SESSION_UNAVAILABLE` → sign-in route (the account exists; only the session failed). E-VALIDATION: password short of policy or breached (SEC-1), missing consent. E-RATE-LIMIT: bot protection (SEC-10) with the wait. E-FORBIDDEN: the email's domain requires SSO → route to the identity provider (BR-24). E-SERVER → retry with entries kept except the password.
 - **Empty states:** EM-5: the entry form always renders.
 - **Reuse potential:** SC-15.1 (new-user acceptance).
 - **Technical notes:** `PASSWORD_MIN_LENGTH` from constants; terms version recorded (BR-04, CMP-4). Audit `account.registered`, `consent.recorded`; analytics `auth.account.registered` with side enum (acquisition, BG-01). Name and email are Confidential and never sent to analytics (NFR-PRIV-3).
@@ -672,7 +672,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Responsibilities:** Accept a one-time code, passkey assertion or backup code (SEC-1); report remaining attempts; state what to do if the user cannot access their factor (PG-08).
 - **Data requirements:** `use-mfa-challenge`; enrolled method and attempts remaining from the partial session.
 - **Interaction model:** IC-04 one-time code input; auto-submit when complete; the user can switch to a backup code; each wrong code states remaining attempts.
-- **Device needs:** DV-PHONE: autofill of codes from SMS or authenticator. DV-DESK: typing or pasting a code. DV-AT: full parity with DV-DESK, including auto-submit that never moves focus unexpectedly.
+- **Device needs:** DV-PHONE: autofill of codes from the authenticator app, or a passkey (SEC-1). DV-DESK: typing or pasting a code. DV-AT: full parity with DV-DESK, including auto-submit that never moves focus unexpectedly.
 - **Accessibility requirements:** `autocomplete="one-time-code"`; errors announced assertively with attempts remaining; switching to backup code moves focus to its entry (IC-04).
 - **Loading states:** LS-5: pending while the code is checked, entry locked (G-6).
 - **Error states:** E-VALIDATION: wrong code with attempts remaining. E-RATE-LIMIT: too many attempts → cooldown with the wait. E-AUTH: partial session expired → back to PG-10 with the return path.
@@ -686,11 +686,11 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Purpose:** Join an organisation.
 - **Responsibilities:** State organisation, inviter and role; accept for an existing account (sign in) or create credentials for a new one; explain the one-organisation rule when the email belongs elsewhere.
 - **Data requirements:** `use-invitation(token)`, `use-accept-invitation`; account existence for the invited email resolved server-side.
-- **Interaction model:** Single decision; new users set a password (IC-03) and consent (IC-38); existing users sign in to accept; success (SU-2) continues drivers to SC-15.2 and others to their role root.
+- **Interaction model:** Single decision; new users set a password (IC-03) and consent (IC-38), except in an SSO-required organisation, where acceptance completes through the identity provider and no Haulr password is set (BR-24); existing users sign in to accept; success (SU-2) continues drivers to SC-15.2 and others to their role root.
 - **Device needs:** DV-PHONE: drivers accept from SMS and finish within a minute. DV-DESK: office staff accept from email. DV-AT: full parity with DV-DESK.
 - **Accessibility requirements:** Organisation and role in the page's main heading text; password rules stated before entry; errors per IC-02.
 - **Loading states:** Token validated server-side before render; LS-5 on accept with the action busy (G-6).
-- **Error states:** Expired, revoked or other-organisation invitations are explained: E-NOT-FOUND: expired or revoked token → say so and whom to ask (the inviter's organisation name). E-CONFLICT: email already in another organisation → explain the one-organisation rule. E-VALIDATION → password policy. E-RATE-LIMIT (SEC-10) → the wait.
+- **Error states:** Expired, revoked or other-organisation invitations are explained: E-NOT-FOUND: expired or revoked token → say so and whom to ask (the inviter). E-CONFLICT: email already in another organisation → explain the one-organisation rule; invitation already accepted → route to sign-in. E-VALIDATION → password policy. E-FORBIDDEN: SSO required → route to the identity provider. E-RATE-LIMIT (SEC-10) → the wait.
 - **Empty states:** EM-5: the section renders only for a resolvable token; other cases are error states.
 - **Reuse potential:** SC-11.2 credential creation.
 - **Technical notes:** Token single-use. Audit `invitation.accepted`, `member.joined`; analytics `team.invitation.accepted` with role enum and time since invitation (driver activation, XF-05).
@@ -769,7 +769,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Device needs:** DV-PHONE and DV-DESK: enter two numbers and confirm. DV-AT: full parity with DV-DESK.
 - **Accessibility requirements:** Lookup result announced politely (IC-14) with the legal name; numeric entry uses `inputmode="numeric"` with format stated; confirmation is a named action.
 - **Loading states:** Lookup pending announced (LS-5, after 1 s); LS-3 after 5 s offers the manual path.
-- **Error states:** E-NOT-FOUND (not found) → check the numbers or use the manual path; inactive authority → explanation (a result, not an error); E-UNAVAILABLE (source down, NFR-AV-4) → manual path; E-CONFLICT → authority already registered to another Haulr organisation, route to PG-08; E-RATE-LIMIT → the wait.
+- **Error states:** E-VALIDATION: USDOT or MC format → the expected format stated; E-NOT-FOUND (not found) → check the numbers or use the manual path; inactive authority → explanation (a result, not an error); E-UNAVAILABLE (source down, NFR-AV-4) → manual path; E-CONFLICT → authority already registered to another Haulr organisation, route to PG-08; E-RATE-LIMIT → the wait.
 - **Empty states:** EM-5: the entry always renders.
 - **Reuse potential:** SC-51.1.
 - **Technical notes:** Registry calls made by the backend only. USDOT and MC are Public. Audit `authority.looked_up`, `authority.confirmed`; analytics `onboarding.carrier.authority.result` with outcome enum.
@@ -795,7 +795,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Device needs:** DV-PHONE: photograph certificates (IC-25). DV-DESK: upload scans. DV-AT: full parity with DV-DESK, including e-signature by keyboard.
 - **Accessibility requirements:** Check results in text ("Insurance accepted, expires 3 March 2027"); outstanding documents listed as text; e-signature per IC-26 states signer intent in words.
 - **Loading states:** Per upload: LS-5 with progress; LS-7 for the document check, which may complete after the user moves on.
-- **Error states:** Rejected with reason and re-upload (E-VALIDATION: unreadable, expired, short of the minimums, failed scan). E-UNAVAILABLE (insurer link or e-signature provider) → upload path or retry later. E-SERVER → retry, uploaded files kept.
+- **Error states:** Rejected with reason and re-upload (E-VALIDATION: unreadable, expired, short of the minimums, failed scan). E-VALIDATION: agreement consent missing. E-OFFLINE during upload → uploads persisted and resumed on reconnect (overrides SH-03). E-UNAVAILABLE (insurer link or e-signature provider) → upload path or retry later. E-SERVER → retry, uploaded files kept.
 - **Empty states:** EM-1: required documents listed as outstanding with why each is needed.
 - **Reuse potential:** SC-43.2.
 - **Technical notes:** Agreement version from constants. W-9 tax IDs are Restricted (NFR-PRIV-1). Audit `document.uploaded`, `agreement.signed` (with version, IP and time, BR-04); analytics `onboarding.carrier.documents.completed`.
@@ -823,7 +823,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 ### PG-18 — Shipper Dashboard
 
 #### SC-18.1 — Shipper attention
-- Instance of **SH-07** for shipper roles. Item types: bid awaiting decision, uncovered near pickup, late ETA, open exception, accessorial approval, invoice due (finance), claim response due. Data from `use-attention-items({ role })` refreshed every 60 s and on focus; `shipper.finance` receives invoice-related items only and `shipper.admin` all (PG-18); bid acceptance runs through IC-28 and routes to approval when over the member's spend limit (BR-23); EM-3 "Nothing needs you right now" with last check time, and EM-1 for a new organisation defers to SC-18.4. View-as (BR-27) reads the viewed member's items and cannot act without write consent.
+- Instance of **SH-07** for shipper roles. Item types: bid awaiting decision, approval awaiting the viewer as `shipper.approver` (with its deadline), the viewer's own request in `PendingApproval`, uncovered near pickup, late ETA, open exception, POD pending, accessorial approval, invoice due (finance), claim response due. Data from `use-attention-items({ role })` refreshed every 60 s and on focus; `shipper.finance` receives invoice-related items only, `shipper.admin` all, and `shipper.approver` additionally the approvals awaiting decision, never their own requests (PG-18, BR-23); bid acceptance runs through IC-28 and routes to approval when over the member's spend limit (BR-23); an approval already decided by another approver is E-CONFLICT naming who decided, an approval whose deadline passed (quote or bid expired, BR-06) states that it expired and offers the requester a re-quote, and an approval decision states the resulting load state (posted, bid accepted, or returned to `Draft`); EM-3 "Nothing needs you right now" with last check time, and EM-1 for a new organisation defers to SC-18.4. View-as (BR-27) reads the viewed member's items and cannot act without write consent.
 
 #### SC-18.2 — Active load overview
 - **Purpose:** Give a count of active loads by state and route into each.
@@ -850,7 +850,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 ### PG-19 — Carrier Dashboard
 
 #### SC-19.1 — Carrier attention
-- Instance of **SH-07** for carrier roles. Item types: needs assignment (with BR-09 deadline), tender awaiting response, counter-offer received, exception on load, POD missing, document expiring. Data from `use-attention-items({ role })` every 60 s and on focus; assignment uses SH-15, tender responses use IC-28 with the exclusive window as a countdown (IC-46, BR-08); document-expiring items appear for `carrier.admin` only; EM-3 with last check time, and not-yet-approved carriers see SC-19.5 instead.
+- Instance of **SH-07** for carrier roles. Item types: needs assignment (with BR-09 deadline), tender awaiting response, counter-offer received, amendment awaiting response (BR-25, opens PG-64), exception on load, POD missing, document expiring. Data from `use-attention-items({ role })` every 60 s and on focus; assignment uses SH-15, tender responses use IC-28 with the exclusive window as a countdown (IC-46, BR-08); document-expiring items appear for `carrier.admin` only; EM-3 with last check time, and not-yet-approved carriers see SC-19.5 instead.
 
 #### SC-19.2 — Active loads
 - **Purpose:** Report the carrier's in-flight loads and their health.
@@ -903,9 +903,9 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Interaction model:** One navigation; no other action is required to start working.
 - **Device needs:** DV-CAB: gloves; glare; seconds of attention; a single target meeting 44 × 44 (G-2). DV-PHONE: the same off the truck. DV-AT: full parity with DV-DESK.
 - **Accessibility requirements:** The route to the current trip is a named link describing the trip and its next stop ("Continue trip HL-7K2M9QXA: pickup in Joliet at 14:00 CDT"); the page's main heading states whether a trip is active; nothing conveyed by visual cue alone (G-3).
-- **Loading states:** LS-6: cached value immediately with its age; LS-2 refreshes in the background without replacing what is shown (SSB-2).
+- **Loading states:** LS-6: cached value immediately with its age; LS-2 refreshes in the background without replacing what is shown (SSB-2); LS-1 only on a device with no cached trip.
 - **Error states:** E-OFFLINE → cached trip with "Saved <age> ago". E-SERVER, E-UNAVAILABLE → cached trip with age and retry (IC-60). E-NOT-FOUND for a trip reassigned away → removed with "This trip was reassigned by dispatch".
-- **Empty states:** EM-1: no trip → how to reach dispatch (Phase 3 §13).
+- **Empty states:** EM-1: no trip → how to reach dispatch (Phase 3 §13). EM-4: next trip assigned but not yet dispatched → when it starts.
 - **Reuse potential:** Deliberately single-use: the driver entry point exists only on PG-20.
 - **Technical notes:** Cache persisted per SC-39.5 (IndexedDB, Phase 7 §13) and purged on sign-out (SSB-10). Query key `tripKeys.driver()`. Analytics `driver.trip.opened` with time from app open. JS budget ≤ 150 KB for the driver route (Phase 7 §18).
 
@@ -933,7 +933,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Error states:** Sync failing → reason (E-OFFLINE, E-SERVER, E-AUTH needing sign-in again without losing the queue). Permission off → how to turn it on and why.
 - **Empty states:** EM-3: everything synced → stated once with the last sync time.
 - **Reuse potential:** SC-39.5.
-- **Technical notes:** Shared with PG-39. Queued items carry `nanoid` IDs and device time; the server de-duplicates (Phase 7 §13); queue purged on sign-out (SSB-10). Analytics `driver.queue.drained` with item count and delay.
+- **Technical notes:** Shared with PG-39. Queued items carry `nanoid` IDs and device time; the server de-duplicates (Phase 7 §13); the queue survives sign-out under the SSB-10 driver exception (kept encrypted and bound to the driver, replayed at next sign-in for up to 7 days) and is removed only by an explicit discard confirmed with IC-12. Analytics `driver.queue.drained` with item count and delay.
 
 ### PG-21 — Operations Dashboard
 
@@ -943,12 +943,12 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Data requirements:** `use-exception-summary()` → counts by exception type and severity (enums from `lib/enums/exception-type.ts`), unclaimed count and oldest age; network-wide for internal roles.
 - **Interaction model:** Navigate to PG-50 with `type` and `severity` filters (Phase 3 §10), or claim next (IC-47), which assigns the next unclaimed exception by the server's ordering to the agent and opens PG-50 focused on it (SU-2). `internal.admin` reads only and is not offered claim (G-5 explains why).
 - **Device needs:** DV-DESK: often left open during a shift. DV-WALL: read at a distance by several people, refreshing unattended, with the last refresh time always stated. DV-AT: full parity with DV-DESK.
-- **Accessibility requirements:** A labelled region; counts as text with type and severity names; last refresh time stated; count changes announced politely only while the page has focus, at most once per refresh (IC-14); claim result announced before navigation.
+- **Accessibility requirements:** A labelled region; counts as text with type and severity names; last refresh time stated; count changes are not announced on DV-WALL, and on DV-DESK only a new high-severity count is announced politely, at most once per refresh (IC-14); claim result announced before navigation.
 - **Loading states:** LS-1 in its own boundary; LS-2 every 30 seconds (`EXCEPTION_SUMMARY_REFRESH_MS`, PG-21) and on focus, previous counts kept; LS-5 while claiming, the claim action busy (G-6).
 - **Error states:** E-SERVER, E-UNAVAILABLE, E-TIMEOUT → counts kept with their age stated (PP-03, "Feed delayed, last updated 3 min ago") and retry (IC-60). E-CONFLICT on claim → the exception was claimed by another agent; state who and offer the next one. E-FORBIDDEN on claim → role is read-only.
 - **Empty states:** EM-3: zero with refresh time ("No open exceptions. Last checked 14:02").
 - **Reuse potential:** SC-22.1 pattern (count, age and claim-next over a server-ordered queue).
-- **Technical notes:** Paused when hidden; stale label after 60 s (Phase 4 §2.6, exception queue). Query key `exceptionKeys.summary()`, invalidated by claims and resolutions. Audit `exception.claimed`; analytics `ops.exception.claimed_next` with type and severity enums and queue age (KPI-10).
+- **Technical notes:** Paused when hidden; stale label after 5 min (Phase 4 §2.6, dashboards and counts). Query key `exceptionKeys.summary()`, invalidated by claims and resolutions. Audit `exception.claimed`; analytics `ops.exception.claimed_next` with type and severity enums and queue age (KPI-10).
 
 #### SC-21.2 — Coverage risk
 - **Purpose:** Surface loads at risk of not being covered.
@@ -957,7 +957,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Interaction model:** Open, re-tender (IC-12 confirmation stating the carriers and loads affected), or claim as an exception (IC-47). Bulk re-tender follows IC-23 with scope and totals stated before running and per-load outcomes after; for more than 100 loads it runs as a background job (LS-7).
 - **Device needs:** DV-DESK: review and act on many loads with the keyboard. DV-WALL: need not support actions; the list may be read at a distance. DV-AT: full parity with DV-DESK, including bulk selection.
 - **Accessibility requirements:** Risk expressed as text band ("High risk"), never a visual-only cue (G-3); time to pickup as text with time zone; selection count announced (IC-23); bulk outcomes listed per load in text.
-- **Loading states:** LS-1 in its own boundary; LS-2 every 60 s and on focus (dashboard freshness, Phase 4 §2.6); LS-5 during re-tender; LS-7 for more than 100 loads.
+- **Loading states:** LS-1 in its own boundary; LS-2 every 30 s and on focus with the rest of PG-21; LS-5 during re-tender; LS-7 for more than 100 loads.
 - **Error states:** E-SERVER, E-UNAVAILABLE → retry (IC-60) with last list and age. E-CONFLICT per load → booked or cancelled meanwhile; outcome states the new state. E-FORBIDDEN → `internal.admin` is read-only here. E-PRECONDITION → tender rules changed since opening; refresh and re-apply.
 - **Empty states:** EM-3: no risk → "No loads at risk in the next 24 hours" with last check time.
 - **Reuse potential:** Built on SH-05 collection behaviour (cursor pagination, selection, bulk outcome reporting); the risk band itself is specific to PG-21.
@@ -970,7 +970,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Interaction model:** Navigate to stale loads (PG-26 or PG-50 filtered); open one load's tracking (PG-40).
 - **Device needs:** DV-DESK: investigate stale loads. DV-WALL: the percentage and stale count read at a distance, refreshing unattended. DV-AT: full parity with DV-DESK.
 - **Accessibility requirements:** Text values ("94% of 212 in-transit loads tracking; 13 stale"); each stale load named by reference with its age in text; last refresh time stated.
-- **Loading states:** LS-1 in its own boundary; LS-2 every 60 s (`TRACKING_REFRESH_MS`) and on focus, paused when hidden.
+- **Loading states:** LS-1 in its own boundary; LS-2 every 30 s with the rest of PG-21 and on focus, paused when hidden.
 - **Error states:** E-SERVER, E-UNAVAILABLE → age stated (PP-03) with retry; last values kept (SSB-2). E-CONTRACT → withheld with correlation ID.
 - **Empty states:** EM-5: the percentage always renders while any load is in transit; with none in transit it states "No loads in transit" rather than a percentage.
 - **Reuse potential:** Rendered with SH-08 metric behaviour; the stale-load drill-down reuses the PG-26 filtered collection.
@@ -1019,7 +1019,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Interaction model:** Keyboard-driven review: verify, reject with reason (IC-12 for reject), next (IC-49 shortcuts). Verification is SU-1 with the item removed and the next one opened; reject requires a reason and notifies the carrier to recapture.
 - **Device needs:** DV-DESK: review dozens of PODs in sequence with the keyboard. DV-AT: full parity with DV-DESK, including the document's text metadata.
 - **Accessibility requirements:** Document has text metadata (IC-58); decisions announced politely (IC-14) with the load reference; shortcuts are discoverable and remappable (IC-49, WCAG 2.1.4); focus moves to the next item after a decision.
-- **Loading states:** Next item prefetched; LS-1 for the queue; LS-5 during a decision; LS-2 on focus.
+- **Loading states:** Next item prefetched; LS-1 for the queue; LS-5 during a decision; LS-2 every 60 s and on focus.
 - **Error states:** Decision failed → item stays with the reason. E-CONFLICT → already decided by another agent; state who. E-VALIDATION → reason missing on reject. E-SERVER → retry with the decision kept.
 - **Empty states:** EM-3: queue clear with last check time.
 - **Reuse potential:** SH-03 preview.
@@ -1038,7 +1038,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Interaction model:** Retry (IC-12 confirmation stating amount and payee), message the carrier admin (SH-04 on the settlement's load thread); a retry is offered only once the payout method has changed or the processor reason allows it (G-5 explains otherwise).
 - **Device needs:** DV-DESK: work through failures with processor detail and messaging in one session. DV-PHONE: not required. DV-AT: full parity with DV-DESK.
 - **Accessibility requirements:** Reason text in plain words, never a raw processor code alone; amounts with currency; payee named in text; retry result announced politely (IC-14) and focus moved to the next failure (SSB-6).
-- **Loading states:** LS-1; LS-5 during retry; LS-7 when the processor accepts the retry for later settlement.
+- **Loading states:** LS-1; LS-2 every 60 s and on focus; LS-5 during retry; LS-7 when the processor accepts the retry for later settlement.
 - **Error states:** Retry result explained: E-CONFLICT (already paid or retried), E-UNAVAILABLE (processor, "awaiting processor" with age), E-SERVER → retry.
 - **Empty states:** EM-3: none failed, with last check time.
 - **Reuse potential:** Built on SH-05 collection behaviour; the retry mutation is shared with PG-38 settlement detail.
@@ -1059,7 +1059,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Purpose:** Give the agent the requester's situation.
 - **Responsibilities:** Report organisation, role, account standing, recent loads, open exceptions and prior tickets; route to each; offer view-as from the ticket where resolution needs it (BR-27, XS-16).
 - **Data requirements:** `use-requester-context(userId)` → organisation, roles, standing blockers, recent loads (last 10), open exceptions and prior tickets; read-all scope for `internal.support` (Phase 3 §5.1), with money fields shaped as for internal read roles.
-- **Interaction model:** Navigate to any listed record (read-only for support); look up by email or load reference when unmatched, the lookup result linking the ticket to the matched user; start view-as (IC-64) with a member and reason, read-only unless the organisation granted write consent on the ticket.
+- **Interaction model:** Navigate to any listed record (read-only for support); look up by email or load reference when unmatched, the lookup result linking the ticket to the matched user; start view-as (SC-24.4) with a member and reason, read-only unless the organisation granted write consent on the ticket.
 - **Device needs:** DV-DESK: consult while working the ticket conversation, without switching tools. DV-AT: full parity with DV-DESK.
 - **Accessibility requirements:** A labelled region naming the requester; values as labelled term and value pairs in text; standing blockers and exception severities as text (IC-59); the lookup is a labelled search (IC-19) whose result count is announced politely.
 - **Loading states:** LS-1 in its own boundary, never delaying the ticket conversation; LS-2 when the selected ticket changes (`?ticket=`), previous context replaced only when the new one arrives; LS-5 during lookup.
@@ -1111,7 +1111,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 ### PG-26 — Shipments
 
 #### SC-26.1 — Load collection
-- Instance of **SH-05** over the organisation's loads through `use-loads(params)` (key `loadKeys.list(params)`, page size 50, maximum 200), scoped server-side to the session's organisation (SEC-5) and readable by `shipper.member` and `shipper.admin`. Filters: status (`status`, including `PendingApproval`), dates (`from`, `to`, `dateField`), origin, destination, equipment, carrier (`carrier`), late only, exceptions only. Bulk actions: export, share tracking (SC-26.3). Overrides: row actions come from the same (role, state) mapping as SC-40.2; EM-1 routes to a new quote (XF-01) and EM-2 states the active criteria count with a clear action; view-as (BR-27) reads the collection but cannot run bulk actions without write consent and never exports.
+- Instance of **SH-05** over the organisation's loads through `use-loads(params)` (key `loadKeys.list(params)`, page size 50, maximum 200), scoped server-side to the session's organisation (SEC-5) and readable by `shipper.member` and `shipper.admin`. Filters: status (`status`, including `PendingApproval`), dates (`from`, `to`, `dateField`), origin, destination, equipment, carrier (`carrier`), late only, exceptions only. Bulk actions: export, share tracking (SC-26.3). Overrides: per-load actions come from the same (role, state) mapping as SC-40.2; EM-1 routes to a new quote (XF-01) and EM-2 states the active criteria count with a clear action; view-as (BR-27) reads the collection and never runs bulk actions or exports.
 
 #### SC-26.2 — Shipments map
 - Instance of **SH-02**, collection variant. Overrides: latest locations for in-transit loads matching SC-26.1 criteria through `use-load-positions` for the loads in the current page only, polled every 60 s and paused while the document is hidden (Phase 7 §13), with each location labelled stale after 60 min (§2.6, BR-10); the map view and the list view share one query and one URL (`view=map`); selecting a load navigates to PG-40; the text equivalent enumerates each load with city, age of fix and ETA (PP-08); EM-2 when no in-transit load matches ("No loads in transit match these filters") with the criteria count.
@@ -1124,7 +1124,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Device needs:** DV-DESK: select many loads and export or share in one pass. DV-PHONE: share tracking for a single load only; export is not offered. DV-AT: full parity with DV-DESK.
 - **Accessibility requirements:** Scope and count read before confirmation (IC-23); job acceptance and completion announced politely (IC-14) with the file name and record count; per-load failures presented as a list with the load reference and reason in text; focus returns to the triggering action after completion (SSB-6).
 - **Loading states:** LS-5 while the request is accepted ("Preparing export…"); LS-7 for exports over 100 loads with progress when viewed and a notification on completion (SU-3); LS-4 after 30 s for link creation.
-- **Error states:** E-VALIDATION: selection exceeds the export limit → reduce or export by filter instead. E-FORBIDDEN: view-as without write consent, or a role without share capability → reason and who can grant it. E-RATE-LIMIT: tracking-link creation throttled (SEC-10) → wait stated from `Retry-After`. E-UNAVAILABLE / E-SERVER: export job could not start → retry with support reference. Partial failure: per-load outcome with the loads whose link could not be created.
+- **Error states:** E-VALIDATION: selection exceeds the export limit → reduce or export by filter instead. E-FORBIDDEN: view-as (bulk actions and export are never available in view-as), or a role without share capability → reason and who can grant it. E-RATE-LIMIT: tracking-link creation throttled (SEC-10) → wait stated from `Retry-After`. E-UNAVAILABLE / E-SERVER: export job could not start → retry with support reference. Partial failure: per-load outcome with the loads whose link could not be created.
 - **Empty states:** EM-5: the actions are unavailable until at least one load is selected or a filter set is active, and the unavailable action states that reason.
 - **Reuse potential:** SC-40.15 shares the tracking-link behaviour; the export job pattern (IC-65, LS-7) is reused by SC-30.2 and SC-38.2 bulk downloads.
 - **Technical notes:** Exports generated by the backend; files contain shipper price only (BR-05, Confidential per NFR-PRIV-1) and are delivered through signed URLs that expire within 5 min (SEC-7); one `nanoid` idempotency key per request; audit events `export.requested` (with filter and count) and `tracking_link.created` per load; analytics `load.export.requested` and `load.tracking_link.created` with counts only (NFR-PRIV-3); export is a sensitive action (§2.8), never available in view-as (Phase 3 §5.2).
@@ -1168,7 +1168,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Device needs:** DV-DESK and DV-PHONE: read the price, breakdown and remaining validity and re-quote. DV-AT: full parity, including the breakdown's derivations.
 - **Accessibility requirements:** Countdown announced at 5 minutes and 1 minute remaining only (IC-46); quote arrival announced politely with the total; expiry announced assertively once; confidence stated in words ("High confidence"), not only as a scale; approval requirement stated in text.
 - **Loading states:** LS-5 "Getting your price…" announced after 1 s; LS-3 after 5 s; LS-4 after 30 s becomes E-TIMEOUT; earlier steps stay editable while pending.
-- **Error states:** Unserviceable (quote response) → custom quote route. E-CONFLICT: quote expired → re-quote with the previous price shown for comparison. E-UNAVAILABLE: pricing service down → custom quote route and draft kept (NFR-AV-4). E-VALIDATION: draft no longer valid → link back to the failing step. E-RATE-LIMIT: too many re-quotes → wait stated. E-TIMEOUT: retry.
+- **Error states:** Unserviceable (quote response) → custom quote route. E-CONFLICT: quote expired → re-quote with the previous price shown for comparison. E-UNAVAILABLE: pricing service down → entries kept, draft saved and retry offered (IC-60), with the custom quote route (NFR-AV-4). E-VALIDATION: draft no longer valid → link back to the failing step. E-RATE-LIMIT: too many re-quotes → wait stated. E-TIMEOUT: retry.
 - **Empty states:** EM-4: no quote until the lane and freight steps are valid; the section names the step that is incomplete.
 - **Reuse potential:** SC-05.2 (public estimator presentation); quote presentation reused by PG-57 templates and PG-56 priced batches.
 - **Technical notes:** Quote ID carried to posting; validity 30 min from constants (BR-06); p95 ≤ 3 s (NFR-PERF-4); key `quoteKeys.detail(draftHash)` with no background refetch; shipper price is Confidential (NFR-PRIV-1); audit `quote.issued`; analytics `load.quote.requested`, `load.quote.expired`, `load.quote.custom_requested` with lane region and equipment enums only.
@@ -1233,7 +1233,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Data requirements:** `use-bid-actions(loadId)` returning the resulting bid and load state.
 - **Interaction model:** IC-28 bid response; counter amount validates on entry (greater than zero, within the round limit); acceptance confirmed via IC-12 stating the amount and that other bids will close; decline asks for an optional reason code. An acceptance over the member's spend limit returns `PendingApproval`: the bid stays open until its expiry and the approvers and deadline are stated.
 - **Device needs:** DV-DESK and DV-PHONE: accept, decline or counter one bid. DV-AT: full parity.
-- **Accessibility requirements:** Whose turn it is stated in text; confirmation dialog describes the consequence (IC-12); outcome announced politely (SU-1); focus returns to the bid row or, if the bid closed, to the section heading (SSB-6).
+- **Accessibility requirements:** Whose turn it is stated in text; the confirmation describes the consequence (IC-12); outcome announced politely (SU-1); focus returns to the bid row or, if the bid closed, to the section heading (SSB-6).
 - **Loading states:** LS-5 per action with the action busy and duplicates blocked; LS-4 after 30 s.
 - **Error states:** E-CONFLICT: bid expired, withdrawn, or accepted by another member meanwhile → refresh and state who acted and the new state. E-CONFLICT: load booked through the waterfall meanwhile → state the booking carrier. E-VALIDATION: counter out of range. E-FORBIDDEN: view-as without write consent. E-TIMEOUT: retried with the same idempotency key.
 - **Empty states:** EM-5: actions render only for a selected open bid, so the section is never empty.
@@ -1266,7 +1266,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Device needs:** DV-DESK: create and reorder rules. DV-PHONE: read rules only. DV-AT: full parity, including reordering.
 - **Accessibility requirements:** New place in the sequence announced on move ("Moved to 2 of 5"); window minutes labelled with units; ineligible carriers state why in text; save result announced politely.
 - **Loading states:** LS-1 for the rule set; LS-5 on save or delete.
-- **Error states:** E-CONFLICT: duplicate lane rule → open the existing rule. E-PRECONDITION: rule changed by another admin → IC-67 comparison with input kept. E-VALIDATION: window outside the configured range or empty sequence. E-FORBIDDEN: non-admin or view-as without consent. E-SERVER: retry.
+- **Error states:** E-CONFLICT: duplicate lane rule → open the existing rule. E-PRECONDITION: rule changed by another admin → IC-67 comparison with input kept. E-VALIDATION: window outside the configured range, empty sequence, or the same carrier twice in a rule. E-FORBIDDEN: non-admin or view-as without consent. E-SERVER: retry.
 - **Empty states:** EM-1: no rules → how rules work and the single action to create one.
 - **Reuse potential:** SC-27.5 presents the lane's sequence read-only.
 - **Technical notes:** Edit requires `shipper.admin`; key `bidKeys.tenderRules()`; window limits from `lib/loads/constants.ts` (BR-08); audit `tender_rule.created`, `tender_rule.updated`, `tender_rule.deleted` with before and after sequence; analytics `tender.rule.saved`.
@@ -1282,22 +1282,22 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Accessibility requirements:** Amounts with labels and currency; each total's filter action named by its effect ("Show 4 overdue invoices"); disputed total described as excluded from collection (BR-16).
 - **Loading states:** LS-1 per total group; LS-2 on focus without clearing values.
 - **Error states:** E-SERVER / E-UNAVAILABLE: totals withheld with reason and retry; SC-30.2 stays usable. E-FORBIDDEN: role without invoice access → PG-55 at route level.
-- **Empty states:** EM-1: no invoice has ever been issued → invoices begin after the organisation's earliest POD verification (BR-14); once invoices exist, zero totals are values, not an empty state.
+- **Empty states:** EM-4: no invoice issued yet → invoices are issued automatically on POD verification (BR-14); once invoices exist, zero totals are values, not an empty state.
 - **Reuse potential:** SC-38.1 (carrier counterpart); SC-49.3 shares the credit figures.
 - **Technical notes:** Server totals only, never summed client-side; key `invoiceKeys.summary()`, refetched on focus; amounts and credit are Confidential (NFR-PRIV-1); invalidated by SC-30.3 and SC-31.3.
 
 #### SC-30.2 — Invoice collection
-- Instance of **SH-05** over invoices through `use-invoices(params)` (page size 50, maximum 200) for `shipper.finance` and `shipper.admin` of the organisation. Filters: status (`status`), due date and issued date (`from`, `to`, `dateField`), load (`load`), carrier (`carrier`). Bulk: pay selected (SC-30.3), download (LS-7 over 100 invoices). Overrides: disputed invoices state the disputed and payable amounts (BR-16); EM-1 states that invoices appear after POD verification; view-as reads only and never downloads in bulk (data export).
+- Instance of **SH-05** over invoices through `use-invoices(params)` (page size 50, maximum 200) for `shipper.finance` and `shipper.admin` of the organisation. Filters: status (`status`), due date and issued date (`from`, `to`, `dateField`), load (`load`), carrier (`carrier`). Bulk: pay selected (SC-30.3), download (LS-7 over 100 invoices). Overrides: disputed invoices state the disputed and payable amounts (BR-16); EM-4 states that invoices are issued automatically on POD verification; view-as reads only and never downloads in bulk (data export).
 
 #### SC-30.3 — Batch payment
 - **Purpose:** Pay several invoices at once.
 - **Responsibilities:** Total the selection, choose method, confirm, report per-invoice outcome.
 - **Data requirements:** `use-pay-invoices`, `use-payment-methods` for the verified methods.
-- **Interaction model:** IC-23 states the scope; IC-43 payment confirmation stating total, count, method and date; disputed amounts are excluded from the total (BR-16); the dialog cannot be dismissed while processing; outcome itemises paid, failed and skipped invoices.
+- **Interaction model:** IC-23 states the scope; IC-43 payment confirmation stating total, count, method and date; disputed amounts are excluded from the total (BR-16); the confirmation cannot be dismissed while processing; outcome itemises paid, failed and skipped invoices.
 - **Device needs:** DV-DESK: select and pay many invoices. DV-PHONE: not supported for batches (single payment via SC-31.3). DV-AT: full parity with DV-DESK.
 - **Accessibility requirements:** Total, count, method and date in the confirmation description (IC-43); outcome summary announced politely ("8 paid, 1 failed"); per-invoice failures listed with reason in text.
 - **Loading states:** LS-5 "Processing payment…"; LS-7 over 100 invoices with progress and a notification on completion (SU-3).
-- **Error states:** Partial failure per invoice with reason. E-CONFLICT: an invoice already paid or newly disputed → skipped and named. E-VALIDATION: method unverified or credit rule breached → PG-49. E-FORBIDDEN: role without pay capability or view-as without write consent. E-TIMEOUT / E-UNAVAILABLE: retried with the same batch key; nothing is charged twice.
+- **Error states:** Partial failure per invoice with reason. E-CONFLICT: an invoice already paid or newly disputed → skipped and named. E-VALIDATION: method unverified or credit rule breached → PG-49. E-FORBIDDEN: role without pay capability, or view-as (paying is never available in view-as). E-TIMEOUT / E-UNAVAILABLE: retried with the same batch key; nothing is charged twice.
 - **Empty states:** EM-5: the action is unavailable with a stated reason until at least one payable invoice is selected.
 - **Reuse potential:** SC-31.3 single payment; SC-38.3 follows the same confirmation pattern.
 - **Technical notes:** One idempotency key per batch; processor tokenised flow (CMP-5); invalidates `invoiceKeys.list` and `invoiceKeys.summary()`; audit `payment_batch.submitted` and `invoice.paid` per invoice; analytics `invoice.batch.paid` with count and outcome counts; amounts are Confidential.
@@ -1327,8 +1327,8 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Interaction model:** IC-43 with method choice (default method preselected, never a silent non-default); full or undisputed amount choice when a dispute exists (BR-16); confirmation states amount, method and date; outcome gives a reference and remittance.
 - **Device needs:** DV-DESK and DV-PHONE: pay one invoice. DV-AT: full parity.
 - **Accessibility requirements:** Amount and method read before confirmation; outcome announced politely with the payment reference; remittance link named by its content.
-- **Loading states:** LS-5 "Processing payment…" with the dialog non-dismissible; LS-4 after 30 s.
-- **Error states:** Declined → alternatives. E-VALIDATION: verification needed → PG-49. E-CONFLICT: already paid by another member → state who and the reference. E-UNAVAILABLE: processor down → nothing charged, pay later. E-FORBIDDEN: view-as without write consent. E-TIMEOUT: retried with the same key.
+- **Loading states:** LS-5 "Processing payment…" with the confirmation non-dismissible (IC-43); LS-4 after 30 s.
+- **Error states:** Declined → alternatives. E-VALIDATION: verification needed → PG-49. E-CONFLICT: already paid by another member → state who and the reference. E-UNAVAILABLE: processor down → nothing charged, pay later. E-FORBIDDEN: view-as (paying is never available in view-as). E-TIMEOUT: retried with the same key.
 - **Empty states:** EM-1: no payment method → PG-49 to add one.
 - **Reuse potential:** SC-30.3 uses the same mutation.
 - **Technical notes:** Processor tokenised flow (CMP-5); ACH authorisation captured by the processor (CMP-6); one idempotency key per confirmation; audit `invoice.paid`; analytics `invoice.payment.completed` with method type enum.
@@ -1358,8 +1358,8 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Interaction model:** IC-05 address; pin adjustment on the map with a text coordinate alternative (IC-30); hours and rules through IC-01 and IC-07; save validates the whole record and carries its version (SSB-8).
 - **Device needs:** DV-DESK: create and edit facilities. DV-PHONE: read details only. DV-AT: full parity through the coordinate alternative.
 - **Accessibility requirements:** Coordinate alternative for setting the pin (IC-30); errors summarised (IC-02); save announced politely.
-- **Loading states:** LS-2 while geocoding; LS-5 on save.
-- **Error states:** E-VALIDATION: unverifiable address → confirm adjusted pin; missing hours. E-PRECONDITION: edited elsewhere → IC-67 with input kept. E-UNAVAILABLE: geocoding down → save with manual coordinates flagged for verification.
+- **Loading states:** LS-2 for address suggestions; LS-5 while the address is verified ("Checking address…") and on save.
+- **Error states:** E-VALIDATION: unverifiable address → confirm adjusted pin; missing or overlapping hours; invalid time zone. E-PRECONDITION: edited elsewhere → IC-67 with input kept. E-CONFLICT: facility used by active loads → the change applies to future loads only, and this is stated. E-UNAVAILABLE: geocoding down → save with manual coordinates flagged for verification.
 - **Empty states:** EM-5: the editor always renders its fields, empty for a new facility.
 - **Reuse potential:** SC-16.4, SC-27.2.
 - **Technical notes:** Geocode verified server-side; contacts are Internal personal data and never sent to analytics; audit `facility.created`, `facility.updated`; analytics `facility.saved`.
@@ -1428,7 +1428,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Device needs:** DV-PHONE and DV-DESK: read each check's result and follow a fix route. DV-AT: full parity.
 - **Accessibility requirements:** Each check result as text ("Insurance: $750,000 cargo cover required, $500,000 on file"); a failing check announced once on load; fix routes are named links; state never conveyed by a visual cue alone (G-3).
 - **Loading states:** LS-1 server-rendered, so results are present on arrival; no client polling; the check re-runs server-side at booking.
-- **Error states:** E-UNAVAILABLE: check service unavailable → booking blocked with retry, because the server never books without a passing check (NFR-AV-4). E-NOT-FOUND: load no longer posted or accessible → PG-53.
+- **Error states:** E-UNAVAILABLE: check service unavailable → booking blocked with retry, because the server never books without a passing check (NFR-AV-4). E-CONFLICT: load no longer available (taken or expired) → similar loads route to PG-33. E-NOT-FOUND: load not accessible → PG-53.
 - **Empty states:** EM-5: the section always reports the authority, insurance, equipment and availability checks.
 - **Reuse potential:** SH-06 blocker wording and fix routes.
 - **Technical notes:** Server is authoritative (SEC-4); BR-03 and BR-18 define the checks; a compliance change between render and booking surfaces as E-FORBIDDEN in SC-34.3; analytics `load.booking.blocked` with the failing check enum.
@@ -1462,10 +1462,10 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 ### PG-35 — My Loads (carrier)
 
 #### SC-35.1 — Carrier load collection
-- Instance of **SH-05** over the carrier's loads through `use-loads(params)` scoped server-side to loads booked by the session's carrier (page size 50, maximum 200), for `carrier.dispatcher` and `carrier.admin`. Filters: status, dates, shipper, driver, needs assignment, exceptions only. Overrides: tracking freshness per load (stale after 60 min, §2.6); loads within the BR-09 window without an assignment state the deadline; row actions from the SC-40.2 mapping; EM-1 routes to the load board (XF-02); view-as reads only.
+- Instance of **SH-05** over the carrier's loads through `use-loads(params)` scoped server-side to loads booked by the session's carrier (page size 50, maximum 200), for `carrier.dispatcher` and `carrier.admin`. Filters: status, dates, shipper, driver, needs assignment, exceptions only. Overrides: tracking freshness per load (stale after 60 min, §2.6), positions refreshed every 60 s and paused when hidden; loads within the BR-09 window without an assignment state the deadline; a load with an open amendment states its response deadline and reaches PG-64 in one step, and a lapsed amendment states that operations has an exception (XF-08); per-load actions from the SC-40.2 mapping; EM-1 routes to the load board (XF-02); view-as reads only.
 
 #### SC-35.2 — Assignment
-- Instance of **SH-15**, invoked for a selected load from the collection through `use-assign-load(loadId)`, for `carrier.dispatcher` and `carrier.admin`. Overrides: returns focus to the originating row after confirmation; the collection refetches the row so its "needs assignment" state clears; reassignment of a dispatched load requires a reason.
+- Instance of **SH-15**, invoked for a selected load from the collection through `use-assign-load(loadId)`, for `carrier.dispatcher` and `carrier.admin`. Overrides: returns focus to the originating load after confirmation; the collection refetches that load so its "needs assignment" state clears; reassignment of a dispatched load requires a reason.
 
 ### PG-36 — Saved Loads and Searches
 
@@ -1480,7 +1480,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Device needs:** DV-PHONE and DV-DESK: pause, rename and open searches. DV-AT: full parity.
 - **Accessibility requirements:** Alert state announced on change ("Alerts paused for Chicago reefer"); new-match count stated in text per search; delete confirmation names the search.
 - **Loading states:** LS-1 for the list; LS-5 per mutation with only the affected search busy.
-- **Error states:** E-VALIDATION: empty or duplicate name. E-NOT-FOUND: search deleted in another session → removed with explanation. E-FORBIDDEN: view-as without write consent. E-SERVER: per mutation with revert and retry.
+- **Error states:** E-VALIDATION: empty or duplicate name, or an invalid alert frequency or quiet period. E-NOT-FOUND: search deleted in another session → removed with explanation. E-FORBIDDEN: view-as without write consent. E-SERVER: per mutation with revert and retry.
 - **Empty states:** EM-1: nothing saved → how to save a search from the load board (Phase 3 §13).
 - **Reuse potential:** SC-33.4.
 - **Technical notes:** Key `savedSearchKeys.list()`; searches are personal to the user; audit `saved_search.updated`, `saved_search.deleted`; analytics `loadboard.search.paused` and `loadboard.search.deleted`.
@@ -1488,7 +1488,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 ### PG-37 — Fleet
 
 #### SC-37.1 — Vehicles
-- Instance of **SH-05** over trucks and trailers through `use-fleet(params)`, with create and edit (readable by `carrier.dispatcher`, editable by `carrier.admin`). Overrides: ELD connection state per vehicle (read-only, reported by the backend integration); filter by equipment (`equipment`); edits carry the vehicle version (SSB-8, IC-67); a vehicle assigned to an active load cannot be retired (E-CONFLICT with the load reference); EM-1 explains that vehicles are needed for assignment (BR-09); audit `vehicle.created`, `vehicle.updated`.
+- Instance of **SH-05** over trucks and trailers through `use-fleet(params)`, with create and edit (readable by `carrier.dispatcher`, editable by `carrier.admin`). Overrides: ELD connection state per vehicle (read-only, reported by the backend integration); filter by equipment (`equipment`); edits carry the vehicle version (SSB-8, IC-67); a vehicle assigned to an active load cannot be retired (E-CONFLICT with the load reference); a duplicate VIN or plate is E-VALIDATION; E-UNAVAILABLE from the ELD integration → the link state stated with its age; EM-1 explains that vehicles are needed for assignment (BR-09); audit `vehicle.created`, `vehicle.updated`.
 
 #### SC-37.2 — Drivers and invitations
 - **Purpose:** Manage drivers and bring new ones in.
@@ -1501,7 +1501,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Error states:** E-VALIDATION: malformed phone or email. E-CONFLICT: already a member, or driver assigned to an active load on deactivate → the load named. E-RATE-LIMIT: invitation sending throttled (SEC-10). E-FORBIDDEN: view-as without write consent. Invite failures reported per invitee.
 - **Empty states:** EM-1: no drivers → why they are needed (BR-09 assignment) and the invite action.
 - **Reuse potential:** SC-48.3.
-- **Technical notes:** Drivers are members with role `carrier.driver`; driver phone and email are Internal personal data, never in analytics; deactivation revokes the driver's sessions (SEC-3) and offline queues on next contact (SSB-10); audit `invitation.sent`, `invitation.revoked`, `member.deactivated`; analytics `fleet.driver.invited`.
+- **Technical notes:** Drivers are members with role `carrier.driver`; driver phone and email are Internal personal data, never in analytics; deactivation revokes the driver's sessions (SEC-3); events already queued on the driver's device follow the SSB-10 driver exception and are never purged silently (NFR-AV-6); audit `invitation.sent`, `invitation.revoked`, `member.deactivated`; analytics `fleet.driver.invited`.
 
 ### PG-38 — Settlements
 
@@ -1514,12 +1514,12 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Accessibility requirements:** Amounts with labels and currency; failed total described with its fix route in text; dispatchers are told that amounts are available to carrier admins.
 - **Loading states:** LS-1 per total group; LS-2 on focus.
 - **Error states:** E-SERVER / E-UNAVAILABLE: totals withheld with reason and retry; SC-38.2 stays usable.
-- **Empty states:** EM-1: nothing yet → settlements begin 3 business days after the carrier's earliest POD verification (BR-15).
+- **Empty states:** EM-4: nothing yet → settlements appear on POD verification and are paid 3 business days later (BR-15).
 - **Reuse potential:** SC-19.4.
 - **Technical notes:** Amounts for admin only (`carrier.admin`); dispatchers receive dates and counts (role-shaped server-side); key `settlementKeys.summary()`; amounts Confidential.
 
 #### SC-38.2 — Settlement collection
-- Instance of **SH-05** over settlements through `use-settlements(params)` (page size 50, maximum 200). Filters: status (`status`), expected date (`from`, `to`, `dateField`), load (`load`), shipper (`shipper`). Bulk: download remittances (LS-7 over 100). Overrides: amounts only for `carrier.admin`, dates for `carrier.dispatcher`; disputed settlements state the held amount (BR-16); EM-1 states that settlements appear after POD verification.
+- Instance of **SH-05** over settlements through `use-settlements(params)` (page size 50, maximum 200). Filters: status (`status`), expected date (`from`, `to`, `dateField`), load (`load`), shipper (`shipper`). Bulk: download remittances (LS-7 over 100). Overrides: amounts only for `carrier.admin`, dates for `carrier.dispatcher`; disputed settlements state the held amount (BR-16); EM-4 states that settlements appear on POD verification.
 
 #### SC-38.3 — Quick pay
 - **Purpose:** Pay the carrier sooner for a stated fee (BR-15).
@@ -1529,7 +1529,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Device needs:** DV-PHONE and DV-DESK: request quick pay for one or several settlements. DV-AT: full parity.
 - **Accessibility requirements:** Fee and net read before confirmation; outcome announced politely with the arrival time.
 - **Loading states:** LS-5 "Processing…" with the confirmation non-dismissible.
-- **Error states:** E-VALIDATION: payout method unverified → PG-49. E-CONFLICT: settlement no longer eligible (paid, disputed) → skipped and named. E-FORBIDDEN: not `carrier.admin`, or view-as (payouts are never writable in view-as, XS-16). E-TIMEOUT: retried with the same key.
+- **Error states:** E-VALIDATION: payout method unverified → PG-49. E-CONFLICT: settlement no longer eligible (paid, disputed) → skipped and named. E-FORBIDDEN: not `carrier.admin`, or view-as (payouts are never writable in view-as, XS-16). E-UNAVAILABLE: processor down → quick pay unavailable; settlement data stays readable. E-TIMEOUT: retried with the same key.
 - **Empty states:** EM-4: nothing eligible → why (POD not yet verified, already scheduled, or disputed).
 - **Reuse potential:** SC-30.3 pattern.
 - **Technical notes:** Idempotent (one key per confirmation); invalidates `settlementKeys.list` and `settlementKeys.summary()`; audit `settlement.quick_pay_requested`; analytics `settlement.quickpay.requested` with count.
@@ -1557,7 +1557,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Purpose:** Tell the driver where to go next and what to do there.
 - **Responsibilities:** Present the current stop's facility, address, appointment, reference numbers, instructions and contacts; hand off to the device's navigation app.
 - **Data requirements:** `use-trip(loadId)` (cached in IndexedDB after each successful fetch).
-- **Interaction model:** Open navigation (IC-31); call facility (tel link); the current stop advances when the departure event is recorded in SC-39.2.
+- **Interaction model:** Open navigation (IC-31); call facility (tel link); the current stop advances when the departure event is recorded in SC-39.2. An amendment accepted during the trip (BR-25) updates the stops; the change is announced assertively once and the driver is told what changed.
 - **Device needs:** DV-CAB: glanceable in seconds with gloves and glare, targets at least 44 × 44 (G-2). DV-PHONE: read details before arrival. DV-AT: full parity.
 - **Accessibility requirements:** Address and appointment as text with the facility time zone; phone numbers as `tel:` links named by who is called; stop number and total in the section's accessible name ("Stop 2 of 3").
 - **Loading states:** LS-6: cached trip rendered immediately with its age ("Saved 14 min ago"); LS-2 refresh on reconnect and focus.
@@ -1576,8 +1576,8 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Loading states:** Not applicable as a wait — events are optimistic (IC-29) and acknowledged at once; LS-6 while events are queued, stating the count and age of the oldest unsynced event.
 - **Error states:** E-OFFLINE: event queued and replayed in order on reconnect; the driver can keep recording. Sync failure (E-SERVER, E-TIMEOUT, E-UNAVAILABLE) retried automatically with the same event ID because events are idempotent. E-CONFLICT: conflict with a server-recorded event (geofence) → server wins, driver told which event was kept and its time. E-VALIDATION: seal or piece count missing or not a whole number at departure. E-NOT-FOUND: driver unassigned while events are queued → queued events still replay for audit and the driver is told the trip is no longer theirs.
 - **Empty states:** EM-5: a next legal event always exists until the final departure, after which the section is replaced by trip completion.
-- **Reuse potential:** Operations record events for drivers in SC-40.2 through the same event types and mapping.
-- **Technical notes:** Events carry `nanoid` IDs and device time; replay in order; the server de-duplicates by ID; NFR-AV-6: no accepted event may be lost, including events queued offline and replayed within 7 days, so the queue lives in IndexedDB and survives reloads, and sign-out with unsynced events warns the driver with the count before SSB-10 purges the queue; precise location is Restricted (NFR-PRIV-1) and never sent to analytics; audit `stop_event.recorded` (with source driver and queued delay) and `stop_event.undone`; analytics `trip.stop_event.recorded` with event type, queued flag and sync delay; invalidates `loadKeys.detail(loadId)` and the load timeline on sync.
+- **Reuse potential:** Carrier dispatchers and admins and operations record events on a driver's behalf in SC-40.2 through the same event types and mapping (Phase 3 §5.1).
+- **Technical notes:** Events carry `nanoid` IDs and device time; replay in order; the server de-duplicates by ID; NFR-AV-6: no accepted event may be lost, including events queued offline and replayed within 7 days, so the queue lives in IndexedDB and survives reloads; sign-out with unsynced events first attempts replay, then tells the driver the count, and signing out keeps the queue encrypted and bound to the driver for replay at their next sign-in, removed only by an explicit discard confirmed with IC-12 (SSB-10 driver exception); precise location is Restricted (NFR-PRIV-1) and never sent to analytics; audit `stop_event.recorded` (with source driver and queued delay) and `stop_event.undone`; analytics `trip.stop_event.recorded` with event type, queued flag and sync delay; invalidates `loadKeys.detail(loadId)` and the load timeline on sync.
 
 #### SC-39.3 — POD capture
 - **Purpose:** Capture the signed delivery receipt (XF-09).
@@ -1663,7 +1663,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Loading states:** LS-5 per action, duplicates blocked; LS-4 after 30 s.
 - **Error states:** E-CONFLICT: illegal transition because the state moved on → new state explained with who moved it and the next legal action. E-FORBIDDEN: view-as without write consent, or capability missing → reason and who can grant it. E-VALIDATION: reason missing. E-TIMEOUT: retried with the same idempotency key.
 - **Empty states:** EM-4: no action is legal for this role in this state → state who acts next, the event that will return an action to this role and, when known, its deadline.
-- **Reuse potential:** PG-26, PG-35 row actions.
+- **Reuse potential:** PG-26, PG-35 per-load actions.
 - **Technical notes:** Mapping unit-tested against Phase 2 §5 table; idempotency key per attempt; invalidates `loadKeys.detail(loadId)`, `loadKeys.list` and `useLoadCounts`; audit `load.<transition>` (for example `load.cancelled`, `load.put_on_hold`) with actor, on-behalf party and reason; analytics `load.action.performed` with from and to states.
 
 #### SC-40.3 — Lane, stops and schedule
@@ -1745,8 +1745,8 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Accessibility requirements:** Claims as a list with type, status, whose turn and deadline as text; the start route states the window end ("File by 12 June 2027").
 - **Loading states:** LS-1 in its own boundary; LS-2 on focus.
 - **Error states:** E-SERVER / E-UNAVAILABLE: claims withheld with retry while the rest of PG-40 stays usable. E-NOT-FOUND on a listed claim → "no longer available" and the list refetched.
-- **Empty states:** EM-4: before delivery → claims become available at delivery; after delivery with no claims → file-a-claim route with the window end, within 9 months (BR-17).
-- **Reuse potential:** SH-05 row presentation shared with SC-44.1.
+- **Empty states:** EM-4: before delivery → claims become available at delivery. EM-1: after delivery with no claims → file-a-claim route with the window end, within 9 months (BR-17).
+- **Reuse potential:** SH-05 collection behaviour shared with SC-44.1.
 - **Technical notes:** Key `claimKeys.list({ loadId })`; claim amounts are Confidential; analytics `claim.start.opened` with source page.
 
 #### SC-40.14 — Rating
@@ -1778,7 +1778,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
   - E-PRECONDITION: the load changed since the proposal started (IC-67).
   - E-VALIDATION: no actual change, or the change is outside allowed ranges.
   - E-UNAVAILABLE: re-pricing down; rate-affecting changes are blocked, schedule-only changes are allowed.
-- **Empty states:** EM-1: no amendments; states which changes are possible in the current state. EM-5: not shown before booking.
+- **Empty states:** EM-4: no amendment history until a change is proposed; states which changes are possible in the current state. EM-5: not shown before booking.
 - **Reuse potential:** The comparison logic is shared with SC-64.1 through IC-66.
 - **Technical notes:** One open amendment per load, enforced server-side. Idempotent submit. Audit: `amendment.proposed`, `amendment.withdrawn`. Analytics: `amendment.proposed` with materiality.
 
@@ -1808,7 +1808,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 ### PG-42 — Notifications
 
 #### SC-42.1 — Notification feed
-- Instance of **SH-05** over notifications through `use-notifications(params)`, own notifications only. Filters: unread, event type. Overrides: each notification routes to its subject and is marked read on open (IC-53, optimistic with revert); a subject the user can no longer access opens PG-53; EM-1 explains which events notify and links to preferences (PG-47); EM-3 when everything is read ("You're all caught up") with the time of the last check.
+- Instance of **SH-05** over notifications through `use-notifications(params)`, own notifications only. Filters: unread, event type. Overrides: each notification routes to its subject and is marked read on open (IC-53, optimistic with revert); a subject the user can no longer access is reported as "no longer available" (E-NOT-FOUND); EM-1 explains which events notify and links to preferences (PG-47); EM-3 when everything is read ("You're all caught up") with the time of the last check.
 
 #### SC-42.2 — Read management
 - **Purpose:** Let the user clear notifications in bulk.
@@ -1821,7 +1821,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Error states:** E-SERVER / E-UNAVAILABLE: optimistic change reverted and the failure stated with retry. E-OFFLINE: action needs a connection (SSB-4).
 - **Empty states:** EM-3: nothing unread → the actions are unavailable with that reason.
 - **Reuse potential:** Deliberately single-use: bulk read state exists only for the notification feed; the unread count it updates is shared everywhere.
-- **Technical notes:** Invalidates the unread-count key (`notificationKeys.unreadCount()`), shared with the global indicator; mark-all applies to notifications up to the latest ID the user has seen, so arrivals during the request stay unread; analytics `notification.feed.marked_read` with count.
+- **Technical notes:** Invalidates the unread-count key (`notificationKeys.unread()`), shared with the global indicator; mark-all applies to notifications up to the latest ID the user has seen, so arrivals during the request stay unread; analytics `notification.feed.marked_read` with count.
 
 ### PG-43 — Documents
 
@@ -1875,7 +1875,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Device needs:** DV-DESK and DV-PHONE: read and respond. DV-AT: full parity.
 - **Accessibility requirements:** Turn and deadline as text; responses as an ordered list with author role and time; submission announced politely.
 - **Loading states:** LS-1; LS-5 on respond; LS-2 on focus.
-- **Error states:** E-CONFLICT: turn moved on (another member responded) → refreshed with who responded. E-VALIDATION: empty note. E-FORBIDDEN: not the user's turn, or view-as without write consent. E-SERVER: retry with input kept.
+- **Error states:** E-CONFLICT: turn moved on (another member responded) → refreshed with who responded. E-PRECONDITION: the other party responded meanwhile → their response shown and input kept (SSB-8). E-VALIDATION: empty note. E-FORBIDDEN: not the user's turn, or view-as without write consent. E-SERVER: retry with input kept.
 - **Empty states:** EM-4: no responses yet → whose turn and the deadline.
 - **Reuse potential:** SH-04 behaviour.
 - **Technical notes:** Distinct from free messaging; responses are formal records; key `claimKeys.detail(claimId)`; audit `claim.responded`; analytics `claim.response.submitted`.
@@ -1953,11 +1953,11 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Purpose:** Control what the user is told and how (XS-03).
 - **Responsibilities:** Set channels per event type; quiet hours; state which events cannot be disabled.
 - **Data requirements:** `use-notification-preferences`.
-- **Interaction model:** IC-36 toggles grouped by event category; saves per change optimistically; quiet hours through IC-08.
+- **Interaction model:** Each event and channel is switched on or off through IC-36 and saved per change optimistically; quiet hours through IC-08.
 - **Device needs:** DV-DESK and DV-PHONE: change preferences. DV-AT: full parity.
-- **Accessibility requirements:** Each toggle labelled with event and channel; locked events state why; save outcome announced politely.
+- **Accessibility requirements:** Each preference labelled with event and channel; locked events state why; save outcome announced politely.
 - **Loading states:** LS-1; per-toggle LS-5.
-- **Error states:** Per change with revert and the failure stated (E-SERVER, E-OFFLINE). E-FORBIDDEN: view-as.
+- **Error states:** Per change with revert and the failure stated (E-SERVER, E-OFFLINE). E-VALIDATION: invalid quiet hours. E-FORBIDDEN: view-as.
 - **Empty states:** EM-5: the event catalogue always renders from enums.
 - **Reuse potential:** Deliberately single-use: preferences are per user.
 - **Technical notes:** Event catalogue from enums; critical events cannot be fully disabled (XS-03); audit `user.notification_preferences_updated`.
@@ -1978,7 +1978,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Technical notes:** Changes to carrier identity trigger re-vetting (XF-12, BR-18); tax ID Restricted and USDOT/MC Internal (NFR-PRIV-1); key `organizationKeys.detail()`; audit `organization.updated` with before and after values; analytics `organization.details.saved`.
 
 #### SC-48.2 — Members and roles
-- Instance of **SH-05** over members through `use-members(params)`, readable by members and editable by admins (Phase 3 §5.1). Overrides: change role (IC-07 with IC-12 for privilege reduction), remove (IC-12; last admin blocked); role changes are sensitive (§2.8): re-authentication within 10 minutes (IC-13), notification to organisation admins and audit `member.role_changed` or `member.removed` with reason; where SCIM provisions roles (BR-24, SEC-2) the change is refused with that reason; set spend limits for shipper members (BR-23) with audit `spend_limit.changed`; view-as never changes roles.
+- Instance of **SH-05** over members through `use-members(params)`, readable by members and editable by admins (Phase 3 §5.1). Overrides: change role (IC-07 with IC-12 for privilege reduction), remove (IC-12; last admin blocked); role changes are sensitive (§2.8): re-authentication within 10 minutes (IC-13), notification to organisation admins and audit `member.role_changed` or `member.removed` with reason; where SCIM provisions roles (BR-24, SEC-2) the change is refused with that reason; spend limits for shipper members are set in SC-48.4 (BR-23); view-as never changes roles.
 
 #### SC-48.3 — Invitations
 - **Purpose:** Manage pending invitations.
@@ -2000,9 +2000,9 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Interaction model:** An admin edits a member's limit (IC-01 currency) and saves. Lowering a limit below pending requests states their effect (IC-12). All changes are sensitive (IC-13).
 - **Device needs:** DV-DESK only; DV-AT full parity.
 - **Accessibility requirements:** Limits read with currency; "no limit" expressed in words.
-- **Loading states:** LS-1 while member limits load with the member collection; LS-5 on save, with the member's row busy until the server confirms and pending requests re-evaluated.
+- **Loading states:** LS-1 while member limits load with the member collection; LS-5 on save, with that member's limit busy until the server confirms and pending requests re-evaluated.
 - **Error states:**
-  - E-VALIDATION: negative or non-numeric limit; a limit set on an approver who is the only approver.
+  - E-VALIDATION: a limit that is not a positive amount; a limit set on an approver who is the only approver.
   - E-PRECONDITION: the member changed meanwhile (IC-67).
 - **Empty states:** EM-1: no limits set; explains that without limits nothing needs approval.
 - **Reuse potential:** None beyond PG-48; limits are organisation policy.
@@ -2019,7 +2019,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Data requirements:** `use-payment-methods` (add, verify, resume) returning the processor token reference and verification state.
 - **Interaction model:** IC-13 re-authentication before changes; IC-42 hosted entry; the user chooses instant verification or micro-deposits; a pending micro-deposit verification can be resumed later by entering the two amounts; payout method changes trigger OFAC screening before use (CMP-11).
 - **Device needs:** DV-DESK: add and verify methods. DV-PHONE: resume a pending verification. DV-AT: full parity, dependent on the processor meeting WCAG 2.2 AA.
-- **Accessibility requirements:** Processor entry must meet WCAG 2.2 AA (vendor requirement in Phase 7 §15); verification state stated in text with the next step and expected timing; outcome announced politely; focus moves into the hosted entry on open and returns to the triggering action on close (IC-41).
+- **Accessibility requirements:** Processor entry must meet WCAG 2.2 AA (vendor requirement in Phase 7 §15); verification state stated in text with the next step and expected timing; outcome announced politely; focus moves into the hosted entry on open and returns to the triggering action on close (IC-42).
 - **Loading states:** Processor entry loading announced (LS-1 within the hosted entry's own loading boundary); LS-5 while verifying; micro-deposit verification is a multi-day wait stated in text.
 - **Error states:** E-VALIDATION: verification failed (wrong amounts, account mismatch) with attempts remaining. E-UNAVAILABLE: processor down → nothing stored, try later (NFR-AV-4). E-FORBIDDEN: view-as, or re-authentication not completed. E-RATE-LIMIT: too many verification attempts.
 - **Empty states:** EM-5: the entry flow always renders the hosted form; pending verifications are listed in SC-49.1.
@@ -2034,7 +2034,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Device needs:** DV-DESK: review credit and request an increase. DV-PHONE: read the credit figures. DV-AT: full parity.
 - **Accessibility requirements:** Amounts as text with currency; credit used also stated as remaining ("$12,000 of $50,000 used, $38,000 available"); request outcome announced politely.
 - **Loading states:** LS-1; LS-5 on request.
-- **Error states:** E-SERVER / E-UNAVAILABLE: credit figures withheld with retry. E-CONFLICT: a request is already open → its state stated. E-VALIDATION: amount not greater than the current limit. E-FORBIDDEN: view-as without write consent.
+- **Error states:** E-SERVER / E-UNAVAILABLE: credit figures withheld with retry. E-CONFLICT: a request is already open → its state stated. E-VALIDATION: amount not greater than the current limit. E-FORBIDDEN: view-as (PG-49 is never writable in view-as, XS-16).
 - **Empty states:** EM-1: prepay organisations → how to apply for terms.
 - **Reuse potential:** SC-30.1 shares the credit figures.
 - **Technical notes:** Shipper roles only (carrier roles never receive this section); key `organizationKeys.credit()`; amounts Confidential; audit `credit.increase_requested`; analytics `credit.increase.requested`.
@@ -2069,7 +2069,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Device needs:** DV-DESK: keyboard shortcuts (IC-49). DV-PHONE: resolve a single exception. DV-AT: full parity without shortcuts.
 - **Accessibility requirements:** Shortcuts are discoverable; single-character shortcuts can be turned off or remapped, or work only while focus is within the queue (WCAG 2.1.4); action outcome announced politely.
 - **Loading states:** LS-5 per action; the exception stays selected while pending.
-- **Error states:** Action failed → exception stays claimed and the failure is stated with retry. E-CONFLICT: load state moved on → new state and next legal action. E-PRECONDITION: exception changed since read → refreshed with input kept. E-FORBIDDEN: not the owner.
+- **Error states:** Action failed → exception stays claimed and the failure is stated with retry. E-CONFLICT: load state moved on → new state and next legal action. E-PRECONDITION: exception changed since read → refreshed with input kept. E-VALIDATION: resolution without a reason code. E-FORBIDDEN: not the owner.
 - **Empty states:** EM-5: actions render only for a selected, claimed exception, and every type has at least resolve.
 - **Reuse potential:** SC-40.2.
 - **Technical notes:** Actions recorded in audit (`exception.resolved`, `exception.put_on_hold`, plus the load transition's own event) with reason code; idempotency key per action; invalidates `exceptionKeys.list` and the affected load; analytics `exception.resolved` with type, reason code and time to resolve.
@@ -2126,7 +2126,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Device needs:** DV-DESK: decide with the evidence from SC-51.1 to SC-51.3. DV-AT: full parity.
 - **Accessibility requirements:** Consequences as text ("3 booked loads become operations exceptions"); required fields marked in their labels; outcome announced politely.
 - **Loading states:** LS-5 while submitting; the evidence sections stay usable.
-- **Error states:** E-CONFLICT: conflict with another reviewer → the other decision and reviewer stated, input kept. E-VALIDATION: reason code or note missing. E-FORBIDDEN: role is not `internal.compliance`.
+- **Error states:** E-CONFLICT: conflict with another reviewer → the other decision and reviewer stated, input kept. E-VALIDATION: reason code or note missing. E-UNAVAILABLE from a source (SC-51.1) → the decision can be deferred with a reason. E-FORBIDDEN: role is not `internal.compliance`.
 - **Empty states:** EM-5: the decision options always render for a carrier awaiting review.
 - **Reuse potential:** Deliberately single-use: vetting decisions are made only here.
 - **Technical notes:** Audited (`vetting.decided` with decision, reason and reviewer); retained 7 years (CMP-2); analytics `vetting.decision.recorded`.
@@ -2203,7 +2203,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Accessibility requirements:** Heading states the problem and receives focus on arrival (SSB-6); the page title says "Access denied · Haulr" (SSB-7); admin names and the route are text and named links.
 - **Loading states:** Not applicable — server-rendered from the session and a single admin lookup; no client fetch.
 - **Error states:** Not applicable to the route decision; if the admin lookup fails the page still renders without names and says "Ask an organisation admin".
-- **Empty states:** EM-5: the explanation and role-root route always render; when the organisation has no other admin, the page routes to support instead.
+- **Empty states:** EM-5: the explanation and role-root route always render; when the organisation has no other admin, the organisation's own admin role is named instead.
 - **Reuse potential:** Deliberately single-use: used only when a whole route is outside the user's role; record-level refusals use PG-53 (Phase 3 §5.2). A view-as session reaching a route excluded by BR-27 (payout methods, security settings, API keys, data export) also lands here with that reason.
 - **Technical notes:** HTTP 403; admins' names are Internal and only the viewer's own organisation's admins are listed; the E-FORBIDDEN event is recorded with the capability (§2.2); analytics `system.access_denied.viewed` with route group and role enum.
 
@@ -2262,7 +2262,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
   - E-CONFLICT: some quotes expired before confirmation; re-price them.
   - E-UNAVAILABLE: pricing down; those rows go to draft with a custom-quote request.
   - Partial post failure is reported per row.
-- **Empty states:** EM-5: reached only with at least one valid row.
+- **Empty states:** EM-5: reached only with at least one valid row. EM-4: no priced rows yet while validation runs.
 - **Reuse potential:** SH-14 totals; IC-23 bulk-scope confirmation.
 - **Technical notes:** Idempotent by batch ID. Audit: `load.import.confirmed`, then `load.posted` per load with the batch ID. Analytics: `load.import.confirmed` with counts per outcome.
 
@@ -2301,7 +2301,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Device needs:** DV-DESK full; DV-PHONE pause, resume and skip; DV-AT full parity.
 - **Accessibility requirements:** Upcoming occurrences as a list with absolute dates.
 - **Loading states:** LS-1 while the recurrence and its next 12 weeks of occurrences load; LS-5 on change, after which upcoming occurrences are recomputed server-side and refreshed.
-- **Error states:** E-VALIDATION: horizon over 12 weeks; auto-post chosen without a guardrail, or with a guardrail above the owner's spend limit (BR-23).
+- **Error states:** E-VALIDATION: horizon over 12 weeks; auto-post chosen without a guardrail, or with a guardrail above the owner's spend limit (BR-23). E-UNAVAILABLE: pricing down → occurrences are created as drafts.
 - **Empty states:** EM-1: no recurrence; explains scheduling.
 - **Reuse potential:** None; recurrence rules are specific to load generation.
 - **Technical notes:** Generation happens server-side in the facility time zone. Audit: `recurrence.created`, `recurrence.updated`, `recurrence.paused`, `recurrence.resumed`, `occurrence.skipped`.
@@ -2309,7 +2309,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 ### PG-58 — Approvals
 
 #### SC-58.1 — Approval queue
-- Instance of **SH-07** and **SH-05** over approval requests. Overrides: `useApprovalRequests({ status, type, requester, cursor })`; default view is pending requests the user may decide; requesters' own requests shown separately as read-only; each item carries type, amount versus limit, requester, and time remaining until quote or bid expiry; EM-3 "Nothing awaiting approval" with last-checked time; polling every 30 s.
+- Instance of **SH-07** and **SH-05** over approval requests. Overrides: `useApprovalRequests({ status, type, requester, cursor })`; default view is pending requests the user may decide; requesters reach their own requests read-only and are never offered a decision on them; each item carries type, amount versus limit, requester, and time remaining until quote or bid expiry; EM-3 "Nothing awaiting approval" with last-checked time; polling every 30 s.
 
 #### SC-58.2 — Request evidence
 - **Purpose:** Give the approver what they need to judge the request.
@@ -2348,7 +2348,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 #### SC-58.4 — Delegation
 - **Purpose:** Keep approvals moving while an approver is away.
 - **Responsibilities:** Set a delegate (another eligible approver) with a date range. Report active delegations. Enforce that delegates cannot approve their own requests.
-- **Data requirements:** `useApprovalDelegations()` in `use-approvals.ts` → active and scheduled delegations for the current approver; eligible delegates from `useMembers({ role: 'shipper.approver' })`.
+- **Data requirements:** `useApprovalDelegations()` in `use-approvals.ts` → active and scheduled delegations for the current approver; eligible delegates (`shipper.approver` and `shipper.admin`, who may both approve) from `useMembers`.
 - **Interaction model:** Choose delegate (IC-07) and dates (IC-08); save; end early.
 - **Device needs:** DV-DESK, DV-PHONE; DV-AT full parity.
 - **Accessibility requirements:** Active delegation stated as text.
@@ -2411,7 +2411,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Purpose:** Connect the identity provider and prove it works.
 - **Responsibilities:** Configure SAML (metadata URL or file, entity ID, ACS URL provided) or OIDC (issuer, client ID, secret). Report certificate expiry. Run a test sign-in with the admin's own identity and report assertion diagnostics.
 - **Data requirements:** `useSsoConnection` in `use-security.ts`.
-- **Interaction model:** Choose protocol (IC-09); enter or upload configuration (IC-01, IC-24); save (IC-13); run test (IC-11) in a new window; read diagnostics.
+- **Interaction model:** Choose protocol (IC-09); enter or upload configuration (IC-01, IC-24); save after re-authentication (IC-13); run test (IC-11) in a new window; read diagnostics.
 - **Device needs:** DV-DESK only; DV-AT full parity.
 - **Accessibility requirements:** Diagnostics as a list of named checks with pass or fail in text.
 - **Loading states:** LS-5 for save; the test waits up to 30 s for the round trip, then E-TIMEOUT.
@@ -2467,7 +2467,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Device needs:** DV-DESK full; DV-PHONE revoke only; DV-AT full parity.
 - **Accessibility requirements:** Secret reveal per IC-63; expiry as text.
 - **Loading states:** LS-1 while keys load (metadata only, never secrets); LS-5 on create, rotate and revoke, with the reveal (IC-63) following creation immediately.
-- **Error states:** E-VALIDATION: no scope, or expiry beyond 12 months. E-FORBIDDEN: scope not permitted for the organisation.
+- **Error states:** E-VALIDATION: no scope, too many scopes for the role, or expiry beyond 12 months. E-FORBIDDEN: scope not permitted for the organisation.
 - **Empty states:** EM-1: no keys; links API documentation.
 - **Reuse potential:** Single-use by design; the reveal-once behaviour is shared through IC-63 with SC-60.3 and SC-61.2.
 - **Technical notes:** Keys stored hashed; prefix displayed for identification. Keys expiring within 14 days are notified. Audit: `api_key.created`, `api_key.rotated`, `api_key.revoked`.
@@ -2534,7 +2534,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 ### PG-63 — Audit Log
 
 #### SC-63.1 — Audit search and detail
-- Instance of **SH-11** scoped to the organisation. Overrides: `useAuditLog({ scope: 'organisation', actor, actorType, action, targetType, targetId, from, to, cursor })`; actor types member, Haulr staff via view-as, API key and system are always distinguished; event detail shows before and after values with Restricted values masked; page size 100; EM-2 states the retention boundary (BR-26).
+- Instance of **SH-11** scoped to the organisation. Overrides: `useAuditLog({ scope: 'organisation', actor, actorType, action, targetType, targetId, from, to, cursor })`; actor types member, Haulr staff via view-as, API key and system are always distinguished; event detail shows before and after values with Restricted values masked; page size 100; LS-3 for ranges over 90 days; EM-2 states the retention boundary (BR-26).
 
 #### SC-63.2 — Audit export
 - **Purpose:** Produce audit evidence files.
@@ -2547,7 +2547,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Error states:** E-RATE-LIMIT: concurrent exports. E-VALIDATION: range outside retention.
 - **Empty states:** EM-1: no exports yet.
 - **Reuse potential:** SC-62.1 job listing.
-- **Technical notes:** Exports themselves are audited (`audit.exported`).
+- **Technical notes:** Exports themselves are audited (`audit_log.exported`, as SH-11).
 
 ### PG-64 — Review Amendment
 

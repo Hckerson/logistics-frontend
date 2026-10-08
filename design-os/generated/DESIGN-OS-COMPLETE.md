@@ -1,6 +1,6 @@
 # Haulr Design OS — Complete
 
-`Version 1.1.0` · `2026-09-30` · Status: **Complete, ready for engineering handoff** · Start: [START_HERE](./START_HERE.md) · Overview: [README](./README.md)
+`Version 1.1.1` · `2026-10-09` · Status: **Complete, ready for engineering handoff** · Start: [START_HERE](./START_HERE.md) · Overview: [README](./README.md)
 
 The master index. If something exists in this design OS, it is listed here.
 
@@ -33,7 +33,7 @@ It covers the product end to end:
 - **How interaction behaves:** 67 interaction contracts at WCAG 2.2 AA (Phase 6).
 - **How the code is organised:** architecture reconciled with this repo's `.claude/CLAUDE.md` (Phase 7).
 - **How and when it gets built:** 16 weeks, 8 sprints, status for every feature (Phase 8).
-- **How it's proven:** 266 QA checks (Phase 9).
+- **How it's proven:** 267 QA checks (Phase 9).
 - **How to get going:** six guides, including a self-contained implementation prompt (Phase 10).
 
 It deliberately contains **no visual design**. Each page's look is decided when it is built, with the owner.
@@ -52,7 +52,7 @@ It deliberately contains **no visual design**. Each page's look is decided when 
 | 6 | [phase-6-interaction-contracts.md](./phase-6-interaction-contracts.md) | Behaviour of every interactive element: inputs, states, keyboard, ARIA, validation, loading, errors, content rules, do and don't. Seven global rules bind them all. |
 | 7 | [phase-7-frontend-architecture.md](./phase-7-frontend-architecture.md) | Folder structure, route files, layouts, providers, hooks, utilities, constants, API organisation, real-time and offline strategy, libraries, naming, code splitting, performance, security and lint enforcement. |
 | 8 | [phase-8-implementation-roadmap.md](./phase-8-implementation-roadmap.md) | Development phases, priority, sprint plan, milestones, dependencies, risks, technical debt prevention, testing strategy, deployment readiness and the build status of every feature. |
-| 9 | [phase-9-qa-checklist.md](./phase-9-qa-checklist.md) | 266 functional QA checks across accessibility, WCAG, consistency, responsiveness, scalability, performance, state coverage, errors, loading, readiness, developer experience, SEO, maintainability, browsers, business rules and security. |
+| 9 | [phase-9-qa-checklist.md](./phase-9-qa-checklist.md) | 267 functional QA checks across accessibility, WCAG, consistency, responsiveness, scalability, performance, state coverage, errors, loading, readiness, developer experience, SEO, maintainability, browsers, business rules and security. |
 
 ## 3. Deliverables — Ancillary Documents
 
@@ -89,12 +89,12 @@ It deliberately contains **no visual design**. Each page's look is decided when 
 | Shared sections | 15 | Phase 5 §2 |
 | Page sections | 215 | Phase 5 §13 |
 | Interaction contracts | 67 | Phase 6 |
-| Architectural decisions | 13 (D-1 … D-13) | Phase 7 §1 |
-| Hook files | 50 (5 existing) | Phase 7 §8 |
+| Architectural decisions | 14 (D-1 … D-14) | Phase 7 §1 |
+| Hook files | 50 resource hook files (5 existing) + 7 existing hooks without transport | Phase 7 §8 |
 | Sprints / weeks | 8 / 16 | Phase 8 |
 | Milestones | 5 | Phase 8 §4 |
 | Risks | 17 | Phase 8 §6 |
-| QA items | 266 | Phase 9 |
+| QA items | 267 | Phase 9 |
 
 ---
 
@@ -128,7 +128,7 @@ It deliberately contains **no visual design**. Each page's look is decided when 
 | `IC-` | Interaction contract | Phase 6 |
 | `D-` | Architectural decision | Phase 7 §1 |
 | `S1` … `S8` | Sprint | Phase 8 §3 |
-| `M1` … `M4` | Milestone | Phase 8 §4 |
+| `M1` … `M5` | Milestone | Phase 8 §4 |
 | `R-` | Risk | Phase 8 §6 |
 | `QA-` | QA item | Phase 9 |
 
@@ -146,7 +146,7 @@ It deliberately contains **no visual design**. Each page's look is decided when 
 | Phase 5 sections | Phase 6 contracts | Sections cite contracts by ID (Phase 6 §13) |
 | Phase 5 sections | Phase 7 hooks | Data requirements name hooks (Phase 7 §8) |
 | Phase 6 contracts | Phase 7 components | Contracts map to `components/ui/` primitives (Phase 7 §12) |
-| Phase 7 architecture | Host `.claude/CLAUDE.md` | Decisions D-1 … D-13 reconcile extensions |
+| Phase 7 architecture | Host `.claude/CLAUDE.md` | Decisions D-1 … D-14 reconcile extensions |
 | Phase 8 status | Phases 2–6 IDs | Every flow, page, section and contract has one status (Phase 8 §9) |
 | Phase 9 checks | Phases 1–8 | Each QA item cites its source |
 | IMPLEMENTATION_PROMPT | Phases 1–9 | Synthesises all into build steps |
@@ -165,7 +165,7 @@ Integrity checks run at generation: 64 pages defined in Phases 3, 4, 5 and 8; 23
 - Code organisation reconciled with this repository.
 - Library recommendations under the reuse-first, confirm-before-install policy.
 - A dated 16-week plan, risks and dependencies.
-- A 266-item QA checklist and sign-off rules.
+- A 267-item QA checklist and sign-off rules.
 - Guides and a self-contained implementation prompt.
 
 ## 9. What's Not Included
@@ -188,7 +188,8 @@ Integrity checks run at generation: 64 pages defined in Phases 3, 4, 5 and 8; 23
 | Confirm assumptions A1–A8 | Phase 1 §1 | S1 |
 | Confirm D-3 (help and legal content in `lib/data/`) | Phase 7 §1 | S2 |
 | Choose payments processor (with backend) | Phase 8 R-06 | S4 |
-| Approve map library | Phase 7 §15 | S5 |
+| Approve the map base layer (deck.gl is installed and reused) | Phase 7 §15 | S5 |
+| Confirm D-14 (page-domain folders `components/home/`, `components/auth/`) | Phase 7 §1 | S1 |
 | Approve processor SDK | Phase 7 §15 | S6 |
 | Approve chart library | Phase 7 §15 | S7 |
 | Decide on a headless accessible-primitives library (optional) | Phase 7 §15 | S1 |
@@ -206,8 +207,9 @@ Integrity checks run at generation: 64 pages defined in Phases 3, 4, 5 and 8; 23
 
 | Field | Value |
 | --- | --- |
-| Version | 1.1.0 (enterprise hardening; 1.0.0 was the initial generation) |
+| Version | 1.1.1 (audit and code reconciliation; 1.1.0 was enterprise hardening, 1.0.0 the initial generation) |
 | Generated | 2026-09-30 |
+| Revised | 2026-10-09 |
 | Seed prompt | `docs/MASTER_PROMPT_COMPLETE.md` |
 | Output directory | `design-os/generated/` |
 | Generation mode | 1.1.0 is a merge over 1.0.0: nothing removed; thin fields raised to the Phase 4 §2 taxonomy; enterprise scope added |
@@ -219,6 +221,7 @@ Integrity checks run at generation: 64 pages defined in Phases 3, 4, 5 and 8; 23
 | --- | --- |
 | 1.0.0 | Initial generation: 55 pages, 194 sections, 60 contracts, 33 experiences, 216 QA items |
 | 1.1.0 | Enterprise hardening. Added a named state taxonomy (Phase 4 §2.1–2.8). About 2,300 thin field values across Phases 4–6 were rewritten against it. Added NFRs, compliance, identity and security, privacy and operations requirements (Phase 1 §18–22) and BR-23 … BR-30. Added nine enterprise pages, eight flows, 36 sections and seven contracts, and the amendment state machine. Phase 7 gained D-9 … D-13 and §21–28. Phase 8 gained sizing, capacity, Definition of Ready/Done, RACI, release, go/no-go and hypercare. Phase 9 gained 50 QA items. Nothing was removed. |
+| 1.1.1 | Audit and code reconciliation. Phases 7–8 and the guides now match the code on `development`: PG-01 and the identity-first sign-in are In progress, deck.gl is reused for maps, D-14 records the page-domain component folders, and existing hooks and the auth signal provider are listed. Contradictions between Phases 2–6 were reconciled: state machines, permissions, refresh intervals, the offline queue, the contract usage index, and ARIA and keyboard behaviour per WAI-ARIA. Missing states and enumerations were filled in, placement and component wording was rewritten as behaviour, and QA-267 (WCAG 3.2.6) was added. No feature was removed. Duplicated passages now point to the section that owns them. |
 
 ---
 

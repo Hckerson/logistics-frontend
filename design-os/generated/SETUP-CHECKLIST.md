@@ -1,6 +1,6 @@
 # Setup Checklist — Haulr
 
-`Version 1.1.0` · `2026-09-30` · Start: [START_HERE](./START_HERE.md) · Architecture: [Phase 7](./phase-7-frontend-architecture.md) · Build: [IMPLEMENTATION_PROMPT](./IMPLEMENTATION_PROMPT.md)
+`Version 1.1.1` · `2026-10-09` · Start: [START_HERE](./START_HERE.md) · Architecture: [Phase 7](./phase-7-frontend-architecture.md) · Build: [IMPLEMENTATION_PROMPT](./IMPLEMENTATION_PROMPT.md)
 
 Step by step, from a fresh machine to a repository ready for Sprint 1. Tick each box as you go. Steps marked **Approval** need the maintainer's go-ahead before you run them (Library Selection Policy, [Phase 7 §15](./phase-7-frontend-architecture.md#15-shared-libraries)).
 
@@ -29,7 +29,7 @@ Step by step, from a fresh machine to a repository ready for Sprint 1. Tick each
 
 ### 1.2 Understand these concepts
 
-- [ ] **Personas and roles.** Twelve personas map to twelve role keys (`shipper.member`, `carrier.driver`, `internal.ops`, …). Every page and capability is gated by these ([Phase 1 §7.4](./phase-1-product-vision.md#74-permission-roles)).
+- [ ] **Personas and roles.** Thirteen personas map to fourteen role keys (`shipper.member`, `carrier.driver`, `internal.ops`, …). Every page and capability is gated by these ([Phase 1 §7.4](./phase-1-product-vision.md#74-permission-roles)).
 - [ ] **The load lifecycle.** Only the transitions in [Phase 2 §5](./phase-2-experience-maps.md#5-load-state-machine) are legal. The frontend never offers anything else.
 - [ ] **Navigation as reachability.** Phase 3 defines which destinations each role can reach, not how navigation is presented ([Phase 3 §4](./phase-3-information-architecture.md#4-role-based-navigation)).
 - [ ] **Interaction contracts.** Every interactive element follows a Phase 6 contract (IC-), and seven global rules (G-1 … G-7) apply to all of them ([Phase 6 §1](./phase-6-interaction-contracts.md#1-contract-format-and-global-rules)).
@@ -39,8 +39,8 @@ Step by step, from a fresh machine to a repository ready for Sprint 1. Tick each
 
 ### 1.3 Decisions to close before Sprint 1
 
-- [ ] Maintainer confirms assumptions A1–A8 ([Phase 1 §1](./phase-1-product-vision.md#1-assumptions)).
-- [ ] Maintainer confirms or rejects D-2 (Route Handlers for polled authenticated reads) ([Phase 7 §1](./phase-7-frontend-architecture.md#1-architectural-decisions)).
+- [ ] Maintainer confirms assumptions A1–A10 ([Phase 1 §1](./phase-1-product-vision.md#1-assumptions)).
+- [ ] Maintainer confirms or rejects D-2 (Route Handlers for polled authenticated reads) and D-14 (page-domain component folders) ([Phase 7 §1](./phase-7-frontend-architecture.md#1-architectural-decisions)).
 - [ ] Maintainer approves or declines the Sprint 1 libraries (§5.2 below).
 
 ---
@@ -159,6 +159,8 @@ This repository is already a Next.js 16 App Router project. **Do not run `create
 - [ ] `jose` — session verification
 - [ ] `vitest`, `fast-check` — unit and property tests
 - [ ] `ts-morph`, `@typescript-eslint/*` — codemods and lint rules
+- [ ] `@deck.gl/core`, `@deck.gl/layers`, `@deck.gl/geo-layers` — maps (IC-30); `topojson-client`, `us-atlas` — static US geometry
+- [ ] `clsx` — class composition; `server-only` — keeps server modules out of client bundles
 
 ### 5.2 Proposed — **Approval** required before installing
 
@@ -169,7 +171,7 @@ Propose each with its reason, wait for approval, then install. Never hand-edit `
 | S1 | `react-hook-form`, `@hookform/resolvers` | Forms with Zod | `pnpm add react-hook-form @hookform/resolvers` |
 | S1 | `@testing-library/react`, `@testing-library/user-event`, `@testing-library/jest-dom`, `jsdom` | Component tests | `pnpm add -D @testing-library/react @testing-library/user-event @testing-library/jest-dom jsdom` |
 | S1 | `@playwright/test`, `@axe-core/playwright` | E2E and accessibility tests | `pnpm add -D @playwright/test @axe-core/playwright` then `pnpm exec playwright install` |
-| S5 | `maplibre-gl`, `react-map-gl` | Maps (IC-30) | `pnpm add maplibre-gl react-map-gl` |
+| S5 | `maplibre-gl` | Base map under the installed deck.gl layers (IC-30) | `pnpm add maplibre-gl` |
 | S6 | Processor React SDK | Payment method entry (IC-42) | Decided with the processor |
 | S7 | `recharts` | Charts (IC-45) | `pnpm add recharts` |
 | S1 | `@vercel/otel` (or `@opentelemetry/sdk-node`), `@sentry/nextjs` | Tracing and error reporting (D-10) | `pnpm add @vercel/otel @sentry/nextjs` |
@@ -187,7 +189,7 @@ Create folders only when their first file lands (empty folders are not committed
 
 ### 6.1 Sprint 1 creations
 
-- [ ] `app/(public)/layout.tsx`, `app/(workspace)/layout.tsx`, `app/(internal)/layout.tsx`
+- [ ] `app/(public)/layout.tsx`, `app/(workspace)/layout.tsx`, `app/(internal)/layout.tsx`; move the existing `app/page.tsx` (PG-01) to `app/(public)/page.tsx`
 - [ ] `app/auth/layout.tsx`; pages under `app/auth/` for PG-11 … PG-15
 - [ ] `app/not-found.tsx`, `app/global-error.tsx`, `app/forbidden.tsx`
 - [ ] `app/(workspace)/dashboard/page.tsx` (role-resolving redirect)
@@ -196,7 +198,7 @@ Create folders only when their first file lands (empty folders are not committed
 - [ ] `lib/data/` (seed data home)
 - [ ] `components/providers/announcer-provider.tsx`, `components/providers/session-provider.tsx`
 - [ ] `components/wrappers/section-boundary.tsx`
-- [ ] `components/ui/` primitives for the Sprint 1 contracts (IC-01, IC-02, IC-03, IC-04, IC-07, IC-09, IC-12, IC-14, IC-41, IC-52, IC-59, IC-60), extending the existing `button.tsx` for IC-11
+- [ ] `components/ui/` primitives for the Sprint 1 contracts (IC-01, IC-02, IC-03, IC-04, IC-07, IC-09, IC-12, IC-14, IC-41, IC-52, IC-59, IC-60), extending what exists: `button.tsx` (IC-11), `input.tsx` and `components/common/panel-field.tsx` (IC-01, IC-03), `components/common/error-summary.tsx` (IC-02)
 
 ### 6.2 Constants updates
 
@@ -287,7 +289,7 @@ Everything installed and ready when all of these are true:
 - [ ] `pnpm dev` serves `http://localhost:3100`.
 - [ ] Signing in at `/auth/login` with the seeded admin sets the session cookie, and a protected prefix redirects when signed out.
 - [ ] Sprint 1 library approvals are recorded (approved or declined).
-- [ ] D-2 and assumptions A1–A8 are confirmed or amended.
+- [ ] D-2, D-14 and assumptions A1–A10 are confirmed or amended.
 - [ ] You can find, for any page ID, its blueprint (Phase 4), sections (Phase 5), route file (Phase 7 §3) and status (Phase 8 §9).
 - [ ] You have read the Visual Design Hand-off in [IMPLEMENTATION_PROMPT](./IMPLEMENTATION_PROMPT.md#visual-design-hand-off).
 

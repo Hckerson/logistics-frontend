@@ -1,6 +1,6 @@
 # Phase 2 — Experience Maps
 
-`Haulr Design OS` · `Version 1.1.0` · `2026-09-30` · Previous: [Phase 1 — Product Vision](./phase-1-product-vision.md) · Next: [Phase 3 — Information Architecture](./phase-3-information-architecture.md)
+`Haulr Design OS` · `Version 1.1.1` · `2026-10-09` · Previous: [Phase 1 — Product Vision](./phase-1-product-vision.md) · Next: [Phase 3 — Information Architecture](./phase-3-information-architecture.md)
 
 Experiences come before pages. Each map below describes one journey end to end: what the user wants, what the system does, how the journey fails and how it recovers. Pages in [Phase 4](./phase-4-page-blueprints.md) exist to serve these journeys, and every page cites the experiences it serves.
 
@@ -21,7 +21,7 @@ Experience IDs: `XF-` primary flows, `XD-` role dashboards, `XS-` supporting flo
 
 ## 1. How to Read a Map
 
-Every map has the same twelve fields: **User intent**, **Trigger**, **Entry points**, **Journey**, **Decision points**, **Emotional state**, **Failure paths**, **Recovery paths**, **System behavior**, **Completion criteria** and **Dependencies**. Entry points name pages by their Phase 4 ID (`PG-`). Journeys are numbered steps in the user's own terms.
+Every map has the same twelve fields: **Personas**, **User intent**, **Trigger**, **Entry points**, **Journey**, **Decision points**, **Emotional state**, **Failure paths**, **Recovery paths**, **System behavior**, **Completion criteria** and **Dependencies**. Entry points name pages by their Phase 4 ID (`PG-`). Journeys are numbered steps in the user's own terms.
 
 ---
 
@@ -45,14 +45,14 @@ Every map has the same twelve fields: **User intent**, **Trigger**, **Entry poin
 - **Recovery paths:** suggest matching known locations (PG-32); propose the next feasible window; offer a custom quote request; re-quote in one step while keeping every entry; route to shipper onboarding (XF-13); restore the draft from local persistence (PP-06).
 - **System behavior:** validates each step against the load schema; prices through the quoting service; holds the quote for 30 minutes; persists the draft locally and to the server; on post, starts the tender waterfall or open-market listing and emits `load.posted`.
 - **Completion criteria:** load in `Posted` state with a valid quote, tender strategy recorded and confirmation shown.
-- **Dependencies:** quoting service, geocoding, shipper credit approval (XF-13), locations (XS-11), BR-01, BR-06, BR-08.
+- **Dependencies:** quoting service, geocoding, shipper credit approval (XF-13), locations (XS-11), spend approval (XF-16), BR-01, BR-06, BR-08, BR-23.
 
 ### XF-02 — Find and book a load
 
 - **Personas:** PR-02, PR-06
 - **User intent:** "Find a load near my truck, going my way, that pays enough, and lock it in."
 - **Trigger:** A truck will soon be empty; a lane alert fires (XS-09); a tender arrives.
-- **Entry points:** PG-19 Carrier Dashboard, PG-33 Load Board, PG-36 Saved Loads & Searches, a notification (PG-42), a lane alert link.
+- **Entry points:** PG-19 Carrier Dashboard, PG-33 Load Board, PG-36 Saved Loads and Searches, a notification (PG-42), a lane alert link.
 - **Journey:**
   1. The dispatcher searches by origin radius, destination, dates and equipment.
   2. The dispatcher compares the matching loads by pay, rate per mile, deadhead distance and shipper score.
@@ -86,7 +86,7 @@ Every map has the same twelve fields: **User intent**, **Trigger**, **Entry poin
 - **Recovery paths:** state the outcome with the final amount; suggest similar loads; explain the permitted range before submission.
 - **System behavior:** enforces BR-02 transitions; notifies the counter-party at each step (XS-03); expires open bids when the load books; records the full negotiation history on the load.
 - **Completion criteria:** bid reaches a terminal state and both parties are notified.
-- **Dependencies:** XS-03, XF-02, BR-02, BR-05.
+- **Dependencies:** XS-03, XF-02, XF-16, BR-02, BR-05, BR-23.
 
 ### XF-04 — Tender to preferred carriers
 
@@ -165,14 +165,14 @@ Every map has the same twelve fields: **User intent**, **Trigger**, **Entry poin
 - **Recovery paths:** show the last known position with its age and request a check call; give an equivalent text description of position and progress; say that the link has expired and who to contact.
 - **System behavior:** subscribes to location updates for the loads in view only; recomputes ETA on each update; emits `eta.changed` when the ETA moves by more than 30 minutes; raises a tracking exception at 90 minutes of silence (BR-10).
 - **Completion criteria:** the user knows position, freshness and ETA, or knows why they cannot.
-- **Dependencies:** XF-06, XS-03, XF-08, map library (pending approval).
+- **Dependencies:** XF-06, XS-03, XF-08, map base layer (pending approval; deck.gl installed, Phase 7 §15).
 
 ### XF-08 — Exception management
 
 - **Personas:** PR-08, PR-01, PR-02
 - **User intent:** Operations: "Catch loads going wrong and fix them before the shipper notices." Parties: "Tell me what's wrong and what happens next."
 - **Trigger:** A system rule fires: uncovered near pickup, unassigned by BR-09, late ETA, tracking gap, detention started, cancellation, compliance change (BR-18).
-- **Entry points:** PG-21 Ops Dashboard, PG-50 Exception Queue, PG-40 Load Details, notification.
+- **Entry points:** PG-21 Operations Dashboard, PG-50 Exception Queue, PG-40 Load Details, notification.
 - **Journey:**
   1. Haulr raises an exception with a type, severity, the load and the rule that fired.
   2. Operations claims it, reviews the evidence and acts: contact a party, re-tender, re-assign, approve an accessorial, or cancel.
@@ -184,7 +184,7 @@ Every map has the same twelve fields: **User intent**, **Trigger**, **Entry poin
 - **Recovery paths:** a claimed exception is locked to one agent, with visible ownership and a handoff; every action records an audit event; an escalation timer raises severity.
 - **System behavior:** deduplicates exceptions per load and type; computes a risk score; drives an ordered queue; records the resolution for KPI-10.
 - **Completion criteria:** exception resolved with a reason, and parties notified.
-- **Dependencies:** rules engine, XS-03, XS-04, BR-09 … BR-12, BR-18.
+- **Dependencies:** rules engine, XS-03, XS-04, XF-16 (accessorial approval above a spend limit), BR-09 … BR-12, BR-18, BR-23.
 
 ### XF-09 — Proof of delivery and documents
 
@@ -210,7 +210,7 @@ Every map has the same twelve fields: **User intent**, **Trigger**, **Entry poin
 - **Personas:** PR-05, PR-04, PR-10
 - **User intent:** "Pay exactly what we agreed, with proof, in our payment run."
 - **Trigger:** An invoice is issued on POD verification (BR-14); the payment run date arrives.
-- **Entry points:** PG-18 Shipper Dashboard (finance view), PG-30 Invoices, PG-31 Invoice Detail & Pay, email notification.
+- **Entry points:** PG-18 Shipper Dashboard (finance view), PG-30 Invoices, PG-31 Invoice Detail and Pay, email notification.
 - **Journey:**
   1. AP reviews open invoices by due date, filtered by status.
   2. AP opens an invoice and checks the linehaul, accessorials, POD and agreed terms.
@@ -259,7 +259,7 @@ Every map has the same twelve fields: **User intent**, **Trigger**, **Entry poin
 - **Emotional state:** Carrier: impatient, wary of fraud-prevention friction. Compliance: sceptical, evidence-driven.
 - **Failure paths:** authority not active; insurance below minimum; identity mismatch (a fraud signal); abandonment partway through.
 - **Recovery paths:** explain exactly what is missing; let the carrier resume where they stopped; identity verification escalates to a call-back process.
-- **System behavior:** compliance status `NotStarted → InProgress → PendingReview → Approved | Rejected | InfoRequested`; continuous monitoring afterwards (BR-18).
+- **System behavior:** compliance status `NotStarted → InProgress → PendingReview → Approved | Rejected | InfoRequested`; continuous monitoring afterwards (BR-18); a compliance decision can move an approved carrier to `Suspended` (XD-05, SC-51.4).
 - **Completion criteria:** carrier `Approved` and able to book, or rejected with a reason recorded.
 - **Dependencies:** authority registry, insurance verification, e-signature, BR-03, BR-18.
 
@@ -287,18 +287,18 @@ Every map has the same twelve fields: **User intent**, **Trigger**, **Entry poin
 - **Personas:** PR-01, PR-04
 - **User intent:** "Create this week's 120 loads without typing each one."
 - **Trigger:** A weekly shipping plan exported from the shipper's ERP or TMS; a lane shipped on a fixed schedule.
-- **Entry points:** PG-26 Shipments, PG-56 Bulk Import, PG-57 Templates, PG-27 (save as template).
+- **Entry points:** PG-26 Shipments, PG-56 Bulk Load Import, PG-57 Templates and Recurring Loads, PG-27 (save as template).
 - **Journey:**
   1. The shipper downloads the import template (CSV with a documented column dictionary) or uses a saved column mapping.
   2. The shipper uploads the file; Haulr maps columns, resolves facilities, validates every row (BR-28).
   3. The shipper reviews row outcomes: valid, warning (for example appointment outside facility hours), invalid with reasons.
-  4. The shipper fixes invalid rows inline or re-uploads; valid rows are priced as a batch.
+  4. The shipper fixes invalid rows without leaving the import, or re-uploads; valid rows are priced as a batch.
   5. The shipper confirms the priced batch; loads above spend limits enter approval (XF-16), the rest post.
   6. Separately, the shipper saves a posted load as a template, and optionally schedules it to generate drafts on a recurrence (weekly on chosen days, up to 12 weeks ahead).
 - **Decision points:** fix or skip invalid rows; post all or selected; tender strategy for the batch; recurrence generates drafts or posts automatically (posting automatically requires the quote to fall within a price guardrail).
 - **Emotional state:** Efficiency-driven; anxious about silent errors in large batches; needs proof that every row was handled.
 - **Failure paths:** unreadable file; unknown columns; duplicate references in file or against existing loads; facilities not found; pricing unavailable for some lanes; recurrence price exceeds guardrail.
-- **Recovery paths:** column mapping step with saved mappings; duplicates flagged with the existing load linked; facility creation inline; unpriced rows held as drafts with a custom-quote request; guardrail breach converts the recurrence occurrence to a draft and notifies the owner.
+- **Recovery paths:** column mapping step with saved mappings; duplicates flagged with the existing load linked; facility creation without leaving the import; unpriced rows held as drafts with a custom-quote request; guardrail breach converts the recurrence occurrence to a draft and notifies the owner.
 - **System behavior:** import runs as a background job (LS-7) with per-row results retained 30 days; nothing posts before confirmation; each created load records its import batch ID; recurrences create drafts 72 h before pickup and re-quote them.
 - **Completion criteria:** every row has an outcome (posted, pending approval, draft, or rejected with reason) and the user has a downloadable result file.
 - **Dependencies:** XF-01, XF-16, PG-32 facilities, quoting service, BR-06, BR-28.
@@ -478,21 +478,21 @@ Each dashboard is a starting point for a working session. The shared question is
 - **User intent:** "Get in securely without friction."
 - **Trigger:** New visitor; expired session; invitation link.
 - **Entry points:** PG-01, PG-10, PG-11, PG-12, PG-13, PG-14, PG-15, any protected route (redirect with return path).
-- **Journey:** choose shipper or carrier → give name, work email and password → verify email → set up MFA (required for admin, finance and internal roles; offered to everyone else) → land in onboarding (XF-12 / XF-13) or the role dashboard. Returning users sign in → MFA if enrolled → return to the requested path (validated by `lib/utils/internal-path.ts`).
+- **Journey:** choose shipper or carrier → give name, work email and password → verify email → set up MFA (required for admin, finance, approver, security and internal roles, SEC-1; offered to everyone else) → land in onboarding (XF-12 / XF-13) or the role dashboard. Returning users give their email first → members of an organisation that requires SSO go to their identity provider (XS-13, BR-24); everyone else gives their password → MFA if enrolled → return to the requested path (validated by `lib/utils/internal-path.ts`).
 - **Decision points:** shipper or carrier; enable MFA.
 - **Emotional state:** Neutral to impatient.
 - **Failure paths:** wrong credentials; locked account; email already used; verification link expired; MFA code wrong.
 - **Recovery paths:** a generic credentials error (no account enumeration); unlock by email after a cooldown; offer sign-in or reset for an existing email; resend verification; allow a backup code.
 - **System behavior:** session cookie set through `app/api/session`; the edge proxy guards protected prefixes; rate-limits attempts.
 - **Completion criteria:** authenticated session and the user on their intended page.
-- **Dependencies:** backend `auth` module, `proxy.ts`.
+- **Dependencies:** backend `auth` module, `proxy.ts`, XS-13 (SSO routing).
 
 ### XS-02 — Invite and manage team
 
 - **Personas:** PR-04, PR-06, PR-02 (inviting drivers), PR-12
 - **User intent:** "Give colleagues and drivers the right access."
 - **Trigger:** New hire; new driver; offboarding.
-- **Entry points:** PG-48 Organization & Team, PG-37 Fleet (drivers), PG-16 / PG-17 onboarding.
+- **Entry points:** PG-48 Organization and Team, PG-37 Fleet (drivers), PG-16 / PG-17 onboarding.
 - **Journey:** invite by email or phone with a role → the invitee accepts (PG-15) → the admin changes roles or removes members.
 - **Decision points:** role; resend or revoke the invitation.
 - **Emotional state:** Administrative.
@@ -582,7 +582,7 @@ Each dashboard is a starting point for a working session. The shared question is
 - **Personas:** PR-05, PR-04, PR-06
 - **User intent:** "Set up how we pay or get paid, securely."
 - **Trigger:** Onboarding; a declined payment; a bounced payout.
-- **Entry points:** PG-49 Payment & Payout Methods, PG-16, PG-17, PG-31, PG-38.
+- **Entry points:** PG-49 Payment and Payout Methods, PG-16, PG-17, PG-31, PG-38.
 - **Journey:** add a bank account (instant verification or micro-deposit) or card → set the default → remove old methods.
 - **Decision points:** verification method; default.
 - **Emotional state:** Security-conscious.
@@ -657,7 +657,7 @@ Each dashboard is a starting point for a working session. The shared question is
 - **Personas:** PR-13, PR-04, PR-06, PR-12
 - **User intent:** "Our people sign in with our identity provider, get the right role automatically, and lose access the moment they leave."
 - **Trigger:** Enterprise onboarding; security review by the customer; an employee joins or leaves.
-- **Entry points:** PG-60 Security and SSO, PG-10 (SSO sign-in by email domain), PG-52 (internal support).
+- **Entry points:** PG-60 Security and SSO, PG-10 (SSO sign-in by email domain), PG-52 (`internal.admin` support override, Phase 3 §5.1a).
 - **Journey:**
   1. The security admin verifies the organisation's email domain (DNS TXT record).
   2. They configure SAML or OIDC with the provider's metadata and test the connection with their own account.
@@ -677,7 +677,7 @@ Each dashboard is a starting point for a working session. The shared question is
 - **Personas:** PR-13, PR-04
 - **User intent:** "Our TMS creates loads and receives status without anyone re-keying."
 - **Trigger:** Integration project; key rotation schedule; a failing webhook.
-- **Entry points:** PG-61 Integrations, PG-06 developer documentation articles.
+- **Entry points:** PG-61 Integrations, developer documentation articles (PG-07, reached through PG-06).
 - **Journey:**
   1. The admin creates an API key with scopes and an expiry; the secret is revealed once (IC-63).
   2. The admin registers webhook endpoints, chooses event types, and sends a signed test event.
@@ -752,7 +752,7 @@ Legal transitions (BR-01). Any transition not listed is rejected by the backend,
 
 | From | To | Actor | Guard |
 | --- | --- | --- | --- |
-| Draft | Posted | Shipper | Valid quote (BR-06), organisation can post (XF-13), amount within the requester's spend limit (BR-23) |
+| Draft | Posted | Shipper, Operations | Valid quote (BR-06), organisation can post (XF-13), amount within the requester's spend limit (BR-23) |
 | Draft | PendingApproval | Shipper | Amount above the requester's spend limit (BR-23) |
 | PendingApproval | Posted | Approver | Approved while the quote is valid; approver is not the requester |
 | PendingApproval | Draft | Approver, Shipper, System | Rejected with reason, withdrawn by requester, or quote expired |
@@ -761,15 +761,16 @@ Legal transitions (BR-01). Any transition not listed is rejected by the backend,
 | Posted | Booked | Carrier, Operations | Eligibility (BR-03), rate confirmation accepted (BR-04) |
 | Posted | Expired | System | Pickup window closed (BR-07) |
 | Posted | Cancelled | Shipper, Operations | None |
-| Booked | Dispatched | Carrier | Driver and truck assigned (BR-09) |
+| Booked | Dispatched | Carrier, Operations | Driver and truck assigned (BR-09) |
 | Booked | Posted | Operations | Carrier fell off; re-tender |
 | Booked, Dispatched | Cancelled | Shipper, Carrier, Operations | TONU and penalty rules (BR-12) |
-| Dispatched | AtPickup | Driver, System (geofence), Operations | None |
-| AtPickup | InTransit | Driver, Operations | Loaded departure recorded |
-| InTransit | AtPickup | Driver | Multi-stop: next pickup |
-| InTransit | AtDelivery | Driver, System, Operations | None |
-| AtDelivery | InTransit | Driver | Multi-stop: next stop |
-| AtDelivery | Delivered | Driver, Operations | Final stop departure recorded |
+| Dispatched | AtPickup | Driver, Carrier, System (geofence), Operations | None |
+| AtPickup | InTransit | Driver, Carrier, Operations | Loaded departure recorded |
+| InTransit | AtPickup | Driver, Carrier, System (geofence), Operations | Multi-stop: next pickup |
+| InTransit | AtDelivery | Driver, Carrier, System (geofence), Operations | None |
+| AtDelivery | InTransit | Driver, Carrier, Operations | Multi-stop: next stop |
+| AtDelivery | Delivered | Driver, Carrier, Operations | Final stop departure recorded |
+| AtPickup, InTransit, AtDelivery, Delivered | Previous state | Driver, Carrier, Operations | Undo of the stop event that caused the transition, within 5 minutes of recording it (XF-06) |
 | Delivered | PodVerified | System, Finance | POD passes review (BR-13) |
 | PodVerified | Invoiced | System | Invoice issued (BR-14) |
 | Invoiced | Paid | System | Shipper payment settled |
@@ -789,6 +790,7 @@ An amendment is a separate record attached to a booked load; the load's own stat
 | — | Proposed | Shipper, Operations | Load in `Booked`, `Dispatched`, `AtPickup` or `InTransit`; affected stops not yet completed; no other open amendment |
 | — | PendingApproval | Shipper | Amended shipper price exceeds the requester's spend limit (BR-23) |
 | PendingApproval | Proposed | Approver | Approved |
+| PendingApproval | Withdrawn | Approver | Rejected with reason (BR-23); the requester is told why (XF-16) |
 | Proposed | Accepted | Carrier | Signature evidence recorded (BR-04); becomes the governing rate confirmation |
 | Proposed | Declined | Carrier | Reason required; material declines allow penalty-free cancellation |
 | Proposed, PendingApproval | Withdrawn | Shipper, Operations | Before acceptance |
@@ -801,7 +803,7 @@ An amendment is a separate record attached to a booked load; the load's own stat
 | — | Submitted | Carrier | Eligible (BR-03), load `Posted`, amount in permitted range |
 | Submitted | Countered | Shipper, Operations | Counter round < 3 |
 | Countered | Submitted | Carrier | Counter round < 3 |
-| Submitted, Countered | Accepted | Counter-party | Load still `Posted` |
+| Submitted, Countered | Accepted | Counter-party | Load still `Posted`; a shipper acceptance above the accepter's spend limit completes only once approved (BR-23, XF-16) |
 | Submitted, Countered | Declined | Counter-party | None |
 | Submitted, Countered | Withdrawn | Carrier | None |
 | Submitted, Countered | Expired | System | Expiry reached, or load booked elsewhere |
@@ -827,30 +829,30 @@ An amendment is a separate record attached to a booked load; the load's own stat
 | XF-04 | PR-01, PR-04, PR-02 | JTBD-01 | BR-08, BR-18 | PG-29, PG-27, PG-40 |
 | XF-05 | PR-02, PR-03 | JTBD-03 | BR-09 | PG-35, PG-37, PG-40 |
 | XF-06 | PR-03 | JTBD-05 | BR-10, BR-11 | PG-20, PG-39 |
-| XF-07 | PR-01, PR-07, PR-08 | JTBD-02 | BR-10, BR-21 | PG-26, PG-40, PG-02 |
+| XF-07 | PR-01, PR-07, PR-08, PR-02 | JTBD-02 | BR-10, BR-21 | PG-26, PG-40, PG-02 |
 | XF-08 | PR-08, PR-01, PR-02 | JTBD-10 | BR-09 … BR-12, BR-18 | PG-21, PG-50, PG-40 |
-| XF-09 | PR-03, PR-02, PR-10 | JTBD-06 | BR-13 | PG-39, PG-40, PG-43 |
+| XF-09 | PR-03, PR-02, PR-10, PR-05 | JTBD-06 | BR-13 | PG-39, PG-40, PG-43 |
 | XF-10 | PR-05, PR-04, PR-10 | JTBD-07 | BR-14, BR-16 | PG-30, PG-31 |
 | XF-11 | PR-06, PR-02, PR-10 | JTBD-06 | BR-15, BR-16 | PG-38 |
 | XF-12 | PR-06, PR-09 | JTBD-09, JTBD-11 | BR-03, BR-18 | PG-17, PG-22, PG-51 |
-| XF-13 | PR-04, PR-05 | JTBD-01 | — | PG-16 |
+| XF-13 | PR-04, PR-05, PR-10 | JTBD-01 | — | PG-16 |
 | XF-14 | PR-01, PR-04 | JTBD-13 | BR-06, BR-28 | PG-56, PG-57, PG-26 |
 | XF-15 | PR-01, PR-02, PR-08 | JTBD-16 | BR-04, BR-25 | PG-40, PG-64 |
 | XF-16 | PR-01, PR-04 | JTBD-15 | BR-23 | PG-58, PG-27, PG-28, PG-18 |
 | XD-01 … XD-08 | per dashboard | JTBD-08, JTBD-10, JTBD-12 | — | PG-18 … PG-25 |
 | XS-01 | all | — | — | PG-10 … PG-15 |
-| XS-02 | PR-04, PR-06 | — | — | PG-48, PG-15, PG-37, PG-52 |
+| XS-02 | PR-04, PR-06, PR-02, PR-12 | — | — | PG-48, PG-15, PG-37, PG-52 |
 | XS-03 | all | — | — | PG-42, PG-47 |
 | XS-04 | parties to a load | — | BR-19 | PG-41, PG-40 |
-| XS-05 | PR-01, PR-02 | — | BR-22 | PG-40, PG-03, PG-04 |
-| XS-06 | PR-01, PR-05, PR-02 | — | BR-16, BR-17 | PG-44, PG-45 |
+| XS-05 | PR-01, PR-02, PR-04 | — | BR-22 | PG-40, PG-03, PG-04 |
+| XS-06 | PR-01, PR-05, PR-02, PR-10 | — | BR-16, BR-17 | PG-44, PG-45 |
 | XS-07 | all | — | — | PG-06, PG-07, PG-08, PG-24 |
-| XS-08 | PR-05, PR-06 | — | — | PG-49 |
+| XS-08 | PR-05, PR-04, PR-06 | — | — | PG-49 |
 | XS-09 | PR-02 | JTBD-03 | — | PG-36, PG-33 |
-| XS-10 | PR-01, prospects | JTBD-01 | BR-06 | PG-05 |
+| XS-10 | PR-01, PR-04, PR-02, prospects | JTBD-01 | BR-06 | PG-05 |
 | XS-11 | all | — | — | PG-46, PG-47, PG-32 |
-| XS-12 | PR-02, PR-06, PR-05 | — | BR-20 | PG-43 |
-| XS-13 | PR-13, PR-04, PR-06 | JTBD-14 | BR-24 | PG-60, PG-10 |
+| XS-12 | PR-02, PR-06, PR-05, PR-10 | — | BR-20 | PG-43 |
+| XS-13 | PR-13, PR-04, PR-06, PR-12 | JTBD-14 | BR-24 | PG-60, PG-10 |
 | XS-14 | PR-13, PR-04 | JTBD-14 | BR-29 | PG-61 |
 | XS-15 | PR-04, PR-06, PR-13 | JTBD-17 | BR-26, BR-30 | PG-62 |
 | XS-16 | PR-11, PR-08, PR-12 | — | BR-27 | PG-24, PG-52 |

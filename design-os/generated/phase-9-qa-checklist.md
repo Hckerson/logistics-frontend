@@ -1,15 +1,15 @@
 # Phase 9 — Quality Assurance Checklist
 
-`Haulr Design OS` · `Version 1.1.0` · `2026-09-30` · Previous: [Phase 8 — Implementation Roadmap](./phase-8-implementation-roadmap.md) · Next: [START_HERE](./START_HERE.md)
+`Haulr Design OS` · `Version 1.1.1` · `2026-10-09` · Previous: [Phase 8 — Implementation Roadmap](./phase-8-implementation-roadmap.md) · Next: [START_HERE](./START_HERE.md)
 
 A review of the whole system. Each item is a check that must pass before a feature moves from **Built** to **Verified** in [Phase 8 §9](./phase-8-implementation-roadmap.md#9-per-feature-build-status). QA here is functional. Visual quality is judged when each page is built, with the owner.
 
-**Columns.** `Ref` cites the design OS source. `Method`: **Auto** (automated test), **Manual** (tester), **AT** (assistive technology pass), **Review** (code review), **Tool** (Lighthouse, axe, contract check). `Block` = blocks Verified status when failing.
+**Columns.** `Ref` cites the design OS source. `Method`: **Auto** (automated test; Vitest and fast-check are installed, the component and end-to-end runners are proposed in [Phase 7 §15](./phase-7-frontend-architecture.md#15-shared-libraries)), **Manual** (tester), **AT** (assistive technology pass), **Review** (code review), **Tool** (Lighthouse; ESLint; `pnpm contract:check`; axe, proposed in Phase 7 §15). `Block` = blocks Verified status when failing.
 
 ## Table of Contents
 
 1. [Accessibility](#1-accessibility) — QA-001 … QA-025
-2. [WCAG 2.2 AA Compliance](#2-wcag-22-aa-compliance) — QA-026 … QA-050
+2. [WCAG 2.2 AA Compliance](#2-wcag-22-aa-compliance) — QA-026 … QA-050, QA-267
 3. [Behavioural Consistency](#3-behavioural-consistency) — QA-051 … QA-066
 4. [Responsiveness](#4-responsiveness) — QA-067 … QA-078
 5. [Scalability](#5-scalability) — QA-079 … QA-088
@@ -52,7 +52,7 @@ A review of the whole system. Each item is a check that must pass before a featu
 | QA-018 | Industry terms have an accessible explanation available | IC-56, PP-07 | Review | No |
 | QA-019 | Driver workflow targets meet 44 × 44 CSS px | G-2 | Tool | Yes |
 | QA-020 | Camera capture relies on native file input with capture | IC-25 | Review | Yes |
-| QA-021 | Payment processor entry passes an axe scan and a keyboard pass | IC-42 | Tool | Yes |
+| QA-021 | Payment processor entry passes an axe scan (proposed, Phase 7 §15) and a keyboard pass | IC-42 | Tool | Yes |
 | QA-022 | Keyboard shortcuts can be turned off or are scoped to focus | IC-49 | Manual | Yes |
 | QA-023 | Skip link present on every page and moves focus to the main landmark | IC-52 | Auto | Yes |
 | QA-024 | Session timeout warns 2 minutes ahead and allows extension | IC-54 | Auto | Yes |
@@ -87,6 +87,7 @@ A review of the whole system. Each item is a check that must pass before a featu
 | QA-048 | Target size minimum 24 × 24 | 2.5.8 | Tool | Yes |
 | QA-049 | Error identification, suggestion and prevention for money and legal steps | 3.3.1, 3.3.3, 3.3.4 | Manual | Yes |
 | QA-050 | Redundant entry avoided; accessible authentication (paste and password managers allowed) | 3.3.7, 3.3.8 | Manual | Yes |
+| QA-267 | Help routes repeated across pages (PG-06, PG-08 with context; Phase 3 §8) keep the same order relative to other page content | 3.2.6 | Manual | Yes |
 
 ## 3. Behavioural Consistency
 
@@ -197,7 +198,7 @@ Behavioural responsiveness only: every device need in Phase 4 is achievable. Vis
 | QA-126 | 403/404 on a record renders PG-53 without confirming existence | Phase 3 §5.2 | Auto | Yes |
 | QA-127 | 409 on booking renders "load taken" and similar loads | IC-27 | Auto | Yes |
 | QA-128 | 409 on a state transition refreshes and explains the new state | SC-40.2 | Auto | Yes |
-| QA-129 | 429 explains the wait | Phase 7 §11 | Auto | No |
+| QA-129 | 429 explains the wait | Phase 4 §2.2, Phase 7 §28 | Auto | No |
 | QA-130 | 5xx offers retry; after 3 failures, a support route with context | IC-60 | Auto | Yes |
 | QA-131 | Error messages come from constants; no raw server text is shown | SSB-3 | Review | Yes |
 | QA-132 | Form entries are never lost on error | IC-02 | Auto | Yes |
@@ -236,7 +237,7 @@ Behavioural responsiveness only: every device need in Phase 4 is achievable. Vis
 | QA-155 | Enums derive from the generated contract | Phase 7 §10 | Review | Yes |
 | QA-156 | `PROTECTED_ROUTE_PREFIXES` covers every workspace and internal prefix | D-7 | Auto | Yes |
 | QA-157 | Internal prefixes reject non-internal roles at the edge | D-7 | Auto | Yes |
-| QA-158 | `appRoutes` used for every internal path | IC-51 | Tool | Yes |
+| QA-158 | `appRoutes` used for every internal path (ESLint rule proposed in Phase 7 §20) | IC-51, Phase 7 §20 | Tool | Yes |
 | QA-159 | Idempotency keys generated with `nanoid` for book, accept, pay, quick pay | Phase 7 §19 | Review | Yes |
 | QA-160 | Seed data fallbacks live only in `lib/data/` behind hooks | Phase 7 §11 | Review | Yes |
 | QA-161 | Every shared section in Phase 5 has one implementation in `components/common/` | Phase 7 §12 | Review | Yes |
@@ -317,7 +318,7 @@ Behavioural responsiveness only: every device need in Phase 4 is achievable. Vis
 | QA-211 | Driver location collected only for active assigned trips with consent | Phase 1 §12 | Manual | Yes |
 | QA-212 | Sensitive changes require re-authentication within 10 minutes | XS-11, IC-13 | Auto | Yes |
 | QA-213 | No raw payment data in Haulr code, logs or network calls to Haulr | A6 | Review | Yes |
-| QA-214 | Return paths cannot redirect off-site | `internal-path.ts` | Auto | Yes |
+| QA-214 | Return paths cannot redirect off-site | Phase 3 §14, Phase 7 §19 | Auto | Yes |
 | QA-215 | Rate limits enforced on anonymous endpoints | Phase 8 §10 | Auto | Yes |
 | QA-216 | CSP blocks non-allow-listed origins | Phase 7 §19 | Tool | Yes |
 
@@ -376,7 +377,7 @@ Behavioural responsiveness only: every device need in Phase 4 is achievable. Vis
 | QA-265 | Copy survives 40% text expansion and pseudo-localisation without truncating meaning | NFR-I18N-1 | Manual | No |
 | QA-266 | Runbooks exist and were rehearsed for every E-UNAVAILABLE dependency | OPS-4 | Review | Yes |
 
-**Total: 266 QA items.**
+**Total: 267 QA items.**
 
 ## 17. Sign-off
 

@@ -1,6 +1,6 @@
 # Phase 6 — Interaction Contracts
 
-`Haulr Design OS` · `Version 1.1.0` · `2026-09-30` · Previous: [Phase 5 — Section Blueprints](./phase-5-section-blueprints.md) · Next: [Phase 7 — Frontend Architecture](./phase-7-frontend-architecture.md)
+`Haulr Design OS` · `Version 1.1.1` · `2026-10-09` · Previous: [Phase 5 — Section Blueprints](./phase-5-section-blueprints.md) · Next: [Phase 7 — Frontend Architecture](./phase-7-frontend-architecture.md)
 
 How every interactive element behaves. Sections in [Phase 5](./phase-5-section-blueprints.md) cite these contracts by ID (`IC-nn`). A contract defines behaviour only: inputs, states, keyboard and assistive-technology behaviour, validation, loading, errors and content rules. Which components exist, how they are grouped and how they look is decided when pages are built.
 
@@ -49,7 +49,7 @@ Global rules that bind every contract:
 - **Inputs:** `name`, label, value, type (text, email, tel, number-with-unit, currency), unit, required, min/max, maximum length, pattern, autocomplete token, hint, read-only reason, disabled reason.
 - **States:** empty, filled, focused, invalid (message shown), pending (async validation), read-only (value readable and selectable, not editable, reason stated), disabled (not editable because a precondition in the form is unmet, reason stated per G-5), view-as read-only (BR-27, XS-16: read-only with the reason "Viewing as <member>. Changes need write consent on the ticket." unless write consent exists; IC-64).
 - **Accessibility:** Programmatic label always (WCAG 1.3.1, 3.3.2); hint and error associated through `aria-describedby`; units included in the accessible name ("Weight, pounds"); errors are identified in text (3.3.1) and suggest the fix (3.3.3); the `autocomplete` token satisfies 1.3.5; read-only fields stay in the tab order so their value can be read; focus indicator per G-1.
-- **Keyboard support:** Standard text editing including paste, undo and selection; Tab and Shift+Tab move in DOM order; Enter submits the enclosing form only for single-field forms; no key is intercepted by the field.
+- **Keyboard support:** Standard text editing including paste, undo and selection; Tab and Shift+Tab move in DOM order; Enter submits the enclosing form through native implicit submission (IC-02); no key is intercepted by the field.
 - **ARIA:** `aria-invalid="true"` only while an error is shown; `aria-required` mirrors `required`; native `readonly` for read-only (never `disabled`, which removes the value from the tab order); `aria-busy="true"` while async validation is pending; `inputmode` set for numeric types (`decimal`, `numeric`, `tel`); currency and number-with-unit use a text input with `inputmode="decimal"` so grouping separators are accepted.
 - **Interaction patterns:** Validate on blur and on submit, never on each keystroke; once a field has shown an error, re-validate on change so the error clears as soon as it is fixed; numbers are normalised on blur to the locale display form and submitted in the canonical form the contract schema defines; a field that edits a persisted record submits with the record version through its form (SSB-8), and a stale save opens IC-67 with this field's input kept for re-application.
 - **Validation rules:** From the Zod schema in `lib/validations/` composed over the contract; leading and trailing whitespace trimmed; unless the schema is stricter, single-line text is at most 200 characters, email at most 254 characters in `local@domain` form, tel is E.164 (a `+` and up to 15 digits), currency at most 2 decimals and greater than or equal to 0, numbers inclusive of min/max (for example weight 1 to 45,000 lb); numbers accept locale grouping separators on input and normalise; the server validates every value again (G-7) and its field errors map to the same message by `name`.
@@ -88,7 +88,7 @@ Global rules that bind every contract:
 - **Interaction patterns:** Reveal never persists across page loads; new-password mode shows policy before entry; the value is cleared from memory when the form unmounts; a confirmation field, when required, validates after the new password is valid.
 - **Validation rules:** Minimum length `PASSWORD_MIN_LENGTH` (8, SEC-1); maximum 128 characters; any Unicode character including spaces is allowed and no composition rules apply (SEC-1); confirmation must match exactly; server strength and breached-password check at submit (SEC-1, G-7).
 - **Loading behavior:** Not applicable — the field never fetches data; the server's strength and breach checks run inside the owning form's LS-5 on submit.
-- **Error behavior:** E-VALIDATION: policy unmet, breached password ("This password has appeared in a data breach. Choose a different one."), or mismatch with confirmation explained at the confirmation field; E-AUTH on sign-in: a generic credentials message that never states whether the account exists (XS-01); E-RATE-LIMIT: lockout with the cooldown from `Retry-After` (SEC-10, XS-01); in every case the password field is cleared only on E-AUTH and E-RATE-LIMIT, never on E-VALIDATION.
+- **Error behavior:** E-VALIDATION: policy unmet, breached password ("This password has appeared in a data breach. Choose a different one."), or mismatch with confirmation explained at the confirmation field; wrong credentials on sign-in (E-VALIDATION, `INVALID_CREDENTIALS`, SC-10.1): a generic credentials message that never states whether the account exists (XS-01); E-RATE-LIMIT: lockout with the cooldown from `Retry-After` (SEC-10, XS-01); in every case the password field is cleared only after wrong credentials and on E-RATE-LIMIT, never for policy, breach or confirmation errors.
 - **Content rules:** Policy stated positively ("At least 8 characters"); the minimum is inserted from `PASSWORD_MIN_LENGTH` through a named placeholder, never typed into copy; rule text tolerates 40% expansion.
 - **Do:** Use `autocomplete="current-password"` or `"new-password"`.
 - **Don't:** Block paste or password managers; log, analyse or echo the value anywhere (Restricted, NFR-PRIV-1).
@@ -136,7 +136,7 @@ Global rules that bind every contract:
 - **Accessibility:** Combobox or listbox per IC-07; ineligible options remain discoverable with their reason in the accessible description; the saved assignment is announced politely ("Assigned Dana R. and unit 214").
 - **Keyboard support:** As IC-07 (arrows move, Enter selects, Escape closes, type-ahead); type-ahead matches driver name or unit number; the "invite driver" route is a keyboard-reachable action that opens IC-39 and returns focus to the picker on close.
 - **ARIA:** `aria-disabled` on ineligible options with `aria-describedby` reason; otherwise as IC-07.
-- **Interaction patterns:** Selecting a driver narrows vehicles to compatible ones; an inline "invite driver" route opens IC-39; saving submits the assignment with the load version (SSB-8); a changed assignment made by someone else opens IC-67; reassigning after dispatch notifies the previous driver.
+- **Interaction patterns:** Selecting a driver narrows vehicles to compatible ones; an "invite driver" route opens IC-39 without leaving the picker; saving submits the assignment with the load version (SSB-8); a changed assignment made by someone else opens IC-67; reassigning after dispatch notifies the previous driver.
 - **Validation rules:** Driver and vehicle required; equipment must satisfy load requirements (BR-03); the driver must be an active member of the carrier organisation; the server rechecks availability and eligibility (G-7).
 - **Loading behavior:** LS-1 for options on open with the picker usable for type-ahead once any options arrive; LS-5 on save with the pending label "Assigning…".
 - **Error behavior:** E-CONFLICT: driver or vehicle assigned to an overlapping load → reason and alternatives; E-PRECONDITION: assignment changed by another member → IC-67 naming who changed it; E-VALIDATION: incompatible equipment named; E-FORBIDDEN: the member lacks the dispatch capability, with who can grant it; E-SERVER, E-TIMEOUT: selection kept with IC-60 retry; E-OFFLINE: "Assigning needs a connection", selection kept.
@@ -156,7 +156,7 @@ Global rules that bind every contract:
 - **Interaction patterns:** Options come from `lib/enums/`; labels from constants; in multi-select, each selected value is removable by keyboard; a selection that is no longer offered (option retired) is shown with its label and flagged for change.
 - **Validation rules:** Required selection; values must belong to the option set (an enum from `lib/enums/` derived from the contract), so unknown values are rejected; maximum selections where defined; the server re-validates membership (G-7).
 - **Loading behavior:** Not applicable for enum-backed options, which are static; remote option sets use LS-1 with pending exposed and the current selection kept.
-- **Error behavior:** E-VALIDATION per IC-02; remote options E-SERVER, E-TIMEOUT, E-UNAVAILABLE or E-OFFLINE: the current selection stays visible by label and IC-60 retry is offered inline.
+- **Error behavior:** E-VALIDATION per IC-02; remote options E-SERVER, E-TIMEOUT, E-UNAVAILABLE or E-OFFLINE: the current selection stays visible by label and IC-60 retry is offered in place.
 - **Content rules:** Option labels plain-language (Phase 3 §7); group labels and descriptions from constants; labels tolerate 40% expansion and wrap; the selected-count text uses plural rules from constants.
 - **Do:** Group long option sets by category.
 - **Don't:** Mix actions into option lists.
@@ -168,7 +168,7 @@ Global rules that bind every contract:
 - **Inputs:** Mode (date, range, window), time zone (facility), min/max, step (15 min), default window duration, booking horizon.
 - **States:** empty, partial, complete, invalid, disabled dates (reason stated), read-only, disabled (reason stated), view-as read-only (BR-27).
 - **Accessibility:** Typed entry is always possible; any calendar follows the WAI-ARIA date picker dialog pattern; time zone stated in text; the expected typed format is in the hint; unavailable dates carry their reason in the accessible description.
-- **Keyboard support:** Arrow keys move days; Page Up/Down months; Home/End week; Enter selects; Escape closes and returns focus to the field.
+- **Keyboard support:** Arrow keys move days; Page Up/Down months; Home/End week; Enter selects; Escape closes and returns focus to the element that opened the calendar.
 - **ARIA:** Grid pattern for calendar; `aria-label` includes full date text; `aria-invalid` and `aria-describedby` per IC-01; `aria-disabled` on unavailable dates.
 - **Interaction patterns:** Window end cannot precede start; default duration from constants; values stored in ISO with zone; changing an appointment on a booked load is an amendment (BR-25) and submits with the load version (SSB-8, IC-67).
 - **Validation rules:** Parsed dates must be real calendar dates; minutes on the 15-minute step; not in the past for new loads, compared in the facility zone against server time; delivery after pickup; within the booking horizon from feature constants (the server value wins, SC-25.2); report ranges at most 366 days (IC-17); the server re-validates (G-7).
@@ -364,12 +364,12 @@ Global rules that bind every contract:
 ### IC-19 — Search input
 
 - **Purpose:** Search a collection or index by text.
-- **Inputs:** Scope, placeholder hint, URL parameter `q`, minimum length.
+- **Inputs:** Scope, scope hint, URL parameter `q`, minimum length.
 - **States:** empty, typing, short of the minimum length, searching, results, no results (EM-2), error.
 - **Accessibility:** `type="search"` inside a `role="search"` landmark; result count announced politely after results settle; the scope hint is the field's description.
 - **Keyboard support:** Enter searches immediately; Escape clears (a second Escape leaves the field unchanged); standard text editing.
 - **ARIA:** Labelled; `aria-describedby` for scope hint; `aria-busy` on the results region while searching.
-- **Interaction patterns:** Debounced 300 ms via `use-debounced-search` (exists); exact reference numbers resolve directly to the record (Phase 3 §9); clearing the query restores the unfiltered collection.
+- **Interaction patterns:** Debounced 300 ms via `use-debounced-search`; exact reference numbers resolve directly to the record (Phase 3 §9); clearing the query restores the unfiltered collection.
 - **Validation rules:** Trim; minimum 2 characters except reference patterns (`HL-`, `INV-`, `STL-`, `CLM-`, `TKT-` followed by the reference characters); maximum 200 characters; the server applies the access filter regardless of query (Phase 3 §9).
 - **Loading behavior:** LS-2: previous results kept while pending; LS-3 after 5 s states "Still searching".
 - **Error behavior:** E-SERVER, E-TIMEOUT, E-UNAVAILABLE: IC-60 retry with the query kept; E-RATE-LIMIT: wait stated from `Retry-After`; E-OFFLINE: "Searching needs a connection", previous results kept with their age; E-VALIDATION (query rejected): the reason stated in the hint.
@@ -436,7 +436,7 @@ Global rules that bind every contract:
 - **States:** none selected, some selected (count), all on page selected, all matching selected, limit reached (reason stated), running (per-record pending), running as background job (LS-7, more than 100 records), completed, partially failed, view-as read-only (BR-27: selection allowed for reading, bulk mutations unavailable with reason).
 - **Accessibility:** Checkbox per record with the record's reference in its name; selection count announced; per-record outcomes are listed in text after the run.
 - **Keyboard support:** Space toggles; Shift+Space range-select where supported; bulk actions are IC-11 buttons reached by Tab.
-- **ARIA:** Select-all checkbox uses `aria-checked="mixed"` for partial; the selection count in a `role="status"` region.
+- **ARIA:** Select-all checkbox exposes partial selection as mixed (`indeterminate` on a native checkbox, `aria-checked="mixed"` only on a custom `role="checkbox"`); the selection count in a `role="status"` region.
 - **Interaction patterns:** Bulk actions state scope before running ("Pay 12 invoices, $18,420.00"); irreversible bulk actions use IC-12; partial failures reported per record; more than 100 records the action runs as a background job (Phase 4 §2.8) with SU-3 and a notification on completion; each record submits its version (SSB-8).
 - **Validation rules:** Actions available only if permitted for every selected record, otherwise the reason is given; selection at most the selection limit; the server re-validates each record (G-7, BR-28 all-rows-reported rule).
 - **Loading behavior:** Per-record pending (LS-5) up to 100 records; LS-7 for more than 100 with progress when viewed.
@@ -571,7 +571,7 @@ Global rules that bind every contract:
 - **Content rules:** Position age stated for every vehicle; distances via `lib/utils/units.ts`.
 - **Do:** Lazy-load the map library.
 - **Don't:** Make any task map-only (PP-08); show driver position finer than the viewer's permission allows (Restricted, NFR-PRIV-1).
-- **Dependencies:** Map library (pending approval, Phase 7 §15), SH-02, `useLoadPositions`.
+- **Dependencies:** Map library (Phase 7 §15), SH-02, `useLoadPositions`.
 
 ### IC-31 — Navigation handoff
 
@@ -605,7 +605,7 @@ Global rules that bind every contract:
 - **Interaction patterns:** State not persisted unless the section says so.
 - **Validation rules:** Not applicable — the disclosure accepts no entry.
 - **Loading behavior:** Content may lazy-load on first expand (LS-1 inside the disclosure; the summary stays usable).
-- **Error behavior:** Inline retry (IC-60) for E-SERVER, E-TIMEOUT or E-UNAVAILABLE; E-OFFLINE states that the detail needs a connection.
+- **Error behavior:** Retry in place (IC-60) for E-SERVER, E-TIMEOUT or E-UNAVAILABLE; E-OFFLINE states that the detail needs a connection.
 - **Content rules:** Summary describes what is revealed; summary text tolerates 40% expansion.
 - **Do:** Use for "How was this calculated?"
 - **Don't:** Hide required information or errors inside.
@@ -783,7 +783,7 @@ Global rules that bind every contract:
 - **Content rules:** State why verification is needed and how long micro-deposits take; durations via `lib/utils/date-formatter.ts`.
 - **Do:** Resume pending verifications.
 - **Don't:** Log or store raw payment data anywhere (Confidential and Restricted, NFR-PRIV-1).
-- **Dependencies:** Payments processor SDK (pending approval), IC-13, `usePaymentMethods`.
+- **Dependencies:** Payments processor SDK (Phase 7 §15), IC-13, `usePaymentMethods`.
 
 ### IC-43 — Payment confirmation
 
@@ -838,7 +838,7 @@ Global rules that bind every contract:
 - **Content rules:** Units and period in the title; numbers and dates via the shared formatters.
 - **Do:** State the comparison in words.
 - **Don't:** Encode meaning in any visual attribute alone (G-3).
-- **Dependencies:** Chart library (pending approval), SH-08, `useMetrics`.
+- **Dependencies:** Chart library (Phase 7 §15), SH-08, `useMetrics`.
 
 ### IC-46 — Countdown
 
@@ -921,13 +921,13 @@ Global rules that bind every contract:
 - **Purpose:** Find any permitted record by reference or text from any workspace page (Phase 3 §9).
 - **Inputs:** Query, scope (organisation for workspace users, internal for Haulr staff), recent searches (local).
 - **States:** closed, open, typing, short of the minimum length, searching, results (grouped), no results (EM-2: the query is restated with a suggestion to check the reference format), error, offline (recent searches only).
-- **Accessibility:** Combobox pattern (IC-05 behaviour) inside IC-41 or inline; grouped results with group labels; the total result count is announced politely once results settle; each result's accessible name states entity type, reference and one disambiguating attribute.
+- **Accessibility:** Combobox pattern (IC-05 behaviour) inside IC-41 or without a dialog; grouped results with group labels; the total result count is announced politely once results settle; each result's accessible name states entity type, reference and one disambiguating attribute.
 - **Keyboard support:** Ctrl/Cmd+K opens (with `aria-keyshortcuts`); arrows move; Enter opens; Escape closes and returns focus to the element that opened it; Home/End move within the text; the shortcut does not fire while focus is in another text entry (IC-49).
 - **ARIA:** As IC-05 (`role="combobox"`, `aria-expanded`, `aria-controls`, `aria-activedescendant`, `aria-autocomplete="list"`, options `role="option"`), with `role="group"` and `aria-labelledby` per entity type; `aria-busy` on the listbox while searching.
 - **Interaction patterns:** Exact reference → direct navigation; otherwise grouped results; the query settles for 300 ms (`use-debounced-search`) before searching; responses for superseded queries are discarded; analytics `search.quick_find.used` with entity type and result count only.
 - **Validation rules:** As IC-19: trimmed, minimum 2 characters except reference patterns (`HL-`, `INV-`, `STL-`, `CLM-`, `TKT-`), maximum 200 characters; the server applies the access filter for the scope (organisation membership or internal role, Phase 3 §9) regardless of query (G-7).
 - **Loading behavior:** LS-2 for each new query with previous results kept while pending; LS-3 after 5 s states "Still searching"; nothing is announced for searches shorter than 1 s.
-- **Error behavior:** E-SERVER, E-TIMEOUT, E-UNAVAILABLE: inline IC-60 retry with the query kept; E-RATE-LIMIT: the wait from `Retry-After` stated and searching resumes after it; E-OFFLINE: "Searching needs a connection" with recent searches still offered; E-AUTH: PG-10 with the return path; a result that returns E-NOT-FOUND when opened leads to PG-53.
+- **Error behavior:** E-SERVER, E-TIMEOUT, E-UNAVAILABLE: IC-60 retry in place with the query kept; E-RATE-LIMIT: the wait from `Retry-After` stated and searching resumes after it; E-OFFLINE: "Searching needs a connection" with recent searches still offered; E-AUTH: PG-10 with the return path; a result that returns E-NOT-FOUND when opened leads to PG-53.
 - **Content rules:** Results name entity type and reference; group labels and counts come from constants with plural rules; dates and amounts in results through the shared formatters; result text wraps rather than truncating the reference.
 - **Do:** Remember recent searches per user (local, convenience only), capped at 10 and purged on sign-out or account switch (SSB-10).
 - **Don't:** Return records outside the user's access; send query text to analytics (NFR-PRIV-3).
@@ -938,7 +938,7 @@ Global rules that bind every contract:
 - **Purpose:** Navigate within the product.
 - **Inputs:** Destination, accessible name, current flag, opens-externally flag.
 - **States:** default, current (the page being viewed), external (leaves the product; stated in the name), unavailable destination (the link is not rendered and the reference is shown as text, for example a record outside the viewer's access).
-- **Accessibility:** Descriptive names ("Load HL-7K2M9QXA", not "View"); breadcrumbs in a `nav` labelled "Breadcrumb" with `aria-current="page"` on the last item (Phase 3 §12); link purpose is clear from the name alone (WCAG 2.4.4); after navigation focus moves to the destination's main heading (SSB-6).
+- **Accessibility:** Descriptive names ("Load HL-7K2M9QXA", not "View"); breadcrumbs in a `nav` labelled "Breadcrumb" with `aria-current="page"` on the last item (Phase 3 §12); link purpose is clear from the name alone (WCAG 2.4.9, exceeding the AA requirement 2.4.4); after navigation focus moves to the destination's main heading (SSB-6).
 - **Keyboard support:** Enter activates; Tab and Shift+Tab move between links in DOM order; the browser's open-in-new-tab keys are never suppressed.
 - **ARIA:** `aria-current` (`page` for breadcrumbs and navigation, never set on more than one link in a set); no `role` override on native `a` elements.
 - **Interaction patterns:** Next.js `Link` for internal routes with prefetch defaults; return paths validated by `lib/utils/internal-path.ts`; links back to a collection carry its filter and cursor parameters so the user's place is kept (IC-20).
@@ -1009,7 +1009,7 @@ Global rules that bind every contract:
 - **Accessibility:** Changes announced politely once per transition; queued count and last sync time are text; replay failures are a list whose items link to the affected record.
 - **Keyboard support:** Not interactive, except "retry now", an IC-11 button reached by Tab and activated with Enter or Space, and the links to failed items.
 - **ARIA:** `role="status"`; `aria-busy` while replaying.
-- **Interaction patterns:** On reconnect, queued work replays and the result is announced; replay runs in queue order and the server de-duplicates by `nanoid` ID (Phase 7 §13); signing out clears the queue after warning that unsent items will be lost (SSB-10, NFR-PRIV-4).
+- **Interaction patterns:** On reconnect, queued work replays and the result is announced; replay runs in queue order and the server de-duplicates by `nanoid` ID (Phase 7 §13); signing out with unsent items follows the SSB-10 driver exception: replay is tried first, the driver is told how many items are pending, and the queue stays encrypted on the device and bound to that driver until it replays at their next sign-in (up to 7 days) or is discarded through IC-12 (SSB-10, NFR-AV-6, NFR-PRIV-4).
 - **Validation rules:** Not applicable — no user entry; queued items are validated by the server on replay (G-7).
 - **Loading behavior:** LS-5 while reconnecting and replaying; cached data stays readable as LS-6 with its age.
 - **Error behavior:** Replay failures listed per item: E-CONFLICT and E-VALIDATION items state the reason and ask for review; E-SERVER and E-TIMEOUT items stay queued for the next retry; E-AUTH pauses replay until sign-in, keeping the queue for the same user.
@@ -1126,7 +1126,7 @@ Added in version 1.1.0 for the enterprise flows XF-14 … XF-16 and XS-13 … XS
 - **Content rules:** Row errors state field, value and fix ("Pickup window ends before it starts: 2026-11-03 14:00 → 09:00"). Outcome names come from the import-row-outcome enum. Counts are formatted with locale grouping.
 - **Do:** Offer a downloadable results file with every row and outcome.
 - **Don't:** Post anything automatically, or silently drop rows.
-- **Dependencies:** IC-12, IC-20, IC-22, IC-24, SC-56.x, `use-bulk-import.ts`.
+- **Dependencies:** IC-12, IC-20, IC-22, IC-24, SC-56.1, SC-56.2, SC-56.3, `use-bulk-import.ts`.
 
 ### IC-62 — Approval decision
 
@@ -1134,7 +1134,7 @@ Added in version 1.1.0 for the enterprise flows XF-14 … XF-16 and XS-13 … XS
 - **Inputs:** Request (type, amount, limit, subject, deadline, version), whether the viewer is the requester, reason.
 - **States:** pending, approving, rejecting, approved, rejected, expired, decided-by-other, not permitted (own request), read-only (view-as).
 - **Accessibility:** Amount, limit and deadline are stated in the accessible description of both actions. The rejection reason field is required and labelled. The outcome is announced (IC-14).
-- **Keyboard support:** Tab to approve or reject; Enter activates; the reject flow opens IC-41 with focus on the reason field; Escape cancels.
+- **Keyboard support:** Tab to approve or reject; Enter or Space activates; the reject flow opens IC-41 with focus on the reason field; Escape cancels.
 - **ARIA:** Actions have `aria-describedby` pointing to the amount and deadline text; `aria-busy` while deciding.
 - **Interaction patterns:** Approve is a single activation with no extra confirmation, because the approver's role exists to decide and the consequence is stated. Reject requires a reason. Request changes returns the request to the requester with a note. Decisions carry the request version (SSB-8).
 - **Validation rules:** Reason 10–500 characters for reject and request changes. The server refuses decisions on own requests, expired subjects and stale versions.
@@ -1171,7 +1171,7 @@ Added in version 1.1.0 for the enterprise flows XF-14 … XF-16 and XS-13 … XS
 - **Inputs:** Viewed member and organisation, origin agent, ticket, mode (read-only or write consent), expiry.
 - **States:** active read-only, active with write consent, expiring (≤ 5 min), ended.
 - **Accessibility:** On every page load during view-as, a polite announcement states "Viewing as <member>, <organisation>, read-only, 42 minutes remaining". The indicator is a named landmark region (`aria-label="View-as session"`) reachable by skip link (IC-52). The end action is always reachable by keyboard.
-- **Keyboard support:** Tab to "End session"; Enter ends the session, returning to the ticket.
+- **Keyboard support:** Tab to "End session"; Enter or Space ends the session, returning to the ticket.
 - **ARIA:** `role="region"` with label; remaining time as a timer (`aria-live="off"`) with threshold announcements via IC-14.
 - **Interaction patterns:** Present on every workspace page for the session's duration. Blocked actions explain that they are unavailable in view-as and why. Ending the session purges caches (SSB-10).
 - **Validation rules:** Not applicable — the indicator takes no input beyond ending the session.
@@ -1251,71 +1251,71 @@ Added in version 1.1.0 for the enterprise flows XF-14 … XF-16 and XS-13 … XS
 
 | Contract | Used by (Phase 5) |
 | --- | --- |
-| IC-01 | SC-11.2, SC-16.2, SC-17.2, SC-27.3, SC-29.2, SC-40.3, SC-40.9, SC-46.1, SC-48.1 |
+| IC-01 | SC-10.1, SC-10.3, SC-11.2, SC-12.1, SC-16.2, SC-17.2, SC-24.4, SC-27.3, SC-29.2, SC-32.2, SC-36.2, SC-40.3, SC-40.9, SC-46.1, SC-46.2, SC-48.1, SC-48.4, SC-51.4, SC-56.2, SC-57.3, SC-59.1, SC-60.1, SC-60.2, SC-60.3, SC-61.1, SC-61.2, SC-61.3 |
 | IC-02 | Every form; SH-13 |
 | IC-03 | SC-10.1, SC-11.2, SC-13.1, SC-15.1, SC-47.1 |
 | IC-04 | SC-14.2, SC-47.1 |
-| IC-05 | SC-01.2, SC-05.1, SC-16.2, SC-17.3, SC-27.2, SC-32.2, SC-33.1 |
-| IC-06 | SH-15 |
-| IC-07 | SC-05.1, SC-17.3, SC-27.3, SC-33.1, SC-48.2, SC-50.3 |
-| IC-08 | SC-05.1, SC-27.2, SC-33.1 |
-| IC-09 | SC-11.1, SC-16.3, SC-27.5, SC-39.4 |
-| IC-10 | SH-02 |
+| IC-05 | SC-01.2, SC-05.1, SC-16.2, SC-17.3, SC-27.2, SC-32.2, SC-33.1, SC-56.2 |
+| IC-06 | SH-07, SH-15 |
+| IC-07 | SC-01.2, SC-05.1, SC-16.2, SC-17.3, SC-24.4, SC-27.3, SC-32.2, SC-33.1, SC-48.2, SC-50.3, SC-51.4, SC-56.1, SC-57.3, SC-58.4, SC-59.3, SC-60.3, SC-61.1, SC-61.2, SC-61.3 |
+| IC-08 | SC-05.1, SC-27.2, SC-33.1, SC-39.4, SC-47.3, SC-56.2, SC-57.3, SC-58.4, SC-59.3, SC-61.1 |
+| IC-09 | SC-07.2, SC-11.1, SC-16.3, SC-27.5, SC-29.2, SC-39.4, SC-51.4, SC-56.3, SC-57.3, SC-59.3, SC-60.2, SC-62.2 |
+| IC-10 | SH-02, SC-40.6 |
 | IC-11 | All actions |
-| IC-12 | SH-05 bulk, SC-27.6, SC-28.3, SC-40.2, SC-40.9, SC-45.4, SC-47.2, SC-48.2, SC-50.3, SC-51.4, SC-52.2 |
-| IC-13 | SC-25.2, SC-46.2, SC-47.1, SC-49.2, SC-52.2 |
+| IC-12 | SH-05 bulk, SH-07, SC-03.3, SC-21.2, SC-23.1, SC-23.4, SC-25.1, SC-25.2, SC-27.6, SC-28.3, SC-28.4, SC-29.1, SC-29.2, SC-34.3, SC-36.2, SC-37.2, SC-40.2, SC-40.9, SC-40.15, SC-40.16, SC-40.17, SC-45.4, SC-47.2, SC-48.2, SC-48.3, SC-48.4, SC-49.1, SC-50.3, SC-51.4, SC-52.2, SC-56.3, SC-57.1, SC-57.3, SC-59.3, SC-60.1, SC-60.4, SC-61.1, SC-61.2, SC-62.2, SC-64.3 |
+| IC-13 | SC-17.5, SC-25.2, SC-46.2, SC-47.1, SC-48.2, SC-48.4, SC-49.1, SC-49.2, SC-51.4, SC-52.2, SC-60.1, SC-60.2, SC-60.3, SC-60.4, SC-61.1, SC-62.1, SC-62.2 |
 | IC-14 | SSB-5 everywhere |
-| IC-15 | SH-13 |
+| IC-15 | SH-13, SC-27.2, SC-27.3 |
 | IC-16 | Build-time choice for multi-view pages |
-| IC-17 | SH-08 |
+| IC-17 | SH-08, SC-18.3, SC-59.1 |
 | IC-18 | SC-33.1 |
-| IC-19 | SC-06.1, SH-05, SC-53.1 |
-| IC-20 | SH-05, SH-01, SC-33.1 |
+| IC-19 | SH-05, SC-06.1, SC-24.3, SC-53.1 |
+| IC-20 | SH-01, SH-03, SH-05, SH-11, SC-33.1, SC-56.2, SC-59.1, SC-61.2, SC-61.3 |
 | IC-21 | SH-05, SH-01, SH-04, SH-11 |
-| IC-22 | SH-05 (desktop), SC-28.2, SC-31.1 |
-| IC-23 | SH-05 |
-| IC-24 | SH-03, SC-08.1, SC-40.9, SC-46.1 |
-| IC-25 | SC-39.3, SH-03 |
-| IC-26 | SC-17.4, SC-34.3 |
-| IC-27 | SC-34.3 |
-| IC-28 | SC-28.3, SC-40.4 |
+| IC-22 | SH-05 (desktop), SC-28.2, SC-31.1, SC-56.2 |
+| IC-23 | SH-05, SC-21.2, SC-26.3, SC-30.3, SC-56.2, SC-56.3, SC-61.2 |
+| IC-24 | SH-03, SC-08.1, SC-39.3, SC-40.9, SC-43.2, SC-46.1, SC-60.2 |
+| IC-25 | SH-03, SH-04, SC-17.4, SC-39.3 |
+| IC-26 | SC-17.4, SC-34.3, SC-64.3 |
+| IC-27 | SC-19.3, SC-34.3 |
+| IC-28 | SH-07, SC-18.1, SC-19.1, SC-28.3, SC-40.4 |
 | IC-29 | SC-39.2 |
 | IC-30 | SH-02, SC-32.2 |
 | IC-31 | SC-39.1 |
-| IC-32 | SH-14, SC-34.1 |
+| IC-32 | SH-01, SH-11, SH-14, SC-05.2 |
 | IC-33 | SC-19.3, SC-33.2, SC-36.1 |
 | IC-34 | SC-33.4, SC-36.2 |
 | IC-35 | SH-04 |
 | IC-36 | SC-47.3, IC-34 |
 | IC-37 | SH-10 |
-| IC-38 | SC-11.2, SC-15.2, IC-26 |
-| IC-39 | SC-16.4, SC-37.2, SC-48.3, IC-06 |
-| IC-40 | SC-27.2, SC-29.2 |
-| IC-41 | IC-12, IC-13, IC-54, IC-50 |
-| IC-42 | SC-16.3, SC-49.2 |
+| IC-38 | SC-11.2, SC-15.1, SC-15.2, IC-26 |
+| IC-39 | SH-15, SC-16.4, SC-37.2, SC-48.3, IC-06 |
+| IC-40 | SC-27.2, SC-29.2, SC-60.3 |
+| IC-41 | SC-49.2; IC-12, IC-13, IC-50, IC-54, IC-58, IC-62, IC-63, IC-67 |
+| IC-42 | SC-16.3, SC-17.5, SC-49.2 |
 | IC-43 | SC-30.3, SC-31.3, SC-38.3 |
-| IC-44 | SC-40.1, SC-40.15, SC-26.3 |
-| IC-45 | SH-08, SC-05.3 |
-| IC-46 | SC-27.4, SC-28.4 |
-| IC-47 | SC-21.1, SC-40.12, SC-50.1, SC-50.4 |
-| IC-48 | SC-24.2 |
+| IC-44 | SC-26.3, SC-40.1, SC-40.15, SC-54.1, SC-60.1 |
+| IC-45 | SH-08, SC-05.3, SC-59.2 |
+| IC-46 | SH-07, SH-15, SC-10.1, SC-14.1, SC-19.1, SC-19.2, SC-22.1, SC-24.1, SC-24.4, SC-27.4, SC-28.2, SC-28.4, SC-40.4, SC-40.17, SC-56.3, SC-64.3 |
+| IC-47 | SC-21.1, SC-21.2, SC-24.1, SC-40.12, SC-50.1, SC-50.4 |
+| IC-48 | SC-24.2, SC-50.4 |
 | IC-49 | SC-50.3, SC-23.1 |
-| IC-50 | Workspace layouts (Phase 7 §3) |
+| IC-50 | Workspace layouts (Phase 7 §4) |
 | IC-51 | Everywhere |
 | IC-52 | Root layout |
-| IC-53 | SC-42.1, workspace layouts |
+| IC-53 | SC-42.1, SC-42.2, workspace layouts |
 | IC-54 | Workspace layouts |
-| IC-55 | Workspace and driver layouts |
-| IC-56 | SC-34.1, SH-14 |
+| IC-55 | SC-20.3, workspace and driver layouts |
+| IC-56 | SH-08, SH-09, SH-14, SC-07.1, SC-27.3, SC-34.1 |
 | IC-57 | SC-40.2, SH-05 row actions |
-| IC-58 | SH-03 |
+| IC-58 | SH-01, SH-03, SC-23.1, SC-39.6 |
 | IC-59 | Every status |
 | IC-60 | SSB-3 everywhere |
 | IC-61 | SC-56.1, SC-56.2, SC-56.3 |
-| IC-62 | SC-58.3, SC-40.17 |
+| IC-62 | SC-25.1, SC-40.17, SC-58.3 |
 | IC-63 | SC-60.3, SC-61.1, SC-61.2 |
-| IC-64 | SC-24.4, SC-52.4, workspace layouts during view-as |
-| IC-65 | SC-59.3, SC-62.1, SC-63.2 |
+| IC-64 | SC-24.2, SC-24.3, SC-24.4, SC-52.4, workspace layouts during view-as |
+| IC-65 | SH-05, SH-11, SC-25.3, SC-26.3, SC-59.3, SC-62.1, SC-63.2 |
 | IC-66 | SC-40.16, SC-64.1 |
 | IC-67 | SSB-8 everywhere a persisted record is edited; SC-48.4, SC-57.2 |
 

@@ -1,6 +1,6 @@
 # Phase 3 — Information Architecture
 
-`Haulr Design OS` · `Version 1.1.0` · `2026-09-30` · Previous: [Phase 2 — Experience Maps](./phase-2-experience-maps.md) · Next: [Phase 4 — Page Blueprints](./phase-4-page-blueprints.md)
+`Haulr Design OS` · `Version 1.1.1` · `2026-10-09` · Previous: [Phase 2 — Experience Maps](./phase-2-experience-maps.md) · Next: [Phase 4 — Page Blueprints](./phase-4-page-blueprints.md)
 
 This phase fixes which pages exist, how they relate, which route group each belongs to and who can reach each one. It describes structure and reachability only. What any layout shows, and how, is decided when each page is built.
 
@@ -31,7 +31,7 @@ Page IDs (`PG-`) defined here are used by every later phase. Experience IDs (`XF
 - **IA-P1 — The load is the hub.** Every operational page leads to a load (PG-40), and every load leads out to its bids, documents, conversation, invoice, settlement and claims. This follows PP-02 (one record, many views).
 - **IA-P2 — Role-scoped workspaces, shared records.** Each organisation side has its own workspace prefix (`/shipper`, `/carrier`, `/driver`) for the collections it owns. Records that several roles act on (loads, messages, documents, claims) live at one shared, role-neutral URL, and the server shapes what each role receives (BR-05).
 - **IA-P3 — Internal tools are separate.** Haulr staff tools live in their own route group and prefixes. They never share a URL with customer pages, so access is enforced by prefix at the edge.
-- **IA-P4 — Every view is addressable.** Filters, sort, view mode, selected tab and pagination cursor are URL parameters (Phase 1 §14).
+- **IA-P4 — Every view is addressable.** Filters, sort, view mode, selected sub-view and pagination cursor are URL parameters (Phase 1 §14).
 - **IA-P5 — Shallow paths.** Maximum depth is four segments. A record is always reachable from its collection in one step, and from a notification in one step.
 
 ## 2. Navigation Hierarchy
@@ -111,14 +111,14 @@ Route groups use the App Router's native parenthesised folders, which organise c
 | PG-48 | Organization and Team | `/settings/organization` | `shipper.admin`, `carrier.admin` (edit); other members (read) |
 | PG-49 | Payment and Payout Methods | `/settings/billing` | `shipper.admin`, `shipper.finance`, `carrier.admin` |
 | PG-04 | Shipper Public Profile | `/shippers/[shipperId]` | `carrier.*` (not drivers), internal roles |
-| PG-56 | Bulk Load Import | `/shipper/loads/import` | `shipper.member`, `shipper.admin` |
-| PG-57 | Templates and Recurring Loads | `/shipper/templates` | `shipper.member` (own and shared), `shipper.admin` |
+| PG-56 | Bulk Load Import | `/shipper/loads/import` | `shipper.member`, `shipper.admin`; `internal.support` (read, with ticket) |
+| PG-57 | Templates and Recurring Loads | `/shipper/templates` | `shipper.member` (own and shared), `shipper.admin`; `internal.support` (read, with ticket) |
 | PG-58 | Approvals | `/shipper/approvals` | `shipper.approver`, `shipper.admin`; requesters read their own requests |
 | PG-59 | Reports | `/shipper/reports` | `shipper.admin`, `shipper.approver`, `shipper.finance` (spend reports only) |
 | PG-60 | Security and SSO | `/settings/security` | `org.security`, `shipper.admin`, `carrier.admin` |
 | PG-61 | Integrations | `/settings/integrations` | `org.security`, `shipper.admin` |
 | PG-62 | Data and Privacy | `/settings/privacy` | Organisation exports: `org.security`, `shipper.admin`, `carrier.admin`. Personal data requests: every authenticated user |
-| PG-63 | Audit Log | `/settings/audit` | `org.security`, `shipper.admin`, `carrier.admin` |
+| PG-63 | Audit Log | `/settings/audit` | `org.security`, `shipper.admin`, `carrier.admin`; `internal.support` (read, with ticket), `internal.admin` (read) |
 | PG-64 | Review Amendment | `/loads/[loadId]/amendments/[amendmentId]` | Carrier: `carrier.dispatcher`, `carrier.admin` of the booked carrier (act). Shipper roles and internal roles (read, withdraw) |
 
 ### 3.4 Internal — group `(internal)`, Haulr staff
@@ -126,7 +126,7 @@ Route groups use the App Router's native parenthesised folders, which organise c
 | ID | Page | Route | Roles |
 | --- | --- | --- | --- |
 | PG-21 | Operations Dashboard | `/ops` | `internal.ops`, `internal.admin` |
-| PG-50 | Exception Queue | `/ops/exceptions` | `internal.ops` |
+| PG-50 | Exception Queue | `/ops/exceptions` | `internal.ops`; `internal.compliance` and `internal.finance` (their own exception types, §5.1) |
 | PG-22 | Compliance Dashboard | `/compliance` | `internal.compliance` |
 | PG-51 | Carrier Vetting Review | `/compliance/carriers/[carrierId]` | `internal.compliance` |
 | PG-23 | Finance Operations Dashboard | `/finance` | `internal.finance` |
@@ -154,7 +154,7 @@ The set of global destinations each role can reach from anywhere in its workspac
 | `shipper.admin` | `shipper.member` set, plus PG-58, PG-59, PG-30, PG-48, PG-49, PG-60, PG-61, PG-62, PG-63 |
 | `shipper.approver` | PG-58, PG-59, plus the set of any other role the user holds |
 | `org.security` | PG-60, PG-61, PG-62, PG-63, PG-48 (read), PG-06 |
-| `shipper.finance` | PG-18, PG-30, PG-44, PG-43, PG-49, PG-41, PG-42, PG-06 |
+| `shipper.finance` | PG-18, PG-30, PG-59, PG-44, PG-43, PG-49, PG-41, PG-42, PG-06 |
 | `carrier.dispatcher` | PG-19, PG-33, PG-35, PG-36, PG-37, PG-38, PG-44, PG-41, PG-42, PG-43, PG-06 |
 | `carrier.admin` | `carrier.dispatcher` set, plus PG-17 (until approved), PG-48, PG-49, PG-60, PG-62, PG-63 |
 | `carrier.driver` | PG-20, PG-41, PG-42, PG-06 |
@@ -206,13 +206,13 @@ Enforcement happens at three layers: edge (`proxy.ts`, by route prefix), server 
 
 ### 5.1a Enterprise capabilities
 
-Roles not listed in a row have no access to that capability. `shipper.approver` and `org.security` add only the capabilities below to whatever other roles the user holds.
+Roles not listed in a row have no access to that capability, with two exceptions: every authenticated user can request access to or deletion of their own personal data (PG-62, BR-30), and `internal.ops` can propose and withdraw amendments on any load (XF-15, Phase 2 §5.1). `shipper.approver` and `org.security` add only the capabilities below to whatever other roles the user holds.
 
 | Capability | shipper.member | shipper.admin | shipper.approver | shipper.finance | carrier.admin | org.security | internal.support | internal.admin |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Bulk import and templates | A (own) | A (own) | — | — | — | — | R | — |
 | Set member spend limits | — | A | — | — | — | — | — | — |
-| Approve or reject spend (posts, bid acceptances, amendments, accessorials above the requester's limit) | — | A | A (not own requests) | — | — | — | — | — |
+| Approve or reject spend (posts, bid acceptances, amendments, accessorials above the requester's limit) | — | A (not own requests) | A (not own requests) | — | — | — | — | — |
 | Propose an amendment | A (own) | A (own) | — | — | — | — | — | — |
 | Accept or decline an amendment | — | — | — | — | A (carrier.dispatcher also) | — | — | — |
 | View reports | — | A | A | R (spend only) | — | — | — | — |
@@ -282,7 +282,7 @@ Roles not listed in a row have no access to that capability. `shipper.approver` 
 
 **Help categories:** Getting started · Shipping with Haulr · Hauling with Haulr · Drivers · Billing and payments · Tracking · Claims · Account and security · Compliance · Integrations and API · Security and administration.
 
-**Enumerations** (single source in `lib/enums/`, mirrored from the contract): load status (including `PendingApproval`), bid status, amendment status, approval status, equipment type, stop type, accessorial type, document type, exception type and severity, invoice status, settlement status, claim type and status, compliance status, notification event type, role key, API scope, webhook event type, export dataset, import row outcome, audit action.
+**Enumerations** (single source in `lib/enums/`, mirrored from the contract): load status (including `PendingApproval`), bid status, amendment status, approval status, equipment type, stop type, accessorial type, document type, exception type and severity, invoice status, settlement status, claim type and status, compliance status, notification event type, role key, API scope, webhook event type, export dataset, import row outcome, audit action, audit actor type, ticket status and urgency, facility type.
 
 ## 7. Labeling Conventions
 
@@ -292,7 +292,7 @@ Roles not listed in a row have no access to that capability. `shipper.approver` 
 - **Money.** Always currency-formatted with cents; per-mile rates to cents; ranges as "low to high".
 - **Time.** Appointment windows show the facility's local time zone with its abbreviation. Relative times ("12 min ago") are used for freshness (PP-03) with the absolute time available.
 - **Distances and weights.** Miles and pounds (A1).
-- **Industry terms.** TONU, POD, detention, lumper and OS&D are used as-is, with an inline explanation available (PP-07).
+- **Industry terms.** TONU, POD, detention, lumper and OS&D are used as-is, with an explanation available in context (PP-07).
 - **Actions.** Verb-first and specific: "Book load", "Accept bid", "Pay invoice", never "Submit" or "OK".
 
 ## 8. Cross-Linking
@@ -336,7 +336,7 @@ Filters are URL parameters with the same names on every page they apply to.
 | Equipment | `equipment` (multi) | PG-33, PG-26, PG-35, PG-37 |
 | Rate floor, rate per mile floor | `minRate`, `minRpm` | PG-33 |
 | Weight ceiling | `maxWeight` | PG-33 |
-| Counter-party | `carrier` / `shipper` | PG-26, PG-35, PG-30, PG-38 |
+| Counter-party | `carrier` / `shipper` | PG-26, PG-35, PG-30, PG-38, PG-43 |
 | Exception type, severity, owner | `type`, `severity`, `owner` | PG-50 |
 | Document type, load | `docType`, `load` | PG-43 |
 | View mode | `view` (`list` or `map`) | PG-26, PG-33 |
@@ -351,7 +351,7 @@ Filters are URL parameters with the same names on every page they apply to.
 | Import batch | `batch` | PG-26, PG-56 |
 | Approval status and type | `status`, `type` (`post`, `bid`, `amendment`, `accessorial`) | PG-58 |
 | Requester | `requester` | PG-58 |
-| Audit actor, actor type, action, target | `actor`, `actorType` (`member`, `staff`, `apiKey`, `system`), `action`, `targetType`, `targetId` | PG-63 |
+| Audit actor, actor type, action, target, date range | `actor`, `actorType` (`member`, `staff`, `apiKey`, `system`), `action`, `targetType`, `targetId`, `from`, `to` | PG-63 |
 | Acknowledged | `acknowledged` (`true`, `false`) | PG-22 (monitoring events) |
 | Urgency | `urgency` (`urgent`, `high`, `normal`) | PG-24, PG-08 |
 | Report period and dimensions | `from`, `to`, `lane`, `facility`, `carrier`, `equipment` | PG-59 |
@@ -365,7 +365,7 @@ Filter precedence: access filter (server, not user-editable) → saved search �
 | Acquisition | PG-01 | Index | `/` | Organization, WebSite with SearchAction |
 | Tool | PG-05 | Index | `/tools/rate-estimator` | WebApplication |
 | Directory | PG-03 (approved carriers only) | Index | `/carriers/[carrierId]` | Organization with AggregateRating |
-| Help | PG-06, PG-07 | Index | `/help/[slug]` | FAQPage or Article, BreadcrumbList |
+| Help | PG-06, PG-07 | Index | `/help`, `/help/[slug]` | FAQPage or Article, BreadcrumbList |
 | Legal | PG-09 | Index | `/legal/[document]` | — |
 | Access | PG-10 … PG-15 | No index | — | — |
 | Tracking | PG-02 | No index, no follow | — | — |
@@ -376,9 +376,9 @@ The sitemap (`app/sitemap.ts`) and robots (`app/robots.ts`) are generated native
 ## 12. Breadcrumb Strategy
 
 - Breadcrumbs describe the path from the role root: role root → collection → record → transaction. Example: Shipper Dashboard → Shipments → HL-7K2M9QXA → Compare bids.
-- Shared records (PG-40, PG-45) take their trail from the viewer's role, not from the URL, so a shipper and a carrier each see a path through their own workspace.
+- Shared records (PG-40, PG-45, PG-64) take their trail from the viewer's role, not from the URL, so a shipper and a carrier each see a path through their own workspace.
 - Help pages use the category path: Help → Category → Article (also emitted as BreadcrumbList structured data).
-- L0 access pages, PG-02 and system pages (PG-53 … PG-55) have no breadcrumbs.
+- L0a access pages (PG-10 … PG-15), PG-02 and system pages (PG-53 … PG-55) have no breadcrumbs.
 - The trail is derived from route metadata defined once per route, never hand-written per page.
 
 ## 13. Empty Routes
@@ -412,7 +412,7 @@ Routes that exist but can legitimately have nothing to show, and what the user i
 | Route outside the user's role | PG-55 with a route to their role root |
 | Unauthenticated request to a protected prefix | Redirect to PG-10 with a validated `next` parameter (`lib/utils/internal-path.ts`) |
 | Authenticated request to an access page | Redirect to role root |
-| Organisation not onboarded | Workspace routes redirect to PG-16 / PG-17, except PG-46, PG-47, PG-06 |
+| Organisation not onboarded | Workspace routes redirect to PG-16 / PG-17, except PG-46, PG-47, PG-06, and PG-27 for quoting only (posting stays refused until the organisation is active, XF-13) |
 | Segment render error | Segment `error.tsx` with retry; root failure → PG-54 |
 | Expired tracking token | PG-02 expired state (BR-21), not PG-53 |
 | Expired invitation or reset token | The page's own expired state with a resend path |
@@ -422,8 +422,8 @@ Routes that exist but can legitimately have nothing to show, and what the user i
 
 - **New organisation side** (for example brokers or 3PL partners): add a prefix and role family (`/partner`, `partner.*`), reuse the shared record routes.
 - **New modes** (partial, LTL): new equipment and load-type enumerations; routes unchanged.
-- **Analytics** for shipper admins: add `/shipper/reports` at L2 without changing L1.
-- **Public API and EDI**: `/developers` in the public group with its own SEO tier.
+- **Analytics** for shipper admins: delivered in version 1.1.0 as PG-59 (`/shipper/reports`) at L2 without changing L1; further report types extend PG-59 the same way.
+- **Public API and EDI**: API keys, webhooks and EDI are launch scope through PG-61 (XS-14, BR-29); a public developer portal at `/developers` joins the public group later with its own SEO tier.
 - **Localisation**: a locale segment can be introduced at the root of `(public)` and `(workspace)` without renaming inner routes.
 - **Native driver app**: PG-39 remains as the web fallback; deep links map to the same `/driver/trips/[loadId]` path.
 
