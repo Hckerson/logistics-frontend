@@ -1,3 +1,5 @@
+import type { LonLat } from "@/lib/types/map";
+
 export type Side = "ship" | "haul";
 
 export interface Hub {
@@ -8,47 +10,8 @@ export interface Hub {
     major: boolean;
 }
 
-export type LonLat = [number, number];
-
-export type Rgb = [number, number, number];
-
 export interface NetworkHub extends Hub {
     position: LonLat;
-}
-
-export interface Trip {
-    path: LonLat[];
-    timestamps: number[];
-    accent: boolean;
-}
-
-export interface HubArc {
-    from: LonLat;
-    to: LonLat;
-}
-
-export interface FlightView {
-    longitude: number;
-    latitude: number;
-    zoom: number;
-    pitch: number;
-    bearing: number;
-}
-
-export interface MapPalette {
-    land: Rgb;
-    stateLine: Rgb;
-    road: Rgb;
-    headlight: Rgb;
-    accent: Rgb;
-    muted: Rgb;
-    font: string;
-}
-
-export interface MapFrame {
-    intro: number;
-    progress: number;
-    time: number;
 }
 
 export interface SideCopy {
@@ -130,8 +93,6 @@ export interface EnterpriseItem {
     title: string;
     body: string;
 }
-
-export type LonLatAlt = [number, number, number];
 
 export interface QuoteLane {
     from: NetworkHub;
