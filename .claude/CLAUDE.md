@@ -22,7 +22,7 @@ This is a reusable **Next.js App Router starter**. It ships architecture, conven
 | State management   | TanStack Query for server state. `useState` / `useReducer` / URL params for local state. `useSyncExternalStore` + `localStorage` for persistence. A global store requires a stated reason.                                                                            |
 | Validation         | Zod schemas in `lib/validations/`. Types derive with `z.infer`. API responses are never loosely typed.                                                                                                                                                                |
 | IDs                | `nanoid`. Never `uuid` or `Date.now()`.                                                                                                                                                                                                                               |
-| Async flows        | Endpoints in `lib/api-routes.ts`, transport in `lib/api-client.ts`, wrapped in hooks in `lib/hooks/use-<resource>.ts`. Components consume hooks — never call the client directly. A hook for an authenticated call wraps a Server Action from `lib/actions/` instead. |
+| Async flows        | Endpoints in `lib/api-routes.ts`, transport in `lib/api-client.ts`, wrapped in hooks in `lib/hooks/use-<resource>.ts`. Components consume hooks — never call the client directly. A hook for an authenticated call wraps a Server Action from `lib/actions/` instead. Every endpoint ships with a mock handler (see _The mocked backend_). |
 
 ## Folder Structure
 
@@ -33,7 +33,8 @@ This is a reusable **Next.js App Router starter**. It ships architecture, conven
 | `/components/common`    | _(flat)_                                                                                | Shared compositions over primitives.                                                                                                                                     |
 | `/components/wrappers`  | _(flat)_                                                                                | Behavioural wrappers (motion, boundaries).                                                                                                                               |
 | `/components/providers` | _(flat)_                                                                                | React context providers.                                                                                                                                                 |
-| `/lib`                  | `actions` • `contract` • `data` • `enums` • `hooks` • `types` • `utils` • `validations` | Core logic layer. No JSX. Transport lives in `api-client.ts` + `api-routes.ts`.                                                                                          |
+| `/components/home` • `/components/auth` | _(flat)_                                                                | Sections used by one public or access page in the cinematic register (home page; sign-in and the other access pages). Workspace and internal pages keep their sections in `components/common/` (design OS D-14). |
+| `/lib`                  | `actions` • `contract` • `data` • `enums` • `hooks` • `mocks` • `types` • `utils` • `validations` | Core logic layer. No JSX. Transport lives in `api-client.ts` + `api-routes.ts`.                                                                                          |
 | `/design-os`            | `generated`                                                                             | Generated design OS output. The seed prompt itself is `docs/MASTER_PROMPT_COMPLETE.md`. Not application code.                                                            |
 | `/public`               | `fonts`                                                                                 | Static assets.                                                                                                                                                           |
 | `/styles`               | _(flat)_                                                                                | Global styles and token exports.                                                                                                                                         |
@@ -46,6 +47,19 @@ Add `lib/data/` (seed data) and `lib/constants.ts` on first use — the rules ab
 Conventions in this file that can be checked mechanically belong in `tools/eslint/rules/` as a rule with a colocated `.test.ts`, registered by the `starter` plugin in `eslint.config.ts`. Where flat config already expresses the constraint (`no-restricted-imports` and friends), use config — a custom rule must earn itself by needing scope or path analysis config cannot reach.
 
 A rule that reports a violation ESLint cannot autofix — because the fix spans files — gets a matching codemod in `tools/codemods/`, also with a colocated `.test.ts` driven by an in-memory ts-morph project. Codemods are dry-run by default and only write under `--write`. When a transform would have to guess intent, it skips the call and reports the reason instead.
+
+## The mocked backend
+
+The frontend is built against mocks. Every call is production code end to end (component → hook → Server Action or route handler → `backendFetch`, or `apiClient` in the browser); only the answer comes from `lib/mocks/` instead of the backend.
+
+- **Switch:** `NEXT_PUBLIC_API_MOCKS` is on unless set to `off`. Set it to `off` to talk to the real backend; nothing else changes.
+- **Seams:** `backendFetch` in `lib/api-server.ts` and the `apiClient` adapter in `lib/api-client.ts`. Both load `lib/mocks/router.ts` lazily, so mock code never ships with mocks off.
+- **Handlers:** one file per backend module in `lib/mocks/`, registered in `router.ts` under the contract route (`routes.authLogin()`), never a hand-typed path. Responses use the same envelopes as the backend (`ok` / `fail` in `lib/mocks/http.ts`) and a simulated latency. An unregistered route answers 404 naming the missing mock.
+- **Data:** fixtures in `lib/data/mocks/`; mutable state in the in-memory store (`lib/mocks/store.ts`), alive while the server runs. Scenario accounts in `lib/data/mocks/users.ts` trigger error states (rate limit, outage).
+- **Sessions:** mock logins sign tokens with a mock-only key that `verifySessionToken` accepts only while mocks are on.
+- **Tests:** Vitest runs with mocks off so route tests exercise the real transport; the router has its own tests in `lib/mocks/router.test.ts`.
+
+A feature is not done until its endpoint has a mock handler returning contract-shaped data.
 
 ## The contract layer
 

@@ -10,5 +10,5 @@ export default defineConfig({
         tsconfigPaths: true,
         alias: { "server-only": serverOnlyStub },
     },
-    test: { testTimeout: 30_000 },
+    test: { testTimeout: 30_000, env: { NEXT_PUBLIC_API_MOCKS: "off" } },
 });
