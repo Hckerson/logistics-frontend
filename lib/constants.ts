@@ -51,6 +51,17 @@ export const PASSWORD_MIN_LENGTH = 8;
 
 export const RESET_LINK_MINUTES = 30;
 
+export const HTTP_STATUS = {
+    badRequest: 400,
+    unauthorized: 401,
+    notFound: 404,
+    conflict: 409,
+    unprocessable: 422,
+    tooManyRequests: 429,
+    serverError: 500,
+    badGateway: 502,
+} as const;
+
 export const MOTION_DURATION = {
     fast: 0.2,
     normal: 0.35,

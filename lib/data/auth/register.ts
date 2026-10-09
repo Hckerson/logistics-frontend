@@ -3,12 +3,12 @@ import {
     FORGOT_PASSWORD_ROUTE,
     HELP_ROUTE,
     LOGIN_ROUTE,
-    PASSWORD_MIN_LENGTH,
     SESSION_UNAVAILABLE,
     legalRoute,
 } from "@/lib/constants";
 import { SIDE_SWITCH } from "@/lib/data/home/brand";
 import { DOORS } from "@/lib/data/home/fork";
+import { AUTH_COPY } from "@/lib/data/auth/shared";
 
 const [shipDoor, haulDoor] = DOORS;
 const [shipWord, haulWord] = SIDE_SWITCH.options;
@@ -71,7 +71,7 @@ export const REGISTER_COPY = {
         editLabel: "Edit {field}",
         labels: { fullName: "Name", email: "Email", password: "Password" },
     },
-    rule: `At least ${PASSWORD_MIN_LENGTH} characters`,
+    rule: AUTH_COPY.password.rule,
     consent: {
         lead: "I agree to the",
         and: "and",
@@ -90,7 +90,7 @@ export const REGISTER_COPY = {
         side: { missing: "Choose whether you ship or haul freight." },
         fullName: { missing: "Enter your full name." },
         email: { missing: "Enter your email address.", invalid: "Enter an email address like name@company.com." },
-        password: { missing: "Create a password.", short: `Use at least ${PASSWORD_MIN_LENGTH} characters.` },
+        password: { missing: "Create a password.", short: AUTH_COPY.password.short },
         consent: { missing: "Agree to the terms to create your account." },
         conflict: "An account already uses this email.",
         session: `${SESSION_UNAVAILABLE}. Sign in to continue.`,

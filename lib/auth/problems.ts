@@ -1,5 +1,6 @@
+import { HTTP_STATUS } from "@/lib/constants";
 import { AUTH_COPY } from "@/lib/data/auth/shared";
-import type { AccountField, FormProblem } from "@/lib/types";
+import type { AccountField, ActionFailure, FormProblem } from "@/lib/types";
 
 interface Issue {
     path: readonly PropertyKey[];
@@ -30,6 +31,9 @@ export function rateLimitProblem(retryAfter: unknown): FormProblem {
         message: seconds ? rateLimit.replace("{minutes}", String(Math.ceil(seconds / SECONDS_PER_MINUTE))) : rateLimitUnknown,
     };
 }
+
+export const requestFailure = ({ status, retryAfter }: ActionFailure): FormProblem =>
+    status === HTTP_STATUS.tooManyRequests ? rateLimitProblem(retryAfter) : { message: AUTH_COPY.errors.network };
 
 export const problemCount = (count: number) =>
     (plural.select(count) === "one" ? AUTH_COPY.summary.one : AUTH_COPY.summary.other).replace("{count}", String(count));

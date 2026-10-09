@@ -12,6 +12,8 @@ export type RegisterStep = "side" | "details";
 
 export type ResetStep = "email" | "sent";
 
+export type OutcomeTone = "accent" | "pending" | "error";
+
 export type AuthSignal = "origin" | "midway" | "pending" | "arrived" | "held";
 
 export interface AuthLink {

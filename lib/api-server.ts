@@ -1,7 +1,8 @@
 import "server-only";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { API_BASE_URL, API_MOCKS, SESSION_COOKIE } from "@/lib/constants";
+import { API_BASE_URL, API_MOCKS, REQUEST_FAILED, SESSION_COOKIE } from "@/lib/constants";
+import type { ActionFailure } from "@/lib/types/api";
 
 const parseBody = (body: RequestInit["body"]): unknown => {
     if (typeof body !== "string") return body ?? null;
@@ -33,6 +34,9 @@ export const backendFetch = async (path: string, init: RequestInit = {}) => {
     });
 };
 
+export const backendPost = (path: string, body: unknown) =>
+    backendFetch(path, { method: "POST", body: JSON.stringify(body) });
+
 export const readJson = async (source: Request | Response): Promise<unknown> =>
     await source.json().catch(() => null);
 
@@ -45,3 +49,10 @@ export const relay = (upstream: Response) => {
         headers: { "Content-Type": "application/json", ...(retryAfter ? { [RETRY_AFTER]: retryAfter } : {}) },
     });
 };
+
+export const actionFailure = (upstream: Response): ActionFailure => ({
+    ok: false,
+    status: upstream.status,
+    message: REQUEST_FAILED,
+    retryAfter: Number(upstream.headers.get(RETRY_AFTER)) || undefined,
+});

@@ -1,5 +1,6 @@
 import { useState, type ChangeEvent, type FormEvent } from "react";
-import { resetFailure, resetProblems } from "@/lib/auth/reset";
+import { requestFailure } from "@/lib/auth/problems";
+import { resetProblems } from "@/lib/auth/reset";
 import { flowSignal } from "@/lib/auth/signal";
 import { AUTH_COPY } from "@/lib/data/auth/shared";
 import { useFormProblems } from "@/lib/hooks/use-form-problems";
@@ -21,7 +22,7 @@ export function useForgotFlow() {
     const send = (again: boolean) =>
         request.mutate(email.trim(), {
             onSuccess: (result) => {
-                if (!result.ok) return checks.fail([resetFailure(result)]);
+                if (!result.ok) return checks.fail([requestFailure(result)]);
                 checks.reset();
                 setSentAt(performance.now());
                 setResent(again);

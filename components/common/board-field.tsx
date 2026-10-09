@@ -39,11 +39,11 @@ const BoardField = forwardRef<HTMLInputElement, Props>(function BoardField(props
 
     return (
         <div className="group/field flex flex-col">
-            <div className="mb-2 flex items-baseline justify-between gap-4">
+            <div className="mb-2 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
                 <label
                     htmlFor={id}
                     className={clsx(
-                        "haulr-label flex items-baseline gap-2.5 transition-colors",
+                        "haulr-label flex items-baseline gap-2.5 whitespace-nowrap transition-colors",
                         error ? "text-error" : "text-text-muted group-focus-within/field:text-text-secondary",
                     )}
                 >

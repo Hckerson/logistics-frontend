@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import { ArrowRight, Checkmark } from "@carbon/icons-react";
+import ProgressLine from "@/components/auth/progress-line";
 import { CONSOLE_ACTION } from "@/lib/auth/constants";
 import { AUTH_COPY } from "@/lib/data/auth/shared";
 
@@ -26,11 +27,7 @@ export default function AuthSubmit({ label, pendingLabel, doneLabel, pending = f
                     <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-0.5" />
                 </span>
             )}
-            {pending ? (
-                <span aria-hidden className="bg-text-inverse/15 absolute inset-x-0 bottom-0 h-0.5 overflow-hidden">
-                    <span className="haulr-progress bg-accent block h-full w-1/3" />
-                </span>
-            ) : null}
+            {pending ? <ProgressLine className="bg-text-inverse/15 absolute inset-x-0 bottom-0" /> : null}
         </button>
     );
 }
