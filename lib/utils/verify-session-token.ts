@@ -1,6 +1,8 @@
 import { importSPKI, jwtVerify } from "jose";
 import { z } from "zod";
+import { API_MOCKS } from "@/lib/constants";
 import { createUserDtoSchema } from "@/lib/contract/schemas";
+import { MOCK_TOKEN_ALGORITHM, MOCK_TOKEN_SECRET } from "@/lib/mocks/session-token";
 
 const ALGORITHM = "RS256";
 const PEM_MARKER = "-----BEGIN";
@@ -33,12 +35,18 @@ const publicKey = () => {
     return importedKey;
 };
 
+const verifier = async () =>
+    API_MOCKS
+        ? { key: MOCK_TOKEN_SECRET, algorithm: MOCK_TOKEN_ALGORITHM }
+        : { key: await publicKey(), algorithm: ALGORITHM };
+
 export const verifySessionToken = async (
     token: string,
 ): Promise<SessionPayload | null> => {
     try {
-        const { payload } = await jwtVerify(token, await publicKey(), {
-            algorithms: [ALGORITHM],
+        const { key, algorithm } = await verifier();
+        const { payload } = await jwtVerify(token, key, {
+            algorithms: [algorithm],
         });
         const parsed = sessionPayloadSchema.safeParse(payload);
         return parsed.success ? parsed.data : null;

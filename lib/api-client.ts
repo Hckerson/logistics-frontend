@@ -1,5 +1,5 @@
 import axios from "axios";
-import { API_BASE_URL, AUTH_ROUTE_PREFIX, LOGIN_ROUTE } from "@/lib/constants";
+import { API_BASE_URL, API_MOCKS, AUTH_ROUTE_PREFIX, LOGIN_ROUTE } from "@/lib/constants";
 import type { ApiResponse, Endpoint } from "@/lib/types/api";
 import type { AxiosInstance, AxiosRequestConfig, AxiosError } from "axios";
 
@@ -11,6 +11,10 @@ const defaultConfig: AxiosRequestConfig = {
 };
 
 export const apiClient: AxiosInstance = axios.create(defaultConfig);
+
+if (API_MOCKS) {
+    apiClient.defaults.adapter = async (config) => (await import("@/lib/mocks/adapter")).mockAdapter(config);
+}
 
 const sameOriginClient: AxiosInstance = axios.create({
     headers: defaultConfig.headers,
