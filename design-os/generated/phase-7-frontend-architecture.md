@@ -1,6 +1,6 @@
 # Phase 7 — Frontend Architecture
 
-`Haulr Design OS` · `Version 1.3.0` · `2026-10-09` · Previous: [Phase 6 — Interaction Contracts](./phase-6-interaction-contracts.md) · Next: [Phase 8 — Implementation Roadmap](./phase-8-implementation-roadmap.md)
+`Haulr Design OS` · `Version 1.3.1` · `2026-10-09` · Previous: [Phase 6 — Interaction Contracts](./phase-6-interaction-contracts.md) · Next: [Phase 8 — Implementation Roadmap](./phase-8-implementation-roadmap.md)
 
 How the code is organised to deliver Phases 1–6. This phase names files and folders because its job is code organisation. It says nothing about how anything looks; styling organisation follows the host repo's conventions (`styles/tokens.css`, `styles/globals.css`) and is not specified here.
 
@@ -96,9 +96,9 @@ app/
   (public)/  (workspace)/  (internal)/   see §3
 components/
   ui/                                (exists, flat) domain-free primitives; button.tsx, input.tsx (exist)
-  common/                            (exists, flat) shared compositions; login-form.tsx, error-summary.tsx, panel-field.tsx, hud-panel.tsx, hud-corners.tsx (exist)
+  common/                            (exists, flat) shared compositions; login-form.tsx, error-summary.tsx, board-field.tsx, board-cells.tsx, field-error.tsx, assembly-frame.tsx, scramble-text.tsx, hud-panel.tsx, hud-corners.tsx (exist)
   wrappers/                          (exists, flat) motion-wrapper.tsx (exists), boundaries
-  providers/                         (exists, flat) provider.tsx, auth-signal-provider.tsx (exist)
+  providers/                         (exists, flat) provider.tsx, auth-signal-provider.tsx, assembly-provider.tsx (exist)
   home/  auth/                       (exist) page-domain sections for PG-01 and the access pages (D-14)
 lib/
   actions/                           Server Actions (authenticated mutations and server reads)
@@ -241,6 +241,7 @@ All providers live in `components/providers/` (flat), composed by the existing `
 | Session | `session-provider.tsx` | Exposes the server-read session (user, role, organisation) to client components; read-only |
 | Offline queue | `offline-queue-provider.tsx` | Driver event and upload queue (D-6, §13); mounted only in `driver/layout.tsx` |
 | Auth signal | `auth-signal-provider.tsx` (exists) | Shares the sign-in step state (`AuthSignal` enum: origin, midway, held, pending, arrived) between the PG-10 entry and the access pages' non-interactive scene; mounted by `components/auth/auth-shell.tsx`, never app-wide |
+| Assembly | `assembly-provider.tsx` (exists) | Shares a step's start value with the fields inside it (`board-field.tsx` reads it through `useAssembly`); mounted per step by `components/auth/step-frame.tsx`, never app-wide |
 
 No provider holds server data other than through the Query cache.
 
@@ -288,7 +289,7 @@ Every hook lives in `lib/hooks/use-<resource>.ts` (host rule), and components co
 | `use-register.ts` (exists) | `useRegister` | `local` → `app/api/register` |
 | `use-create-user.ts` (exists) | `useCreateUser` | Server Action |
 | `use-debounced-search.ts` (exists) | `useDebouncedSearch` | — |
-| `use-auth-recovery.ts` | `useRequestPasswordReset`, `useResetPassword`, `useVerifyEmail`, `useResendVerification`, `useMfaChallenge` | Server Actions |
+| `use-request-password-reset.ts`, `use-reset-password.ts`, `use-verify-email.ts`, `use-resend-verification.ts`, `use-mfa-challenge.ts` (exist; one file per hook, recorded 2026-10-09) | `useRequestPasswordReset`, `useResetPassword`, `useVerifyEmail`, `useResendVerification`, `useMfaChallenge` | Server Actions in `lib/actions/` (`request-password-reset.ts`, `reset-password.ts`, `verify-email.ts`, `mfa-challenge.ts`) |
 | `use-mfa.ts` | `useMfa` | Server Actions |
 | `use-sessions.ts` | `useSessions` | Server Actions |
 | `use-profile.ts` | `useProfile`, `useChangeEmail`, `useChangePassword` | Server Actions |
@@ -336,7 +337,7 @@ Every hook lives in `lib/hooks/use-<resource>.ts` (host rule), and components co
 | `use-fleet-plan.ts` | `useFleetPlan`, `useTruckAvailability` | Route Handler (polled); Server Action |
 | `use-quote-requests.ts` | `useQuoteRequests`, `useQuoteRequest`, `useRequestCustomQuote`, `useWithdrawQuoteRequest`, `useClaimQuoteRequest`, `usePriceQuoteRequest`, `useDeclineQuoteRequest`, `useLaneEvidence` | Route Handler (polled); Server Actions |
 
-**Additions to existing hook files (version 1.1.0):** `use-loads.ts` gains `useAmendments`, `useAmendment`, `useProposeAmendment` and `useDecideAmendment`; `use-auth-recovery.ts` gains `useSsoDiscovery`; `use-tickets.ts` gains `useViewAs`.
+**Additions to existing hook files (version 1.1.0):** `use-loads.ts` gains `useAmendments`, `useAmendment`, `useProposeAmendment` and `useDecideAmendment`; the access hooks gain `useSsoDiscovery` (`use-sso-discovery.ts`, following the one-file-per-hook split above); `use-tickets.ts` gains `useViewAs`.
 
 **Existing hooks without transport (version 1.1.1).** These sit in `lib/hooks/` but wrap no resource, so they are not counted in the table above:
 
@@ -346,6 +347,10 @@ Every hook lives in `lib/hooks/use-<resource>.ts` (host rule), and components co
 | `use-caps-lock.ts` (exists) | `useCapsLock` | IC-03 password entry: a Caps Lock warning, built before IC-03 specifies one |
 | `use-side.ts` (exists) | `useSide` | SC-01.1 shipper/carrier intent, held in the `?side=` URL parameter |
 | `use-reduced.ts` (exists) | `useReduced` | Reduced-motion preference for client scenes (G-4) |
+| `use-forgot-flow.ts`, `use-reset-flow.ts`, `use-verify-flow.ts`, `use-register-flow.ts`, `use-mfa-flow.ts` (exist) | `useForgotFlow`, `useResetFlow`, `useVerifyFlow`, `useRegisterFlow`, `useMfaFlow` | Step sequencing for SC-12.1, SC-13.1, SC-14.1, SC-11.2 and SC-14.2, each over its resource hook |
+| `use-countdown.ts` (exists) | `useCountdown` | IC-46 countdowns (reset link, resend wait) |
+| `use-form-problems.ts` (exists) | `useFormProblems` | IC-02 problem list and focus attempts shared by the access forms |
+| `use-manifest.ts`, `use-board-noise.ts` (exist) | `useManifest`, `useBoardNoise` | Access-page presentation; no data, no transport |
 | `use-scene-progress.ts`, `use-truck-readouts.ts`, `use-freight-map.ts` (exist) | `useSceneProgress`, `useTruckReadouts`, `useFreightMap` | PG-01 and access-page scenes; no data, no transport |
 
 **Naming across phases.** Phases 5 and 6 cite hooks in the kebab form used for files, with parameters (for example `use-account-standing()`). The export is always the camelCase equivalent (`useAccountStanding`), and it lives in the file listed in this table, which may group several related hooks (`useAccountStanding` is exported from `use-organization.ts`).
@@ -431,8 +436,8 @@ Pure, framework-free helpers in `lib/utils/` (existing files kept):
 | Folder | What goes there | Examples (names only; appearance decided at build) |
 | --- | --- | --- |
 | `components/ui/` | Domain-free primitives implementing Phase 6 contracts | `button.tsx` (exists, IC-11), `input.tsx` (exists, IC-01), `combobox.tsx` (IC-05/07), `date-window-field.tsx` (IC-08), `dialog.tsx` (IC-41), `confirm-dialog.tsx` (IC-12), `tabs.tsx` (IC-16), `file-drop.tsx` (IC-24), `switch.tsx` (IC-36), `data-table.tsx` (IC-22), `pagination.tsx` (IC-21), `status-label.tsx` (IC-59), `countdown.tsx` (IC-46), `toggletip.tsx` (IC-56), `menu.tsx` (IC-57), `skip-link.tsx` (IC-52) |
-| `components/common/` | Shared compositions implementing shared sections (SH-) and repeated page sections | `record-collection.tsx` (SH-05), `load-timeline.tsx` (SH-01), `load-position.tsx` (SH-02), `document-set.tsx` (SH-03), `conversation.tsx` (SH-04), `account-standing.tsx` (SH-06), `attention-queue.tsx` (SH-07), `metric-set.tsx` (SH-08), `scorecard.tsx` (SH-09), `money-breakdown.tsx` (SH-14), `assignment-picker.tsx` (SH-15), `step-flow.tsx` (SH-13), `section-state.tsx` (one loading, empty and error handler for every section, SSB-1 … SSB-3), `login-form.tsx` (exists, SC-10.1), `error-summary.tsx` (exists, IC-02), `panel-field.tsx` (exists, IC-01 label and error wiring, IC-03 reveal) |
-| `components/home/`, `components/auth/` | Sections used by one public or access page (D-14) | `fork-section.tsx` (exists, SC-01.1), `lane-form.tsx` (exists, SC-01.2), `email-step.tsx` and `password-step.tsx` (exist, SC-10.1), `recovery-nav.tsx` (exists, SC-10.2) |
+| `components/common/` | Shared compositions implementing shared sections (SH-) and repeated page sections | `record-collection.tsx` (SH-05), `load-timeline.tsx` (SH-01), `load-position.tsx` (SH-02), `document-set.tsx` (SH-03), `conversation.tsx` (SH-04), `account-standing.tsx` (SH-06), `attention-queue.tsx` (SH-07), `metric-set.tsx` (SH-08), `scorecard.tsx` (SH-09), `money-breakdown.tsx` (SH-14), `assignment-picker.tsx` (SH-15), `step-flow.tsx` (SH-13), `section-state.tsx` (one loading, empty and error handler for every section, SSB-1 … SSB-3), `login-form.tsx` (exists, SC-10.1), `error-summary.tsx` (exists, IC-02), `board-field.tsx` (exists, IC-01 label and error wiring with `field-error.tsx`, IC-03 reveal) |
+| `components/home/`, `components/auth/` | Sections used by one public or access page (D-14) | `fork-section.tsx` (exists, SC-01.1), `lane-form.tsx` (exists, SC-01.2), `email-step.tsx` and `password-step.tsx` (exist, SC-10.1), `auth-links.tsx` (exists, SC-10.2), `forgot-form.tsx` (exists, SC-12.1), `reset-form.tsx` (exists, SC-13.1), `verify-email.tsx` (exists, SC-14.1), `link-countdown.tsx` (exists, IC-46) |
 | `components/wrappers/` | Behavioural wrappers | `motion-wrapper.tsx` (exists), `section-boundary.tsx` (error + suspense per section, SSB-1/3), `role-gate.tsx` (render by capability, never security) |
 | `components/providers/` | Providers (§5) | `provider.tsx`, `auth-signal-provider.tsx` (exist) |
 

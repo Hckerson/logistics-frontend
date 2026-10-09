@@ -1,6 +1,6 @@
 # Phase 4 — Page Blueprints
 
-`Haulr Design OS` · `Version 1.3.0` · `2026-10-09` · Previous: [Phase 3 — Information Architecture](./phase-3-information-architecture.md) · Next: [Phase 5 — Section Blueprints](./phase-5-section-blueprints.md)
+`Haulr Design OS` · `Version 1.3.1` · `2026-10-09` · Previous: [Phase 3 — Information Architecture](./phase-3-information-architecture.md) · Next: [Phase 5 — Section Blueprints](./phase-5-section-blueprints.md)
 
 A functional blueprint for each of the 66 pages in the [Phase 3 sitemap](./phase-3-information-architecture.md#3-sitemap). Each blueprint says what the page is for, what users come to get done, what data and permissions it needs, and what happens in every state. It never says what the page contains or how it looks; that is decided when the page is built, with the owner.
 

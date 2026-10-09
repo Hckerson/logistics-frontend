@@ -1,6 +1,6 @@
 # Phase 8 — Implementation Roadmap
 
-`Haulr Design OS` · `Version 1.3.0` · `2026-10-09` · Previous: [Phase 7 — Frontend Architecture](./phase-7-frontend-architecture.md) · Next: [Phase 9 — QA Checklist](./phase-9-qa-checklist.md)
+`Haulr Design OS` · `Version 1.3.1` · `2026-10-09` · Previous: [Phase 7 — Frontend Architecture](./phase-7-frontend-architecture.md) · Next: [Phase 9 — QA Checklist](./phase-9-qa-checklist.md)
 
 The plan for building Phases 1–7 in 16 weeks (8 two-week sprints), plus the single record of build status for every page, section, interaction contract and flow. Status lives here and nowhere else; the blueprints in Phases 1–7 record intent and are never edited to reflect progress (Critical Rules › Scope Preservation).
 
@@ -229,45 +229,45 @@ Every page, section, interaction contract and flow carries exactly one status:
 
 A feature with no implementation is **Specified**, not absent. Status is never resolved by deletion.
 
-**Stage or sprint.** `Solo n` is a stage of the solo build order (§16), the active plan. `Sn (team plan)` is the staffed plan's sprint, kept for reference on deferred items.
+**Stage or sprint.** `Solo n` is a stage of the solo build order (§16), the active plan. `Sn (team plan)` is the staffed plan's sprint, kept for reference on items outside the slice.
 
 **Baseline as of 2026-09-30:** the starter already contains a sign-in page (`app/auth/login`), login form, session and register route handlers, login/register/logout hooks and a button primitive. Those items are **In progress** (they exist but need Haulr extensions and Phase 9 verification). Everything else is **Scheduled**.
 
 **Update 2026-10-09:**
 
 - **PG-01 Home** was built ahead of its S3 slot at `app/page.tsx`, so it is **In progress** with SC-01.1, SC-01.2 and SC-01.4. Still open: SC-01.2 suggestions use a static list, not IC-05 (`use-location-suggestions`), and SC-01.4 is not yet session-aware. SC-01.3 stays **Scheduled**. The page states product targets, not the network statistics SC-01.3 requires from the `stats` endpoint.
-- **PG-10 Sign In** is now identity-first (email, then password), the shape SC-10.3 needs for SSO discovery. SC-10.2 is **In progress** (`components/auth/recovery-nav.tsx`). IC-01, IC-02 and IC-03 are **In progress**: `components/ui/input.tsx`, `components/common/panel-field.tsx` (label, error wiring and reveal), `components/common/error-summary.tsx` and `lib/hooks/use-caps-lock.ts`.
+- **PG-10 Sign In** is now identity-first (email, then password), the shape SC-10.3 needs for SSO discovery. SC-10.2 is **In progress** (`components/auth/auth-links.tsx`). Forgot Password, Reset Password and Verify (PG-12, PG-13, PG-14) are **In progress** with their mock handlers; the MFA challenge (SC-14.2) has its Server Action, mock and hooks, with no screen yet. IC-01, IC-02 and IC-03 are **In progress**: `components/ui/input.tsx`, `components/common/board-field.tsx` (label, error wiring with `field-error.tsx`, and reveal), `components/common/error-summary.tsx` and `lib/hooks/use-caps-lock.ts`.
 
 ### 9.2 Flows
 
 | ID | Status | Stage or sprint | ID | Status | Stage or sprint |
 | --- | --- | --- | --- | --- | --- |
-| XF-01 | Scheduled | Solo 5 | XD-01 | Deferred | S7 (team plan) |
-| XF-02 | Scheduled | Solo 6 | XD-02 | Deferred | S7 (team plan) |
-| XF-03 | Deferred | S4 (team plan) | XD-03 | Deferred | S5 (team plan) |
-| XF-04 | Deferred | S4 (team plan) | XD-04 | Deferred | S8 (team plan) |
-| XF-05 | Scheduled | Solo 3 | XD-05 | Deferred | S4 (team plan) |
-| XF-06 | Scheduled | Solo 4 | XD-06 | Deferred | S8 (team plan) |
-| XF-07 | Scheduled | Solo 2 | XD-07 | Deferred | S8 (team plan) |
-| XF-08 | Deferred | S8 (team plan) | XD-08 | Deferred | S8 (team plan) |
+| XF-01 | Scheduled | Solo 5 | XD-01 | Specified | S7 (team plan) |
+| XF-02 | Scheduled | Solo 6 | XD-02 | Specified | S7 (team plan) |
+| XF-03 | Specified | S4 (team plan) | XD-03 | Specified | S5 (team plan) |
+| XF-04 | Specified | S4 (team plan) | XD-04 | Specified | S8 (team plan) |
+| XF-05 | Scheduled | Solo 3 | XD-05 | Specified | S4 (team plan) |
+| XF-06 | Scheduled | Solo 4 | XD-06 | Specified | S8 (team plan) |
+| XF-07 | Scheduled | Solo 2 | XD-07 | Specified | S8 (team plan) |
+| XF-08 | Specified | S8 (team plan) | XD-08 | Specified | S8 (team plan) |
 | XF-09 | Scheduled | Solo 4 | XS-01 | In progress | Solo 1 |
-| XF-10 | Scheduled | Solo 7 | XS-02 | Deferred | S2 (team plan) |
-| XF-11 | Deferred | S6 (team plan) | XS-03 | Deferred | S7 (team plan) |
-| XF-12 | Deferred | S2, S4 (team plan) | XS-04 | Deferred | S7 (team plan) |
-| XF-13 | Deferred | S2 (team plan) | XS-05 | Deferred | S7 (team plan) |
-| XF-14 | Deferred | S3–S4 (team plan) | XS-06 | Deferred | S6 (team plan) |
-| XF-15 | Deferred | S5 (team plan) | XS-07 | Deferred | S7 (team plan) |
-| XF-16 | Deferred | S4 (team plan) | XS-08 | Deferred | S6 (team plan) |
-| XF-17 | Scheduled | Solo 3 | XS-09 | Deferred | S4 (team plan) |
+| XF-10 | Scheduled | Solo 7 | XS-02 | Specified | S2 (team plan) |
+| XF-11 | Specified | S6 (team plan) | XS-03 | Specified | S7 (team plan) |
+| XF-12 | Specified | S2, S4 (team plan) | XS-04 | Specified | S7 (team plan) |
+| XF-13 | Specified | S2 (team plan) | XS-05 | Specified | S7 (team plan) |
+| XF-14 | Specified | S3–S4 (team plan) | XS-06 | Specified | S6 (team plan) |
+| XF-15 | Specified | S5 (team plan) | XS-07 | Specified | S7 (team plan) |
+| XF-16 | Specified | S4 (team plan) | XS-08 | Deferred | S6 (team plan) |
+| XF-17 | Scheduled | Solo 3 | XS-09 | Specified | S4 (team plan) |
 | | | | XS-10 | Scheduled | Solo 5 |
-| | | | XS-11 | Deferred | S3 (team plan) |
-| | | | XS-12 | Deferred | S6 (team plan) |
-| | | | XS-13 | Deferred | S2 (team plan) |
-| | | | XS-14 | Deferred | S7 (team plan) |
-| | | | XS-15 | Deferred | S6 (team plan) |
-| | | | XS-16 | Deferred | S8 (team plan) |
-| | | | XS-17 | Deferred | S6 (team plan) |
-| | | | XS-18 | Deferred | S3 (team plan) |
+| | | | XS-11 | Specified | S3 (team plan) |
+| | | | XS-12 | Specified | S6 (team plan) |
+| | | | XS-13 | Specified | S2 (team plan) |
+| | | | XS-14 | Specified | S7 (team plan) |
+| | | | XS-15 | Specified | S6 (team plan) |
+| | | | XS-16 | Specified | S8 (team plan) |
+| | | | XS-17 | Specified | S6 (team plan) |
+| | | | XS-18 | Specified | S3 (team plan) |
 
 ### 9.3 Pages
 
@@ -277,37 +277,37 @@ Size: **S** ≈ 2 engineer-days, **M** ≈ 5, **L** ≈ 10, **XL** ≈ 15, exclu
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | PG-01 | Home | M | In progress | Solo 1 | PG-33 | Load Board | L | Scheduled | Solo 6 |
 | PG-02 | Public Tracking | M | Scheduled | Solo 2 | PG-34 | Book Load | M | Scheduled | Solo 6 |
-| PG-03 | Carrier Public Profile | S | Deferred | S4 (team plan) | PG-35 | My Loads (carrier) | M | Deferred | S4–S5 (team plan) |
-| PG-04 | Shipper Public Profile | S | Deferred | S4 (team plan) | PG-36 | Saved Loads and Searches | S | Deferred | S4 (team plan) |
-| PG-05 | Lane Rate Estimator | M | Scheduled | Solo 5 | PG-37 | Fleet | M | Deferred | S5 (team plan) |
-| PG-06 | Help Center | S | Deferred | S7 (team plan) | PG-38 | Settlements | M | Deferred | S6 (team plan) |
-| PG-07 | Help Article | S | Deferred | S7 (team plan) | PG-39 | Driver Trip | XL | Scheduled | Solo 4 |
-| PG-08 | Contact Support | S | Deferred | S7 (team plan) | PG-40 | Load Details | XL | Scheduled | Solo 2 |
-| PG-09 | Legal | S | Deferred | S2 (team plan) | PG-41 | Messages | M | Deferred | S7 (team plan) |
-| PG-10 | Sign In | S | In progress | Solo 1 | PG-42 | Notifications | S | Deferred | S7 (team plan) |
-| PG-11 | Register | S | In progress | Solo 1 | PG-43 | Documents | M | Deferred | S6 (team plan) |
-| PG-12 | Forgot Password | S | Deferred | S1 (team plan) | PG-44 | Claims | S | Deferred | S6 (team plan) |
-| PG-13 | Reset Password | S | Deferred | S1 (team plan) | PG-45 | Claim Detail | M | Deferred | S6 (team plan) |
-| PG-14 | Verify | S | Deferred | S1 (team plan) | PG-46 | Profile | S | Deferred | S2 (team plan) |
-| PG-15 | Accept Invitation | S | Deferred | S1 (team plan) | PG-47 | Settings | M | Deferred | S2, S7 (team plan) |
-| PG-16 | Shipper Onboarding | M | Deferred | S2 (team plan) | PG-48 | Organization and Team | M | Deferred | S2, S4 (team plan) |
-| PG-17 | Carrier Onboarding | L | Deferred | S2 (team plan) | PG-49 | Payment and Payout Methods | M | Deferred | S6 (team plan) |
-| PG-18 | Shipper Dashboard | M | Deferred | S7 (team plan) | PG-50 | Exception Queue | L | Deferred | S8 (team plan) |
-| PG-19 | Carrier Dashboard | M | Deferred | S7 (team plan) | PG-51 | Carrier Vetting Review | M | Deferred | S4 (team plan) |
-| PG-20 | Driver Home | S | Scheduled | Solo 4 | PG-52 | Accounts | M | Deferred | S8 (team plan) |
-| PG-21 | Operations Dashboard | M | Deferred | S8 (team plan) | PG-53 | Not Found | S | Scheduled | Solo 1 |
-| PG-22 | Compliance Dashboard | S | Deferred | S4 (team plan) | PG-54 | Server Error | S | Scheduled | Solo 1 |
-| PG-23 | Finance Operations Dashboard | M | Deferred | S6, S8 (team plan) | PG-55 | Access Denied | S | Scheduled | Solo 1 |
-| PG-24 | Support Console | L | Deferred | S8 (team plan) | PG-56 | Bulk Load Import | L | Deferred | S4 (team plan) |
-| PG-25 | Admin Dashboard | M | Deferred | S8 (team plan) | PG-57 | Templates and Recurring Loads | M | Deferred | S3 (team plan) |
-| PG-26 | Shipments | L | Scheduled | Solo 2 | PG-58 | Approvals | M | Deferred | S4 (team plan) |
-| PG-27 | Post a Load | XL | Scheduled | Solo 5 | PG-59 | Reports | L | Deferred | S7 (team plan) |
-| PG-28 | Compare Bids | M | Deferred | S4 (team plan) | PG-60 | Security and SSO | L | Deferred | S2 (team plan) |
-| PG-29 | Preferred Carriers | M | Deferred | S4 (team plan) | PG-61 | Integrations | L | Deferred | S7 (team plan) |
-| PG-30 | Invoices | M | Deferred | S6 (team plan) | PG-62 | Data and Privacy | M | Deferred | S6 (team plan) |
-| PG-31 | Invoice Detail and Pay | M | Scheduled | Solo 7 | PG-63 | Audit Log | S | Deferred | S6 (team plan) |
-| PG-32 | Locations | M | Deferred | S3 (team plan) | PG-64 | Review Amendment | M | Deferred | S5 (team plan) |
-| PG-65 | Dispatch Board | L | Scheduled | Solo 3 | PG-66 | Quote Desk | M | Deferred | S3 (team plan) |
+| PG-03 | Carrier Public Profile | S | Specified | S4 (team plan) | PG-35 | My Loads (carrier) | M | Specified | S4–S5 (team plan) |
+| PG-04 | Shipper Public Profile | S | Specified | S4 (team plan) | PG-36 | Saved Loads and Searches | S | Specified | S4 (team plan) |
+| PG-05 | Lane Rate Estimator | M | Scheduled | Solo 5 | PG-37 | Fleet | M | Specified | S5 (team plan) |
+| PG-06 | Help Center | S | Specified | S7 (team plan) | PG-38 | Settlements | M | Specified | S6 (team plan) |
+| PG-07 | Help Article | S | Specified | S7 (team plan) | PG-39 | Driver Trip | XL | Scheduled | Solo 4 |
+| PG-08 | Contact Support | S | Specified | S7 (team plan) | PG-40 | Load Details | XL | Scheduled | Solo 2 |
+| PG-09 | Legal | S | Specified | S2 (team plan) | PG-41 | Messages | M | Specified | S7 (team plan) |
+| PG-10 | Sign In | S | In progress | Solo 1 | PG-42 | Notifications | S | Specified | S7 (team plan) |
+| PG-11 | Register | S | In progress | Solo 1 | PG-43 | Documents | M | Specified | S6 (team plan) |
+| PG-12 | Forgot Password | S | In progress | Solo 1 | PG-44 | Claims | S | Specified | S6 (team plan) |
+| PG-13 | Reset Password | S | In progress | Solo 1 | PG-45 | Claim Detail | M | Specified | S6 (team plan) |
+| PG-14 | Verify | S | In progress | Solo 1 | PG-46 | Profile | S | Specified | S2 (team plan) |
+| PG-15 | Accept Invitation | S | Specified | S1 (team plan) | PG-47 | Settings | M | Specified | S2, S7 (team plan) |
+| PG-16 | Shipper Onboarding | M | Specified | S2 (team plan) | PG-48 | Organization and Team | M | Specified | S2, S4 (team plan) |
+| PG-17 | Carrier Onboarding | L | Specified | S2 (team plan) | PG-49 | Payment and Payout Methods | M | Deferred | S6 (team plan) |
+| PG-18 | Shipper Dashboard | M | Specified | S7 (team plan) | PG-50 | Exception Queue | L | Specified | S8 (team plan) |
+| PG-19 | Carrier Dashboard | M | Specified | S7 (team plan) | PG-51 | Carrier Vetting Review | M | Specified | S4 (team plan) |
+| PG-20 | Driver Home | S | Scheduled | Solo 4 | PG-52 | Accounts | M | Specified | S8 (team plan) |
+| PG-21 | Operations Dashboard | M | Specified | S8 (team plan) | PG-53 | Not Found | S | Scheduled | Solo 1 |
+| PG-22 | Compliance Dashboard | S | Specified | S4 (team plan) | PG-54 | Server Error | S | Scheduled | Solo 1 |
+| PG-23 | Finance Operations Dashboard | M | Specified | S6, S8 (team plan) | PG-55 | Access Denied | S | Scheduled | Solo 1 |
+| PG-24 | Support Console | L | Specified | S8 (team plan) | PG-56 | Bulk Load Import | L | Specified | S4 (team plan) |
+| PG-25 | Admin Dashboard | M | Specified | S8 (team plan) | PG-57 | Templates and Recurring Loads | M | Specified | S3 (team plan) |
+| PG-26 | Shipments | L | Scheduled | Solo 2 | PG-58 | Approvals | M | Specified | S4 (team plan) |
+| PG-27 | Post a Load | XL | Scheduled | Solo 5 | PG-59 | Reports | L | Specified | S7 (team plan) |
+| PG-28 | Compare Bids | M | Specified | S4 (team plan) | PG-60 | Security and SSO | L | Specified | S2 (team plan) |
+| PG-29 | Preferred Carriers | M | Specified | S4 (team plan) | PG-61 | Integrations | L | Specified | S7 (team plan) |
+| PG-30 | Invoices | M | Specified | S6 (team plan) | PG-62 | Data and Privacy | M | Specified | S6 (team plan) |
+| PG-31 | Invoice Detail and Pay | M | Scheduled | Solo 7 | PG-63 | Audit Log | S | Specified | S6 (team plan) |
+| PG-32 | Locations | M | Specified | S3 (team plan) | PG-64 | Review Amendment | M | Specified | S5 (team plan) |
+| PG-65 | Dispatch Board | L | Scheduled | Solo 3 | PG-66 | Quote Desk | M | Specified | S3 (team plan) |
 
 ### 9.4 Sections
 
@@ -315,23 +315,25 @@ Each section appears once. Where a group of sections shares one status and stage
 
 | Sections | Status | Stage or sprint |
 | --- | --- | --- |
-| SC-01.1, SC-01.4, SC-10.1, SC-10.2, SC-11.2 | In progress | Solo 1 |
+| SC-01.1, SC-01.4, SC-10.1, SC-10.2, SC-11.2, SC-12.1, SC-13.1, SC-14.1, SC-14.2 | In progress | Solo 1 |
 | SC-01.2 | In progress | Solo 5 |
 | SC-01.3, SC-11.1, SC-53.1, SC-54.1, SC-55.1 | Scheduled | Solo 1 |
-| SH-01, SH-02, SC-02.1 … SC-02.3, SH-03, SH-05, SH-14, SC-26.1, SC-26.2, SC-40.1 … SC-40.4, SC-40.6 … SC-40.8, SC-40.10, SC-40.15 | Scheduled | Solo 2 |
-| SH-06, SH-15, SC-40.5, SC-65.1 … SC-65.4 | Scheduled | Solo 3 |
+| SC-02.1 … SC-02.3, SC-26.1, SC-26.2, SC-40.1 … SC-40.4, SC-40.6 … SC-40.8, SC-40.10, SC-40.15, SH-01, SH-02, SH-03, SH-05, SH-14 | Scheduled | Solo 2 |
+| SC-40.5, SC-65.1 … SC-65.4, SH-06, SH-15 | Scheduled | Solo 3 |
 | SC-20.1 … SC-20.3, SC-39.1 … SC-39.3, SC-39.5 … SC-39.7 | Scheduled | Solo 4 |
-| SC-05.1, SC-05.2, SC-05.4, SH-13, SC-27.1 … SC-27.6 | Scheduled | Solo 5 |
+| SC-05.1, SC-05.2, SC-05.4, SC-27.1 … SC-27.6, SH-13 | Scheduled | Solo 5 |
 | SC-33.1 … SC-33.3, SC-33.5, SC-34.1 … SC-34.4 | Scheduled | Solo 6 |
 | SC-31.1 … SC-31.3 | Scheduled | Solo 7 |
-| SC-12.1, SC-13.1, SC-14.1, SC-14.2, SC-15.1, SC-15.2 | Deferred | S1 (team plan) |
-| SC-09.1, SC-10.3, SC-16.1 … SC-16.4, SC-17.1 … SC-17.6, SC-46.1, SC-46.2, SC-47.1, SC-47.2, SC-48.1 … SC-48.3, SC-60.1 … SC-60.5 | Deferred | S2 (team plan) |
-| SC-05.3, SC-27.7, SC-32.1, SC-32.2, SC-57.1 … SC-57.3, SC-66.1 … SC-66.3 | Deferred | S3 (team plan) |
-| SC-03.1 … SC-03.3, SC-04.1, SC-04.2, SH-09, SC-22.1 … SC-22.3, SC-28.1 … SC-28.4, SC-29.1, SC-29.2, SC-33.4, SC-35.1, SC-36.1, SC-36.2, SC-40.17, SC-48.4, SC-51.1 … SC-51.5, SC-56.1 … SC-56.4, SC-58.1 … SC-58.4 | Deferred | S4 (team plan) |
-| SC-26.3, SC-35.2, SC-37.1, SC-37.2, SC-39.4, SC-40.12, SC-40.16, SC-64.1 … SC-64.4 | Deferred | S5 (team plan) |
-| SH-11, SC-23.1, SC-30.1 … SC-30.3, SC-31.4, SC-38.1 … SC-38.4, SC-40.9, SC-40.13, SC-43.1, SC-43.2, SC-44.1, SC-44.2, SC-45.1 … SC-45.4, SC-49.1 … SC-49.3, SC-62.1, SC-62.2, SC-63.1, SC-63.2 | Deferred | S6 (team plan) |
-| SH-04, SC-06.1 … SC-06.3, SH-07, SC-07.1 … SC-07.3, SH-08, SC-08.1, SC-08.2, SH-10, SH-12, SC-18.1 … SC-18.5, SC-19.1 … SC-19.5, SC-40.11, SC-40.14, SC-41.1, SC-41.2, SC-42.1, SC-42.2, SC-47.3, SC-59.1 … SC-59.3, SC-61.1 … SC-61.3 | Deferred | S7 (team plan) |
-| SC-21.1 … SC-21.4, SC-23.2 … SC-23.5, SC-24.1 … SC-24.4, SC-25.1 … SC-25.3, SC-50.1 … SC-50.4, SC-52.1 … SC-52.4 | Deferred | S8 (team plan) |
+| SC-15.1, SC-15.2 | Specified | S1 (team plan) |
+| SC-09.1, SC-10.3, SC-16.1, SC-16.2, SC-16.4, SC-17.1 … SC-17.4, SC-17.6, SC-46.1, SC-46.2, SC-47.1, SC-47.2, SC-48.1 … SC-48.3, SC-60.1 … SC-60.5 | Specified | S2 (team plan) |
+| SC-05.3, SC-27.7, SC-32.1, SC-32.2, SC-57.1 … SC-57.3, SC-66.1 … SC-66.3 | Specified | S3 (team plan) |
+| SC-03.1 … SC-03.3, SC-04.1, SC-04.2, SC-22.1 … SC-22.3, SC-28.1 … SC-28.4, SC-29.1, SC-29.2, SC-33.4, SC-35.1, SC-36.1, SC-36.2, SC-40.17, SC-48.4, SC-51.1 … SC-51.5, SC-56.1 … SC-56.4, SC-58.1 … SC-58.4, SH-09 | Specified | S4 (team plan) |
+| SC-26.3, SC-35.2, SC-37.1, SC-37.2, SC-39.4, SC-40.12, SC-40.16, SC-64.1 … SC-64.4 | Specified | S5 (team plan) |
+| SC-23.1, SC-30.1 … SC-30.3, SC-31.4, SC-38.1 … SC-38.4, SC-40.9, SC-40.13, SC-43.1, SC-43.2, SC-44.1, SC-44.2, SC-45.1 … SC-45.4, SC-62.1, SC-62.2, SC-63.1, SC-63.2, SH-11 | Specified | S6 (team plan) |
+| SC-06.1 … SC-06.3, SC-07.1 … SC-07.3, SC-08.1, SC-08.2, SC-18.1 … SC-18.5, SC-19.1 … SC-19.5, SC-40.11, SC-40.14, SC-41.1, SC-41.2, SC-42.1, SC-42.2, SC-47.3, SC-59.1 … SC-59.3, SC-61.1 … SC-61.3, SH-04, SH-07, SH-08, SH-10, SH-12 | Specified | S7 (team plan) |
+| SC-21.1 … SC-21.4, SC-23.2 … SC-23.5, SC-24.1 … SC-24.4, SC-25.1 … SC-25.3, SC-50.1 … SC-50.4, SC-52.1 … SC-52.4 | Specified | S8 (team plan) |
+| SC-16.3, SC-17.5 | Deferred | S2 (team plan) |
+| SC-49.1 … SC-49.3 | Deferred | S6 (team plan) |
 
 Check: 15 shared + 223 page sections = 238, matching [Phase 5 §13](./phase-5-section-blueprints.md#13-section-inventory).
 
@@ -339,30 +341,32 @@ Check: 15 shared + 223 page sections = 238, matching [Phase 5 §13](./phase-5-se
 
 | Contracts | Status | Stage or sprint |
 | --- | --- | --- |
-| IC-01, IC-02, IC-03, IC-11 | In progress | Solo 1 |
-| IC-09, IC-12, IC-14, IC-19, IC-38, IC-41, IC-44, IC-46, IC-51, IC-52, IC-55, IC-59, IC-60, IC-67 | Scheduled | Solo 1 |
+| IC-01, IC-02, IC-03, IC-11, IC-46 | In progress | Solo 1 |
+| IC-04, IC-09, IC-12, IC-14, IC-19, IC-38, IC-41, IC-44, IC-51, IC-52, IC-55, IC-59, IC-60, IC-67 | Scheduled | Solo 1 |
 | IC-05, IC-07, IC-08, IC-10, IC-18, IC-20, IC-21, IC-22, IC-24, IC-25, IC-30, IC-32, IC-56, IC-58 | Scheduled | Solo 2 |
 | IC-06, IC-39, IC-68 | Scheduled | Solo 3 |
 | IC-29, IC-31 | Scheduled | Solo 4 |
 | IC-15, IC-40 | Scheduled | Solo 5 |
 | IC-26, IC-27 | Scheduled | Solo 6 |
 | IC-43 | Scheduled | Solo 7 |
-| IC-04 | Deferred | S1 (team plan) |
-| IC-13, IC-63 | Deferred | S2 (team plan) |
-| IC-23, IC-57 | Deferred | S3 (team plan) |
-| IC-28, IC-33, IC-34, IC-61, IC-62 | Deferred | S4 (team plan) |
-| IC-66 | Deferred | S5 (team plan) |
-| IC-42, IC-65 | Deferred | S6 (team plan) |
-| IC-16, IC-17, IC-35, IC-36, IC-37, IC-45, IC-50, IC-53, IC-54 | Deferred | S7 (team plan) |
-| IC-47, IC-48, IC-49, IC-64 | Deferred | S8 (team plan) |
+| IC-13, IC-63 | Specified | S2 (team plan) |
+| IC-23, IC-57 | Specified | S3 (team plan) |
+| IC-28, IC-33, IC-34, IC-61, IC-62 | Specified | S4 (team plan) |
+| IC-66 | Specified | S5 (team plan) |
+| IC-65 | Specified | S6 (team plan) |
+| IC-16, IC-17, IC-35, IC-36, IC-37, IC-45, IC-50, IC-53, IC-54 | Specified | S7 (team plan) |
+| IC-47, IC-48, IC-49, IC-64 | Specified | S8 (team plan) |
+| IC-42 | Deferred | S6 (team plan) |
 
-In progress contracts build on existing files: IC-01 `input.tsx`, IC-02 `error-summary.tsx`, IC-03 `panel-field.tsx` and `use-caps-lock.ts`, IC-11 `button.tsx`.
+In progress contracts build on existing files: IC-01 `input.tsx` with `board-field.tsx` and `field-error.tsx`, IC-02 `error-summary.tsx`, IC-03 `board-field.tsx` (reveal) and `use-caps-lock.ts`, IC-11 `button.tsx`, IC-46 `link-countdown.tsx` with `use-countdown.ts`.
 
 Check: 68 contracts, matching [Phase 6 §13](./phase-6-interaction-contracts.md#13-contract-usage-index).
 
 ### 9.6 Deferred register
 
-**2026-10-09, solo build (approved by the maintainer).** Every flow, page, section and contract marked Deferred in §9.2–9.5. Reason: one engineer builds the end-to-end slice in §16 first. Revisit trigger: §16 stage 7 reaches Verified, or the team grows. Specs are unchanged.
+**2026-10-09, payment and payout method entry (approved by the maintainer).** IC-42, PG-49, SC-16.3, SC-17.5, SC-49.1 … SC-49.3 and XS-08. Blocker: no payments processor is chosen (R-06), so its hosted entry fields do not exist to build against. Revisit trigger: the processor is chosen. Specs are unchanged.
+
+Items outside the solo slice are **Specified**, not Deferred: nothing blocks them, and they are queued after §16 stage 7. (Version 1.3.0 had marked them Deferred; 1.3.1 relabelled them because capacity alone is not a blocker.)
 
 An entry requires: the item's ID, the reason, the revisit trigger (date, milestone or dependency) and the maintainer who approved the deferral. Pre-agreed deferral candidates if capacity (§13) falls short are listed there; they remain **Scheduled** until the maintainer approves a deferral.
 
@@ -437,8 +441,8 @@ Capacity: 8 engineers × 16 weeks × 5 days × 0.75 focus factor ≈ **480 engin
 **Result: a shortfall of roughly 130 engineer-days (about 21%).** This is stated so it can be managed, not hidden. Options, in the order recommended:
 
 1. Add one engineer to the enterprise track from S3 (+ ≈ 50 days) and one to the core track from S5 (+ ≈ 30 days).
-2. Pre-agree deferral candidates with the maintainer, to be applied only if the burn-down at M2 confirms the gap: EDI connections (SC-61.3), recurring schedules (SC-57.3), report schedules (SC-59.3), personal-throughput metrics (SC-21.4), saved report views, and the dispatch board (PG-65 with SC-65.1 … SC-65.4, IC-68 and XF-17; about 13 engineer-days with hardening, and off the quote-to-paid path). The quote desk (PG-66) is not a candidate: without it, custom quote requests in XF-01 have no answer. Deferred items keep their specs and move to §9.6 with a revisit trigger of "M4 + 4 weeks".
-3. Extend the timeline by one sprint (to 2027-02-19).
+2. Extend the timeline by one sprint (to 2027-02-19).
+3. Only where a candidate is genuinely blocked, defer it with the blocker named (fix before drop). Candidates considered: EDI connections (SC-61.3), recurring schedules (SC-57.3), report schedules (SC-59.3), personal-throughput metrics (SC-21.4), saved report views, and the dispatch board (PG-65 with SC-65.1 … SC-65.4, IC-68 and XF-17; about 13 engineer-days with hardening, and off the quote-to-paid path). The quote desk (PG-66) is not a candidate: without it, custom quote requests in XF-01 have no answer. Deferred items keep their specs and move to §9.6 with a revisit trigger of "M4 + 4 weeks".
 
 Burn-down is reviewed at every milestone; the decision among these options is due at M2. For one engineer the same scope is about 160 weeks (611 ÷ 3.75 engineer-days a week), which is why §16 builds a slice first.
 
@@ -472,14 +476,14 @@ Burn-down is reviewed at every milestone; the decision among these options is du
 
 ## 16. Solo Build Order
 
-**This is the active plan.** One engineer builds the end-to-end slice below against the mocked backend (host `.claude/CLAUDE.md`, "The mocked backend"). The order delivers the interface patterns the project brief names for Logistics first (live tracking maps, ETAs and load plans, `docs/economy-coverage-map.md`), then the rest of the quote-to-paid lifecycle. Mock fixtures stand in for loads that were never posted, so tracking and planning do not wait for posting and booking. Everything outside the slice is **Deferred** in §9 (register in §9.6). Sections 1–15 stay as the staffed plan.
+**This is the active plan.** One engineer builds the end-to-end slice below against the mocked backend (host `.claude/CLAUDE.md`, "The mocked backend"). The order delivers the interface patterns the project brief names for Logistics first (live tracking maps, ETAs and load plans, `docs/economy-coverage-map.md`), then the rest of the quote-to-paid lifecycle. Mock fixtures stand in for loads that were never posted, so tracking and planning do not wait for posting and booking. Everything outside the slice is **Specified** in §9: fully defined and queued after stage 7. Only payment and payout method entry is **Deferred**, because no payments processor is chosen (§9.6). Sections 1–15 stay as the staffed plan.
 
 **Capacity.** One engineer at the §13 focus factor gives about 3.75 engineer-days a week. The slice is about 265 engineer-days, including mock handlers and 15% hardening, so about 71 weeks.
 
 | Stage | Delivers | Pages | Flows | ≈ Weeks | Ends ≈ week |
 | --- | --- | --- | --- | --- | --- |
 | 0 Foundations | Route groups and guards (D-7), `appRoutes`, error taxonomy with `section-state` and `section-boundary`, announcer and session providers, `withAction` and `withHandler` (D-13), `lib/enums/`, `lib/loads/transitions.ts`, security headers | — | — | 8 | 8 |
-| 1 Access | Sign in, register and system pages; the home page finished (session-aware access routing, network proof) | PG-10, PG-11, PG-53, PG-54, PG-55, PG-01 | XS-01 | 11 | 19 |
+| 1 Access | Sign in, register, password recovery, email verification and MFA, system pages; the home page finished (session-aware access routing, network proof) | PG-10, PG-11, PG-12, PG-13, PG-14, PG-53, PG-54, PG-55, PG-01 | XS-01 | 11 | 19 |
 | 2 Load and live tracking | Load details core, live position and ETA, shipments with their map, public tracking and its link | PG-40, PG-26, PG-02 | XF-07 | 21 | 40 |
 | 3 Load plan | The dispatch board and assignment | PG-65 (with SC-40.5) | XF-17, XF-05 | 7 | 47 |
 | 4 Driver | Driver home and trip: stop events, POD capture, offline queue | PG-20, PG-39 | XF-06, XF-09 | 7 | 54 |
@@ -496,11 +500,11 @@ Each stage's sections and contracts are listed in §9.4 and §9.5. A stage ends 
 - Export and bulk actions in collections (IC-65, IC-23).
 - Messaging: SC-39.7 offers the call route only until SH-04 ships.
 - Custom quotes: SC-27.4 offers no custom-quote route until SC-27.7 and PG-66 ship together (XS-18).
-- Password recovery (PG-12, PG-13), verification and MFA (PG-14) and SSO (SC-10.3): their routes are not offered from PG-10 and PG-11 until they ship.
+- SSO (SC-10.3): not offered from PG-10 until it ships.
 
-**Interim behaviour while pages are deferred.** These are build-time stand-ins, not spec changes:
+**Interim behaviour while pages are outside the slice.** These are build-time stand-ins, not spec changes:
 
 - Role roots: shipper roles land on PG-26 and carrier roles on PG-65 until PG-18 and PG-19 ship; drivers land on PG-20 as specified (Phase 3 §4).
 - Mock fixtures provide approved carriers (PG-16, PG-17, PG-51), fleets (PG-37) and saved payment methods (PG-49); PODs verify on capture until PG-23 ships; positions move along seeded routes.
 
-**After stage 7.** Choose the next stage from the Deferred set with the maintainer. Candidates, in order of value to the slice: PG-35 My Loads and PG-37 Fleet; PG-18 and PG-19 dashboards; PG-12 and PG-13 password recovery; bidding (XF-03, PG-28); custom quotes (PG-66 with SC-27.7).
+**After stage 7.** Choose the next stage from the Specified set with the maintainer. Candidates, in order of value to the slice: PG-35 My Loads and PG-37 Fleet; PG-18 and PG-19 dashboards; PG-15 Accept Invitation; bidding (XF-03, PG-28); custom quotes (PG-66 with SC-27.7).

@@ -1,6 +1,6 @@
 # Setup Checklist — Haulr
 
-`Version 1.3.0` · `2026-10-09` · Start: [START_HERE](./START_HERE.md) · Architecture: [Phase 7](./phase-7-frontend-architecture.md) · Build: [IMPLEMENTATION_PROMPT](./IMPLEMENTATION_PROMPT.md)
+`Version 1.3.1` · `2026-10-09` · Start: [START_HERE](./START_HERE.md) · Architecture: [Phase 7](./phase-7-frontend-architecture.md) · Build: [IMPLEMENTATION_PROMPT](./IMPLEMENTATION_PROMPT.md)
 
 Step by step, from a fresh machine to a repository ready for Sprint 1. Tick each box as you go. Steps marked **Approval** need the maintainer's go-ahead before you run them (Library Selection Policy, [Phase 7 §15](./phase-7-frontend-architecture.md#15-shared-libraries)).
 
@@ -201,7 +201,7 @@ Create folders only when their first file lands (empty folders are not committed
 - [ ] `lib/mocks/` handlers and `lib/data/mocks/` fixtures for each resource as its stage begins (exist for auth)
 - [ ] `components/providers/announcer-provider.tsx`, `components/providers/session-provider.tsx`
 - [ ] `components/wrappers/section-boundary.tsx`
-- [ ] `components/ui/` primitives for the Sprint 1 contracts (IC-01, IC-02, IC-03, IC-04, IC-07, IC-09, IC-12, IC-14, IC-41, IC-52, IC-59, IC-60), extending what exists: `button.tsx` (IC-11), `input.tsx` and `components/common/panel-field.tsx` (IC-01, IC-03), `components/common/error-summary.tsx` (IC-02)
+- [ ] `components/ui/` primitives for the Sprint 1 contracts (IC-01, IC-02, IC-03, IC-04, IC-07, IC-09, IC-12, IC-14, IC-41, IC-52, IC-59, IC-60), extending what exists: `button.tsx` (IC-11), `input.tsx` and `components/common/board-field.tsx` with `field-error.tsx` (IC-01, IC-03), `components/common/error-summary.tsx` (IC-02)
 
 ### 6.2 Constants updates
 

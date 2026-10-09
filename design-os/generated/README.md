@@ -1,6 +1,6 @@
 # Haulr Design OS
 
-`Version 1.3.0` · `2026-10-09` · Start: [START_HERE](./START_HERE.md) · Index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
+`Version 1.3.1` · `2026-10-09` · Start: [START_HERE](./START_HERE.md) · Index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
 
 ## In 30 Seconds
 
