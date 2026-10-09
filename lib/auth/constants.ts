@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import type { ManifestField } from "@/lib/types";
 
 export const LANE_GEOMETRY = {
@@ -70,3 +71,5 @@ export const CONSOLE_ACTION =
 
 export const QUIET_LINK =
     "text-text-muted hover:text-text focus-visible:outline-text text-xs transition-colors focus-visible:outline-2 focus-visible:outline-offset-4";
+
+export const LINK_PAGE_METADATA: Metadata = { referrer: "no-referrer" };

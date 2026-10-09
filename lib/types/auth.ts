@@ -2,7 +2,7 @@ export type AccountSide = "shipper" | "carrier";
 
 export type SignInField = "email" | "password";
 
-export type AccountField = "side" | "fullName" | "email" | "password" | "consent";
+export type AccountField = "side" | "fullName" | "email" | "password" | "confirm" | "consent";
 
 export type ManifestField = "fullName" | "email" | "password";
 
@@ -12,7 +12,19 @@ export type RegisterStep = "side" | "details";
 
 export type ResetStep = "email" | "sent";
 
+export type ResetField = "password" | "confirm";
+
+export type VerifyStatus = "inbox" | "verifying" | "verified" | "already" | "expired" | "failed";
+
 export type OutcomeTone = "accent" | "pending" | "error";
+
+export interface VerifyView {
+    tone: OutcomeTone;
+    title: readonly string[];
+    lead: string;
+    label: string;
+    body: string;
+}
 
 export type AuthSignal = "origin" | "midway" | "pending" | "arrived" | "held";
 

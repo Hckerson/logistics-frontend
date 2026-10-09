@@ -4,6 +4,7 @@ export interface MockUser {
     email: string;
     password: string;
     role: "ADMIN" | "USER";
+    verified: boolean;
 }
 
 export type MockScenario = { kind: "rate-limited"; retryAfter: number } | { kind: "unavailable" };

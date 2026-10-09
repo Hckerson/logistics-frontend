@@ -10,9 +10,13 @@ export const LOGIN_ROUTE = `${AUTH_ROUTE_PREFIX}/login`;
 
 export const HOME_ROUTE = "/";
 
+export const DASHBOARD_ROUTE = "/dashboard";
+
 export const REGISTER_ROUTE = `${AUTH_ROUTE_PREFIX}/register`;
 
 export const FORGOT_PASSWORD_ROUTE = `${AUTH_ROUTE_PREFIX}/forgot-password`;
+
+export const RESET_PASSWORD_ROUTE = `${AUTH_ROUTE_PREFIX}/reset-password`;
 
 export const VERIFY_ROUTE = `${AUTH_ROUTE_PREFIX}/verify`;
 
@@ -28,7 +32,7 @@ export const ACCOUNT_SIDES = ["shipper", "carrier"] as const satisfies readonly 
 
 export const registerRoute = (side: AccountSide) => `${REGISTER_ROUTE}?side=${side}`;
 
-export const PROTECTED_ROUTE_PREFIXES = ["/dashboard"];
+export const PROTECTED_ROUTE_PREFIXES = [DASHBOARD_ROUTE];
 
 export const API_BASE_URL =
     process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5100";
@@ -47,9 +51,15 @@ export const REQUEST_FAILED = "The request could not be completed";
 
 export const SESSION_UNAVAILABLE = "The account was created but sign-in failed";
 
+export const SESSION_REQUIRED = "A session is required";
+
 export const PASSWORD_MIN_LENGTH = 8;
 
 export const RESET_LINK_MINUTES = 30;
+
+export const VERIFICATION_LINK_HOURS = 24;
+
+export const VERIFICATION_RESEND_COOLDOWN_S = 60;
 
 export const HTTP_STATUS = {
     badRequest: 400,
