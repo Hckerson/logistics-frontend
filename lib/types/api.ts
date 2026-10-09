@@ -6,6 +6,11 @@ export type Endpoint<TResponse = unknown> = string & {
 
 export type ApiResponse<TData> = ApiEnvelopeDto & { data: TData };
 
-export type ActionResult<TData> =
-    | { ok: true; data: TData }
-    | { ok: false; status: number; message: string; retryAfter?: number };
+export interface ActionFailure {
+    ok: false;
+    status: number;
+    message: string;
+    retryAfter?: number;
+}
+
+export type ActionResult<TData> = { ok: true; data: TData } | ActionFailure;
