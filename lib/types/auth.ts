@@ -1,8 +1,25 @@
+import type { z } from "zod";
+import type { AuthResponseUserDto } from "@/lib/contract/schemas";
+import type { ActionFailure } from "@/lib/types/api";
+import type { mfaAnswerSchema, mfaStatusSchema } from "@/lib/validations/auth";
+
 export type AccountSide = "shipper" | "carrier";
 
 export type SignInField = "email" | "password";
 
-export type AccountField = "side" | "fullName" | "email" | "password" | "confirm" | "consent";
+export type AccountField = "side" | "fullName" | "email" | "password" | "confirm" | "consent" | "code";
+
+export type MfaMethod = "totp" | "backup";
+
+export type MfaAnswer = z.infer<typeof mfaAnswerSchema>;
+
+export type MfaStatus = z.infer<typeof mfaStatusSchema>["data"];
+
+export type MfaFailure = ActionFailure & { attemptsRemaining?: number };
+
+export type MfaResult = { ok: true; data: null } | MfaFailure;
+
+export type SessionReply = { user: AuthResponseUserDto } | { challenge: true };
 
 export type ManifestField = "fullName" | "email" | "password";
 

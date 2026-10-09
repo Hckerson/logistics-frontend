@@ -8,6 +8,7 @@ export const MOCK_USERS: readonly MockUser[] = [
         password: "hunter22",
         role: "USER",
         verified: true,
+        mfa: false,
     },
     {
         id: "usr_fresh",
@@ -16,6 +17,16 @@ export const MOCK_USERS: readonly MockUser[] = [
         password: "hunter22",
         role: "USER",
         verified: false,
+        mfa: false,
+    },
+    {
+        id: "usr_approver",
+        name: "Mara Lindqvist",
+        email: "approver@northline.example",
+        password: "hunter22",
+        role: "USER",
+        verified: true,
+        mfa: true,
     },
 ];
 

@@ -5,9 +5,19 @@ export interface MockUser {
     password: string;
     role: "ADMIN" | "USER";
     verified: boolean;
+    mfa: boolean;
 }
 
 export type MockScenario = { kind: "rate-limited"; retryAfter: number } | { kind: "unavailable" };
+
+export interface MockChallenge {
+    email: string;
+    attemptsRemaining: number;
+}
+
+export interface MockErrorDetails {
+    attemptsRemaining?: number;
+}
 
 export interface MockRequest {
     method: string;

@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { SESSION_COOKIE } from "@/lib/constants";
+import { MFA_COOKIE, SESSION_COOKIE } from "@/lib/constants";
 import { DELETE, POST } from "./route";
 
 vi.mock("next/headers", () => ({
@@ -105,6 +105,26 @@ describe("creating a session", () => {
         vi.stubGlobal("fetch", respondWith(200, { data: { user: {} } }));
 
         expect((await postWith(CREDENTIALS)).status).toBe(401);
+    });
+
+    it("hands a two-step account a code challenge instead of a session", async () => {
+        vi.stubGlobal(
+            "fetch",
+            respondWith(200, {
+                statusCode: 200,
+                message: "Success",
+                timestamp: "2026-10-09T00:00:00Z",
+                data: { mfaRequired: true, challenge: "mfa_pending" },
+            }),
+        );
+
+        const response = await postWith(CREDENTIALS);
+        const cookie = response.headers.get("set-cookie");
+
+        expect(response.status).toBe(202);
+        expect(cookie).toContain(`${MFA_COOKIE}=mfa_pending`);
+        expect(cookie).toContain("HttpOnly");
+        expect(cookie).not.toContain(`${SESSION_COOKIE}=`);
     });
 });
 
