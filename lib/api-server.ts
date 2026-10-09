@@ -20,8 +20,12 @@ export const backendFetch = async (path: string, init: RequestInit = {}) => {
 export const readJson = async (source: Request | Response): Promise<unknown> =>
     await source.json().catch(() => null);
 
-export const relay = (upstream: Response) =>
-    new NextResponse(upstream.body, {
+const RETRY_AFTER = "Retry-After";
+
+export const relay = (upstream: Response) => {
+    const retryAfter = upstream.headers.get(RETRY_AFTER);
+    return new NextResponse(upstream.body, {
         status: upstream.status,
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(retryAfter ? { [RETRY_AFTER]: retryAfter } : {}) },
     });
+};
