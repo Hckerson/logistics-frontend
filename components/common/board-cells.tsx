@@ -6,9 +6,10 @@ interface Props {
     ghost: boolean;
     noise: readonly string[] | null;
     error: boolean;
+    tall?: boolean;
 }
 
-export default function BoardCells({ glyphs, caret, ghost, noise, error }: Props) {
+export default function BoardCells({ glyphs, caret, ghost, noise, error, tall = false }: Props) {
     return (
         <span aria-hidden className="grid gap-0.5" style={{ gridTemplateColumns: `repeat(${glyphs.length}, minmax(0, 1fr))` }}>
             {glyphs.map((glyph, index) => {
@@ -18,7 +19,8 @@ export default function BoardCells({ glyphs, caret, ghost, noise, error }: Props
                     <span
                         key={index}
                         className={clsx(
-                            "relative flex h-10 items-center justify-center overflow-hidden font-mono text-sm transition-colors",
+                            "relative flex items-center justify-center overflow-hidden font-mono transition-colors",
+                            tall ? "h-14 text-xl" : "h-10 text-sm",
                             caret === index ? "bg-border-dark" : error ? "bg-error-light" : "bg-background-muted",
                             churn ? "text-accent" : ghost ? "text-text-muted/40" : "text-text",
                         )}
