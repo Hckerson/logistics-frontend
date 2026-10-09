@@ -1,6 +1,6 @@
 # Haulr Design OS — Complete
 
-`Version 1.3.0` · `2026-10-09` · Status: **Complete, ready for engineering handoff** · Start: [START_HERE](./START_HERE.md) · Overview: [README](./README.md)
+`Version 1.3.1` · `2026-10-09` · Status: **Complete, ready for engineering handoff** · Start: [START_HERE](./START_HERE.md) · Overview: [README](./README.md)
 
 The master index. If something exists in this design OS, it is listed here.
 
@@ -90,7 +90,7 @@ It deliberately contains **no visual design**. Each page's look is decided when 
 | Page sections | 223 | Phase 5 §13 |
 | Interaction contracts | 68 | Phase 6 |
 | Architectural decisions | 14 (D-1 … D-14) | Phase 7 §1 |
-| Hook files | 52 resource hook files (5 existing) + 7 existing hooks without transport | Phase 7 §8 |
+| Hook files | 57 resource hook files (10 existing) + 16 existing hooks without transport | Phase 7 §8 |
 | Build plan | Solo: 7 stages, about 71 weeks (active). Staffed: 8 sprints, 16 weeks | Phase 8 §16, §3 |
 | Milestones | 5 | Phase 8 §4 |
 | Risks | 17 | Phase 8 §6 |
@@ -192,9 +192,9 @@ Integrity checks run at generation: 66 pages defined in Phases 3, 4, 5 and 8; 23
 | Decide on a headless accessible-primitives library (optional) | Phase 7 §15 | Stage 0 |
 | Approve the map base layer (deck.gl is installed and reused) | Phase 7 §15 | Stage 2 |
 | Choose the payments processor with the backend, and approve its SDK | Phase 8 R-06, Phase 7 §15 | Stage 7 |
-| Confirm D-3 (help and legal content in `lib/data/`) | Phase 7 §1 | When help or legal pages leave Deferred |
-| Approve the chart library | Phase 7 §15 | When SC-05.3 or reports leave Deferred |
-| Provision identity-provider test tenants (Okta, Entra ID, Google Workspace, OneLogin) | Phase 8 §5 | When SSO (XS-13) leaves Deferred |
+| Confirm D-3 (help and legal content in `lib/data/`) | Phase 7 §1 | When help or legal pages are scheduled |
+| Approve the chart library | Phase 7 §15 | When SC-05.3 or reports are scheduled |
+| Provision identity-provider test tenants (Okta, Entra ID, Google Workspace, OneLogin) | Phase 8 §5 | When SSO (XS-13) is scheduled |
 | Approve observability and error-reporting libraries (D-10) | Phase 7 §15 | Before launch |
 | Approve the product analytics vendor after privacy review | Phase 7 §15 | Before launch |
 | Counsel confirms the dispatch board's hours design | Phase 8 §5 | Before launch |
@@ -207,7 +207,8 @@ Integrity checks run at generation: 66 pages defined in Phases 3, 4, 5 and 8; 23
 | D-14, page-domain component folders | Confirmed for public and access pages in the cinematic register; recorded in `.claude/CLAUDE.md` | Phase 7 §1 |
 | BR-31 custom quote values | 2-business-hour response; validity set per quote, default 4 hours, cap 24 hours; margin floor 8% of the shipper price, refused below it, changed only by `internal.admin` | Phase 1 §9 |
 | Driver hours on the dispatch board | Shown only to the carrier's own users, as the ELD reports them; never evaluated, warned on or stored. Based on *Montgomery v. Caribe Transport II* (2026), 49 CFR 390.6 and *Sperl v. C.H. Robinson*; safety rating and out-of-service checks added to BR-03 and BR-18; CMP-12 and CMP-13 added | Phase 1 §9, §19; Phase 2 XF-17 |
-| Capacity | Solo build order: seven pattern-first stages against the mocked backend; everything else Deferred | Phase 8 §16, §9.6 |
+| Capacity | Solo build order: seven pattern-first stages against the mocked backend; everything else Specified and queued after stage 7 (1.3.1; 1.3.0 had marked it Deferred) | Phase 8 §16, §9.6 |
+| Payment and payout method entry | Deferred until a payments processor is chosen: its hosted entry fields are the blocker | Phase 8 §9.6 |
 | Analytics event names | Phase 4 names canonical; `<domain>.<object>.<verb>`, snake_case, past tense; one catalogue | Phase 7 §27 |
 | View-as reach | Payout and payment methods, API keys and data export never shown; security settings read-only | Phase 3 §5.2 |
 | Support read on Integrations (PG-61) | Allowed with a ticket; keys never shown | Phase 3 §5.1a |
@@ -227,7 +228,7 @@ Integrity checks run at generation: 66 pages defined in Phases 3, 4, 5 and 8; 23
 
 | Field | Value |
 | --- | --- |
-| Version | 1.3.0 (maintainer decisions, solo build order and mocked backend; 1.2.0 added the dispatch board and quote desk, 1.1.1 was the audit, 1.1.0 enterprise hardening, 1.0.0 the initial generation) |
+| Version | 1.3.1 (status catch-up, Specified for unblocked items, code drift; 1.3.0 recorded the maintainer decisions, solo build order and mocked backend; 1.2.0 added the dispatch board and quote desk, 1.1.1 was the audit, 1.1.0 enterprise hardening, 1.0.0 the initial generation) |
 | Generated | 2026-09-30 |
 | Revised | 2026-10-09 |
 | Seed prompt | `docs/MASTER_PROMPT_COMPLETE.md` |
@@ -244,6 +245,7 @@ Integrity checks run at generation: 66 pages defined in Phases 3, 4, 5 and 8; 23
 | 1.1.1 | Audit and code reconciliation. Phases 7–8 and the guides now match the code on `development`: PG-01 and the identity-first sign-in are In progress, deck.gl is reused for maps, D-14 records the page-domain component folders, and existing hooks and the auth signal provider are listed. Contradictions between Phases 2–6 were reconciled: state machines, permissions, refresh intervals, the offline queue, the contract usage index, and ARIA and keyboard behaviour per WAI-ARIA. Missing states and enumerations were filled in, placement and component wording was rewritten as behaviour, and QA-267 (WCAG 3.2.6) was added. No feature was removed. Duplicated passages now point to the section that owns them. |
 | 1.2.0 | Added two pages the maintainer selected. **PG-65 Dispatch Board** (XF-17, SC-65.1 … SC-65.4, IC-68 planning grid) covers the "load plans" pattern the project brief names for Logistics; carriers plan trucks across days, fill open windows and record unavailable periods. **PG-66 Quote Desk** (XS-18, SC-66.1 … SC-66.3, BR-31) gives the custom quote requests already offered on PG-05, PG-27 and PG-56 an owner and a deadline; SC-27.7 gives shippers their side of the request. Also two Phase 4 §2.6 freshness rows, a quote request status enumeration, three capability rows, QA-268 … QA-270. Totals: 66 pages, 238 sections, 68 contracts, 43 experiences, 31 business rules, 270 QA items. Driver hours on the dispatch board are ELD-reported information only, pending legal review: no hours warning, override or stored decision. Custom quote validity is set per quote within a configured default and cap. The dispatch board is a pre-agreed deferral candidate (Phase 8 §13). Nothing removed. |
 | 1.3.0 | Maintainer decisions recorded in §10.1. Carrier vetting now checks the FMCSA safety rating and out-of-service orders (BR-03, BR-18), after *Montgomery v. Caribe Transport II* (2026); CMP-12 (driver coercion) and CMP-13 (broker, not carrier) added; dispatch-board hours shown only to the carrier's own users. Custom quote values set (BR-31). View-as reach, support read on PG-61, carrier cancellation, idle timeout, scorecard threshold, help feedback, personal-data classification, carrier reinstatement and pay timing reconciled. The active plan is now the solo build order (Phase 8 §16): 17 pages, 10 flows, 67 sections and 42 contracts in seven pattern-first stages; everything else Deferred with its spec unchanged. The mocked backend from `.claude/CLAUDE.md` replaces the seed-data fallback. Analytics events normalised to one convention with a 240-event catalogue (Phase 7 §27.1). Operations agents removed from XS-16 at the maintainer's instruction; no other feature removed. |
+| 1.3.1 | Statuses caught up with the code: Forgot Password, Reset Password and Verify (PG-12, PG-13, PG-14) and their sections are In progress in solo stage 1, with the MFA challenge (SC-14.2) started; the countdown (IC-46) is In progress and the one-time code input (IC-04) Scheduled. Items outside the slice relabelled from Deferred to Specified, because capacity alone is not a blocker (maintainer's fix-before-drop rule); only payment and payout method entry stays Deferred, blocked on the payments processor choice. Phase 7 brought up to date with the code: `board-field.tsx`, `field-error.tsx`, `board-cells.tsx`, `auth-links.tsx`, `assembly-provider.tsx`, one hook file per access action, the step-flow hooks and the access presentation hooks. Capacity options reordered so both fixes come before any deferral. Nothing removed. |
 
 ---
 

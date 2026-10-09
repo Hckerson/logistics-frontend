@@ -1,6 +1,6 @@
 # Implementation Prompt — Haulr
 
-`Version 1.3.0` · `2026-10-09` · Start: [START_HERE](./START_HERE.md) · Setup: [SETUP-CHECKLIST](./SETUP-CHECKLIST.md) · Index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
+`Version 1.3.1` · `2026-10-09` · Start: [START_HERE](./START_HERE.md) · Setup: [SETUP-CHECKLIST](./SETUP-CHECKLIST.md) · Index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
 
 Copy this entire file into a new Claude Code session at the repository root, then name the sprint, page or feature to build.
 
@@ -227,7 +227,7 @@ Every data-bearing segment adds `loading.tsx` and `error.tsx`; each route group 
 
 ### 5.5 Hooks organisation
 
-One file per resource in `lib/hooks/use-<resource>.ts`, exporting that resource's query and mutation hooks and its query-key factory. The complete mapping from Phase 5 hook names to files is [Phase 7 §8](./phase-7-frontend-architecture.md#8-hooks). Existing hooks (`use-login`, `use-logout`, `use-register`, `use-create-user`, `use-debounced-search`) are kept. So are the existing hooks without transport: `use-sign-in-flow` (wraps `useLogin` for the identity-first SC-10.1), `use-caps-lock` (IC-03), `use-side` (SC-01.1), `use-reduced`, and the PG-01 scene hooks (Phase 7 §8).
+One file per resource in `lib/hooks/use-<resource>.ts`, exporting that resource's query and mutation hooks and its query-key factory. The complete mapping from Phase 5 hook names to files is [Phase 7 §8](./phase-7-frontend-architecture.md#8-hooks). Existing hooks (`use-login`, `use-logout`, `use-register`, `use-create-user`, `use-debounced-search`) are kept. So are the access hooks, one file per hook (`use-request-password-reset`, `use-reset-password`, `use-verify-email`, `use-resend-verification`, `use-mfa-challenge`), and the existing hooks without transport: the step flows (`use-sign-in-flow`, `use-forgot-flow`, `use-reset-flow`, `use-verify-flow`, `use-register-flow`, `use-mfa-flow`), `use-caps-lock` (IC-03), `use-countdown` (IC-46), `use-form-problems` (IC-02), `use-side` (SC-01.1), `use-reduced`, and the PG-01 and access-page presentation hooks (Phase 7 §8).
 
 Transport per hook: authenticated mutations and non-polled reads → Server Action; polled authenticated reads → Route Handler via `local` (D-2, pending confirmation); anonymous public reads → Route Handler.
 
@@ -247,7 +247,7 @@ A section used by two pages lives once in `components/common/`. Page sections al
 
 ## 6. Phase 8 Implementation — Sprint Breakdown
 
-**The active plan is the solo build order in [Phase 8 §16](./phase-8-implementation-roadmap.md#16-solo-build-order)**: seven stages, about 71 weeks for one engineer, pattern-first, with everything else Deferred. The sprints below are the staffed plan, kept for reference. Authoritative source: [Phase 8 §3](./phase-8-implementation-roadmap.md#3-sprint-breakdown). 16 weeks, 8 sprints, starting 2026-10-05, with a parallel enterprise track from Sprint 2. Stories enter a sprint only when they meet the Definition of Ready ([Phase 8 §11](./phase-8-implementation-roadmap.md#11-definition-of-ready-and-definition-of-done)).
+**The active plan is the solo build order in [Phase 8 §16](./phase-8-implementation-roadmap.md#16-solo-build-order)**: seven stages, about 71 weeks for one engineer, pattern-first; everything else is Specified and queued after stage 7, and only payment method entry is Deferred (no processor chosen). The sprints below are the staffed plan, kept for reference. Authoritative source: [Phase 8 §3](./phase-8-implementation-roadmap.md#3-sprint-breakdown). 16 weeks, 8 sprints, starting 2026-10-05, with a parallel enterprise track from Sprint 2. Stories enter a sprint only when they meet the Definition of Ready ([Phase 8 §11](./phase-8-implementation-roadmap.md#11-definition-of-ready-and-definition-of-done)).
 
 ### Sprint 1 — Foundations (2026-10-05 → 2026-10-16)
 
@@ -329,7 +329,7 @@ A section used by two pages lives once in `components/common/`. Page sections al
 
 - Backend endpoints land one sprint ahead. Until an endpoint exists, the real call path is answered by a mock handler on its contract route in `lib/mocks/`, with fixtures in `lib/data/mocks/` (R-01; host "The mocked backend"). The page does not change when the endpoint arrives.
 - Visual concepts for next sprint's pages are produced and approved during the current sprint (R-10).
-- If a sprint slips, move items to **Deferred** in Phase 8 §9 with reason and revisit trigger. Never delete them.
+- If a stage slips, its items stay **Scheduled** and move to the next stage. **Deferred** is only for an item with a named blocker (a decision only the maintainer can make, missing access, an upstream bug), recorded in Phase 8 §9.6 with its revisit trigger. Never delete them.
 
 ---
 
@@ -995,7 +995,7 @@ For each page in the current sprint:
 - [ ] Every cited Phase 6 contract's keyboard and ARIA behaviour verified.
 - [ ] Applicable Phase 9 blocking items pass.
 - [ ] No dependency added without recorded approval.
-- [ ] No specified feature removed; unfinished items marked Deferred with reason and trigger.
+- [ ] No specified feature removed; unfinished items keep their status, and Deferred is used only with a named blocker.
 - [ ] Deviations recorded as decisions in the affected phase.
 - [ ] Every endpoint the page calls has a mock handler returning contract-shaped data (host rule).
 - [ ] Phase 8 §9 status updated.

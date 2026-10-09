@@ -1,6 +1,6 @@
 # Phase 2 — Experience Maps
 
-`Haulr Design OS` · `Version 1.3.0` · `2026-10-09` · Previous: [Phase 1 — Product Vision](./phase-1-product-vision.md) · Next: [Phase 3 — Information Architecture](./phase-3-information-architecture.md)
+`Haulr Design OS` · `Version 1.3.1` · `2026-10-09` · Previous: [Phase 1 — Product Vision](./phase-1-product-vision.md) · Next: [Phase 3 — Information Architecture](./phase-3-information-architecture.md)
 
 Experiences come before pages. Each map below describes one journey end to end: what the user wants, what the system does, how the journey fails and how it recovers. Pages in [Phase 4](./phase-4-page-blueprints.md) exist to serve these journeys, and every page cites the experiences it serves.
 
