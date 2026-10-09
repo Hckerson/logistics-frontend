@@ -1,8 +1,8 @@
 # Phase 4 — Page Blueprints
 
-`Haulr Design OS` · `Version 1.1.1` · `2026-10-09` · Previous: [Phase 3 — Information Architecture](./phase-3-information-architecture.md) · Next: [Phase 5 — Section Blueprints](./phase-5-section-blueprints.md)
+`Haulr Design OS` · `Version 1.2.0` · `2026-10-09` · Previous: [Phase 3 — Information Architecture](./phase-3-information-architecture.md) · Next: [Phase 5 — Section Blueprints](./phase-5-section-blueprints.md)
 
-A functional blueprint for each of the 64 pages in the [Phase 3 sitemap](./phase-3-information-architecture.md#3-sitemap). Each blueprint says what the page is for, what users come to get done, what data and permissions it needs, and what happens in every state. It never says what the page contains or how it looks; that is decided when the page is built, with the owner.
+A functional blueprint for each of the 66 pages in the [Phase 3 sitemap](./phase-3-information-architecture.md#3-sitemap). Each blueprint says what the page is for, what users come to get done, what data and permissions it needs, and what happens in every state. It never says what the page contains or how it looks; that is decided when the page is built, with the owner.
 
 States describe what happens and what the user is told, never where it appears.
 
@@ -15,10 +15,10 @@ States describe what happens and what the user is told, never where it appears.
 5. [Onboarding](#5-onboarding) — PG-16, PG-17
 6. [Role Dashboards](#6-role-dashboards) — PG-18 … PG-25
 7. [Shipper Workspace](#7-shipper-workspace) — PG-26 … PG-32
-8. [Carrier Workspace](#8-carrier-workspace) — PG-33 … PG-38
+8. [Carrier Workspace](#8-carrier-workspace) — PG-33 … PG-38, PG-65
 9. [Driver](#9-driver) — PG-39
 10. [Shared Records and Utilities](#10-shared-records-and-utilities) — PG-40 … PG-49, PG-04
-11. [Internal Tools](#11-internal-tools) — PG-50 … PG-52
+11. [Internal Tools](#11-internal-tools) — PG-50 … PG-52, PG-66
 12. [System Pages](#12-system-pages) — PG-53 … PG-55
     - [Enterprise Pages](#12a-enterprise-pages) — PG-56 … PG-64
 13. [Page-to-Experience Traceability](#13-page-to-experience-traceability)
@@ -120,6 +120,8 @@ Every task a page supports on DV-DESK must also be possible on DV-AT. DV-PHONE a
 | Bids, tenders | ≤ 30 s | 60 s | Poll |
 | Exception queue | ≤ 15 s | 60 s | Poll |
 | Dashboards, counts | ≤ 60 s | 5 min | Poll and focus |
+| Fleet plan (PG-65) | ≤ 60 s | 5 min | Poll and focus |
+| Quote requests (PG-66, SC-27.7) | ≤ 30 s | 2 min | Poll |
 | Recommended loads | ≤ 5 min | 15 min | Poll |
 | Documents, invoices, settlements | On open | Not labelled; refetched on focus | Request |
 
@@ -385,7 +387,7 @@ Every task a page supports on DV-DESK must also be possible on DV-AT. DV-PHONE a
 - **Business objective:** Team growth; driver activation (XF-05).
 - **User objective:** Join the team with the least effort.
 - **Primary tasks:** "Join my company on Haulr." "Set my password."
-- **Required data:** Invitation (organisation name, inviter name — Confidential, role), whether an account exists for the email, the organisation's identity policy (BR-24). Password when set inline is Restricted.
+- **Required data:** Invitation (organisation name, inviter name — Confidential, role), whether an account exists for the email, the organisation's identity policy (BR-24). A password set while accepting is Restricted.
 - **Permissions:** Valid invitation token. In an organisation that requires SSO, acceptance completes through the identity provider and no Haulr password is set; members provisioned by SCIM need no invitation (XS-13).
 - **Device needs:** DV-PHONE and DV-CAB: drivers accept from SMS; the flow finishes within one minute. DV-DESK: office staff. DV-AT: full parity.
 - **Loading states:** Token validated server-side before rendering; LS-5 on acceptance ("Joining…").
@@ -393,7 +395,7 @@ Every task a page supports on DV-DESK must also be possible on DV-AT. DV-PHONE a
 - **Error states:** E-NOT-FOUND: expired or revoked → say so and name who to ask (the inviter). E-CONFLICT: email already in another organisation → explain the one-organisation rule; invitation already accepted → route to sign-in. E-VALIDATION: password rules (SEC-1). E-FORBIDDEN: SSO required → route to the identity provider.
 - **Success states:** SU-2: membership active; drivers continue to location consent and PG-20; other roles reach their role root.
 - **Dependencies:** XS-02, PG-20.
-- **Implementation notes:** Existing users sign in to accept; new users set a password inline. Acceptance: given a driver on a phone, when they open the SMS link, then they can reach PG-20 in ≤ 60 s; given an SSO-required organisation, then no password entry is offered. Analytics: `team.invitation.accepted` (role), `team.invitation.failed` (reason enum). Audit: `invitation.accepted`, `membership.created`. `useInvitation`, `useAcceptInvitation`; never cached.
+- **Implementation notes:** Existing users sign in to accept; new users set a password as part of accepting. Acceptance: given a driver on a phone, when they open the SMS link, then they can reach PG-20 in ≤ 60 s; given an SSO-required organisation, then no password entry is offered. Analytics: `team.invitation.accepted` (role), `team.invitation.failed` (reason enum). Audit: `invitation.accepted`, `membership.created`. `useInvitation`, `useAcceptInvitation`; never cached.
 
 ---
 
@@ -591,7 +593,7 @@ All dashboards follow XD rules in [Phase 2 §3](./phase-2-experience-maps.md#3-r
 
 ### PG-26 — Shipments
 
-`/shipper/loads` · Serves XF-01, XF-07, XF-14, XD-01 · Sections: [SC-26.x](./phase-5-section-blueprints.md#pg-26--shipments)
+`/shipper/loads` · Serves XF-01, XF-07, XF-14, XS-18, XD-01 · Sections: [SC-26.x](./phase-5-section-blueprints.md#pg-26--shipments)
 
 - **Purpose:** Find, follow and act on the organisation's loads, as a list or on a map.
 - **Business objective:** Visibility (BG-02); fewer support contacts.
@@ -609,7 +611,7 @@ All dashboards follow XD rules in [Phase 2 §3](./phase-2-experience-maps.md#3-r
 
 ### PG-27 — Post a Load
 
-`/shipper/loads/new` · Serves XF-01, XF-04, XF-16 · Sections: [SC-27.x](./phase-5-section-blueprints.md#pg-27--post-a-load)
+`/shipper/loads/new` · Serves XF-01, XF-04, XF-16, XS-18 · Sections: [SC-27.x](./phase-5-section-blueprints.md#pg-27--post-a-load)
 
 - **Purpose:** Quote and post a load (the core entity submission).
 - **Business objective:** Quote-to-post conversion (KPI-01); time to coverage (KPI-02).
@@ -620,7 +622,7 @@ All dashboards follow XD rules in [Phase 2 §3](./phase-2-experience-maps.md#3-r
 - **Device needs:** DV-DESK: fast keyboard entry, many loads in a row. DV-PHONE: post a simple single-stop load. DV-AT: full parity, including the quote countdown (IC-46) announced at thresholds only.
 - **Loading states:** LS-5 while the quote is requested ("Getting your price…", announced politely); quote validity counts down (BR-06, IC-46). LS-3 after 5 s; LS-4 at 30 s. LS-5 on posting ("Posting…").
 - **Empty states:** EM-5: the flow always renders its current step; prefilled from `?from=<loadId>` (duplicate) or `?lane=` (estimator).
-- **Error states:** E-VALIDATION per field (IC-02), entries kept. Quote expired → re-quote keeping all entries. Unserviceable lane → custom quote request. E-FORBIDDEN: posting blocked → route to onboarding. E-UNAVAILABLE from pricing → entries kept, draft saved, retry offered. E-TIMEOUT on posting → retried automatically with the same idempotency key, never duplicated. Approval required is not an error: the user is told approval is needed, who can approve and by when (quote expiry).
+- **Error states:** E-VALIDATION per field (IC-02), entries kept. Quote expired → re-quote keeping all entries. Unserviceable lane, or no instant quote → custom quote request (XS-18, SC-27.7). E-FORBIDDEN: posting blocked → route to onboarding. E-UNAVAILABLE from pricing → entries kept, draft saved, retry offered. E-TIMEOUT on posting → retried automatically with the same idempotency key, never duplicated. Approval required is not an error: the user is told approval is needed, who can approve and by when (quote expiry).
 - **Success states:** SU-2: load posted; user lands on PG-40 with tender progress. SU-2: approval required → load in `PendingApproval` on PG-40, stating approvers and the deadline; approvers notified (XF-16).
 - **Dependencies:** XF-01, XF-04, XF-13, XF-16, PG-32, PG-29.
 - **Implementation notes:** Multi-step state in `useReducer` with draft persisted locally (PP-06) and to the server after the lane step; schema composed over the generated load DTO; posting through a Server Action with an idempotency key. Acceptance: given a member whose limit is exceeded by the quote, when they post, then the load enters `PendingApproval` and they cannot approve it themselves; given the approval arrives after the quote expired, then the load returns to `Draft` and the requester is offered a re-quote carrying the approval note; given a double submit, then exactly one load is created. Analytics: `load.quote.requested`, `load.quote.expired`, `load.posted`, `load.approval.requested`. Audit: `load.drafted`, `load.posted`, `load.approval_requested` (amount, limit). `useQuote`, `usePostLoad`; quote queries never cached beyond their validity; local drafts expire after 30 days (NFR-PRIV-4).
@@ -721,7 +723,7 @@ All dashboards follow XD rules in [Phase 2 §3](./phase-2-experience-maps.md#3-r
 
 ### PG-33 — Load Board
 
-`/carrier/load-board` · Serves XF-02, XF-03, XS-09 · Sections: [SC-33.x](./phase-5-section-blueprints.md#pg-33--load-board)
+`/carrier/load-board` · Serves XF-02, XF-03, XS-09, XF-17 · Sections: [SC-33.x](./phase-5-section-blueprints.md#pg-33--load-board)
 
 - **Purpose:** Search bookable loads (the Search page and the carrier's List/Map view).
 - **Business objective:** Coverage speed (KPI-02); self-serve booking (KPI-03).
@@ -757,7 +759,7 @@ All dashboards follow XD rules in [Phase 2 §3](./phase-2-experience-maps.md#3-r
 
 ### PG-35 — My Loads (carrier)
 
-`/carrier/loads` · Serves XF-05, XF-06, XF-07, XF-15 · Sections: [SC-35.x](./phase-5-section-blueprints.md#pg-35--my-loads-carrier)
+`/carrier/loads` · Serves XF-05, XF-06, XF-07, XF-15, XF-17 · Sections: [SC-35.x](./phase-5-section-blueprints.md#pg-35--my-loads-carrier)
 
 - **Purpose:** Manage the carrier's booked, active and past loads.
 - **Business objective:** Assignment compliance (BR-09); tracking compliance.
@@ -793,7 +795,7 @@ All dashboards follow XD rules in [Phase 2 §3](./phase-2-experience-maps.md#3-r
 
 ### PG-37 — Fleet
 
-`/carrier/fleet` · Serves XF-05, XS-02 · Sections: [SC-37.x](./phase-5-section-blueprints.md#pg-37--fleet)
+`/carrier/fleet` · Serves XF-05, XS-02, XF-17 · Sections: [SC-37.x](./phase-5-section-blueprints.md#pg-37--fleet)
 
 - **Purpose:** Manage trucks, trailers and drivers.
 - **Business objective:** Correct assignment and eligibility.
@@ -828,6 +830,24 @@ All dashboards follow XD rules in [Phase 2 §3](./phase-2-experience-maps.md#3-r
 - **Implementation notes:** Quick pay confirmation must state fee and net before commitment (PP-01). Acceptance: given a dispatcher, then no amount is present in the response; given a double quick pay request, then exactly one is created; given a disputed deduction, then only the disputed amount is held (BR-16). Analytics: `settlement.list.viewed`, `settlement.quickpay.requested`, `settlement.remittance.downloaded`. Audit: `quick_pay.requested` (settlement, fee, net). `useSettlements` (page size 50, maximum 200), `useSettlementSummary`, `useQuickPay` with a `nanoid` idempotency key.
 
 ---
+
+### PG-65 — Dispatch Board
+
+`/carrier/plan` · Serves XF-17, XF-05 · Sections: [SC-65.x](./phase-5-section-blueprints.md#pg-65--dispatch-board)
+
+- **Purpose:** Plan every truck's week: which loads it runs, where it ends up and where it sits empty.
+- **Business objective:** More paid miles per truck on Haulr freight, so carriers book with Haulr again (KPI-08), and every booked load assigned before its deadline (BR-09).
+- **User objective:** See conflicts and empty windows before they cost money, and fix them from one place.
+- **Primary tasks:** "What is every truck doing this week?" "Which loads still need a driver?" "Truck 12 is empty in Dallas on Thursday afternoon; find it a load." "Move this load to another driver." "Truck 7 is in the shop until Monday."
+- **Required data:** Trucks and drivers (PG-37) with unavailable periods; booked and in-flight loads with pickup and delivery windows, stops and carrier pay (Confidential); each truck's last known position with its source and age (PP-03); driver available hours from a connected ELD (Confidential), absent otherwise; conflicts and open windows computed server-side; recommended loads for an open window.
+- **Permissions:** Act: `carrier.dispatcher`, `carrier.admin` (own carrier). Read: `internal.ops`. Drivers see their own trips in PG-20, never the board. View-as (BR-27): read-only; moving a load or marking a truck unavailable requires write consent.
+- **Device needs:** DV-DESK is the target: a week for up to 60 trucks, entirely by keyboard (IC-68). DV-PHONE: owner-operators with one to three trucks check the next three days, fill a window and mark a truck unavailable. DV-AT: full parity through IC-68, including a text account of each truck's week. DV-CAB, DV-WALL: not targeted.
+- **Loading states:** LS-1 per part (plan, window suggestions); LS-2 every 60 s and on focus, paused when hidden; stale label after 5 min (§2.6, fleet plan); LS-5 when moving a load or marking a truck unavailable ("Moving…", "Saving…").
+- **Empty states:** EM-1: no trucks → why the plan needs them and the step that adds one (PG-37). EM-1: trucks but no booked loads this week → find loads (PG-33) for the fleet's equipment. EM-2: `truck` or `driver` filter matches nothing → clear it.
+- **Error states:** E-CONFLICT: the load chosen for a window was booked by another carrier → similar loads offered (XF-02); a move would overlap another load on that truck → refused with the overlap named. E-PRECONDITION: assignment changed by a colleague (SSB-8, IC-67). E-UNAVAILABLE from the ELD integration → hours shown as unavailable, with the last reading's age. E-VALIDATION: an unavailable period that ends before it starts or covers a booked load. E-FORBIDDEN: carrier not yet approved → SH-06. E-OFFLINE, E-SERVER, E-TIMEOUT → last plan kept with its age; retry (IC-60).
+- **Success states:** SU-1: a moved load, a new assignment or an unavailable period is current on the plan and announced politely. Booking from a window (PG-34) returns here with the load in place (SU-1).
+- **Dependencies:** XF-17, XF-05, XF-02, PG-37, PG-33, PG-35, SH-15, IC-68, ELD integration (A5).
+- **Implementation notes:** The plan is a server-computed view over bookings, assignments, stop events and unavailable periods; nothing is scheduled client-side. Week in `?week=`, focused truck in `?truck=`. Scheduling conflicts are advisory and never block a move. ELD hours are displayed as reported, never evaluated against hours-of-service rules, and Haulr stores no carrier decision about hours (Phase 2 XF-17). Acceptance: given a booked load with no driver inside its BR-09 deadline, then it is flagged here and in PG-35; given an open window, when the dispatcher asks for loads, then PG-33 opens filtered to the truck's position, radius, window and equipment; given no ELD connection, then no hours figure or estimate appears; every action works without dragging (WCAG 2.5.7). Analytics: `fleet.plan.viewed`, `fleet.plan.window_filled` (empty-miles band), `fleet.plan.load_moved`, `fleet.truck.unavailable_set`. Audit: `assignment.changed` (reason, as SH-15 requires on reassignment), `vehicle.unavailable_set`. `useFleetPlan` keyed `fleetPlanKeys.week(carrierId, week)`.
 
 ## 9. Driver
 
@@ -1111,6 +1131,24 @@ All dashboards follow XD rules in [Phase 2 §3](./phase-2-experience-maps.md#3-r
 
 ---
 
+### PG-66 — Quote Desk
+
+`/ops/quotes` · Serves XS-18 · Sections: [SC-66.x](./phase-5-section-blueprints.md#pg-66--quote-desk)
+
+- **Purpose:** Answer custom quote requests before their deadline.
+- **Business objective:** Keep shippers posting when instant pricing cannot (KPI-01), at prices that respect the margin floor (BR-31, BG-05).
+- **User objective:** Price each request quickly, with the lane's evidence at hand, without colliding with colleagues.
+- **Primary tasks:** "Which request is due next?" "What has this lane paid recently?" "Price it." "Decline it and say why."
+- **Required data:** Quote requests with lane, equipment, dates, freight, the shipper's note, requesting organisation, status, owner and response deadline (BR-31); lane market data and recent comparable Haulr loads with shipper price and carrier pay (Confidential); the margin floor and the validity default and cap from platform configuration (BR-31); decline reason codes.
+- **Permissions:** Act: `internal.ops`. Read: `internal.support` with a ticket. Not reachable through view-as.
+- **Device needs:** DV-DESK; keyboard-driven for speed (IC-49). DV-AT: full parity. DV-PHONE, DV-WALL: not targeted.
+- **Loading states:** LS-1 then LS-2: queue refresh every 30 s, paused when hidden, stale label after 2 min (§2.6); the selected request keeps focus during refresh. LS-1 for the selected request's lane evidence. LS-5 on claim, price and decline ("Claiming…", "Sending quote…").
+- **Empty states:** EM-3: no open requests, with the last refresh time. EM-2: `status`, `equipment` or `due` filters match nothing → clear them. EM-4 for lane evidence: no comparable Haulr loads on the lane yet → market data only, stated as such.
+- **Error states:** E-CONFLICT: claimed by someone else → owner named (IC-47); already priced, withdrawn or lapsed → current state stated and the request leaves the queue. E-VALIDATION: price below the margin floor → refused with the floor stated; validity beyond the cap → refused with the cap stated; decline without a reason code. E-PRECONDITION: the shipper changed the draft after the request was opened → changes shown (SSB-8). E-UNAVAILABLE from market data → pricing continues on comparable loads alone, stated. E-SERVER, E-TIMEOUT → retry (IC-60) with entries kept.
+- **Success states:** SU-1: priced or declined; the shipper is notified (XS-03); the next request due is offered.
+- **Dependencies:** XS-18, XF-08 (overdue escalation), SH-14, IC-46, IC-47, PG-40, platform configuration (SC-25.2).
+- **Implementation notes:** Claim uses optimistic locking with a version field, as in PG-50; selected request in `?request=`. Deadlines come from platform configuration (BR-31) and count down with IC-46. Acceptance: given two agents claim one request, then exactly one succeeds; given a price below the margin floor or a validity beyond the cap, then it is refused before submission and by the server; given a request past its deadline, then an exception exists in PG-50 and the shipper has been told. Analytics: `quote.custom.claimed`, `quote.custom.priced` (time to price), `quote.custom.declined` (reason code). Audit: `quote_request.claimed`, `quote_request.priced` (shipper price, carrier pay), `quote_request.declined` (reason). `useQuoteRequests` keyed `quoteRequestKeys.queue(params)`.
+
 ## 12. System Pages
 
 ### PG-53 — Not Found
@@ -1173,7 +1211,7 @@ Added in version 1.1.0 to meet Phase 1 §18–22. Same format and shared state b
 
 ### PG-56 — Bulk Load Import
 
-`/shipper/loads/import` · Serves XF-14, XF-16 · Sections: [SC-56.x](./phase-5-section-blueprints.md#pg-56--bulk-load-import)
+`/shipper/loads/import` · Serves XF-14, XF-16, XS-18 · Sections: [SC-56.x](./phase-5-section-blueprints.md#pg-56--bulk-load-import)
 
 - **Purpose:** Create many loads at once from a file, with every row validated and priced before anything posts (BR-28).
 - **Business objective:** Win high-volume shippers who will not re-key loads (A9, JTBD-13); raise loads per shipper per week.
@@ -1181,7 +1219,7 @@ Added in version 1.1.0 to meet Phase 1 §18–22. Same format and shared state b
 - **Primary tasks:** "Upload this week's plan." "Show me which rows are wrong and why." "Fix them here." "Post the good ones now." "Give me a file of what happened."
 - **Required data:** Import template and column dictionary; saved column mappings; facilities (for matching); equipment and accessorial enums; existing load references (duplicate detection); batch job status and per-row outcomes; quotes per row; spend limit of the uploader (BR-23). Classification: rows contain Confidential shipper prices (NFR-PRIV-1).
 - **Permissions:** Act: `shipper.member`, `shipper.admin` for their own organisation. Read: `internal.support` with a ticket. View-as: read-only (BR-27).
-- **Device needs:** DV-DESK: the full journey, including inline correction of hundreds of rows by keyboard. DV-AT: full parity, with row outcomes navigable as a table with row and column headers. DV-PHONE: check batch status and download results only; uploading and correcting is not supported and the page says so.
+- **Device needs:** DV-DESK: the full journey, including correcting hundreds of rows by keyboard without leaving the import. DV-AT: full parity, with row outcomes navigable as a table with row and column headers. DV-PHONE: check batch status and download results only; uploading and correcting is not supported and the page says so.
 - **Loading states:** LS-7 for parsing, validation and pricing, with progress as rows processed out of total; the user may leave, and the batch continues and notifies on completion (SU-3). LS-2 while polling batch status every 5 s. LS-5 while confirming the post.
 - **Empty states:** EM-1: no batches yet; explains the template and links the column dictionary article (PG-07). EM-4: no priced rows yet while validation runs.
 - **Error states:** E-VALIDATION: unreadable file, unsupported encoding, more than 500 rows, or missing mandatory columns, each named, and nothing is created. Row-level errors are outcomes, not page errors. E-UNAVAILABLE: pricing down; valid rows are held as drafts with a custom-quote request. E-CONFLICT: duplicate reference against an existing load, linked. E-TIMEOUT: the batch continues server-side, and the page recovers by re-reading batch status.
@@ -1415,11 +1453,11 @@ Added in version 1.1.0 to meet Phase 1 §18–22. Same format and shared state b
 | PG-02 | XF-07 | PG-30 | XF-10 |
 | PG-03 | XF-04, XS-05 | PG-31 | XF-10, XS-06 |
 | PG-04 | XS-05, XF-02 | PG-32 | XF-01, XS-11 |
-| PG-05 | XS-10, XF-01 | PG-33 | XF-02, XF-03, XS-09 |
+| PG-05 | XS-10, XF-01 | PG-33 | XF-02, XF-03, XS-09, XF-17 |
 | PG-06, PG-07, PG-08 | XS-07 | PG-34 | XF-02 |
-| PG-09 | XS-01 | PG-35 | XF-05, XF-06, XF-07, XF-15 |
+| PG-09 | XS-01 | PG-35 | XF-05, XF-06, XF-07, XF-15, XF-17 |
 | PG-10 … PG-14 | XS-01; XS-13 (PG-10); XF-12, XF-13 (PG-11) | PG-36 | XS-09 |
-| PG-15 | XS-02 | PG-37 | XF-05, XS-02 |
+| PG-15 | XS-02 | PG-37 | XF-05, XS-02, XF-17 |
 | PG-16 | XF-13 | PG-38 | XF-11 |
 | PG-17 | XF-12 | PG-39 | XF-06, XF-09, XF-15 |
 | PG-18 | XD-01 | PG-40 | XF-01 … XF-11, XF-15, XF-16, XS-04 … XS-06 |
@@ -1430,15 +1468,16 @@ Added in version 1.1.0 to meet Phase 1 §18–22. Same format and shared state b
 | PG-23 | XD-06 | PG-46 | XS-11 |
 | PG-24 | XD-07, XS-07, XS-16 | PG-47 | XS-03, XS-11, XS-13 |
 | PG-25 | XD-08 | PG-48 | XS-02, XS-13, XF-16 |
-| PG-26 | XF-01, XF-07, XF-14, XD-01 | PG-49 | XS-08 |
-| PG-27 | XF-01, XF-04, XF-16 | PG-50 | XF-08 |
+| PG-26 | XF-01, XF-07, XF-14, XS-18, XD-01 | PG-49 | XS-08 |
+| PG-27 | XF-01, XF-04, XF-16, XS-18 | PG-50 | XF-08 |
 | PG-28 | XF-03, XF-16 | PG-51 | XF-12 |
 | PG-52 | XD-08, XS-02, XS-16 | PG-53 … PG-55 | Phase 3 §14 |
-| PG-56 | XF-14, XF-16 | PG-57 | XF-14 |
+| PG-56 | XF-14, XF-16, XS-18 | PG-57 | XF-14 |
 | PG-58 | XF-16 | PG-59 | XD-01 |
 | PG-60 | XS-13 | PG-61 | XS-14 |
 | PG-62 | XS-15 | PG-63 | XS-17 |
-| PG-64 | XF-15 | | |
+| PG-64 | XF-15 | PG-65 | XF-17, XF-05 |
+| PG-66 | XS-18 | | |
 
 **Template page mapping** (master prompt examples → Haulr pages): Home → PG-01 · Search → PG-33 · Core Entity Details → PG-40 · List/Map View → PG-26, PG-33 · Saved → PG-36 · Favorites → PG-29 · Compare → PG-28 · Role Profile → PG-03, PG-04 · Role Dashboards → PG-18 … PG-25 · Messages → PG-41 · Notifications → PG-42 · Settings → PG-47 … PG-49, PG-60 … PG-63 · Profile → PG-46 · Domain Tool → PG-05 · Core Entity Submission → PG-27, PG-56 · Authentication → PG-10 … PG-15 · Domain Transaction → PG-34 · Payment → PG-31, PG-38 · Help Center → PG-06 … PG-08 · 404 → PG-53 · 500 → PG-54.
 

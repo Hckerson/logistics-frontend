@@ -1,6 +1,6 @@
 # Phase 6 — Interaction Contracts
 
-`Haulr Design OS` · `Version 1.1.1` · `2026-10-09` · Previous: [Phase 5 — Section Blueprints](./phase-5-section-blueprints.md) · Next: [Phase 7 — Frontend Architecture](./phase-7-frontend-architecture.md)
+`Haulr Design OS` · `Version 1.2.0` · `2026-10-09` · Previous: [Phase 5 — Section Blueprints](./phase-5-section-blueprints.md) · Next: [Phase 7 — Frontend Architecture](./phase-7-frontend-architecture.md)
 
 How every interactive element behaves. Sections in [Phase 5](./phase-5-section-blueprints.md) cite these contracts by ID (`IC-nn`). A contract defines behaviour only: inputs, states, keyboard and assistive-technology behaviour, validation, loading, errors and content rules. Which components exist, how they are grouped and how they look is decided when pages are built.
 
@@ -14,7 +14,7 @@ Baseline: WCAG 2.2 AA and the WAI-ARIA Authoring Practices patterns named in eac
 4. [Navigation and Structure](#4-navigation-and-structure) — IC-15 … IC-18
 5. [Finding and Collections](#5-finding-and-collections) — IC-19 … IC-23
 6. [Files, Capture and Signature](#6-files-capture-and-signature) — IC-24 … IC-26
-7. [Freight Transactions](#7-freight-transactions) — IC-27 … IC-31
+7. [Freight Transactions](#7-freight-transactions) — IC-27 … IC-31, IC-68
 8. [Disclosure, Preferences and Social](#8-disclosure-preferences-and-social) — IC-32 … IC-41
 9. [Money](#9-money) — IC-42, IC-43
 10. [Sharing, Data and Time](#10-sharing-data-and-time) — IC-44 … IC-46
@@ -589,6 +589,23 @@ Global rules that bind every contract:
 - **Do:** Work offline with cached coordinates.
 - **Don't:** Embed turn-by-turn navigation.
 - **Dependencies:** SC-39.1, IC-44.
+
+### IC-68 — Planning grid
+
+- **Purpose:** Read and change a plan of resources over time (trucks by days on PG-65).
+- **Inputs:** Rows (resources) with entries (start, end, label, status, conflicts), open windows, the time range and its unit, the focused cell, the plan version.
+- **States:** idle, cell focused, entry focused, move mode (entry picked up), target valid, target invalid (overlap or equipment), saving, saved, stale (E-PRECONDITION), range loading (previous range kept), read-only (`internal.ops`, view-as without write consent, entries already in transit).
+- **Accessibility:** Follows the WAI-ARIA grid pattern. Every action is possible without dragging (WCAG 2.5.7). Each entry's name states its resource, time window, label and status; conflicts and open windows are stated in text (G-3); each row also offers an ordered text account as its equivalent.
+- **Keyboard support:** Arrow keys move between cells (rows are resources, columns are time units); Home and End go to the first and last cell in the row; Ctrl+Home and Ctrl+End go to the first and last cell of the grid; Page Up and Page Down change the range by one period. When a cell holds several entries, Enter enters it and Up and Down move between its entries; Escape returns to the cell. Enter on an entry opens its record. Space picks up a movable entry, Up and Down choose the target row, Space drops and Escape cancels, returning focus to the entry. Tab leaves the grid.
+- **ARIA:** `role="grid"` with a `rowheader` per resource and a `columnheader` per time unit; `aria-rowcount` and `aria-colcount` when rows are virtualised; a roving tabindex gives the grid one tab stop. Move mode, the target's validity and the outcome are announced through IC-14 ("Picked up HL-48213. Choose a truck with Up and Down, then press Space.").
+- **Interaction patterns:** Pointer drag is an enhancement that mirrors the keyboard move. A move is a proposal: both affected rows are previewed, then it is saved with the version (SSB-8). Only entries the role may change can move. Activating an open window routes to its search. Rows filter by URL parameter (Phase 3 §10).
+- **Validation rules:** The target must accept the entry's equipment and must not overlap another entry; entries in transit or delivered cannot move; the server re-validates (G-7).
+- **Loading behavior:** LS-1 for the first range; LS-2 on a range change, keeping the previous range readable; LS-5 while a move saves, with the moved entry marked pending.
+- **Error behavior:** An invalid target is refused at drop with its reason (E-VALIDATION or E-CONFLICT) and the entry returns to its row; E-PRECONDITION → IC-67; E-SERVER, E-TIMEOUT → IC-60 retry, keeping the move as a proposal.
+- **Content rules:** Times in each facility's time zone (IC-08); positions such as "Truck 12, Thursday" come from one constant with named placeholders; distances and durations are formatted through `lib/utils/units.ts`.
+- **Do:** Keep one tab stop for the whole grid; announce each move's start, target and result; offer the text account for every row.
+- **Don't:** Make drag the only way to move; convey conflicts or open windows by colour alone; move focus away from an entry after it saves.
+- **Dependencies:** IC-06, IC-08, IC-14, IC-60, IC-67, SH-15.
 
 ---
 
@@ -1251,18 +1268,18 @@ Added in version 1.1.0 for the enterprise flows XF-14 … XF-16 and XS-13 … XS
 
 | Contract | Used by (Phase 5) |
 | --- | --- |
-| IC-01 | SC-10.1, SC-10.3, SC-11.2, SC-12.1, SC-16.2, SC-17.2, SC-24.4, SC-27.3, SC-29.2, SC-32.2, SC-36.2, SC-40.3, SC-40.9, SC-46.1, SC-46.2, SC-48.1, SC-48.4, SC-51.4, SC-56.2, SC-57.3, SC-59.1, SC-60.1, SC-60.2, SC-60.3, SC-61.1, SC-61.2, SC-61.3 |
+| IC-01 | SC-10.1, SC-10.3, SC-11.2, SC-12.1, SC-16.2, SC-17.2, SC-24.4, SC-27.3, SC-29.2, SC-32.2, SC-36.2, SC-40.3, SC-40.9, SC-46.1, SC-46.2, SC-48.1, SC-48.4, SC-51.4, SC-56.2, SC-57.3, SC-59.1, SC-60.1, SC-60.2, SC-60.3, SC-61.1, SC-61.2, SC-61.3, SC-66.3 |
 | IC-02 | Every form; SH-13 |
 | IC-03 | SC-10.1, SC-11.2, SC-13.1, SC-15.1, SC-47.1 |
 | IC-04 | SC-14.2, SC-47.1 |
 | IC-05 | SC-01.2, SC-05.1, SC-16.2, SC-17.3, SC-27.2, SC-32.2, SC-33.1, SC-56.2 |
-| IC-06 | SH-07, SH-15 |
-| IC-07 | SC-01.2, SC-05.1, SC-16.2, SC-17.3, SC-24.4, SC-27.3, SC-32.2, SC-33.1, SC-48.2, SC-50.3, SC-51.4, SC-56.1, SC-57.3, SC-58.4, SC-59.3, SC-60.3, SC-61.1, SC-61.2, SC-61.3 |
-| IC-08 | SC-05.1, SC-27.2, SC-33.1, SC-39.4, SC-47.3, SC-56.2, SC-57.3, SC-58.4, SC-59.3, SC-61.1 |
-| IC-09 | SC-07.2, SC-11.1, SC-16.3, SC-27.5, SC-29.2, SC-39.4, SC-51.4, SC-56.3, SC-57.3, SC-59.3, SC-60.2, SC-62.2 |
+| IC-06 | SH-07, SH-15, SC-65.3 |
+| IC-07 | SC-01.2, SC-05.1, SC-16.2, SC-17.3, SC-24.4, SC-27.3, SC-32.2, SC-33.1, SC-48.2, SC-50.3, SC-51.4, SC-56.1, SC-57.3, SC-58.4, SC-59.3, SC-60.3, SC-61.1, SC-61.2, SC-61.3, SC-65.4 |
+| IC-08 | SC-05.1, SC-27.2, SC-33.1, SC-39.4, SC-47.3, SC-56.2, SC-57.3, SC-58.4, SC-59.3, SC-61.1, SC-65.4 |
+| IC-09 | SC-07.2, SC-11.1, SC-16.3, SC-27.5, SC-29.2, SC-39.4, SC-51.4, SC-56.3, SC-57.3, SC-59.3, SC-60.2, SC-62.2, SC-66.3 |
 | IC-10 | SH-02, SC-40.6 |
 | IC-11 | All actions |
-| IC-12 | SH-05 bulk, SH-07, SC-03.3, SC-21.2, SC-23.1, SC-23.4, SC-25.1, SC-25.2, SC-27.6, SC-28.3, SC-28.4, SC-29.1, SC-29.2, SC-34.3, SC-36.2, SC-37.2, SC-40.2, SC-40.9, SC-40.15, SC-40.16, SC-40.17, SC-45.4, SC-47.2, SC-48.2, SC-48.3, SC-48.4, SC-49.1, SC-50.3, SC-51.4, SC-52.2, SC-56.3, SC-57.1, SC-57.3, SC-59.3, SC-60.1, SC-60.4, SC-61.1, SC-61.2, SC-62.2, SC-64.3 |
+| IC-12 | SH-05 bulk, SH-07, SC-03.3, SC-21.2, SC-23.1, SC-23.4, SC-25.1, SC-25.2, SC-27.6, SC-28.3, SC-28.4, SC-29.1, SC-29.2, SC-34.3, SC-36.2, SC-37.2, SC-40.2, SC-40.9, SC-40.15, SC-40.16, SC-40.17, SC-45.4, SC-47.2, SC-48.2, SC-48.3, SC-48.4, SC-49.1, SC-50.3, SC-51.4, SC-52.2, SC-56.3, SC-57.1, SC-57.3, SC-59.3, SC-60.1, SC-60.4, SC-61.1, SC-61.2, SC-62.2, SC-64.3, SC-27.7, SC-66.3 |
 | IC-13 | SC-17.5, SC-25.2, SC-46.2, SC-47.1, SC-48.2, SC-48.4, SC-49.1, SC-49.2, SC-51.4, SC-52.2, SC-60.1, SC-60.2, SC-60.3, SC-60.4, SC-61.1, SC-62.1, SC-62.2 |
 | IC-14 | SSB-5 everywhere |
 | IC-15 | SH-13, SC-27.2, SC-27.3 |
@@ -1270,9 +1287,9 @@ Added in version 1.1.0 for the enterprise flows XF-14 … XF-16 and XS-13 … XS
 | IC-17 | SH-08, SC-18.3, SC-59.1 |
 | IC-18 | SC-33.1 |
 | IC-19 | SH-05, SC-06.1, SC-24.3, SC-53.1 |
-| IC-20 | SH-01, SH-03, SH-05, SH-11, SC-33.1, SC-56.2, SC-59.1, SC-61.2, SC-61.3 |
-| IC-21 | SH-05, SH-01, SH-04, SH-11 |
-| IC-22 | SH-05 (desktop), SC-28.2, SC-31.1, SC-56.2 |
+| IC-20 | SH-01, SH-03, SH-05, SH-11, SC-33.1, SC-56.2, SC-59.1, SC-61.2, SC-61.3, SC-66.1 |
+| IC-21 | SH-05, SH-01, SH-04, SH-11, SC-66.1 |
+| IC-22 | SH-05 (desktop), SC-28.2, SC-31.1, SC-56.2, SC-66.1, SC-66.2 |
 | IC-23 | SH-05, SC-21.2, SC-26.3, SC-30.3, SC-56.2, SC-56.3, SC-61.2 |
 | IC-24 | SH-03, SC-08.1, SC-39.3, SC-40.9, SC-43.2, SC-46.1, SC-60.2 |
 | IC-25 | SH-03, SH-04, SC-17.4, SC-39.3 |
@@ -1296,10 +1313,10 @@ Added in version 1.1.0 for the enterprise flows XF-14 … XF-16 and XS-13 … XS
 | IC-43 | SC-30.3, SC-31.3, SC-38.3 |
 | IC-44 | SC-26.3, SC-40.1, SC-40.15, SC-54.1, SC-60.1 |
 | IC-45 | SH-08, SC-05.3, SC-59.2 |
-| IC-46 | SH-07, SH-15, SC-10.1, SC-14.1, SC-19.1, SC-19.2, SC-22.1, SC-24.1, SC-24.4, SC-27.4, SC-28.2, SC-28.4, SC-40.4, SC-40.17, SC-56.3, SC-64.3 |
-| IC-47 | SC-21.1, SC-21.2, SC-24.1, SC-40.12, SC-50.1, SC-50.4 |
+| IC-46 | SH-07, SH-15, SC-10.1, SC-14.1, SC-19.1, SC-19.2, SC-22.1, SC-24.1, SC-24.4, SC-27.4, SC-28.2, SC-28.4, SC-40.4, SC-40.17, SC-56.3, SC-64.3, SC-27.7, SC-66.1 |
+| IC-47 | SC-21.1, SC-21.2, SC-24.1, SC-40.12, SC-50.1, SC-50.4, SC-66.1 |
 | IC-48 | SC-24.2, SC-50.4 |
-| IC-49 | SC-50.3, SC-23.1 |
+| IC-49 | SC-50.3, SC-23.1, SC-66.1 |
 | IC-50 | Workspace layouts (Phase 7 §4) |
 | IC-51 | Everywhere |
 | IC-52 | Root layout |
@@ -1318,8 +1335,9 @@ Added in version 1.1.0 for the enterprise flows XF-14 … XF-16 and XS-13 … XS
 | IC-65 | SH-05, SH-11, SC-25.3, SC-26.3, SC-59.3, SC-62.1, SC-63.2 |
 | IC-66 | SC-40.16, SC-64.1 |
 | IC-67 | SSB-8 everywhere a persisted record is edited; SC-48.4, SC-57.2 |
+| IC-68 | SC-65.1, SC-65.3 |
 
-**Total: 67 interaction contracts.**
+**Total: 68 interaction contracts.**
 
 ---
 

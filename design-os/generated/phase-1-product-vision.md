@@ -1,6 +1,6 @@
 # Phase 1 — Product Vision
 
-`Haulr Design OS` · `Version 1.1.1` · `2026-10-09` · Next: [Phase 2 — Experience Maps](./phase-2-experience-maps.md) · Index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
+`Haulr Design OS` · `Version 1.2.0` · `2026-10-09` · Next: [Phase 2 — Experience Maps](./phase-2-experience-maps.md) · Index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
 
 This document is the single source of truth for what Haulr is, who it serves and which rules it obeys. Every later phase cites the IDs defined here (`A` assumptions, `BG-` goals, `PR-` personas, `JTBD-` jobs, `BR-` business rules, `KPI-` metrics, `PP-` product principles, and the `NFR-`, `CMP-`, `SEC-` and `OPS-` requirements).
 
@@ -44,18 +44,18 @@ The master prompt's placeholders were resolved as follows. The maintainer chose 
 | `{{REFERENCE_PRODUCTS}}` | Uber Freight, Convoy (historical), Loadsmart, Transfix, DAT One, project44, Flexport | Category benchmarks for features and flows only |
 | `{{PERSONAS}}` | PR-01 … PR-13 (Section 7) | Derived from marketplace roles, plus the enterprise security and integration owner |
 | `{{CORE_ENTITY}}` / `{{CORE_ENTITY_PLURAL}}` | Load / Loads | Industry term for one shipment moved by one carrier |
-| `{{PRIMARY_FLOWS}}` | XF-01 … XF-16 ([Phase 2](./phase-2-experience-maps.md)) | Load lifecycle end to end |
-| `{{SUPPORTING_FLOWS}}` | XS-01 … XS-17 ([Phase 2](./phase-2-experience-maps.md)) | Cross-cutting needs of a two-sided marketplace |
+| `{{PRIMARY_FLOWS}}` | XF-01 … XF-17 ([Phase 2](./phase-2-experience-maps.md)) | Load lifecycle end to end |
+| `{{SUPPORTING_FLOWS}}` | XS-01 … XS-18 ([Phase 2](./phase-2-experience-maps.md)) | Cross-cutting needs of a two-sided marketplace |
 | `{{ROLE_DASHBOARDS}}` | XD-01 … XD-08 ([Phase 2](./phase-2-experience-maps.md)) | One per operating role |
 | `{{DOMAIN_TOOL}}` | Lane Rate Estimator | Price discovery is the most common reason shippers visit |
 | `{{DOMAIN_TRANSACTION}}` | Load booking (rate confirmation) | The moment a carrier commits to move a load |
 | `{{DOMAIN_SPECIFIC_LIBS}}` | Map rendering: deck.gl (installed, reused); a map base layer is proposed, pending approval ([Phase 7 §15](./phase-7-frontend-architecture.md#15-shared-libraries)) | Tracking requires an interactive map |
 | `{{SCALE_TARGET}}` | 5 million loads per year, 250,000 carriers, 40,000 shipper organisations, 1.5 million location updates per hour at peak | Mid-size national marketplace at year three |
-| `{{COMPONENT_COUNT}}` | 67 interaction contracts | [Phase 6](./phase-6-interaction-contracts.md) |
-| `{{SECTION_COUNT}}` | 230 sections (15 shared, 215 page) | [Phase 5](./phase-5-section-blueprints.md) |
-| `{{PAGE_COUNT}}` | 64 pages | [Phase 4](./phase-4-page-blueprints.md) |
+| `{{COMPONENT_COUNT}}` | 68 interaction contracts | [Phase 6](./phase-6-interaction-contracts.md) |
+| `{{SECTION_COUNT}}` | 238 sections (15 shared, 223 page) | [Phase 5](./phase-5-section-blueprints.md) |
+| `{{PAGE_COUNT}}` | 66 pages | [Phase 4](./phase-4-page-blueprints.md) |
 | `{{TIMELINE_WEEKS}}` | 16 weeks (8 two-week sprints) | [Phase 8](./phase-8-implementation-roadmap.md) |
-| `{{QA_ITEM_COUNT}}` | 267 QA items | [Phase 9](./phase-9-qa-checklist.md) |
+| `{{QA_ITEM_COUNT}}` | 270 QA items | [Phase 9](./phase-9-qa-checklist.md) |
 | `{{OUTPUT_DIR}}` | `design-os/generated/` | Host repo convention |
 
 Domain assumptions:
@@ -134,7 +134,7 @@ Benchmarks are used for features and flows only.
 
 | ID | Persona | Context | Key needs |
 | --- | --- | --- | --- |
-| PR-08 | **Operations Agent** | Watches in-flight loads, rescues uncovered or late loads | A queue of exceptions ordered by risk, acting on any load quickly |
+| PR-08 | **Operations Agent** | Watches in-flight loads, rescues uncovered or late loads, prices custom quote requests | A queue of exceptions ordered by risk and of quote requests ordered by deadline, acting on any load quickly |
 | PR-09 | **Compliance Analyst** | Vets carriers, monitors authority and insurance changes, investigates fraud signals | Evidence for each decision, automatic flags, an audit trail |
 | PR-10 | **Finance Operations** | Runs invoicing, collections, carrier settlement and quick pay | Clean reconciliation, dispute resolution, payout exceptions |
 | PR-11 | **Support Agent** | Answers tickets from all sides | Full context on the requester and their loads |
@@ -219,6 +219,7 @@ A user holds exactly one organisation membership and one or more roles within it
 | BR-28 | **Bulk operations.** Bulk import accepts up to 500 loads per file. Every row is validated and priced before any load is created; failed rows never block valid ones; nothing posts until the user confirms the priced batch. Batch operations on existing records follow the same all-rows-reported rule. |
 | BR-29 | **Integrations.** API keys are scoped (read or write, per resource), shown once, rotatable with an overlap window of up to 7 days, and revocable immediately. Webhooks are signed (HMAC-SHA256) and retried with exponential back-off for 24 hours. EDI 204, 990, 214 and 210 map to the same backend operations as the UI, so rules apply identically. |
 | BR-30 | **Data subject rights.** Personal data export and deletion requests are acknowledged within 7 days and fulfilled within 45 days (CCPA/CPRA). Deletion never removes records Haulr must retain (BR-20, BR-26); those are de-identified where law allows. |
+| BR-31 | **Custom quotes.** When the instant quote is unavailable, low-confidence or the lane is unserviceable, a shipper may request a custom quote (XS-18). Haulr operations answer within 2 business hours with a priced quote or a declined reason. A priced custom quote carries its own shipper price and carrier pay (BR-05), at or above the margin floor in platform configuration, and is honoured for the validity the pricing agent sets, within a default and a cap in platform configuration (default 4 hours, cap 24 hours), for the lane, equipment and dates it was priced for (in place of BR-06). Accepting it follows spend authority (BR-23). A request not answered in time is escalated as an exception (XF-08) and the shipper is told. |
 
 ## 10. Success Metrics, KPIs and North Star
 

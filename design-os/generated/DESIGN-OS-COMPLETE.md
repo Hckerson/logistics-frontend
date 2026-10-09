@@ -1,6 +1,6 @@
 # Haulr Design OS — Complete
 
-`Version 1.1.1` · `2026-10-09` · Status: **Complete, ready for engineering handoff** · Start: [START_HERE](./START_HERE.md) · Overview: [README](./README.md)
+`Version 1.2.0` · `2026-10-09` · Status: **Complete, ready for engineering handoff** · Start: [START_HERE](./START_HERE.md) · Overview: [README](./README.md)
 
 The master index. If something exists in this design OS, it is listed here.
 
@@ -26,14 +26,14 @@ You have a 15-file specification for **Haulr**, a road freight marketplace conne
 
 It covers the product end to end:
 
-- **Why and for whom:** vision, 13 personas, 30 business rules, KPIs and a North Star (Phase 1).
-- **What people do:** 41 journeys with their failures and recoveries, plus the load and bid state machines (Phase 2).
-- **Where things live:** 64 pages with routes, access rules and SEO tiers (Phase 3).
-- **What each page and section must do:** 64 page blueprints and 230 section blueprints (Phases 4–5).
-- **How interaction behaves:** 67 interaction contracts at WCAG 2.2 AA (Phase 6).
+- **Why and for whom:** vision, 13 personas, 31 business rules, KPIs and a North Star (Phase 1).
+- **What people do:** 43 journeys with their failures and recoveries, plus the load and bid state machines (Phase 2).
+- **Where things live:** 66 pages with routes, access rules and SEO tiers (Phase 3).
+- **What each page and section must do:** 66 page blueprints and 238 section blueprints (Phases 4–5).
+- **How interaction behaves:** 68 interaction contracts at WCAG 2.2 AA (Phase 6).
 - **How the code is organised:** architecture reconciled with this repo's `.claude/CLAUDE.md` (Phase 7).
 - **How and when it gets built:** 16 weeks, 8 sprints, status for every feature (Phase 8).
-- **How it's proven:** 267 QA checks (Phase 9).
+- **How it's proven:** 270 QA checks (Phase 9).
 - **How to get going:** six guides, including a self-contained implementation prompt (Phase 10).
 
 It deliberately contains **no visual design**. Each page's look is decided when it is built, with the owner.
@@ -45,14 +45,14 @@ It deliberately contains **no visual design**. Each page's look is decided when 
 | # | File | Description |
 | --- | --- | --- |
 | 1 | [phase-1-product-vision.md](./phase-1-product-vision.md) | The single source of truth for Haulr's purpose, personas, jobs, business rules, metrics, governance, constraints, principles and assumptions. Every other phase cites its IDs. |
-| 2 | [phase-2-experience-maps.md](./phase-2-experience-maps.md) | 41 end-to-end journeys (primary flows, role dashboards, supporting flows), each with intent, decision points, failure and recovery paths, and system behaviour. Defines the legal load and bid state transitions. |
-| 3 | [phase-3-information-architecture.md](./phase-3-information-architecture.md) | Which 64 pages exist, their routes and route groups, who can reach each, the capability matrix, content taxonomy, labelling, search, filtering, SEO, breadcrumbs, empty routes and fallbacks. |
+| 2 | [phase-2-experience-maps.md](./phase-2-experience-maps.md) | 43 end-to-end journeys (primary flows, role dashboards, supporting flows), each with intent, decision points, failure and recovery paths, and system behaviour. Defines the legal load and bid state transitions. |
+| 3 | [phase-3-information-architecture.md](./phase-3-information-architecture.md) | Which 66 pages exist, their routes and route groups, who can reach each, the capability matrix, content taxonomy, labelling, search, filtering, SEO, breadcrumbs, empty routes and fallbacks. |
 | 4 | [phase-4-page-blueprints.md](./phase-4-page-blueprints.md) | For every page: purpose, business and user objectives, primary tasks, required data, permissions, device needs, loading, empty, error and success states, dependencies and implementation notes. |
-| 5 | [phase-5-section-blueprints.md](./phase-5-section-blueprints.md) | Every page broken into single-job sections: 15 shared sections reused across pages and 215 page sections, each with data, interaction model, accessibility and states. |
+| 5 | [phase-5-section-blueprints.md](./phase-5-section-blueprints.md) | Every page broken into single-job sections: 15 shared sections reused across pages and 223 page sections, each with data, interaction model, accessibility and states. |
 | 6 | [phase-6-interaction-contracts.md](./phase-6-interaction-contracts.md) | Behaviour of every interactive element: inputs, states, keyboard, ARIA, validation, loading, errors, content rules, do and don't. Seven global rules bind them all. |
 | 7 | [phase-7-frontend-architecture.md](./phase-7-frontend-architecture.md) | Folder structure, route files, layouts, providers, hooks, utilities, constants, API organisation, real-time and offline strategy, libraries, naming, code splitting, performance, security and lint enforcement. |
 | 8 | [phase-8-implementation-roadmap.md](./phase-8-implementation-roadmap.md) | Development phases, priority, sprint plan, milestones, dependencies, risks, technical debt prevention, testing strategy, deployment readiness and the build status of every feature. |
-| 9 | [phase-9-qa-checklist.md](./phase-9-qa-checklist.md) | 267 functional QA checks across accessibility, WCAG, consistency, responsiveness, scalability, performance, state coverage, errors, loading, readiness, developer experience, SEO, maintainability, browsers, business rules and security. |
+| 9 | [phase-9-qa-checklist.md](./phase-9-qa-checklist.md) | 270 functional QA checks across accessibility, WCAG, consistency, responsiveness, scalability, performance, state coverage, errors, loading, readiness, developer experience, SEO, maintainability, browsers, business rules and security. |
 
 ## 3. Deliverables — Ancillary Documents
 
@@ -76,25 +76,25 @@ It deliberately contains **no visual design**. Each page's look is decided when 
 | Permission roles | 14 | Phase 1 §7.4 |
 | Business goals | 6 | Phase 1 §4 |
 | Jobs to be done | 17 | Phase 1 §8 |
-| Business rules | 30 | Phase 1 §9 |
+| Business rules | 31 | Phase 1 §9 |
 | Non-functional, compliance, security, privacy and operations requirements | 45 | Phase 1 §18–22 |
 | KPIs | 12 + North Star | Phase 1 §10 |
 | Product principles | 9 | Phase 1 §13 |
-| Primary flows | 16 | Phase 2 §2 |
+| Primary flows | 17 | Phase 2 §2 |
 | Role dashboards | 8 | Phase 2 §3 |
-| Supporting flows | 17 | Phase 2 §4 |
-| Load state transitions | 27 (+ 7 amendment transitions) | Phase 2 §5, §5.1 |
-| Pages | 64 (+1 redirect route) | Phase 3 §3 |
-| Capabilities in matrix | 26 core + 12 enterprise | Phase 3 §5.1, §5.1a |
+| Supporting flows | 18 | Phase 2 §4 |
+| Load state transitions | 28 (+ 8 amendment transitions) | Phase 2 §5, §5.1 |
+| Pages | 66 (+1 redirect route) | Phase 3 §3 |
+| Capabilities in matrix | 29 core + 12 enterprise | Phase 3 §5.1, §5.1a |
 | Shared sections | 15 | Phase 5 §2 |
-| Page sections | 215 | Phase 5 §13 |
-| Interaction contracts | 67 | Phase 6 |
+| Page sections | 223 | Phase 5 §13 |
+| Interaction contracts | 68 | Phase 6 |
 | Architectural decisions | 14 (D-1 … D-14) | Phase 7 §1 |
-| Hook files | 50 resource hook files (5 existing) + 7 existing hooks without transport | Phase 7 §8 |
+| Hook files | 52 resource hook files (5 existing) + 7 existing hooks without transport | Phase 7 §8 |
 | Sprints / weeks | 8 / 16 | Phase 8 |
 | Milestones | 5 | Phase 8 §4 |
 | Risks | 17 | Phase 8 §6 |
-| QA items | 267 | Phase 9 |
+| QA items | 270 | Phase 9 |
 
 ---
 
@@ -151,7 +151,7 @@ It deliberately contains **no visual design**. Each page's look is decided when 
 | Phase 9 checks | Phases 1–8 | Each QA item cites its source |
 | IMPLEMENTATION_PROMPT | Phases 1–9 | Synthesises all into build steps |
 
-Integrity checks run at generation: 64 pages defined in Phases 3, 4, 5 and 8; 230 sections defined in Phase 5 and statused in Phase 8; 67 contracts defined in Phase 6 and statused in Phase 8; 41 experiences defined in Phase 2 and statused in Phase 8.
+Integrity checks run at generation: 66 pages defined in Phases 3, 4, 5 and 8; 238 sections defined in Phase 5 and statused in Phase 8; 68 contracts defined in Phase 6 and statused in Phase 8; 43 experiences defined in Phase 2 and statused in Phase 8.
 
 ---
 
@@ -165,7 +165,7 @@ Integrity checks run at generation: 64 pages defined in Phases 3, 4, 5 and 8; 23
 - Code organisation reconciled with this repository.
 - Library recommendations under the reuse-first, confirm-before-install policy.
 - A dated 16-week plan, risks and dependencies.
-- A 267-item QA checklist and sign-off rules.
+- A 270-item QA checklist and sign-off rules.
 - Guides and a self-contained implementation prompt.
 
 ## 9. What's Not Included
@@ -190,6 +190,8 @@ Integrity checks run at generation: 64 pages defined in Phases 3, 4, 5 and 8; 23
 | Choose payments processor (with backend) | Phase 8 R-06 | S4 |
 | Approve the map base layer (deck.gl is installed and reused) | Phase 7 §15 | S5 |
 | Confirm D-14 (page-domain folders `components/home/`, `components/auth/`) | Phase 7 §1 | S1 |
+| Confirm BR-31 values: 2-business-hour response, validity default 4 hours and cap 24 hours (set per quote by the pricing agent), margin floor | Phase 1 §9 | S3 |
+| Legal review: the dispatch board shows ELD hours as reported, never evaluates them and stores no carrier hours decision | Phase 2 XF-17, Phase 8 §5 | S7 |
 | Approve processor SDK | Phase 7 §15 | S6 |
 | Approve chart library | Phase 7 §15 | S7 |
 | Decide on a headless accessible-primitives library (optional) | Phase 7 §15 | S1 |
@@ -207,7 +209,7 @@ Integrity checks run at generation: 64 pages defined in Phases 3, 4, 5 and 8; 23
 
 | Field | Value |
 | --- | --- |
-| Version | 1.1.1 (audit and code reconciliation; 1.1.0 was enterprise hardening, 1.0.0 the initial generation) |
+| Version | 1.2.0 (dispatch board and quote desk; 1.1.1 was the audit and code reconciliation, 1.1.0 enterprise hardening, 1.0.0 the initial generation) |
 | Generated | 2026-09-30 |
 | Revised | 2026-10-09 |
 | Seed prompt | `docs/MASTER_PROMPT_COMPLETE.md` |
@@ -222,6 +224,7 @@ Integrity checks run at generation: 64 pages defined in Phases 3, 4, 5 and 8; 23
 | 1.0.0 | Initial generation: 55 pages, 194 sections, 60 contracts, 33 experiences, 216 QA items |
 | 1.1.0 | Enterprise hardening. Added a named state taxonomy (Phase 4 §2.1–2.8). About 2,300 thin field values across Phases 4–6 were rewritten against it. Added NFRs, compliance, identity and security, privacy and operations requirements (Phase 1 §18–22) and BR-23 … BR-30. Added nine enterprise pages, eight flows, 36 sections and seven contracts, and the amendment state machine. Phase 7 gained D-9 … D-13 and §21–28. Phase 8 gained sizing, capacity, Definition of Ready/Done, RACI, release, go/no-go and hypercare. Phase 9 gained 50 QA items. Nothing was removed. |
 | 1.1.1 | Audit and code reconciliation. Phases 7–8 and the guides now match the code on `development`: PG-01 and the identity-first sign-in are In progress, deck.gl is reused for maps, D-14 records the page-domain component folders, and existing hooks and the auth signal provider are listed. Contradictions between Phases 2–6 were reconciled: state machines, permissions, refresh intervals, the offline queue, the contract usage index, and ARIA and keyboard behaviour per WAI-ARIA. Missing states and enumerations were filled in, placement and component wording was rewritten as behaviour, and QA-267 (WCAG 3.2.6) was added. No feature was removed. Duplicated passages now point to the section that owns them. |
+| 1.2.0 | Added two pages the maintainer selected. **PG-65 Dispatch Board** (XF-17, SC-65.1 … SC-65.4, IC-68 planning grid) covers the "load plans" pattern the project brief names for Logistics; carriers plan trucks across days, fill open windows and record unavailable periods. **PG-66 Quote Desk** (XS-18, SC-66.1 … SC-66.3, BR-31) gives the custom quote requests already offered on PG-05, PG-27 and PG-56 an owner and a deadline; SC-27.7 gives shippers their side of the request. Also two Phase 4 §2.6 freshness rows, a quote request status enumeration, three capability rows, QA-268 … QA-270. Totals: 66 pages, 238 sections, 68 contracts, 43 experiences, 31 business rules, 270 QA items. Driver hours on the dispatch board are ELD-reported information only, pending legal review: no hours warning, override or stored decision. Custom quote validity is set per quote within a configured default and cap. The dispatch board is a pre-agreed deferral candidate (Phase 8 §13). Nothing removed. |
 
 ---
 

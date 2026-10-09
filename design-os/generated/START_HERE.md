@@ -1,6 +1,6 @@
 # Start Here — Haulr Design OS
 
-`Version 1.1.1` · `2026-10-09` · Next: [README](./README.md)
+`Version 1.2.0` · `2026-10-09` · Next: [README](./README.md)
 
 Welcome. This folder is the complete specification for **Haulr**, a road freight marketplace where shippers post loads, carriers bid on and book them, drivers run each trip and everyone gets paid. It tells you what the product does and how the code is organised. How each page looks is decided when that page is built, with the owner.
 
@@ -13,14 +13,14 @@ Read this page first (about 3 minutes). It shows you where everything is and how
 The design OS has nine phases. Each one builds on the one before it.
 
 - [x] **Phase 1 — Product Vision:** who Haulr serves, its business rules and how success is measured
-- [x] **Phase 2 — Experience Maps:** 41 journeys end to end, including how each fails and recovers
-- [x] **Phase 3 — Information Architecture:** 64 pages, their routes, and who can reach each one
+- [x] **Phase 2 — Experience Maps:** 43 journeys end to end, including how each fails and recovers
+- [x] **Phase 3 — Information Architecture:** 66 pages, their routes, and who can reach each one
 - [x] **Phase 4 — Page Blueprints:** what each page is for and how it behaves in every state
-- [x] **Phase 5 — Section Blueprints:** 230 sections, one job each
-- [x] **Phase 6 — Interaction Contracts:** 67 contracts defining how every interactive element behaves
+- [x] **Phase 5 — Section Blueprints:** 238 sections, one job each
+- [x] **Phase 6 — Interaction Contracts:** 68 contracts defining how every interactive element behaves
 - [x] **Phase 7 — Frontend Architecture:** folders, routes, hooks, libraries, reconciled with this repo
 - [x] **Phase 8 — Implementation Roadmap:** 8 sprints over 16 weeks, plus build status for every feature
-- [x] **Phase 9 — QA Checklist:** 267 checks a feature must pass before it counts as Verified
+- [x] **Phase 9 — QA Checklist:** 270 checks a feature must pass before it counts as Verified
 
 Plus six guides, including this one.
 
@@ -39,12 +39,12 @@ Plus six guides, including this one.
 | [phase-1-product-vision.md](./phase-1-product-vision.md) | Vision, personas, business rules, KPIs, assumptions |
 | [phase-2-experience-maps.md](./phase-2-experience-maps.md) | Journeys, failure paths, load and bid state machines |
 | [phase-3-information-architecture.md](./phase-3-information-architecture.md) | Sitemap, routes, permissions, taxonomy, SEO |
-| [phase-4-page-blueprints.md](./phase-4-page-blueprints.md) | 64 page blueprints |
-| [phase-5-section-blueprints.md](./phase-5-section-blueprints.md) | 230 section blueprints |
-| [phase-6-interaction-contracts.md](./phase-6-interaction-contracts.md) | 67 interaction contracts |
+| [phase-4-page-blueprints.md](./phase-4-page-blueprints.md) | 66 page blueprints |
+| [phase-5-section-blueprints.md](./phase-5-section-blueprints.md) | 238 section blueprints |
+| [phase-6-interaction-contracts.md](./phase-6-interaction-contracts.md) | 68 interaction contracts |
 | [phase-7-frontend-architecture.md](./phase-7-frontend-architecture.md) | Code organisation and library decisions |
 | [phase-8-implementation-roadmap.md](./phase-8-implementation-roadmap.md) | Sprints, milestones, risks, build status |
-| [phase-9-qa-checklist.md](./phase-9-qa-checklist.md) | 267 QA items |
+| [phase-9-qa-checklist.md](./phase-9-qa-checklist.md) | 270 QA items |
 
 ---
 

@@ -1,6 +1,6 @@
 # Phase 8 — Implementation Roadmap
 
-`Haulr Design OS` · `Version 1.1.1` · `2026-10-09` · Previous: [Phase 7 — Frontend Architecture](./phase-7-frontend-architecture.md) · Next: [Phase 9 — QA Checklist](./phase-9-qa-checklist.md)
+`Haulr Design OS` · `Version 1.2.0` · `2026-10-09` · Previous: [Phase 7 — Frontend Architecture](./phase-7-frontend-architecture.md) · Next: [Phase 9 — QA Checklist](./phase-9-qa-checklist.md)
 
 The plan for building Phases 1–7 in 16 weeks (8 two-week sprints), plus the single record of build status for every page, section, interaction contract and flow. Status lives here and nowhere else; the blueprints in Phases 1–7 record intent and are never edited to reflect progress (Critical Rules › Scope Preservation).
 
@@ -37,11 +37,11 @@ The plan for building Phases 1–7 in 16 weeks (8 two-week sprints), plus the si
 | --- | --- | --- |
 | A — Foundations | S1 | Route groups, guards, providers, env validation, observability, flags, constants, enums, error taxonomy, core primitives, access pages, system pages, test tooling |
 | B — Accounts and onboarding | S2 | Both sides can register, onboard, invite and manage their organisation |
-| C — Posting | S3 | Shippers can quote, post and follow loads; public estimator and home |
+| C — Posting | S3 | Shippers can quote, post and follow loads; operations answer custom quotes; public estimator and home |
 | D — Marketplace | S4 | Carriers can search, bid, book and sign; shippers compare bids and tender; compliance can approve carriers |
 | E — Execution | S5 | Dispatch, driver workflow, POD capture, live tracking, public tracking |
 | F — Money | S6 | Invoices, payment, settlements, quick pay, accessorials, claims, documents |
-| G — Communication and dashboards | S7 | Messages, notifications, preferences, help, role dashboards, driver offline hardening |
+| G — Communication and dashboards | S7 | Messages, notifications, preferences, help, role dashboards, the carrier dispatch board, driver offline hardening |
 | H — Operations and launch | S8 | Internal tools, exception handling, view-as, full QA pass, performance, security and accessibility sign-off |
 | **X — Enterprise track** (parallel) | S2–S8 | SSO and SCIM (S2), templates (S3), approvals and bulk import (S4), amendments (S5), audit and data export (S6), reports and integrations (S7), view-as (S8) |
 
@@ -50,9 +50,9 @@ The plan for building Phases 1–7 in 16 weeks (8 two-week sprints), plus the si
 Priority follows the North Star (Phase 1 §10): a load must be able to go from quote to paid before anything that optimises it. Enterprise capabilities that are purchase preconditions for launch-segment buyers (A9) run in parallel rather than after.
 
 1. **Access and safety:** XS-01, XS-02, XS-13, XF-12, XF-13 (nobody transacts without them; enterprise buyers do not start without SSO).
-2. **Core lifecycle:** XF-01 → XF-02 → XF-05 → XF-06 → XF-07 → XF-09 → XF-10 → XF-11.
+2. **Core lifecycle:** XF-01 (with XS-18 custom quotes) → XF-02 → XF-05 → XF-06 → XF-07 → XF-09 → XF-10 → XF-11.
 3. **Control:** XF-16, XF-15, XS-17 (spend authority, binding amendments, audit).
-4. **Market efficiency:** XF-03, XF-04, XF-14, XS-09, XS-10.
+4. **Market efficiency:** XF-03, XF-04, XF-14, XF-17, XS-09, XS-10.
 5. **Resilience:** XF-08, XS-06, offline driver workflow.
 6. **Integration and governance:** XS-14, XS-15, XS-16.
 7. **Engagement and support:** XS-03, XS-04, XS-05, XS-07, XS-11, XS-12, dashboards XD-01 … XD-08, reports.
@@ -87,8 +87,8 @@ Every page is built from its Phase 4 blueprint, Phase 5 sections and Phase 6 con
 
 - **Contracts:** IC-08, IC-19, IC-20, IC-21, IC-22, IC-23, IC-32, IC-40, IC-46, IC-56, IC-57.
 - **Shared sections:** SH-01, SH-05, SH-14.
-- **Pages:** PG-27, PG-32, PG-26 (collection), PG-40 (SC-40.1, 40.2, 40.3, 40.7, 40.8), PG-05, PG-01; enterprise track: PG-57.
-- **Flows:** XF-01, XS-10, XS-11, XF-14 (templates).
+- **Pages:** PG-27, PG-32, PG-26 (collection), PG-40 (SC-40.1, 40.2, 40.3, 40.7, 40.8), PG-05, PG-01, PG-66; enterprise track: PG-57.
+- **Flows:** XF-01, XS-10, XS-11, XF-14 (templates), XS-18.
 
 ### Sprint 4 — Marketplace (2026-11-16 → 2026-11-27)
 
@@ -115,10 +115,10 @@ Every page is built from its Phase 4 blueprint, Phase 5 sections and Phase 6 con
 
 ### Sprint 7 — Communication, dashboards and offline (2027-01-11 → 2027-01-22)
 
-- **Contracts:** IC-16, IC-17, IC-35, IC-36, IC-37, IC-45, IC-50, IC-53, IC-54.
+- **Contracts:** IC-16, IC-17, IC-35, IC-36, IC-37, IC-45, IC-50, IC-53, IC-54, IC-68.
 - **Shared sections:** SH-04, SH-07, SH-08, SH-10, SH-12.
-- **Pages:** PG-41, PG-42, PG-47 (notification preferences), PG-18, PG-19, PG-06, PG-07, PG-08, PG-40 (SC-40.11, 40.14); driver service worker caching; enterprise track: PG-59, PG-61.
-- **Flows:** XS-03, XS-04, XS-05, XS-07, XD-01, XD-02, XS-14.
+- **Pages:** PG-41, PG-42, PG-47 (notification preferences), PG-18, PG-19, PG-06, PG-07, PG-08, PG-40 (SC-40.11, 40.14), PG-65; driver service worker caching; enterprise track: PG-59, PG-61.
+- **Flows:** XS-03, XS-04, XS-05, XS-07, XD-01, XD-02, XS-14, XF-17.
 - **Library approval needed:** charts, product analytics.
 
 ### Sprint 8 — Operations and launch (2027-01-25 → 2027-02-05)
@@ -144,17 +144,18 @@ Every page is built from its Phase 4 blueprint, Phase 5 sections and Phase 6 con
 | --- | --- | --- | --- |
 | Backend modules with `@ApiEnvelope` DTOs: auth extensions (MFA, reset, invites), organisations | S1–S2 | Backend | Seed data in `lib/data/` behind the same hooks (Phase 7 §11) |
 | Identity service: SAML/OIDC, SCIM, domain verification, session policy | S2 | Backend, security | Staging identity-provider tenants (Okta developer, Entra ID test) |
-| Loads, quotes, facilities, stats, templates | S3 | Backend | Same seed-data fallback |
+| Loads, quotes, custom quote requests, facilities, stats, templates | S3 | Backend | Same seed-data fallback |
 | Bids, tenders, load board search index, compliance, e-signature, approvals, import jobs | S4 | Backend | Same seed-data fallback; e-signature stubbed with a recorded acceptance |
 | Fleet, trips, stop events, positions, tracking tokens, documents, amendments | S5 | Backend | Same seed-data fallback; positions simulated from seed tracks |
 | Invoices, settlements, payments processor, claims, audit store, export jobs | S6 | Backend, finance | Processor sandbox |
-| Messages, notifications, metrics, tickets, reporting service, API keys, webhooks | S7 | Backend | Same seed-data fallback |
+| Messages, notifications, metrics, tickets, reporting service, API keys, webhooks, fleet plan and truck availability | S7 | Backend | Same seed-data fallback |
 | Exceptions, admin config, view-as sessions | S8 | Backend | Same seed-data fallback |
 | Library approvals (Phase 7 §15) | S1 forms, tests, observability; S5 map base layer; S6 processor SDK; S7 charts, analytics | Maintainer | Build contracts without the library only where the host allows (for example native form handling) |
 | Per-page visual concept approval | Before each page starts | Owner, designer | Page is not started until approved |
 | `pnpm contract` regeneration after each backend change | Continuous | Frontend | `pnpm contract:check` fails the gate |
 | Legal: carrier agreement, shipper terms, privacy notice, DPA, sub-processor list | S2 (agreements), S6 (DPA) | Legal | Launch blocked without them (CMP-4, CMP-7) |
 | Penetration test vendor | Booked by S5, executed S7 | Security | Launch blocked on unresolved critical or high findings |
+| Legal review of the dispatch board's hours display: ELD hours shown as reported, never evaluated, no carrier hours decision stored (XF-17) | S7 | Legal, product | PG-65 ships without hours until cleared |
 
 ## 6. Risk Assessment
 
@@ -166,7 +167,7 @@ Every page is built from its Phase 4 blueprint, Phase 5 sections and Phase 6 con
 | R-04 | Map accessibility gaps | Medium | High | Text equivalent is the reference (PP-08); map is additive | Accessibility lead |
 | R-05 | Mobile browsers restrict background location | High | High | Tracking prefers ELD; driver web collects only while open; check-call fallback; native app in Phase 1 §16 | Product |
 | R-06 | Payments processor not selected in time | Medium | High | Sandbox integration behind IC-42; decision due by S4 | Finance lead |
-| R-07 | 64 pages in 16 weeks exceeds capacity | High | High | Capacity check in §13; enterprise track staffed separately; deferral candidates pre-agreed with the maintainer; never deletion | Engineering manager |
+| R-07 | 66 pages in 16 weeks exceeds capacity | High | High | Capacity check in §13; enterprise track staffed separately; deferral candidates pre-agreed with the maintainer; never deletion | Engineering manager |
 | R-08 | `forbidden()` requires an experimental flag in Next.js 16 | Medium | Low | Fallback: `notFound()` for access-denied routes plus the PG-55 route | Tech lead |
 | R-09 | Contract drift between backend and frontend | Medium | High | `pnpm contract:check` in CI | Tech lead |
 | R-10 | Visual concept approval becomes a bottleneck | Medium | Medium | Concepts produced one sprint ahead for the next sprint's pages | Designer |
@@ -252,7 +253,7 @@ A feature with no implementation is **Specified**, not absent. Status is never r
 | XF-14 | Scheduled | S3–S4 | XS-06 | Scheduled | S6 |
 | XF-15 | Scheduled | S5 | XS-07 | Scheduled | S7 |
 | XF-16 | Scheduled | S4 | XS-08 | Scheduled | S6 |
-| | | | XS-09 | Scheduled | S4 |
+| XF-17 | Scheduled | S7 | XS-09 | Scheduled | S4 |
 | | | | XS-10 | Scheduled | S3 |
 | | | | XS-11 | Scheduled | S3 |
 | | | | XS-12 | Scheduled | S6 |
@@ -261,6 +262,7 @@ A feature with no implementation is **Specified**, not absent. Status is never r
 | | | | XS-15 | Scheduled | S6 |
 | | | | XS-16 | Scheduled | S8 |
 | | | | XS-17 | Scheduled | S6 |
+| | | | XS-18 | Scheduled | S3 |
 
 ### 9.3 Pages
 
@@ -300,6 +302,7 @@ Size: **S** ≈ 2 engineer-days, **M** ≈ 5, **L** ≈ 10, **XL** ≈ 15, exclu
 | PG-30 | Invoices | M | Scheduled | S6 | PG-62 | Data and Privacy | M | Scheduled | S6 |
 | PG-31 | Invoice Detail and Pay | M | Scheduled | S6 | PG-63 | Audit Log | S | Scheduled | S6 |
 | PG-32 | Locations | M | Scheduled | S3 | PG-64 | Review Amendment | M | Scheduled | S5 |
+| PG-65 | Dispatch Board | L | Scheduled | S7 | PG-66 | Quote Desk | M | Scheduled | S3 |
 
 ### 9.4 Sections
 
@@ -318,14 +321,14 @@ Each section appears once. Where a group of sections shares one status and sprin
 | SC-01.1, SC-01.2, SC-01.4 | In progress | S3 (started early) |
 | SC-11.1, SC-12.1, SC-13.1, SC-14.1, SC-14.2, SC-15.1, SC-15.2, SC-53.1, SC-54.1, SC-55.1 | Scheduled | S1 |
 | SC-09.1, SC-10.3, SC-16.1 … SC-16.4, SC-17.1 … SC-17.6, SC-46.1, SC-46.2, SC-47.1, SC-47.2, SC-48.1 … SC-48.3, SC-60.1 … SC-60.5 | Scheduled | S2 |
-| SC-01.3, SC-05.1 … SC-05.4, SC-26.1, SC-27.1 … SC-27.6, SC-32.1, SC-32.2, SC-40.1, SC-40.2, SC-40.3, SC-40.7, SC-40.8, SC-57.1 … SC-57.3 | Scheduled | S3 |
+| SC-01.3, SC-05.1 … SC-05.4, SC-26.1, SC-27.1 … SC-27.7, SC-32.1, SC-32.2, SC-40.1, SC-40.2, SC-40.3, SC-40.7, SC-40.8, SC-57.1 … SC-57.3, SC-66.1 … SC-66.3 | Scheduled | S3 |
 | SC-03.1 … SC-03.3, SC-04.1, SC-04.2, SC-22.1 … SC-22.3, SC-28.1 … SC-28.4, SC-29.1, SC-29.2, SC-33.1 … SC-33.5, SC-34.1 … SC-34.4, SC-35.1, SC-36.1, SC-36.2, SC-40.4, SC-40.17, SC-48.4, SC-51.1 … SC-51.5, SC-56.1 … SC-56.4, SC-58.1 … SC-58.4 | Scheduled | S4 |
 | SC-02.1 … SC-02.3, SC-20.1 … SC-20.3, SC-26.2, SC-26.3, SC-35.2, SC-37.1, SC-37.2, SC-39.1 … SC-39.7, SC-40.5, SC-40.6, SC-40.12, SC-40.15, SC-40.16, SC-64.1 … SC-64.4 | Scheduled | S5 |
 | SC-23.1, SC-30.1 … SC-30.3, SC-31.1 … SC-31.4, SC-38.1 … SC-38.4, SC-40.9, SC-40.10, SC-40.13, SC-43.1, SC-43.2, SC-44.1, SC-44.2, SC-45.1 … SC-45.4, SC-49.1 … SC-49.3, SC-62.1, SC-62.2, SC-63.1, SC-63.2 | Scheduled | S6 |
-| SC-06.1 … SC-06.3, SC-07.1 … SC-07.3, SC-08.1, SC-08.2, SC-18.1 … SC-18.5, SC-19.1 … SC-19.5, SC-40.11, SC-40.14, SC-41.1, SC-41.2, SC-42.1, SC-42.2, SC-47.3, SC-59.1 … SC-59.3, SC-61.1 … SC-61.3 | Scheduled | S7 |
+| SC-06.1 … SC-06.3, SC-07.1 … SC-07.3, SC-08.1, SC-08.2, SC-18.1 … SC-18.5, SC-19.1 … SC-19.5, SC-40.11, SC-40.14, SC-41.1, SC-41.2, SC-42.1, SC-42.2, SC-47.3, SC-59.1 … SC-59.3, SC-61.1 … SC-61.3, SC-65.1 … SC-65.4 | Scheduled | S7 |
 | SC-21.1 … SC-21.4, SC-23.2 … SC-23.5, SC-24.1 … SC-24.4, SC-25.1 … SC-25.3, SC-50.1 … SC-50.4, SC-52.1 … SC-52.4 | Scheduled | S8 |
 
-Check: 15 shared + 215 page sections = 230, matching [Phase 5 §13](./phase-5-section-blueprints.md#13-section-inventory).
+Check: 15 shared + 223 page sections = 238, matching [Phase 5 §13](./phase-5-section-blueprints.md#13-section-inventory).
 
 ### 9.5 Interaction Contracts
 
@@ -339,10 +342,10 @@ Check: 15 shared + 215 page sections = 230, matching [Phase 5 §13](./phase-5-se
 | IC-18, IC-27, IC-28, IC-33, IC-34, IC-61, IC-62 | Scheduled | S4 |
 | IC-06, IC-10, IC-25, IC-29, IC-30, IC-31, IC-44, IC-55, IC-66 | Scheduled | S5 |
 | IC-42, IC-43, IC-65 | Scheduled | S6 |
-| IC-16, IC-17, IC-35, IC-36, IC-37, IC-45, IC-50, IC-53, IC-54 | Scheduled | S7 |
+| IC-16, IC-17, IC-35, IC-36, IC-37, IC-45, IC-50, IC-53, IC-54, IC-68 | Scheduled | S7 |
 | IC-47, IC-48, IC-49, IC-64 | Scheduled | S8 |
 
-Check: 67 contracts, matching [Phase 6 §13](./phase-6-interaction-contracts.md#13-contract-usage-index).
+Check: 68 contracts, matching [Phase 6 §13](./phase-6-interaction-contracts.md#13-contract-usage-index).
 
 ### 9.6 Deferred register
 
@@ -406,19 +409,19 @@ R = responsible, A = accountable, C = consulted, I = informed.
 
 | Work | Basis | Engineer-days |
 | --- | --- | --- |
-| Pages (§9.3 sizes: 22 S, 30 M, 9 L, 3 XL) | S 2, M 5, L 10, XL 15 | 329 |
+| Pages (§9.3 sizes: 22 S, 31 M, 10 L, 3 XL) | S 2, M 5, L 10, XL 15 | 344 |
 | Shared sections SH-01 … SH-15 | ≈ 3 each | 45 |
-| Interaction contracts IC-01 … IC-67 | ≈ 1.5 each | 100 |
+| Interaction contracts IC-01 … IC-68 | ≈ 1.5 each | 102 |
 | Foundations (guards, taxonomy, observability, flags, env, security headers, providers) | Fixed | 40 |
-| Hardening and defect fixing | 15% of the preceding rows | 77 |
-| **Total** | | **≈ 591** |
+| Hardening and defect fixing | 15% of the preceding rows | 80 |
+| **Total** | | **≈ 611** |
 
 Capacity: 8 engineers × 16 weeks × 5 days × 0.75 focus factor ≈ **480 engineer-days**.
 
-**Result: a shortfall of roughly 110 engineer-days (about 19%).** This is stated so it can be managed, not hidden. Options, in the order recommended:
+**Result: a shortfall of roughly 130 engineer-days (about 21%).** This is stated so it can be managed, not hidden. Options, in the order recommended:
 
 1. Add one engineer to the enterprise track from S3 (+ ≈ 50 days) and one to the core track from S5 (+ ≈ 30 days).
-2. Pre-agree deferral candidates with the maintainer, to be applied only if the burn-down at M2 confirms the gap: EDI connections (SC-61.3), recurring schedules (SC-57.3), report schedules (SC-59.3), personal-throughput metrics (SC-21.4), saved report views. Deferred items keep their specs and move to §9.6 with a revisit trigger of "M4 + 4 weeks".
+2. Pre-agree deferral candidates with the maintainer, to be applied only if the burn-down at M2 confirms the gap: EDI connections (SC-61.3), recurring schedules (SC-57.3), report schedules (SC-59.3), personal-throughput metrics (SC-21.4), saved report views, and the dispatch board (PG-65 with SC-65.1 … SC-65.4, IC-68 and XF-17; about 13 engineer-days with hardening, and off the quote-to-paid path). The quote desk (PG-66) is not a candidate: without it, custom quote requests in XF-01 have no answer. Deferred items keep their specs and move to §9.6 with a revisit trigger of "M4 + 4 weeks".
 3. Extend the timeline by one sprint (to 2027-02-19).
 
 Burn-down is reviewed at every milestone; the decision among these options is due at M2.

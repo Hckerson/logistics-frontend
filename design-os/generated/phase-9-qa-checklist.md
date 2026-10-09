@@ -1,6 +1,6 @@
 # Phase 9 — Quality Assurance Checklist
 
-`Haulr Design OS` · `Version 1.1.1` · `2026-10-09` · Previous: [Phase 8 — Implementation Roadmap](./phase-8-implementation-roadmap.md) · Next: [START_HERE](./START_HERE.md)
+`Haulr Design OS` · `Version 1.2.0` · `2026-10-09` · Previous: [Phase 8 — Implementation Roadmap](./phase-8-implementation-roadmap.md) · Next: [START_HERE](./START_HERE.md)
 
 A review of the whole system. Each item is a check that must pass before a feature moves from **Built** to **Verified** in [Phase 8 §9](./phase-8-implementation-roadmap.md#9-per-feature-build-status). QA here is functional. Visual quality is judged when each page is built, with the owner.
 
@@ -8,7 +8,7 @@ A review of the whole system. Each item is a check that must pass before a featu
 
 ## Table of Contents
 
-1. [Accessibility](#1-accessibility) — QA-001 … QA-025
+1. [Accessibility](#1-accessibility) — QA-001 … QA-025, QA-268
 2. [WCAG 2.2 AA Compliance](#2-wcag-22-aa-compliance) — QA-026 … QA-050, QA-267
 3. [Behavioural Consistency](#3-behavioural-consistency) — QA-051 … QA-066
 4. [Responsiveness](#4-responsiveness) — QA-067 … QA-078
@@ -22,7 +22,7 @@ A review of the whole system. Each item is a check that must pass before a featu
 12. [SEO Readiness](#12-seo-readiness) — QA-174 … QA-183
 13. [Maintainability](#13-maintainability) — QA-184 … QA-193
 14. [Cross-Browser Compatibility](#14-cross-browser-compatibility) — QA-194 … QA-201
-15. [Business Rules and Security](#15-business-rules-and-security) — QA-202 … QA-216
+15. [Business Rules and Security](#15-business-rules-and-security) — QA-202 … QA-216, QA-269, QA-270
 16. [Enterprise, Compliance and Operations](#16-enterprise-compliance-and-operations) — QA-217 … QA-266
 17. [Sign-off](#17-sign-off)
 
@@ -57,6 +57,7 @@ A review of the whole system. Each item is a check that must pass before a featu
 | QA-023 | Skip link present on every page and moves focus to the main landmark | IC-52 | Auto | Yes |
 | QA-024 | Session timeout warns 2 minutes ahead and allows extension | IC-54 | Auto | Yes |
 | QA-025 | Every page has exactly one level-one heading and a logical heading outline | SSB-6 | Tool | No |
+| QA-268 | Every dispatch board action (open an entry, move a load, fill a window, mark a truck unavailable) works by keyboard alone and without dragging, and each move announces its start, target and result | IC-68, 2.5.7 | Auto | Yes |
 
 ## 2. WCAG 2.2 AA Compliance
 
@@ -321,6 +322,8 @@ Behavioural responsiveness only: every device need in Phase 4 is achievable. Vis
 | QA-214 | Return paths cannot redirect off-site | Phase 3 §14, Phase 7 §19 | Auto | Yes |
 | QA-215 | Rate limits enforced on anonymous endpoints | Phase 8 §10 | Auto | Yes |
 | QA-216 | CSP blocks non-allow-listed origins | Phase 7 §19 | Tool | Yes |
+| QA-269 | A custom quote request is answered or escalated by its BR-31 deadline; a price below the margin floor is refused; carrier pay never reaches the shipper | BR-31, BR-05 | Auto | Yes |
+| QA-270 | The dispatch board shows ELD hours exactly as reported: no hours warning, override or stored hours decision exists, and no analytics, audit or error payload carries hours values | XF-17, SC-65.2, NFR-PRIV-3 | Auto | Yes |
 
 ## 16. Enterprise, Compliance and Operations
 
@@ -377,7 +380,7 @@ Behavioural responsiveness only: every device need in Phase 4 is achievable. Vis
 | QA-265 | Copy survives 40% text expansion and pseudo-localisation without truncating meaning | NFR-I18N-1 | Manual | No |
 | QA-266 | Runbooks exist and were rehearsed for every E-UNAVAILABLE dependency | OPS-4 | Review | Yes |
 
-**Total: 267 QA items.**
+**Total: 270 QA items.**
 
 ## 17. Sign-off
 

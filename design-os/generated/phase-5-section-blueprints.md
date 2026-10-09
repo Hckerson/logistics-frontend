@@ -1,6 +1,6 @@
 # Phase 5 — Section Blueprints
 
-`Haulr Design OS` · `Version 1.1.1` · `2026-10-09` · Previous: [Phase 4 — Page Blueprints](./phase-4-page-blueprints.md) · Next: [Phase 6 — Interaction Contracts](./phase-6-interaction-contracts.md)
+`Haulr Design OS` · `Version 1.2.0` · `2026-10-09` · Previous: [Phase 4 — Page Blueprints](./phase-4-page-blueprints.md) · Next: [Phase 6 — Interaction Contracts](./phase-6-interaction-contracts.md)
 
 Every page from [Phase 4](./phase-4-page-blueprints.md) is broken into sections, one per job. A section is a unit of behaviour: what it is responsible for, the data it needs, how the user interacts with it, and what happens when it is loading, empty or failing. Sections never say what they show, which components or controls they use, how they are arranged, their order on screen, their size, imagery or animation.
 
@@ -236,14 +236,14 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 ### SH-15 — Driver and truck assignment
 
 - **Purpose:** Assign a suitable driver and equipment to a booked load (XF-05) before the BR-09 deadline.
-- **Responsibilities:** Offer eligible drivers and vehicles, check equipment against requirements, choose the tracking source (driver device or ELD), invite a new driver inline, confirm the assignment; state the assignment deadline (2 hours before the pickup window opens, BR-09); require a reason on reassignment.
+- **Responsibilities:** Offer eligible drivers and vehicles, check equipment against requirements, choose the tracking source (driver device or ELD), invite a new driver without leaving the assignment, confirm the assignment; state the assignment deadline (2 hours before the pickup window opens, BR-09); require a reason on reassignment.
 - **Data requirements:** `use-fleet({ availableFor: loadId })` → drivers and vehicles with availability and equipment; `use-assign-load(loadId)` mutation; invitation through `use-invitations`; deadline lead time `ASSIGNMENT_LEAD_HOURS` from constants.
-- **Interaction model:** The user selects driver and vehicle (IC-06), sees eligibility results per option, chooses the tracking source, and confirms (IC-11); reassignment requires a reason and states that the previous driver loses access to the trip; an inline invite (IC-39) adds a driver who can be assigned once accepted.
+- **Interaction model:** The user selects driver and vehicle (IC-06), sees eligibility results per option, chooses the tracking source, and confirms (IC-11); reassignment requires a reason and states that the previous driver loses access to the trip; an invite (IC-39) made without leaving the assignment adds a driver who can be assigned once accepted.
 - **Device needs:** DV-PHONE: assign in one sitting from a notification. DV-DESK: assign many loads in a row with the keyboard. DV-AT: full parity with DV-DESK.
 - **Accessibility requirements:** Ineligible options remain perceivable and state why in text (G-5); the deadline is text with time zone and a countdown within the last hour (IC-46); confirmation announced politely (IC-14) with the driver and vehicle named; focus returns to the load's assignment status (SSB-6).
 - **Loading states:** LS-1 while the fleet loads; LS-5 while the assignment is submitted, the confirm action busy (G-6).
 - **Error states:** E-CONFLICT (driver or vehicle assigned to an overlapping load, load no longer booked) → reason and refreshed options. E-VALIDATION (equipment mismatch, missing reason on reassignment) → field message (IC-02). E-FORBIDDEN (`carrier.driver` or view-as without write consent) → who can assign. E-PRECONDITION → the load changed since opening (IC-67). E-SERVER, E-TIMEOUT → retry with selections kept.
-- **Empty states:** EM-1: no drivers → invite inline (XS-02) with what the driver receives; no eligible vehicle → route to PG-37 to add one.
+- **Empty states:** EM-1: no drivers → invite one without leaving the assignment (XS-02) with what the driver receives; no eligible vehicle → route to PG-37 to add one.
 - **Reuse potential:** PG-40, PG-35, PG-19; implemented once and reused by reference (location per Phase 7 §12).
 - **Technical notes:** Server validates equipment and availability; deadline from BR-09 in constants; query keys `fleetKeys.available(loadId)` and `loadKeys.detail(loadId)` invalidated on success. Audit `load.driver_assigned` and `load.driver_reassigned` (with reason); analytics `load.driver.assigned` with lead time before deadline. Driver phone numbers are Confidential (NFR-PRIV-1). View-as without write consent is read-only (BR-27).
 
@@ -860,7 +860,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Device needs:** DV-PHONE: owner-operators check their one or two trucks. DV-DESK: dispatchers scan many trucks and assign in sequence. DV-AT: full parity with DV-DESK.
 - **Accessibility requirements:** A labelled region; freshness as text ("Position 12 min ago", stale labelled per PP-03); each load named by reference and lane; exceptions and states as text (IC-59); the assignment deadline as text with a countdown within the last hour (IC-46).
 - **Loading states:** LS-1 inside its own boundary; LS-2 every 60 s (`TRACKING_REFRESH_MS`) and on focus, previous data kept; paused when hidden.
-- **Error states:** E-SERVER, E-UNAVAILABLE, E-TIMEOUT → retry (IC-60) with last data and its age. E-CONFLICT during inline assignment → per SH-15.
+- **Error states:** E-SERVER, E-UNAVAILABLE, E-TIMEOUT → retry (IC-60) with last data and its age. E-CONFLICT while assigning from the dashboard → per SH-15.
 - **Empty states:** EM-1: no active loads → load board route (Phase 3 §13).
 - **Reuse potential:** SC-18.2, SH-05.
 - **Technical notes:** Shares the loads query key (`loadKeys.list({ scope: 'carrier', status: 'active' })`) with PG-35 so assignments update both. Read-only apart from SH-15 (audit per SH-15). Analytics `dashboard.active_load.opened`.
@@ -1090,7 +1090,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 
 #### SC-25.2 — Platform configuration
 - **Purpose:** Change platform parameters safely.
-- **Responsibilities:** Present configurable values (quote validity, tender window, detention free time, tracking thresholds) with current value and history; preview impact; apply with reason; state the default each value falls back to (the frontend constant of the same name).
+- **Responsibilities:** Present configurable values (quote validity, custom quote margin floor, response time, and validity default and cap (BR-31), tender window, detention free time, tracking thresholds) with current value and history; preview impact; apply with reason; state the default each value falls back to (the frontend constant of the same name).
 - **Data requirements:** `use-platform-config()` → values with type, allowed range, current value, version, last change (actor, time, reason); `use-update-config`; impact preview computed server-side (for example loads currently in a tender window affected by a change).
 - **Interaction model:** Edit, preview impact, confirm with reason (IC-12, IC-13 re-authentication). Values are validated against their allowed range on preview; the preview must be current before apply; apply carries the version the admin started from (SSB-8) and a stale edit is resolved through IC-67.
 - **Device needs:** DV-DESK: change one value at a time with its impact understood. DV-PHONE: not supported for changes; reading only. DV-AT: full parity with DV-DESK, including re-authentication.
@@ -1164,14 +1164,14 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Purpose:** Price the load and hold the price (BR-06).
 - **Responsibilities:** Request a quote; present it with SH-14 breakdown, confidence and validity countdown (IC-46); re-quote; request a custom quote; state when posting at this price will need approval (BR-23).
 - **Data requirements:** `use-quote(draft)` returning quote ID, shipper price breakdown, confidence, `validUntil` and whether the amount exceeds the requester's spend limit.
-- **Interaction model:** Quote requested automatically when prior steps are valid; changes to earlier steps invalidate the quote and require a new request; the user may re-quote at any time or request a custom quote (routes to support with the draft attached). When the response indicates the requester's spend limit is exceeded, the section states that posting will go to approval, who can approve, and that approval must happen within the validity window.
+- **Interaction model:** Quote requested automatically when prior steps are valid; changes to earlier steps invalidate the quote and require a new request; the user may re-quote at any time or request a custom quote from operations (SC-27.7, XS-18) with the draft saved and attached. When the response indicates the requester's spend limit is exceeded, the section states that posting will go to approval, who can approve, and that approval must happen within the validity window.
 - **Device needs:** DV-DESK and DV-PHONE: read the price, breakdown and remaining validity and re-quote. DV-AT: full parity, including the breakdown's derivations.
 - **Accessibility requirements:** Countdown announced at 5 minutes and 1 minute remaining only (IC-46); quote arrival announced politely with the total; expiry announced assertively once; confidence stated in words ("High confidence"), not only as a scale; approval requirement stated in text.
 - **Loading states:** LS-5 "Getting your price…" announced after 1 s; LS-3 after 5 s; LS-4 after 30 s becomes E-TIMEOUT; earlier steps stay editable while pending.
 - **Error states:** Unserviceable (quote response) → custom quote route. E-CONFLICT: quote expired → re-quote with the previous price shown for comparison. E-UNAVAILABLE: pricing service down → entries kept, draft saved and retry offered (IC-60), with the custom quote route (NFR-AV-4). E-VALIDATION: draft no longer valid → link back to the failing step. E-RATE-LIMIT: too many re-quotes → wait stated. E-TIMEOUT: retry.
 - **Empty states:** EM-4: no quote until the lane and freight steps are valid; the section names the step that is incomplete.
 - **Reuse potential:** SC-05.2 (public estimator presentation); quote presentation reused by PG-57 templates and PG-56 priced batches.
-- **Technical notes:** Quote ID carried to posting; validity 30 min from constants (BR-06); p95 ≤ 3 s (NFR-PERF-4); key `quoteKeys.detail(draftHash)` with no background refetch; shipper price is Confidential (NFR-PRIV-1); audit `quote.issued`; analytics `load.quote.requested`, `load.quote.expired`, `load.quote.custom_requested` with lane region and equipment enums only.
+- **Technical notes:** Quote ID carried to posting; validity 30 min from constants (BR-06); p95 ≤ 3 s (NFR-PERF-4); key `quoteKeys.detail(draftHash)` with no background refetch; shipper price is Confidential (NFR-PRIV-1); audit `quote.issued`; analytics `load.quote.requested`, `load.quote.expired` with lane region and equipment enums only; custom quote events belong to SC-27.7.
 
 #### SC-27.5 — Tender strategy
 - **Purpose:** Decide who gets offered the load.
@@ -1198,6 +1198,19 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Empty states:** EM-5: the review step is reachable only when every previous step is valid, so it always has content.
 - **Reuse potential:** Deliberately single-use: posting is the only commit point of this flow; PG-56 has its own priced-batch confirmation.
 - **Technical notes:** Server Action with a `nanoid` idempotency key generated once per review visit; SU-2 to PG-40, where a `PendingApproval` load states the approvers and deadline (XF-16); invalidates `loadKeys.list` and `useLoadCounts`; audit `load.posted` or `approval_request.created` with the quote ID; analytics `load.posted` or `load.approval.requested` with time-to-post; the draft is cleared on success (SH-13).
+
+#### SC-27.7 — Custom quote request
+- **Purpose:** Get a price from operations when the instant quote cannot give one (BR-31, XS-18).
+- **Responsibilities:** Offer a request when the instant quote is unavailable or low-confidence, or the lane is unserviceable; send the draft's lane, equipment, dates and freight with an optional note; report the request's status (requested, priced, declined, lapsed, withdrawn) and its response deadline; present a priced quote with its breakdown (SH-14) and the validity the agent set (BR-31, IC-46) so SC-27.6 can post on it; let the shipper withdraw; void a priced quote when the draft's lane, dates or equipment change.
+- **Data requirements:** `use-quote-requests({ draftId })` → request ID, status, deadline, priced shipper price breakdown, `validUntil` and decline reason; `use-request-custom-quote` and `use-withdraw-quote-request` mutations; note length from `LIMITS` (notes, 500 characters).
+- **Interaction model:** Requesting is one action (IC-11) from SC-27.4's unavailable, low-confidence or unserviceable result; the draft is saved first, so the shipper can leave and return from PG-26 drafts or from the notification (XS-03). A priced quote takes the instant quote's role in the flow, and posting it goes through SC-27.6. Withdrawing uses IC-12.
+- **Device needs:** DV-DESK and DV-PHONE: request, follow the status and post on the priced quote from a notification. DV-AT: full parity.
+- **Accessibility requirements:** Status changes announced politely (IC-14) while the user is present; deadline and validity stated in words, with IC-46 announcements; the decline reason given in text.
+- **Loading states:** LS-5 "Requesting a quote…"; LS-2 every 30 s while a request is open and the draft is in view, paused when hidden (Phase 7 §13); stale label after 2 min (Phase 4 §2.6).
+- **Error states:** E-CONFLICT: already priced, declined or withdrawn elsewhere → current state shown. E-VALIDATION: note too long → IC-02. E-PRECONDITION: the draft changed after pricing → the quote is void, stated, and a new request or an instant quote is offered. A request past its deadline is a status, not an error: the shipper is told it was escalated and the new expectation (BR-31, XF-08). E-OFFLINE, E-SERVER, E-TIMEOUT → draft kept; retry (IC-60).
+- **Empty states:** EM-4: no request until the instant quote is unavailable, low-confidence or unserviceable; the section says when a request becomes possible.
+- **Reuse potential:** PG-56 raises the same request for each unpriced row and reports its status per row; PG-26 lists drafts awaiting a custom quote.
+- **Technical notes:** The request carries a `nanoid` idempotency key; the priced quote ID replaces the instant quote ID for posting (SC-27.6); carrier pay never reaches the shipper (BR-05); spend authority applies on post (BR-23); audit `quote_request.created`, `quote_request.withdrawn`; analytics `quote.custom.requested` (reason: unavailable, low confidence, unserviceable), `quote.custom.accepted`, `quote.custom.lapsed`.
 
 ### PG-28 — Compare Bids
 
@@ -1337,7 +1350,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Purpose:** Dispute a specific charge (BR-16).
 - **Responsibilities:** Select disputed lines, state reason and amount, route to claim creation with the invoice linked.
 - **Data requirements:** `use-create-claim`.
-- **Interaction model:** Navigate to PG-45 prefilled, or file inline for simple disputes (one line, billing type); amount validates against the line total; submit through IC-11.
+- **Interaction model:** Navigate to PG-45 prefilled, or file in place for simple disputes (one line, billing type); amount validates against the line total; submit through IC-11.
 - **Device needs:** DV-DESK: select lines and file. DV-PHONE: not optimised; route to PG-45. DV-AT: full parity.
 - **Accessibility requirements:** Selected lines announced with count and total; reason and amount labelled; filing result announced (SU-2 when routed to PG-45).
 - **Loading states:** LS-5 while filing.
@@ -1455,7 +1468,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Accessibility requirements:** Deadline as text with the facility time zone and time remaining ("Assign by 06:00 CST, in 14 hours"); both choices named by their effect.
 - **Loading states:** Per SH-15: LS-1 for the fleet while the defer choice stays usable.
 - **Error states:** Per SH-15: E-CONFLICT (driver or truck taken by another load) and E-VALIDATION (equipment mismatch) with reason; E-FORBIDDEN for view-as without write consent.
-- **Empty states:** Per SH-15: EM-1 with no drivers → invite inline (XS-02).
+- **Empty states:** Per SH-15: EM-1 with no drivers → invite one without leaving the assignment (XS-02).
 - **Reuse potential:** SH-15; the same handoff follows bid acceptance on the carrier side.
 - **Technical notes:** Deadline computed server-side from BR-09 constants; audit `load.assigned` when assigned here; analytics `load.assignment.deferred` or `load.assigned` with minutes from booking.
 
@@ -1548,6 +1561,50 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Technical notes:** Key `settlementKeys.detail(settlementId)`; disputes hold only the disputed amount (BR-16); amounts Confidential; analytics `settlement.dispute.started`.
 
 ---
+
+### PG-65 — Dispatch Board
+
+#### SC-65.1 — Week plan
+- **Purpose:** Show every truck's week as one plan (XF-17).
+- **Responsibilities:** Present each truck's booked, in-flight and unavailable periods in time order, with where the truck ends up after each load; state each truck's position source and age (PP-03); move between weeks; focus one truck; report the week's counts of loads needing assignment, conflicts and open windows.
+- **Data requirements:** `use-fleet-plan({ week, truck, driver, equipment })` → trucks with entries (load reference, stops, windows, carrier pay, assignment, status), unavailable periods, last position with source and time, and server-computed conflicts and open windows; key `fleetPlanKeys.week(carrierId, week)`.
+- **Interaction model:** IC-68 planning grid of trucks by days; each entry opens PG-40; `week`, `truck`, `driver` and `equipment` are URL parameters (Phase 3 §10); changing week keeps the focused truck.
+- **Device needs:** DV-DESK: a week for up to 60 trucks by keyboard. DV-PHONE: one truck at a time for the next three days. DV-AT: full parity; each truck's week is also available as an ordered text account.
+- **Accessibility requirements:** IC-68 grid semantics; each entry's accessible name states the load, lane, window and assignment; conflicts and open windows are named in text, never conveyed by colour alone (G-3); week changes announced politely with the counts.
+- **Loading states:** LS-1 for the plan; LS-2 every 60 s and on focus, paused when hidden; stale label after 5 min (Phase 4 §2.6); a week change is LS-2, keeping the previous week until the new one arrives.
+- **Error states:** E-SERVER, E-TIMEOUT, E-UNAVAILABLE → last plan kept with its age; retry (IC-60). E-OFFLINE → cached plan read-only, stated. E-FORBIDDEN: carrier not yet approved → SH-06.
+- **Empty states:** EM-1: no trucks → route to PG-37. EM-1: no booked loads this week → route to PG-33 with the fleet's equipment. EM-2: filters match nothing → clear them.
+- **Reuse potential:** Deliberately single-use: the plan is the carrier's view of its own fleet; PG-35 stays the list of its loads.
+- **Technical notes:** Read-only projection computed server-side; no client-side scheduling or hours arithmetic; positions are read per truck, not streamed (Phase 7 §13); carrier pay is Confidential (NFR-PRIV-1); analytics `fleet.plan.viewed` with a fleet-size band.
+
+#### SC-65.2 — Conflicts and deadlines
+- **Purpose:** Surface what will go wrong this week before it does.
+- **Responsibilities:** Report scheduling conflicts: overlapping windows on one truck, a next pickup that cannot be reached from the previous drop in time, loads past or near their assignment deadline (BR-09), and amendments awaiting response that change a planned window (BR-25); sort them by deadline; route each to its fix (assignment through SC-65.3, a response on PG-64). Report each driver's remaining hours exactly as a connected ELD reports them, as information about that driver, never as a conflict or warning of its own.
+- **Data requirements:** Conflicts from `use-fleet-plan` with type, load, truck, driver and deadline; per driver, the ELD connection state and the remaining hours the ELD reports, with the reading's time.
+- **Interaction model:** Each conflict routes to its fix; fixing the cause clears it on the next refresh; conflicts never block a move. Hours are information only, so there is nothing to acknowledge, override or justify to Haulr.
+- **Device needs:** DV-DESK and DV-PHONE: find what needs action soonest and act on it. DV-AT: full parity.
+- **Accessibility requirements:** Conflict count announced politely when it changes; each conflict's text names its type, load and deadline; each driver's hours are stated with the ELD as their source and the reading's age.
+- **Loading states:** LS-1 with the plan; LS-2 with the plan's refresh.
+- **Error states:** E-UNAVAILABLE from the ELD integration → that driver's hours shown as unavailable, with the last reading's age; no estimate is offered. E-SERVER → last list kept with its age; retry (IC-60).
+- **Empty states:** EM-3: no conflicts this week, with the time it was checked.
+- **Reuse potential:** SC-19.1 and the PG-35 needs-assignment filter use the same deadline source.
+- **Technical notes:** Conflicts are computed by the backend from distance, windows and assignment deadlines, and are advisory. ELD hours are passed through for display only: never evaluated against hours-of-service rules, never stored as a Haulr judgement, and no carrier decision about hours is recorded (legal review, Phase 8 §5). Analytics `fleet.plan.conflict_resolved` with the type; no hours values in any event (NFR-PRIV-3).
+
+#### SC-65.3 — Move and assign
+- Instance of **SH-15**, started from the plan through `use-fleet({ availableFor: loadId })` and `use-assign-load(loadId)` with the load version, for `carrier.dispatcher` and `carrier.admin`. Overrides: the target truck and driver can be chosen with IC-68's keyboard move as well as IC-06; both trucks' weeks are previewed before saving; a move that would overlap a load on the target truck is refused with the overlap named (E-CONFLICT); audit `assignment.changed` with a reason; analytics `fleet.plan.load_moved`.
+
+#### SC-65.4 — Open windows and truck availability
+- **Purpose:** Fill empty time with paying loads, and record when a truck cannot work.
+- **Responsibilities:** State each open window's truck, location, start, length and the empty miles to matching freight; open PG-33 filtered to the window; offer recommended loads that fit it; record unavailable periods per truck (maintenance, driver time off) with a reason, and end them early; bring the dispatcher back to the plan after booking.
+- **Data requirements:** Open windows from `use-fleet-plan`; recommended loads from `use-recommended-loads({ truck, window })`; `use-truck-availability(truckId)` mutation for unavailable periods; default search radius from constants.
+- **Interaction model:** From a window, finding loads navigates to PG-33 with `origin`, `originRadius`, `from`, `to` and `equipment` set (Phase 3 §10) and a return path; a recommended load opens PG-34 directly; booking returns to PG-65 (SU-1). An unavailable period uses IC-08 for its range and IC-07 for its reason.
+- **Device needs:** DV-DESK and DV-PHONE: fill a window and mark a truck unavailable. DV-AT: full parity.
+- **Accessibility requirements:** Each window's accessible name states the truck, place, time and length; the number of recommendations announced politely; date range per IC-08.
+- **Loading states:** LS-1 for recommendations, independent of the plan; LS-5 when saving an unavailable period ("Saving…").
+- **Error states:** E-CONFLICT: a recommended load was taken → removed, similar loads offered. E-VALIDATION: an unavailable period that covers a booked load or ends before it starts. E-UNAVAILABLE on recommendations → the PG-33 route remains. E-FORBIDDEN: view-as without write consent.
+- **Empty states:** EM-2: no recommended load fits the window → widen the radius or time in PG-33. EM-3: no open windows this week.
+- **Reuse potential:** SC-19.3 recommended loads (same source, scoped here to one window).
+- **Technical notes:** Unavailable periods feed the recommendation service and lane alerts (XS-09); window search links are built by `appRoutes` (IC-51); audit `vehicle.unavailable_set`, `vehicle.unavailable_ended`; analytics `fleet.plan.window_filled` with an empty-miles band, `fleet.truck.unavailable_set`.
 
 ## 9. Driver
 
@@ -1693,7 +1750,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Technical notes:** Present only while `Posted`; carriers receive only their own bid (BR-05); audit `bid.submitted`, `bid.countered`; analytics `bid.submitted`.
 
 #### SC-40.5 — Assignment
-- Instance of **SH-15** through `use-fleet()` and `use-assign-load(loadId)`. Carrier roles and operations only; shippers receive the assigned driver's given name and truck number after dispatch. Overrides: operations assign on behalf with a reason; the BR-09 deadline stated in text with the facility time zone; view-as cannot assign without write consent; EM-1 invites a driver inline (XS-02).
+- Instance of **SH-15** through `use-fleet()` and `use-assign-load(loadId)`. Carrier roles and operations only; shippers receive the assigned driver's given name and truck number after dispatch. Overrides: operations assign on behalf with a reason; the BR-09 deadline stated in text with the facility time zone; view-as cannot assign without write consent; EM-1 invites a driver without leaving the assignment (XS-02).
 
 #### SC-40.6 — Tracking
 - Instance of **SH-02** for this load through `use-load-positions(loadId)`, polled every 60 s and paused while the document is hidden. Overrides: shipper and carrier parties and internal roles read; check call (IC-10) for carrier and operations roles only; EM-4 before pickup ("Tracking starts at pickup" with the appointment); exception at 90 min without update (BR-10).
@@ -1784,7 +1841,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 
 #### SC-40.17 — Approval status
 - **Purpose:** Tell everyone on the load when it is waiting for spend approval (BR-23, XF-16).
-- **Responsibilities:** Report the pending request, the approvers who can act, the deadline (quote expiry) and the outcome. Let the requester withdraw. Let an approver decide through PG-58 behaviour inline (IC-62).
+- **Responsibilities:** Report the pending request, the approvers who can act, the deadline (quote expiry) and the outcome. Let the requester withdraw. Let an approver decide in place with PG-58 behaviour (IC-62).
 - **Data requirements:** `useApprovalRequests({ subjectId: loadId })` in `use-approvals.ts`.
 - **Interaction model:** Requester: withdraw (IC-12). Approver: approve or reject with reason (IC-62). Others: read-only.
 - **Device needs:** DV-PHONE: approvers decide from a notification. DV-DESK and DV-AT: full parity.
@@ -2160,6 +2217,47 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 
 ---
 
+### PG-66 — Quote Desk
+
+#### SC-66.1 — Request queue
+- **Purpose:** Put the next request due in front of an operations agent.
+- **Responsibilities:** List open custom quote requests sorted by response deadline, with lane, equipment, dates, requesting organisation, owner and time remaining; claim and release them (IC-47); filter by `status`, `equipment` and `due` (Phase 3 §10); mark overdue requests.
+- **Data requirements:** `use-quote-requests(params)` polled through a Route Handler every 30 s (Phase 7 §13); claim and release mutations with the request version.
+- **Interaction model:** Instance of SH-05 for the collection (IC-20, IC-21, IC-22); IC-47 to claim and release; the selected request in `?request=`; IC-49 shortcuts for next request, claim and release.
+- **Device needs:** DV-DESK, keyboard-driven. DV-AT: full parity. DV-PHONE, DV-WALL: not targeted.
+- **Accessibility requirements:** Deadlines stated in words with IC-46 announcements at 15 and 5 minutes remaining for the claimed request; the queue announces only when its count changes; claim outcomes announced (IC-14).
+- **Loading states:** LS-1, then LS-2 every 30 s, paused when hidden; stale label after 2 min (Phase 4 §2.6); the selected request keeps focus during refresh; LS-5 on claim.
+- **Error states:** E-CONFLICT: claimed by someone else → owner named. E-UNAVAILABLE or E-SERVER on refresh → last queue kept with its age; retry (IC-60).
+- **Empty states:** EM-3: no open requests, with the last refresh time. EM-2: filters match nothing → clear them.
+- **Reuse potential:** Same claim model as SC-50.1; overdue requests also appear in PG-50 as exceptions (XF-08).
+- **Technical notes:** The backend raises an exception when a request passes its deadline, and the request stays in this queue marked overdue; audit `quote_request.claimed`, `quote_request.released`; analytics `quote.custom.claimed`.
+
+#### SC-66.2 — Lane evidence
+- **Purpose:** Give the agent the facts to price the lane.
+- **Responsibilities:** Present the request (lane, stops, windows, equipment, freight, note) with the lane's market range, recent comparable Haulr loads (shipper price, carrier pay, date, on-time outcome) and why the instant quote failed (unavailable, low confidence, unserviceable).
+- **Data requirements:** `use-quote-request(requestId)`; `use-lane-evidence({ lane, equipment, window })` → market range with source and age, and comparables (Confidential).
+- **Interaction model:** Read-only; comparables sort through IC-22; each comparable opens PG-40.
+- **Device needs:** DV-DESK. DV-AT: full parity.
+- **Accessibility requirements:** The market range stated in words with its source and age (PP-03); comparables follow IC-22.
+- **Loading states:** LS-1, independent of the queue; LS-3 after 5 s.
+- **Error states:** E-UNAVAILABLE from market data → comparables only, stated. E-SERVER, E-TIMEOUT → retry (IC-60).
+- **Empty states:** EM-4: no comparable Haulr loads on the lane yet → market data only, stated as such.
+- **Reuse potential:** SC-05.2 presents the same market range to shippers; money follows SH-14.
+- **Technical notes:** Comparables omit other organisations' identities; both money values are visible to operations only (BR-05, NFR-PRIV-1).
+
+#### SC-66.3 — Price or decline
+- **Purpose:** Answer the request.
+- **Responsibilities:** Set shipper price and carrier pay separately, with accessorial expectations; state the margin against the floor (BR-31); set the quote's validity, starting from the configured default and never beyond the cap; send the priced quote, or decline with a reason code and a message to the shipper; release the claim when done.
+- **Data requirements:** `use-price-quote-request(requestId)` and `use-decline-quote-request(requestId)` with the request version; the margin floor and the validity default and cap returned with the request by the server (BR-31; set in SC-25.2, which operations cannot read directly); decline reason codes from `lib/ops/constants.ts`.
+- **Interaction model:** IC-01 money entries with an SH-14 preview; validity chosen through IC-07 from durations up to the cap; IC-12 confirmation stating the price, the validity and that the shipper will be notified; a decline takes an IC-09 reason and an IC-01 message; both carry the request version.
+- **Device needs:** DV-DESK. DV-AT: full parity.
+- **Accessibility requirements:** The margin against the floor stated in words; a below-floor refusal is tied to the price entry (IC-02).
+- **Loading states:** LS-5 "Sending quote…" or "Declining…"; LS-4 after 30 s becomes E-TIMEOUT and is retried with the same idempotency key.
+- **Error states:** E-VALIDATION: price below the floor, validity beyond the cap, or a decline without a reason. E-CONFLICT: the request was withdrawn or answered meanwhile. E-PRECONDITION: the draft changed since the request was opened (SSB-8). E-SERVER, E-TIMEOUT → retry with entries kept.
+- **Empty states:** EM-5: the section opens only for a claimed request, so it always has one.
+- **Reuse potential:** SH-14 for the breakdown; the decline-with-reason pattern of IC-62.
+- **Technical notes:** The server enforces the floor and claim ownership; one idempotency key per answer; the shipper is notified through XS-03; audit `quote_request.priced` (shipper price, carrier pay), `quote_request.declined` (reason); analytics `quote.custom.priced` with time to price, `quote.custom.declined` with the reason code.
+
 ## 12. System Pages
 
 ### PG-53 — Not Found
@@ -2230,10 +2328,10 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
   - Classify each row as valid, warning or invalid, with every reason.
   - Detect duplicates within the file and against existing loads.
   - Match facilities, or offer to create them.
-  - Allow inline correction and re-validation of a row.
+  - Allow a row to be corrected and re-validated in place.
   - Allow excluding rows.
 - **Data requirements:** `useImportRows(batchId, { outcome, cursor })`; `useUpdateImportRow`.
-- **Interaction model:** The user filters rows by outcome (IC-20), corrects fields inline (IC-01, IC-05, IC-08) with immediate row re-validation, excludes rows (IC-23), and continues when no invalid rows remain included.
+- **Interaction model:** The user filters rows by outcome (IC-20), corrects fields in place (IC-01, IC-05, IC-08) with immediate row re-validation, excludes rows (IC-23), and continues when no invalid rows remain included.
 - **Device needs:** DV-DESK: keyboard-efficient correction of many rows. DV-AT: rows as a data table with row headers (reference) and cell-level error descriptions.
 - **Accessibility requirements:** Outcome counts announced after each re-validation; each invalid cell has its error text associated (`aria-describedby`); IC-22 table semantics.
 - **Loading states:** LS-2 per re-validated row; LS-7 for full-batch re-validation.
@@ -2628,7 +2726,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 | PG-24 | SC-24.1 … SC-24.4 | 4 |
 | PG-25 | SC-25.1 … SC-25.3 | 3 |
 | PG-26 | SC-26.1 … SC-26.3 | 3 |
-| PG-27 | SC-27.1 … SC-27.6 | 6 |
+| PG-27 | SC-27.1 … SC-27.7 | 7 |
 | PG-28 | SC-28.1 … SC-28.4 | 4 |
 | PG-29 | SC-29.1, SC-29.2 | 2 |
 | PG-30 | SC-30.1 … SC-30.3 | 3 |
@@ -2666,7 +2764,9 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 | PG-62 | SC-62.1, SC-62.2 | 2 |
 | PG-63 | SC-63.1, SC-63.2 | 2 |
 | PG-64 | SC-64.1 … SC-64.4 | 4 |
-| **Total** | **15 shared + 215 page sections** | **230** |
+| PG-65 | SC-65.1 … SC-65.4 | 4 |
+| PG-66 | SC-66.1 … SC-66.3 | 3 |
+| **Total** | **15 shared + 223 page sections** | **238** |
 
 ---
 
