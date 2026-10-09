@@ -20,18 +20,20 @@ interface Props extends Omit<InputHTMLAttributes<HTMLInputElement>, "id" | "valu
     hint?: ReactNode;
     revealLabel?: string;
     describedBy?: string;
+    cells?: number;
+    tall?: boolean;
 }
 
 const BoardField = forwardRef<HTMLInputElement, Props>(function BoardField(props, ref) {
-    const { id, label, value, index, error, aside, hint, revealLabel, describedBy, type, placeholder, ...rest } = props;
+    const { id, label, value, index, error, aside, hint, revealLabel, describedBy, cells = BOARD.cells, tall, type, placeholder, ...rest } = props;
     const { onChange, onSelect, onFocus, onBlur, ...native } = rest;
     const [shown, setShown] = useState(false);
     const [caret, setCaret] = useState<number | null>(null);
-    const noise = useBoardNoise(BOARD.cells, useAssembly());
+    const noise = useBoardNoise(cells, useAssembly());
     const secret = revealLabel !== undefined;
     const ghost = !value && caret === null && Boolean(placeholder);
     const text = ghost ? (placeholder ?? "") : secret && !shown ? BOARD.mask.repeat(value.length) : value;
-    const board = boardWindow(text, caret, BOARD.cells);
+    const board = boardWindow(text, caret, cells, native.maxLength !== undefined && native.maxLength <= cells);
     const Icon = shown ? ViewOff : View;
 
     const track = (event: SyntheticEvent<HTMLInputElement>) =>
@@ -54,7 +56,7 @@ const BoardField = forwardRef<HTMLInputElement, Props>(function BoardField(props
             </div>
             <div className="relative flex items-stretch gap-1">
                 <div className="relative min-w-0 flex-1">
-                    <BoardCells glyphs={board.glyphs} caret={board.caret} ghost={ghost} noise={noise} error={Boolean(error)} />
+                    <BoardCells glyphs={board.glyphs} caret={board.caret} ghost={ghost} noise={noise} error={Boolean(error)} tall={tall} />
                     <input
                         {...native}
                         ref={ref}
