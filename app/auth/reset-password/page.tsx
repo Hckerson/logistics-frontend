@@ -1,6 +1,6 @@
 import AuthIntro from "@/components/auth/auth-intro";
 import AuthLinks from "@/components/auth/auth-links";
-import ResetExpired from "@/components/auth/reset-expired";
+import ExpiredPanel from "@/components/auth/expired-panel";
 import ResetForm from "@/components/auth/reset-form";
 import { checkResetToken } from "@/lib/actions/reset-password";
 import { LINK_PAGE_METADATA } from "@/lib/auth/constants";
@@ -27,7 +27,7 @@ export default async function ResetPasswordPage({ searchParams }: Props) {
     ) : (
         <>
             <AuthIntro title={expired.title} lead={expired.lead} />
-            <ResetExpired footer={links} />
+            <ExpiredPanel label={RESET_COPY.label} status={RESET_COPY.status} outcome={expired} href={expired.href} footer={links} />
         </>
     );
 }
