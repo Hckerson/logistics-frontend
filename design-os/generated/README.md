@@ -1,6 +1,6 @@
 # Haulr Design OS
 
-`Version 1.2.0` · `2026-10-09` · Start: [START_HERE](./START_HERE.md) · Index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
+`Version 1.3.0` · `2026-10-09` · Start: [START_HERE](./START_HERE.md) · Index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
 
 ## In 30 Seconds
 
@@ -11,7 +11,7 @@ The design OS defines **what the product does**: its users, journeys, pages, sec
 ## Quick Start
 
 - **New here?** Read [START_HERE](./START_HERE.md), then [Phase 1 §1 Assumptions](./phase-1-product-vision.md#1-assumptions).
-- **Building?** Follow [SETUP-CHECKLIST](./SETUP-CHECKLIST.md), then run [IMPLEMENTATION_PROMPT](./IMPLEMENTATION_PROMPT.md) sprint by sprint.
+- **Building?** Follow [SETUP-CHECKLIST](./SETUP-CHECKLIST.md), then run [IMPLEMENTATION_PROMPT](./IMPLEMENTATION_PROMPT.md) stage by stage ([Phase 8 §16](./phase-8-implementation-roadmap.md#16-solo-build-order)).
 - **Checking progress?** [Phase 8 §9](./phase-8-implementation-roadmap.md#9-per-feature-build-status) is the only place status lives.
 
 ---
@@ -63,7 +63,7 @@ The design OS defines **what the product does**: its users, journeys, pages, sec
 
 - Set up with [SETUP-CHECKLIST](./SETUP-CHECKLIST.md).
 - Put code where [Phase 7](./phase-7-frontend-architecture.md) says; it is reconciled with `.claude/CLAUDE.md`.
-- Build sprint by sprint with [IMPLEMENTATION_PROMPT](./IMPLEMENTATION_PROMPT.md). Cite IDs (PG-, SC-, IC-) in PR titles.
+- Build stage by stage with [IMPLEMENTATION_PROMPT](./IMPLEMENTATION_PROMPT.md), against the mocked backend. Cite IDs (PG-, SC-, IC-) in PR titles.
 
 ### QA
 
@@ -84,9 +84,9 @@ The design OS defines **what the product does**: its users, journeys, pages, sec
 | Pages | 66 |
 | Sections | 238 (15 shared, 223 page) |
 | Interaction contracts | 68 |
-| Timeline | 16 weeks, 8 sprints, 5 milestones |
+| Timeline | Solo build: 7 stages, about 71 weeks (active). Staffed plan: 16 weeks, 8 sprints, 5 milestones |
 | QA items | 270 |
-| Non-functional, compliance and security requirements | 45 (NFR-, CMP-, SEC-, NFR-PRIV-, OPS-) |
+| Non-functional, compliance and security requirements | 56 (NFR-, CMP-, SEC-, NFR-PRIV-, OPS-) |
 
 ---
 

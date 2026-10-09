@@ -1,6 +1,6 @@
 # Phase 1 — Product Vision
 
-`Haulr Design OS` · `Version 1.2.0` · `2026-10-09` · Next: [Phase 2 — Experience Maps](./phase-2-experience-maps.md) · Index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
+`Haulr Design OS` · `Version 1.3.0` · `2026-10-09` · Next: [Phase 2 — Experience Maps](./phase-2-experience-maps.md) · Index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
 
 This document is the single source of truth for what Haulr is, who it serves and which rules it obeys. Every later phase cites the IDs defined here (`A` assumptions, `BG-` goals, `PR-` personas, `JTBD-` jobs, `BR-` business rules, `KPI-` metrics, `PP-` product principles, and the `NFR-`, `CMP-`, `SEC-` and `OPS-` requirements).
 
@@ -85,7 +85,7 @@ Haulr connects shippers who need freight moved with vetted carriers who have cap
 | --- | --- | --- |
 | BG-01 | Make self-serve booking the default | 70% of loads booked without a Haulr operations touch by month 12 |
 | BG-02 | Win shipper trust through visibility | 95% of in-transit loads have a location update less than 60 minutes old |
-| BG-03 | Pay carriers faster than the industry | Median carrier payment 3 days after verified POD; quick pay same day |
+| BG-03 | Pay carriers faster than the industry | Median carrier payment 3 business days after verified POD; quick pay same day |
 | BG-04 | Keep the network safe | Zero loads tendered to a carrier with lapsed authority or insurance |
 | BG-05 | Grow margin sustainably | Gross margin per load of 12–16% while keeping win rate on quotes above 30% |
 | BG-06 | Reduce cost to serve | Operations touches per load fall 50% year over year |
@@ -107,7 +107,7 @@ Benchmarks are used for features and flows only.
 | Bookable loads | Uber Freight, Transfix: book at posted rate | Match, plus an opt-in bid and counter path (XF-03) |
 | Load board search | DAT One: large volume, low trust | Differentiate: every load is real, priced and bookable; no phantom posts (BR-07) |
 | Visibility | project44: multi-source tracking | Match for road freight: ELD, then driver browser, then check call, with source always disclosed (PP-03) |
-| Carrier pay | Industry net-30; quick pay for a fee | Differentiate: standard pay 3 days after POD verification (BG-03) |
+| Carrier pay | Industry net-30; quick pay for a fee | Differentiate: standard pay 3 business days after POD verification (BG-03) |
 | Private tendering | Shipper TMS tools (routing guides) | Include: preferred-carrier tender waterfall before the open market (XF-04) |
 
 ## 7. Personas
@@ -191,7 +191,7 @@ A user holds exactly one organisation membership and one or more roles within it
 | --- | --- |
 | BR-01 | **Load lifecycle.** A load moves through `Draft → Posted → Booked → Dispatched → AtPickup → InTransit → AtDelivery → Delivered → PodVerified → Invoiced → Paid → Closed`. Side states: `PendingApproval` (BR-23), `Cancelled`, `Expired`, `OnHold`, `Disputed`. Only the transitions in [Phase 2 §5](./phase-2-experience-maps.md#5-load-state-machine) are legal. |
 | BR-02 | **Bid lifecycle.** `Submitted → Countered ↔ Submitted → Accepted | Declined | Withdrawn | Expired`. Accepting a bid books the load and expires every other open bid on it. |
-| BR-03 | **Booking eligibility.** A carrier can book or bid only when its compliance status is `Approved`, its authority is active, its insurance meets the load's minimums and it has the equipment type the load requires. |
+| BR-03 | **Booking eligibility.** A carrier can book or bid only when its compliance status is `Approved`, its authority is active, its insurance meets the load's minimums, it has the equipment type the load requires, it holds no Unsatisfactory FMCSA safety rating and no active out-of-service order, and any Conditional rating has been reviewed and accepted by compliance with a recorded reason (CMP-2). |
 | BR-04 | **Rate confirmation.** A booking is binding only after the carrier accepts the rate confirmation. Acceptance records user, time, IP and document version. |
 | BR-05 | **Price separation.** Shipper price and carrier pay are separate values. A shipper never sees carrier pay; a carrier never sees shipper price or margin. |
 | BR-06 | **Quote validity.** An instant quote is honoured for 30 minutes, for the lane, equipment and dates it was issued for. |
@@ -200,13 +200,13 @@ A user holds exactly one organisation membership and one or more roles within it
 | BR-09 | **Driver assignment.** A booked load must have a driver and truck assigned by 2 hours before the pickup window opens, or it becomes an operations exception. |
 | BR-10 | **Tracking cadence.** In-transit loads expect a location update at least every 60 minutes. A gap of 90 minutes raises a tracking exception. |
 | BR-11 | **Accessorials.** Detention accrues after 2 free hours at a stop, measured from recorded arrival (geofence or driver check-in). Layover, lumper, TONU (truck ordered, not used) and additional stops are the other accessorials. Each needs evidence and shipper approval above a configured threshold. |
-| BR-12 | **Cancellation.** A shipper cancelling within 24 hours of pickup after dispatch owes a TONU. A carrier cancelling after booking receives a reliability penalty on its scorecard. |
+| BR-12 | **Cancellation.** A shipper cancelling within 24 hours of pickup after dispatch owes a TONU. A carrier cancelling after booking returns the load to `Posted` for re-tender and receives a reliability penalty on its scorecard. |
 | BR-13 | **POD.** Delivery is `PodVerified` once a signed POD image is captured and passes review (automatic or finance review). Invoicing waits for POD verification. |
 | BR-14 | **Invoicing.** One shipper invoice per load, issued automatically on POD verification, with the POD and rate agreement attached. Terms are set per shipper organisation (default net 30). |
 | BR-15 | **Carrier settlement.** Standard pay is issued 3 business days after POD verification. Quick pay pays the same day for a published percentage fee. |
 | BR-16 | **Disputes.** An invoice or settlement in dispute stops collection or payout for the disputed amount only, never for the whole account. |
 | BR-17 | **Claims.** Overage, shortage and damage (OS&D) claims must be filed within 9 months of delivery with evidence. |
-| BR-18 | **Compliance monitoring.** A change in authority or insurance status suspends booking eligibility at once. It does not remove the carrier from loads already booked; those become operations exceptions. |
+| BR-18 | **Compliance monitoring.** A change in authority or insurance status, a safety rating downgraded to Unsatisfactory, or an out-of-service order suspends booking eligibility at once; a downgrade to Conditional opens a compliance review (PG-51). It does not remove the carrier from loads already booked; those become operations exceptions. |
 | BR-19 | **Messaging scope.** Messages belong to a load or a support ticket. There is no free-form direct messaging between shippers and carriers outside a load. |
 | BR-20 | **Data retention.** Load records, rate confirmations and POD documents are kept for 7 years. Location history finer than one point per 5 minutes is kept for 90 days. |
 | BR-21 | **Public tracking.** A tracking link exposes status, ETA and approximate location only. It never exposes rates, parties' contact details or documents, and it expires 7 days after delivery. |
@@ -219,7 +219,7 @@ A user holds exactly one organisation membership and one or more roles within it
 | BR-28 | **Bulk operations.** Bulk import accepts up to 500 loads per file. Every row is validated and priced before any load is created; failed rows never block valid ones; nothing posts until the user confirms the priced batch. Batch operations on existing records follow the same all-rows-reported rule. |
 | BR-29 | **Integrations.** API keys are scoped (read or write, per resource), shown once, rotatable with an overlap window of up to 7 days, and revocable immediately. Webhooks are signed (HMAC-SHA256) and retried with exponential back-off for 24 hours. EDI 204, 990, 214 and 210 map to the same backend operations as the UI, so rules apply identically. |
 | BR-30 | **Data subject rights.** Personal data export and deletion requests are acknowledged within 7 days and fulfilled within 45 days (CCPA/CPRA). Deletion never removes records Haulr must retain (BR-20, BR-26); those are de-identified where law allows. |
-| BR-31 | **Custom quotes.** When the instant quote is unavailable, low-confidence or the lane is unserviceable, a shipper may request a custom quote (XS-18). Haulr operations answer within 2 business hours with a priced quote or a declined reason. A priced custom quote carries its own shipper price and carrier pay (BR-05), at or above the margin floor in platform configuration, and is honoured for the validity the pricing agent sets, within a default and a cap in platform configuration (default 4 hours, cap 24 hours), for the lane, equipment and dates it was priced for (in place of BR-06). Accepting it follows spend authority (BR-23). A request not answered in time is escalated as an exception (XF-08) and the shipper is told. |
+| BR-31 | **Custom quotes.** When the instant quote is unavailable, low-confidence or the lane is unserviceable, a shipper may request a custom quote (XS-18). Haulr operations answer within 2 business hours with a priced quote or a declined reason. A priced custom quote carries its own shipper price and carrier pay (BR-05), at or above the margin floor in platform configuration (default 8% of the shipper price, below BG-05's 12–16% target; only `internal.admin` changes it, with a reason), and is honoured for the validity the pricing agent sets, within a default and a cap in platform configuration (default 4 hours, cap 24 hours), for the lane, equipment and dates it was priced for (in place of BR-06). Accepting it follows spend authority (BR-23). A request not answered in time is escalated as an exception (XF-08) and the shipper is told. |
 
 ## 10. Success Metrics, KPIs and North Star
 
@@ -388,7 +388,7 @@ Every NFR is measurable and verified in [Phase 9](./phase-9-qa-checklist.md). Ta
 | ID | Obligation | Scope in the product | Owner |
 | --- | --- | --- | --- |
 | CMP-1 | **FMCSA broker authority and BMC-84 surety bond ($75,000)** | Haulr's broker MC number is shown on rate confirmations, invoices and PG-09 | Compliance |
-| CMP-2 | **Carrier vetting duty of care** | BR-03, BR-18, XF-12; vetting evidence retained 7 years | Compliance |
+| CMP-2 | **Carrier vetting duty of care** | Brokers can be sued under state law for negligent carrier selection; the standard is ordinary care (*Montgomery v. Caribe Transport II*, U.S. Supreme Court, 14 May 2026). BR-03, BR-18, XF-12: FMCSA safety rating and out-of-service status checked at vetting and monitored after; vetting evidence retained 7 years | Compliance |
 | CMP-3 | **49 CFR 371.3 broker records** | Each load's shipper, carrier, bill of lading, compensation and rate confirmation retained 3 years minimum (BR-20 exceeds it) | Compliance, engineering |
 | CMP-4 | **E-SIGN Act and UETA** | Rate confirmations, amendments and agreements: consent to electronic records, signer intent, record integrity and retrievable copy (IC-26) | Legal |
 | CMP-5 | **PCI DSS (SAQ-A scope)** | Card and bank data only in the processor's hosted fields (A6); no cardholder data in Haulr systems | Security |
@@ -398,6 +398,8 @@ Every NFR is measurable and verified in [Phase 9](./phase-9-qa-checklist.md). Ta
 | CMP-9 | **ADA / Section 508 expectations** | NFR-A11Y-1 and VPAT | Product |
 | CMP-10 | **Tax forms** | W-9 collection for carriers; 1099-NEC/1099-K data retained for finance | Finance |
 | CMP-11 | **OFAC sanctions screening** | Organisations and payees screened at onboarding and on payout-method change | Compliance |
+| CMP-12 | **Driver coercion (49 CFR 390.6)** | Haulr staff, automated messages and incentives never pressure a driver to operate in violation of the safety regulations, hours of service included. When a driver says a request would require a violation, the request is withdrawn and no adverse action follows. Driver hours are shown only to the carrier's own users (XF-17) | Compliance, operations |
+| CMP-13 | **Broker, not carrier** | Haulr arranges transportation and never directs how a carrier's driver does the work (*Sperl v. C.H. Robinson*, Ill. App. 2011): no fines on in-transit conduct, no instructions to drivers, and the dispatch board is the carrier's own optional tool. Scorecard effects (BR-12, BR-22) govern future tendering only | Legal, product |
 
 ## 20. Identity, Access and Security Requirements
 
@@ -405,7 +407,7 @@ Every NFR is measurable and verified in [Phase 9](./phase-9-qa-checklist.md). Ta
 | --- | --- |
 | SEC-1 | **Authentication.** Passwords follow NIST SP 800-63B (minimum 8 characters from `PASSWORD_MIN_LENGTH`, breached-password check, no composition rules, no forced rotation). MFA via TOTP or WebAuthn passkeys; required for `*.admin`, `*.finance`, `shipper.approver`, `org.security` and all internal roles. |
 | SEC-2 | **Enterprise SSO.** SAML 2.0 and OIDC, with just-in-time provisioning and SCIM 2.0 user and group provisioning. Groups map to role keys (BR-24). |
-| SEC-3 | **Sessions.** httpOnly, Secure, SameSite=Lax cookie; rotation on sign-in and privilege change; idle timeout 30 min for workspace and 15 min for internal roles unless organisation policy is stricter; absolute lifetime ≤ `SESSION_MAX_AGE`; revocation effective within 5 min. |
+| SEC-3 | **Sessions.** httpOnly, Secure, SameSite=Lax cookie; rotation on sign-in and privilege change; idle timeout 30 min for workspace roles by default, which an organisation may set from 15 to 120 min (BR-24), and a fixed 15 min for internal roles; absolute lifetime ≤ `SESSION_MAX_AGE`; revocation effective within 5 min. |
 | SEC-4 | **Authorisation.** Deny by default. Every Server Action, Route Handler and backend endpoint checks role, organisation and record membership (Phase 3 §5). No authorisation decision depends on client state. |
 | SEC-5 | **Tenant isolation.** Every backend query is scoped by organisation; cross-tenant access is covered by automated tests on every resource; client caches are purged per SSB-10. |
 | SEC-6 | **Privileged access.** Internal roles use SSO with hardware-backed MFA; view-as follows BR-27; production data access by engineers is break-glass only and audited. |
@@ -418,7 +420,7 @@ Every NFR is measurable and verified in [Phase 9](./phase-9-qa-checklist.md). Ta
 
 | ID | Requirement |
 | --- | --- |
-| NFR-PRIV-1 | **Data classification.** Every field in the contract is classified: Public, Internal, Confidential (rates, margins, bank details), Restricted (credentials, precise driver location, tax IDs). Classification drives logging, analytics and export rules. |
+| NFR-PRIV-1 | **Data classification.** Every field in the contract is classified: Public, Internal, Confidential (rates, margins, bank details, and personal contact data: names, emails and phone numbers), Restricted (credentials, precise driver location, tax IDs). Classification drives logging, analytics and export rules. |
 | NFR-PRIV-2 | **Minimisation.** Collect only what a Phase 4 blueprint lists as required data. Driver location only per Phase 1 §12. |
 | NFR-PRIV-3 | **Telemetry hygiene.** Analytics and error reports carry IDs, enums and counts only; never names, emails, phone numbers, free text, document contents or coordinates finer than city. |
 | NFR-PRIV-4 | **Retention.** BR-20 and BR-26 schedules enforced by automated jobs; drafts in browser storage expire after 30 days; driver offline queues are kept, device-bound, only until replayed or explicitly discarded, for at most 7 days (SSB-10, NFR-AV-6). |

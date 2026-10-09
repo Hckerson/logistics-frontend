@@ -1,6 +1,6 @@
 # Phase 3 — Information Architecture
 
-`Haulr Design OS` · `Version 1.2.0` · `2026-10-09` · Previous: [Phase 2 — Experience Maps](./phase-2-experience-maps.md) · Next: [Phase 4 — Page Blueprints](./phase-4-page-blueprints.md)
+`Haulr Design OS` · `Version 1.3.0` · `2026-10-09` · Previous: [Phase 2 — Experience Maps](./phase-2-experience-maps.md) · Next: [Phase 4 — Page Blueprints](./phase-4-page-blueprints.md)
 
 This phase fixes which pages exist, how they relate, which route group each belongs to and who can reach each one. It describes structure and reachability only. What any layout shows, and how, is decided when each page is built.
 
@@ -99,7 +99,7 @@ Route groups use the App Router's native parenthesised folders, which organise c
 | PG-36 | Saved Loads and Searches | `/carrier/saved` | `carrier.dispatcher`, `carrier.admin` |
 | PG-37 | Fleet | `/carrier/fleet` | `carrier.dispatcher` (read), `carrier.admin` |
 | PG-38 | Settlements | `/carrier/settlements` | `carrier.admin`, `carrier.dispatcher` (read) |
-| PG-65 | Dispatch Board | `/carrier/plan` | `carrier.dispatcher`, `carrier.admin`; `internal.ops` (read) |
+| PG-65 | Dispatch Board | `/carrier/plan` | `carrier.dispatcher`, `carrier.admin`; `internal.ops` (read, without driver hours) |
 | PG-39 | Driver Trip | `/driver/trips/[loadId]` | `carrier.driver` (assigned only) |
 | PG-40 | Load Details | `/loads/[loadId]` | Parties to the load; all internal roles |
 | PG-41 | Messages | `/messages` (`?thread=`) | All authenticated |
@@ -117,7 +117,7 @@ Route groups use the App Router's native parenthesised folders, which organise c
 | PG-58 | Approvals | `/shipper/approvals` | `shipper.approver`, `shipper.admin`; requesters read their own requests |
 | PG-59 | Reports | `/shipper/reports` | `shipper.admin`, `shipper.approver`, `shipper.finance` (spend reports only) |
 | PG-60 | Security and SSO | `/settings/security` | `org.security`, `shipper.admin`, `carrier.admin` |
-| PG-61 | Integrations | `/settings/integrations` | `org.security`, `shipper.admin` |
+| PG-61 | Integrations | `/settings/integrations` | `org.security`, `shipper.admin`; `internal.support` (read, with ticket; keys never shown) |
 | PG-62 | Data and Privacy | `/settings/privacy` | Organisation exports: `org.security`, `shipper.admin`, `carrier.admin`. Personal data requests: every authenticated user |
 | PG-63 | Audit Log | `/settings/audit` | `org.security`, `shipper.admin`, `carrier.admin`; `internal.support` (read, with ticket), `internal.admin` (read) |
 | PG-64 | Review Amendment | `/loads/[loadId]/amendments/[amendmentId]` | Carrier: `carrier.dispatcher`, `carrier.admin` of the booked carrier (act). Shipper roles and internal roles (read, withdraw) |
@@ -169,6 +169,8 @@ The set of global destinations each role can reach from anywhere in its workspac
 
 **Role resolution.** `/dashboard` and a successful sign-in resolve to the role root: shipper roles to PG-18, carrier admin and dispatcher to PG-19, drivers to PG-20, a user holding only `org.security` to PG-60, each internal role to its own root. Users holding several roles resolve by the sequence shipper, carrier, driver, security, and can switch roots from any workspace page. A user whose organisation has not finished onboarding resolves to PG-16 or PG-17 instead.
 
+**Interim role roots (solo build).** Until PG-18 and PG-19 are built, shipper roles resolve to PG-26 and carrier roles to PG-65 ([Phase 8 §16](./phase-8-implementation-roadmap.md#16-solo-build-order)). This is a build-time stand-in; the role roots above remain the specification.
+
 ## 5. Permissions
 
 Enforcement happens at three layers: edge (`proxy.ts`, by route prefix), server (every page and Server Action checks role and record membership) and backend (authoritative). The frontend never relies on hiding alone.
@@ -190,7 +192,7 @@ Enforcement happens at three layers: edge (`proxy.ts`, by route prefix), server 
 | Accept or decline bids | A (own) | A (own) | — | — | — | — | A | — | — | — | — |
 | Manage preferred carriers | R | A | — | — | — | — | R | — | — | — | — |
 | Assign driver and truck | — | — | — | A | A | — | A | — | — | — | — |
-| Plan the fleet (dispatch board) | — | — | — | A (own) | A (own) | — | R | — | — | — | — |
+| Plan the fleet (dispatch board) | — | — | — | A (own) | A (own) | — | R (without driver hours) | — | — | — | — |
 | Record stop events | — | — | — | A (own) | A (own) | A (assigned) | A | — | — | — | — |
 | Capture or upload POD | — | — | — | A (own) | A (own) | A (assigned) | A | — | A | — | — |
 | Verify POD | — | — | — | — | — | — | — | — | A | — | — |
@@ -222,7 +224,7 @@ Roles not listed in a row have no access to that capability, with two exceptions
 | Accept or decline an amendment | — | — | — | — | A (carrier.dispatcher also) | — | — | — |
 | View reports | — | A | A | R (spend only) | — | — | — | — |
 | Configure SSO, SCIM, session policy | — | A | — | — | A | A | — | A (support override, audited) |
-| Manage API keys and webhooks | — | A | — | — | — | A | — | — |
+| Manage API keys and webhooks | — | A | — | — | — | A | R (with ticket; keys never shown) | — |
 | Read and export organisation audit log | — | A | — | — | A | A | R (with ticket) | R |
 | Request organisation data export | — | A | — | — | A | A | — | — |
 | Request personal data access or deletion | A (self) | A (self) | A (self) | A (self) | A (self) | A (self) | — | A (fulfil) |
@@ -235,7 +237,7 @@ Roles not listed in a row have no access to that capability, with two exceptions
 - **Response shaping.** The server removes fields the role cannot read (BR-05). Hidden fields are absent from responses, not merely hidden in the UI.
 - **Unauthorised record access.** A record the user cannot access returns PG-53 (not found), never PG-55. This prevents confirming that a record exists. PG-55 is used only when the whole route is outside the user's role.
 - **Tenant isolation.** Every collection and record request is scoped to the session's organisation on the server (SEC-5). Identifiers are never guessable (`nanoid` or UUID on the backend); sequential IDs never appear in URLs.
-- **View-as.** During a view-as session (XS-16) the effective permissions are the viewed member's, reduced to read-only unless write consent exists, and never including payout methods, security settings, API keys or data export.
+- **View-as.** During a view-as session (XS-16) the effective permissions are the viewed member's, reduced to read-only unless write consent exists, and never including payout or payment methods, API keys or data export; security settings are read-only.
 - **Spend-limited members.** Members with a spend limit can still start any money-committing action; the server decides whether it completes or enters `PendingApproval` (BR-23). The client never hides an action because of a limit.
 - **API and EDI principals.** API keys act as a named service principal of the organisation with their scopes, never as a human member. Their actions appear in the audit log under the key's name.
 
@@ -374,7 +376,7 @@ Filter precedence: access filter (server, not user-editable) → saved search �
 | Acquisition | PG-01 | Index | `/` | Organization, WebSite with SearchAction |
 | Tool | PG-05 | Index | `/tools/rate-estimator` | WebApplication |
 | Directory | PG-03 (approved carriers only) | Index | `/carriers/[carrierId]` | Organization with AggregateRating |
-| Help | PG-06, PG-07 | Index | `/help`, `/help/[slug]` | FAQPage or Article, BreadcrumbList |
+| Help | PG-06, PG-07, PG-08 | Index | `/help`, `/help/[slug]`, `/support` | FAQPage or Article, BreadcrumbList; ContactPage for PG-08 |
 | Legal | PG-09 | Index | `/legal/[document]` | — |
 | Access | PG-10 … PG-15 | No index | — | — |
 | Tracking | PG-02 | No index, no follow | — | — |

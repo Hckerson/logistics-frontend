@@ -1,6 +1,6 @@
 # Artifact Index — Haulr Design OS
 
-`Version 1.2.0` · `2026-10-09` · Start: [START_HERE](./START_HERE.md) · Master index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
+`Version 1.3.0` · `2026-10-09` · Start: [START_HERE](./START_HERE.md) · Master index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
 
 A detailed guide to each phase: what it is, who needs it, when to open it, what it contains and how it feeds the phases after it.
 
@@ -103,11 +103,11 @@ A detailed guide to each phase: what it is, who needs it, when to open it, what 
 
 [phase-8-implementation-roadmap.md](./phase-8-implementation-roadmap.md)
 
-**Description.** Phase 8 sequences the build into eight development phases and eight dated two-week sprints, prioritised by the North Star, with five milestones and explicit exit criteria. It lists backend, library and design-approval dependencies with fallbacks, seventeen risks with mitigations, technical debt controls and a layered testing strategy. It is also the only place build status lives: every flow, page, section and contract carries exactly one status from the fixed vocabulary.
+**Description.** Phase 8 holds the active solo build order (§16): seven pattern-first stages for one engineer against the mocked backend, with everything outside the slice Deferred. It also keeps the staffed plan, which sequences the build into eight development phases and eight dated two-week sprints, prioritised by the North Star, with five milestones and explicit exit criteria. It lists backend, library and design-approval dependencies with fallbacks, seventeen risks with mitigations, technical debt controls and a layered testing strategy. It is also the only place build status lives: every flow, page, section and contract carries exactly one status from the fixed vocabulary.
 
 - **Who needs it:** everyone planning or reporting progress.
 - **When to reference it:** sprint planning; standups; deciding a deferral; release readiness.
-- **What it contains:** phases, priority, sprints S1 … S8, milestones M1 … M5, dependencies, risks R-01 … R-17, debt prevention, testing, build status, deferred register, deployment readiness, Definition of Ready and Done, roles (RACI), estimation and capacity, release management, go/no-go and hypercare.
+- **What it contains:** solo build order (§16), phases, priority, sprints S1 … S8, milestones M1 … M5, dependencies, risks R-01 … R-17, debt prevention, testing, build status, deferred register, deployment readiness, Definition of Ready and Done, roles (RACI), estimation and capacity, release management, go/no-go and hypercare.
 - **How it flows onward:** Verified status requires Phase 9 checks.
 
 ## Phase 9 — QA Checklist
@@ -149,7 +149,7 @@ The [IMPLEMENTATION_PROMPT](./IMPLEMENTATION_PROMPT.md) packages all three, plus
 | **Product manager** | README → Phase 1 → Phase 2 → Phase 3 §3–5 → Phase 8 §2–4 → Phase 9 §15 |
 | **Product designer** | START_HERE → Phase 1 §7, §13 → Phase 2 (flows for your sprint) → Phase 4 (your pages) → Phase 5 (their sections) → Phase 6 → IMPLEMENTATION_PROMPT › Visual Design Hand-off |
 | **Frontend engineer (new)** | START_HERE → SETUP-CHECKLIST → Phase 1 §1, §9 → Phase 3 §3, §5 → Phase 7 → Phase 6 §1 → IMPLEMENTATION_PROMPT |
-| **Frontend engineer (feature)** | Phase 8 §3 (your sprint) → Phase 4 page → Phase 5 sections → Phase 6 contracts → Phase 7 §8 hooks → Phase 9 relevant checks |
+| **Frontend engineer (feature)** | Phase 8 §16 (your stage) → Phase 4 page → Phase 5 sections → Phase 6 contracts → Phase 7 §8 hooks → Phase 9 relevant checks |
 | **Backend engineer** | Phase 1 §9 → Phase 2 §5–6 → Phase 3 §5.2, §6 → Phase 7 §11 → Phase 8 §5 |
 | **QA engineer** | Phase 2 (failure paths) → Phase 4 states → Phase 6 → Phase 9 |
 | **Accessibility reviewer** | Phase 1 PP-08 → Phase 6 §1 and all contracts → Phase 9 §1–2 |
@@ -179,14 +179,16 @@ A view over [Phase 8 §9](./phase-8-implementation-roadmap.md#9-per-feature-buil
 
 | Artifact type | Total | Specified | Scheduled | In progress | Built | Verified | Deferred |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Flows (XF, XD, XS) | 43 | 0 | 42 | 1 | 0 | 0 | 0 |
-| Pages | 66 | 0 | 63 | 3 | 0 | 0 | 0 |
-| Sections | 238 | 0 | 232 | 6 | 0 | 0 | 0 |
-| Interaction contracts | 68 | 0 | 64 | 4 | 0 | 0 | 0 |
+| Flows (XF, XD, XS) | 43 | 0 | 9 | 1 | 0 | 0 | 33 |
+| Pages | 66 | 0 | 14 | 3 | 0 | 0 | 49 |
+| Sections | 238 | 0 | 61 | 6 | 0 | 0 | 171 |
+| Interaction contracts | 68 | 0 | 38 | 4 | 0 | 0 | 26 |
 
 **In progress items:** XS-01; PG-01, PG-10, PG-11; SC-01.1, SC-01.2, SC-01.4, SC-10.1, SC-10.2, SC-11.2; IC-01, IC-02, IC-03, IC-11. The starter supplied the sign-in page, register route and hook, session route and button primitive. PG-01 and the identity-first sign-in were built after 2026-09-30 ([Phase 8 §9.1](./phase-8-implementation-roadmap.md#91-build-status-vocabulary)). All need the remaining Haulr behaviour and Phase 9 verification.
 
-**By sprint (pages, counted in the sprint where they start):** S1: 9 · S2: 7 · S3: 8 · S4: 12 · S5: 5 · S6: 10 · S7: 10 · S8: 5 — 66 in total.
+**By solo stage (pages, counted in the stage where they start):** 1: 6 · 2: 3 · 3: 1 · 4: 2 · 5: 2 · 6: 2 · 7: 1 — 17 in the slice; the other 49 are Deferred (Phase 8 §9.6).
+
+**Staffed plan, by sprint (reference):** S1: 9 · S2: 7 · S3: 8 · S4: 12 · S5: 5 · S6: 10 · S7: 10 · S8: 5 — 66 in total.
 
 ---
 
