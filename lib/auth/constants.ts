@@ -65,5 +65,8 @@ export const FIELD_FLIP = 0.04;
 
 export const AUTH_COLUMNS = "lg:grid-cols-[minmax(0,1fr)_minmax(0,var(--haulr-auth-form))] lg:gap-16 xl:gap-24";
 
+export const CONSOLE_ACTION =
+    "group bg-text text-text-inverse hover:bg-text-secondary focus-visible:outline-text relative flex h-12 w-full cursor-pointer items-center justify-between overflow-hidden px-4 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2";
+
 export const QUIET_LINK =
     "text-text-muted hover:text-text focus-visible:outline-text text-xs transition-colors focus-visible:outline-2 focus-visible:outline-offset-4";

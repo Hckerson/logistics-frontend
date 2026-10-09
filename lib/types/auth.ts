@@ -10,6 +10,8 @@ export type SignInStep = "email" | "password";
 
 export type RegisterStep = "side" | "details";
 
+export type ResetStep = "email" | "sent";
+
 export type AuthSignal = "origin" | "midway" | "pending" | "arrived" | "held";
 
 export interface AuthLink {
