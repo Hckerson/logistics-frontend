@@ -45,6 +45,8 @@ export const SESSION_UNAVAILABLE = "The account was created but sign-in failed";
 
 export const PASSWORD_MIN_LENGTH = 8;
 
+export const RESET_LINK_MINUTES = 30;
+
 export const MOTION_DURATION = {
     fast: 0.2,
     normal: 0.35,

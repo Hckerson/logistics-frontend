@@ -1,4 +1,6 @@
+import clsx from "clsx";
 import { ArrowRight, Checkmark } from "@carbon/icons-react";
+import { CONSOLE_ACTION } from "@/lib/auth/constants";
 import { AUTH_COPY } from "@/lib/data/auth/shared";
 
 interface Props {
@@ -13,11 +15,7 @@ export default function AuthSubmit({ label, pendingLabel, doneLabel, pending = f
     const busy = pending || done;
 
     return (
-        <button
-            type="submit"
-            aria-disabled={busy}
-            className="group bg-text text-text-inverse hover:bg-text-secondary focus-visible:outline-text relative flex h-12 w-full cursor-pointer items-center justify-between overflow-hidden px-4 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 aria-disabled:cursor-wait"
-        >
+        <button type="submit" aria-disabled={busy} className={clsx(CONSOLE_ACTION, "aria-disabled:cursor-wait")}>
             <span className="flex items-center gap-2">
                 {done ? doneLabel : pending ? pendingLabel : label}
                 {done ? <Checkmark aria-hidden className="size-4" /> : null}

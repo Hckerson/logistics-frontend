@@ -23,3 +23,7 @@ export const accountSchema = registerDtoSchema.pick({ fullName: true, email: tru
     password: z.string().min(1, "missing").min(PASSWORD_MIN_LENGTH, "short"),
     consent: z.literal(true, "missing"),
 });
+
+export const resetRequestSchema = z.object({
+    email: z.string().trim().min(1, "missing").email("invalid"),
+});
