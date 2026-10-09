@@ -7,6 +7,7 @@ const ERRORS: Record<number, string> = {
     401: "UnauthorizedException",
     404: "NotFoundException",
     409: "ConflictException",
+    422: "UnprocessableEntityException",
     429: "ThrottlerException",
     503: "ServiceUnavailableException",
 };

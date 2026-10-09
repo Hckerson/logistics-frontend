@@ -7,6 +7,15 @@ export const MOCK_USERS: readonly MockUser[] = [
         email: "dispatch@northline.example",
         password: "hunter22",
         role: "USER",
+        verified: true,
+    },
+    {
+        id: "usr_fresh",
+        name: "Kofi Mensah",
+        email: "fresh@northline.example",
+        password: "hunter22",
+        role: "USER",
+        verified: false,
     },
 ];
 
@@ -14,3 +23,18 @@ export const MOCK_SCENARIOS: Record<string, MockScenario> = {
     "busy@haulr.test": { kind: "rate-limited", retryAfter: 120 },
     "down@haulr.test": { kind: "unavailable" },
 };
+
+export const MOCK_RESET_TOKENS: Record<string, string> = {
+    rst_dispatch: "dispatch@northline.example",
+    rst_busy: "busy@haulr.test",
+    rst_down: "down@haulr.test",
+};
+
+export const MOCK_VERIFY_TOKENS: Record<string, string> = {
+    vrf_fresh: "fresh@northline.example",
+    vrf_dispatch: "dispatch@northline.example",
+    vrf_busy: "busy@haulr.test",
+    vrf_down: "down@haulr.test",
+};
+
+export const MOCK_BREACHED_PASSWORDS: readonly string[] = ["password", "password1", "12345678", "qwerty123", "iloveyou"];

@@ -1,7 +1,7 @@
 import { MOCK_LATENCY_MS } from "@/lib/constants";
 import { routes } from "@/lib/contract/routes";
 import { unpublishedRoutes } from "@/lib/api-routes";
-import { login, register, requestReset } from "@/lib/mocks/auth";
+import { checkReset, confirmReset, login, register, requestReset, resendVerification, verifyEmail } from "@/lib/mocks/auth";
 import { fail } from "@/lib/mocks/http";
 import type { MockHandler, MockRequest, MockResponse } from "@/lib/types";
 
@@ -11,6 +11,10 @@ const HANDLERS: Record<string, MockHandler> = {
     [`POST ${routes.authLogin()}`]: login,
     [`POST ${routes.authRegister()}`]: register,
     [`POST ${unpublishedRoutes.passwordReset()}`]: requestReset,
+    [`POST ${unpublishedRoutes.passwordResetCheck()}`]: checkReset,
+    [`POST ${unpublishedRoutes.passwordResetConfirm()}`]: confirmReset,
+    [`POST ${unpublishedRoutes.verifyEmail()}`]: verifyEmail,
+    [`POST ${unpublishedRoutes.verifyEmailResend()}`]: resendVerification,
 };
 
 const randomLatency = () => MOCK_LATENCY_MS.min + Math.random() * (MOCK_LATENCY_MS.max - MOCK_LATENCY_MS.min);

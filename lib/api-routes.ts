@@ -5,4 +5,8 @@ export const apiRoutes = {
 
 export const unpublishedRoutes = {
     passwordReset: () => "/api/auth/password-reset",
+    passwordResetCheck: () => "/api/auth/password-reset/check",
+    passwordResetConfirm: () => "/api/auth/password-reset/confirm",
+    verifyEmail: () => "/api/auth/verify-email",
+    verifyEmailResend: () => "/api/auth/verify-email/resend",
 } as const;
