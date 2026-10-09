@@ -1,6 +1,6 @@
 # Phase 3 — Information Architecture
 
-`Haulr Design OS` · `Version 1.1.1` · `2026-10-09` · Previous: [Phase 2 — Experience Maps](./phase-2-experience-maps.md) · Next: [Phase 4 — Page Blueprints](./phase-4-page-blueprints.md)
+`Haulr Design OS` · `Version 1.2.0` · `2026-10-09` · Previous: [Phase 2 — Experience Maps](./phase-2-experience-maps.md) · Next: [Phase 4 — Page Blueprints](./phase-4-page-blueprints.md)
 
 This phase fixes which pages exist, how they relate, which route group each belongs to and who can reach each one. It describes structure and reachability only. What any layout shows, and how, is decided when each page is built.
 
@@ -43,7 +43,7 @@ Levels describe depth of reachability, not presentation.
 | L0 — Public | Reachable without an account | PG-01, PG-02, PG-03, PG-05 … PG-09 |
 | L0a — Access | Authentication and invitation | PG-10 … PG-15 |
 | L1 — Workspace root | The role's starting point after sign-in | PG-18 … PG-25 |
-| L2 — Collection | A set of records the role owns or works | PG-26, PG-33, PG-35, PG-30, PG-44, PG-50 |
+| L2 — Collection | A set of records the role owns or works | PG-26, PG-33, PG-35, PG-65, PG-30, PG-44, PG-50, PG-66 |
 | L3 — Record | One record | PG-40, PG-31, PG-45, PG-51 |
 | L4 — Transaction | A step that changes a record's state | PG-27, PG-28, PG-34, PG-39 |
 | Utility | Reachable from every workspace level | PG-41, PG-42, PG-43, PG-46 … PG-49, PG-06 |
@@ -99,6 +99,7 @@ Route groups use the App Router's native parenthesised folders, which organise c
 | PG-36 | Saved Loads and Searches | `/carrier/saved` | `carrier.dispatcher`, `carrier.admin` |
 | PG-37 | Fleet | `/carrier/fleet` | `carrier.dispatcher` (read), `carrier.admin` |
 | PG-38 | Settlements | `/carrier/settlements` | `carrier.admin`, `carrier.dispatcher` (read) |
+| PG-65 | Dispatch Board | `/carrier/plan` | `carrier.dispatcher`, `carrier.admin`; `internal.ops` (read) |
 | PG-39 | Driver Trip | `/driver/trips/[loadId]` | `carrier.driver` (assigned only) |
 | PG-40 | Load Details | `/loads/[loadId]` | Parties to the load; all internal roles |
 | PG-41 | Messages | `/messages` (`?thread=`) | All authenticated |
@@ -127,6 +128,7 @@ Route groups use the App Router's native parenthesised folders, which organise c
 | --- | --- | --- | --- |
 | PG-21 | Operations Dashboard | `/ops` | `internal.ops`, `internal.admin` |
 | PG-50 | Exception Queue | `/ops/exceptions` | `internal.ops`; `internal.compliance` and `internal.finance` (their own exception types, §5.1) |
+| PG-66 | Quote Desk | `/ops/quotes` | `internal.ops`; `internal.support` (read, with ticket) |
 | PG-22 | Compliance Dashboard | `/compliance` | `internal.compliance` |
 | PG-51 | Carrier Vetting Review | `/compliance/carriers/[carrierId]` | `internal.compliance` |
 | PG-23 | Finance Operations Dashboard | `/finance` | `internal.finance` |
@@ -142,7 +144,7 @@ Route groups use the App Router's native parenthesised folders, which organise c
 | PG-54 | Server Error (500) | `app/global-error.tsx` and per-segment `error.tsx` | Everyone |
 | PG-55 | Access Denied (403) | `forbidden()` with `app/forbidden.tsx` | Authenticated without permission |
 
-**Totals:** 64 pages (PG-01 … PG-64) plus one redirect route. PG-56 … PG-64 were added in version 1.1.0 for enterprise requirements (Phase 1 §18–22); they follow the same group, guard and fallback rules as their neighbours.
+**Totals:** 66 pages (PG-01 … PG-66) plus one redirect route. PG-56 … PG-64 were added in version 1.1.0 for enterprise requirements (Phase 1 §18–22); they follow the same group, guard and fallback rules as their neighbours.
 
 ## 4. Role-Based Navigation
 
@@ -155,10 +157,10 @@ The set of global destinations each role can reach from anywhere in its workspac
 | `shipper.approver` | PG-58, PG-59, plus the set of any other role the user holds |
 | `org.security` | PG-60, PG-61, PG-62, PG-63, PG-48 (read), PG-06 |
 | `shipper.finance` | PG-18, PG-30, PG-59, PG-44, PG-43, PG-49, PG-41, PG-42, PG-06 |
-| `carrier.dispatcher` | PG-19, PG-33, PG-35, PG-36, PG-37, PG-38, PG-44, PG-41, PG-42, PG-43, PG-06 |
+| `carrier.dispatcher` | PG-19, PG-65, PG-33, PG-35, PG-36, PG-37, PG-38, PG-44, PG-41, PG-42, PG-43, PG-06 |
 | `carrier.admin` | `carrier.dispatcher` set, plus PG-17 (until approved), PG-48, PG-49, PG-60, PG-62, PG-63 |
 | `carrier.driver` | PG-20, PG-41, PG-42, PG-06 |
-| `internal.ops` | PG-21, PG-50, PG-41, PG-42 (plus any PG-40) |
+| `internal.ops` | PG-21, PG-50, PG-66, PG-41, PG-42 (plus any PG-40, PG-65 read) |
 | `internal.compliance` | PG-22, PG-41, PG-42 (plus any PG-51, PG-03) |
 | `internal.finance` | PG-23, PG-44, PG-43, PG-41, PG-42 |
 | `internal.support` | PG-24, PG-41, PG-42 (read access to PG-40, PG-44) |
@@ -178,6 +180,8 @@ Enforcement happens at three layers: edge (`proxy.ts`, by route prefix), server 
 | Capability | shipper.member | shipper.admin | shipper.finance | carrier.dispatcher | carrier.admin | carrier.driver | internal.ops | internal.compliance | internal.finance | internal.support | internal.admin |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Quote and post a load | A (own) | A (own) | — | — | — | — | A | — | — | — | — |
+| Request a custom quote | A (own) | A (own) | — | — | — | — | A (on behalf) | — | — | R | — |
+| Price or decline custom quotes | — | — | — | — | — | — | A | — | — | R | — |
 | Cancel a load | A (own) | A (own) | — | A (own, booked) | A (own, booked) | — | A | — | — | — | — |
 | View shipper price | A (own) | A (own) | R (own) | — | — | — | R | — | R | R | — |
 | View carrier pay | — | — | — | R (own) | R (own) | — | R | — | R | R | — |
@@ -186,6 +190,7 @@ Enforcement happens at three layers: edge (`proxy.ts`, by route prefix), server 
 | Accept or decline bids | A (own) | A (own) | — | — | — | — | A | — | — | — | — |
 | Manage preferred carriers | R | A | — | — | — | — | R | — | — | — | — |
 | Assign driver and truck | — | — | — | A | A | — | A | — | — | — | — |
+| Plan the fleet (dispatch board) | — | — | — | A (own) | A (own) | — | R | — | — | — | — |
 | Record stop events | — | — | — | A (own) | A (own) | A (assigned) | A | — | — | — | — |
 | Capture or upload POD | — | — | — | A (own) | A (own) | A (assigned) | A | — | A | — | — |
 | Verify POD | — | — | — | — | — | — | — | — | A | — | — |
@@ -282,7 +287,7 @@ Roles not listed in a row have no access to that capability, with two exceptions
 
 **Help categories:** Getting started · Shipping with Haulr · Hauling with Haulr · Drivers · Billing and payments · Tracking · Claims · Account and security · Compliance · Integrations and API · Security and administration.
 
-**Enumerations** (single source in `lib/enums/`, mirrored from the contract): load status (including `PendingApproval`), bid status, amendment status, approval status, equipment type, stop type, accessorial type, document type, exception type and severity, invoice status, settlement status, claim type and status, compliance status, notification event type, role key, API scope, webhook event type, export dataset, import row outcome, audit action, audit actor type, ticket status and urgency, facility type.
+**Enumerations** (single source in `lib/enums/`, mirrored from the contract): load status (including `PendingApproval`), bid status, amendment status, approval status, equipment type, stop type, accessorial type, document type, exception type and severity, invoice status, settlement status, claim type and status, compliance status, notification event type, role key, API scope, webhook event type, export dataset, import row outcome, audit action, audit actor type, ticket status and urgency, facility type, quote request status.
 
 ## 7. Labeling Conventions
 
@@ -309,6 +314,8 @@ Roles not listed in a row have no access to that capability, with two exceptions
 | Every workspace page | PG-06 contextual article, PG-08 with context | XS-07 |
 | Compliance or payment notices | PG-17, PG-49 | XD-02 recovery |
 | PG-50 exception | PG-40, the party's PG-03 / PG-04, PG-24 ticket if linked | XF-08 |
+| PG-65 Dispatch Board | PG-40 per planned load, PG-33 pre-filtered to an open window (origin, radius, dates, equipment), PG-37 | XF-17 |
+| PG-27 or PG-56 custom quote request | PG-66 (operations); the priced quote returns to the shipper's draft in PG-27 | XS-18 |
 | PG-31 invoice line | PG-45 new claim or dispute | XS-06 |
 | PG-02 Public Tracking | PG-01, PG-11 (conversion) | Acquisition |
 
@@ -330,10 +337,10 @@ Filters are URL parameters with the same names on every page they apply to.
 
 | Filter | Parameter | Applies to |
 | --- | --- | --- |
-| Status | `status` (multi) | PG-26, PG-35, PG-30, PG-38, PG-44, PG-50 |
+| Status | `status` (multi) | PG-26, PG-35, PG-30, PG-38, PG-44, PG-50, PG-66 |
 | Date range (pickup, delivery, issued, due) | `from`, `to`, `dateField` | PG-26, PG-35, PG-30, PG-38, PG-43 |
 | Origin / destination | `origin`, `originRadius`, `destination`, `destinationRadius` | PG-33, PG-26, PG-35 |
-| Equipment | `equipment` (multi) | PG-33, PG-26, PG-35, PG-37 |
+| Equipment | `equipment` (multi) | PG-33, PG-26, PG-35, PG-37, PG-65, PG-66 |
 | Rate floor, rate per mile floor | `minRate`, `minRpm` | PG-33 |
 | Weight ceiling | `maxWeight` | PG-33 |
 | Counter-party | `carrier` / `shipper` | PG-26, PG-35, PG-30, PG-38, PG-43 |
@@ -345,7 +352,7 @@ Filters are URL parameters with the same names on every page they apply to.
 | Late only | `late` (`true`) | PG-26, PG-35 |
 | Exceptions only | `exceptions` (`true`) | PG-26, PG-35 |
 | Needs assignment | `needsAssignment` (`true`) | PG-35 |
-| Driver | `driver` | PG-35 |
+| Driver | `driver` | PG-35, PG-65 |
 | Whose turn | `turn` (`mine`, `theirs`) | PG-44, PG-58 |
 | Facility type, city | `facilityType` (`pickup`, `delivery`, `both`), `city` | PG-32 |
 | Import batch | `batch` | PG-26, PG-56 |
@@ -355,6 +362,8 @@ Filters are URL parameters with the same names on every page they apply to.
 | Acknowledged | `acknowledged` (`true`, `false`) | PG-22 (monitoring events) |
 | Urgency | `urgency` (`urgent`, `high`, `normal`) | PG-24, PG-08 |
 | Report period and dimensions | `from`, `to`, `lane`, `facility`, `carrier`, `equipment` | PG-59 |
+| Plan week and truck | `week` (ISO week start), `truck` | PG-65 |
+| Response due | `due` (`overdue`, `today`) | PG-66 |
 
 Filter precedence: access filter (server, not user-editable) → saved search → URL parameters → defaults.
 

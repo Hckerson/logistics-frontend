@@ -1,6 +1,6 @@
 # Phase 7 — Frontend Architecture
 
-`Haulr Design OS` · `Version 1.1.1` · `2026-10-09` · Previous: [Phase 6 — Interaction Contracts](./phase-6-interaction-contracts.md) · Next: [Phase 8 — Implementation Roadmap](./phase-8-implementation-roadmap.md)
+`Haulr Design OS` · `Version 1.2.0` · `2026-10-09` · Previous: [Phase 6 — Interaction Contracts](./phase-6-interaction-contracts.md) · Next: [Phase 8 — Implementation Roadmap](./phase-8-implementation-roadmap.md)
 
 How the code is organised to deliver Phases 1–6. This phase names files and folders because its job is code organisation. It says nothing about how anything looks; styling organisation follows the host repo's conventions (`styles/tokens.css`, `styles/globals.css`) and is not specified here.
 
@@ -85,6 +85,8 @@ app/
     imports/[batchId]/route.ts       polled batch status (PG-56)
     exports/route.ts                 polled export job status (PG-59, PG-62, PG-63)
     approvals/route.ts               polled approval queue (PG-58)
+    quote-requests/route.ts          polled custom quote queue and open request (PG-66, SC-27.7)
+    fleet-plan/route.ts              polled fleet plan (PG-65)
     attention/route.ts               polled attention queue (SH-07)
     webhooks/[endpointId]/deliveries/route.ts   polled delivery log (PG-61)
     auth/sso/[...step]/route.ts      SSO start and callback relay (SC-10.3)
@@ -170,6 +172,7 @@ app/
     carrier/saved/page.tsx                       PG-36
     carrier/fleet/page.tsx                       PG-37
     carrier/settlements/page.tsx                 PG-38
+    carrier/plan/page.tsx                        PG-65
     driver/layout.tsx                            driver guard, offline provider
     driver/page.tsx                              PG-20
     driver/trips/[loadId]/page.tsx               PG-39
@@ -194,6 +197,7 @@ app/
     layout.tsx                                   internal-role guard
     ops/page.tsx                                 PG-21
     ops/exceptions/page.tsx                      PG-50
+    ops/quotes/page.tsx                          PG-66
     compliance/page.tsx                          PG-22
     compliance/carriers/[carrierId]/page.tsx     PG-51
     finance/page.tsx                             PG-23
@@ -327,6 +331,8 @@ Every hook lives in `lib/hooks/use-<resource>.ts` (host rule), and components co
 | `use-security.ts` | `useVerifiedDomains`, `useSsoConnection`, `useScim`, `useRoleMappings`, `useSessionPolicy` | Server Actions (all sensitive, IC-13) |
 | `use-integrations.ts` | `useApiKeys`, `useWebhooks`, `useWebhookDeliveries`, `useEdiConnections` | Server Actions; Route Handler for deliveries (polled) |
 | `use-privacy.ts` | `useExports`, `useRequestExport`, `usePrivacyRequests` | Server Actions; Route Handler for job status (polled) |
+| `use-fleet-plan.ts` | `useFleetPlan`, `useTruckAvailability` | Route Handler (polled); Server Action |
+| `use-quote-requests.ts` | `useQuoteRequests`, `useQuoteRequest`, `useRequestCustomQuote`, `useWithdrawQuoteRequest`, `useClaimQuoteRequest`, `usePriceQuoteRequest`, `useDeclineQuoteRequest`, `useLaneEvidence` | Route Handler (polled); Server Actions |
 
 **Additions to existing hook files (version 1.1.0):** `use-loads.ts` gains `useAmendments`, `useAmendment`, `useProposeAmendment` and `useDecideAmendment`; `use-auth-recovery.ts` gains `useSsoDiscovery`; `use-tickets.ts` gains `useViewAs`.
 
@@ -378,7 +384,7 @@ Pure, framework-free helpers in `lib/utils/` (existing files kept):
 
 - **`lib/constants.ts`** (exists) gains app-wide values: `appRoutes`, `PROTECTED_ROUTE_PREFIXES` (all workspace and internal prefixes), `INTERNAL_ROUTE_PREFIXES`, page size (default 50, maximum 200), upload limits, session warning lead time, `errorCopy` per error class (Phase 4 §2.2), the analytics event catalogue (§27), loading and freshness thresholds (Phase 4 §2.1, §2.6), metadata title template.
 - **Feature constants** in `lib/<feature>/constants.ts` (§6): status labels, refresh intervals, thresholds (BR-06, BR-08, BR-10, BR-11), glossary definitions (IC-56), notification copy.
-- **`lib/enums/`** holds one file per enumeration from Phase 3 §6 (`load-status.ts`, `bid-status.ts`, `equipment-type.ts`, `stop-type.ts`, `accessorial-type.ts`, `document-type.ts`, `exception-type.ts`, `invoice-status.ts`, `settlement-status.ts`, `claim-type.ts`, `claim-status.ts`, `compliance-status.ts`, `notification-event.ts`, `role-key.ts`, `amendment-status.ts`, `approval-status.ts`, `exception-severity.ts`, `api-scope.ts`, `webhook-event.ts`, `export-dataset.ts`, `import-row-outcome.ts`, `audit-action.ts`, `audit-actor-type.ts`, `ticket-status.ts`, `ticket-urgency.ts`, `facility-type.ts`). Each derives from the generated contract enum where one exists, so a backend change breaks type-checking here.
+- **`lib/enums/`** holds one file per enumeration from Phase 3 §6 (`load-status.ts`, `bid-status.ts`, `equipment-type.ts`, `stop-type.ts`, `accessorial-type.ts`, `document-type.ts`, `exception-type.ts`, `invoice-status.ts`, `settlement-status.ts`, `claim-type.ts`, `claim-status.ts`, `compliance-status.ts`, `notification-event.ts`, `role-key.ts`, `amendment-status.ts`, `approval-status.ts`, `exception-severity.ts`, `api-scope.ts`, `webhook-event.ts`, `export-dataset.ts`, `import-row-outcome.ts`, `audit-action.ts`, `audit-actor-type.ts`, `ticket-status.ts`, `ticket-urgency.ts`, `facility-type.ts`, `quote-request-status.ts`). Each derives from the generated contract enum where one exists, so a backend change breaks type-checking here.
 - **Configurable values.** Where the platform configuration (SC-25.2) owns a value, the constant is the fallback and the server value wins.
 - **Field and collection limits** live in one `LIMITS` map in `lib/constants.ts`, mirrored by the backend DTO validators so that the contract enforces them (G-7). Defaults below are proposed and need confirmation by product and backend before Sprint 1:
 
@@ -446,6 +452,8 @@ Pure, framework-free helpers in `lib/utils/` (existing files kept):
 | Message thread index (PG-41) | 60 s | Yes |
 | Notifications count | 60 s | Yes |
 | Approval queue (PG-58), open amendment (PG-40) | 30 s | Yes |
+| Quote requests (PG-66), open custom quote request (SC-27.7) | 30 s | Yes |
+| Fleet plan (PG-65) | 60 s and on focus | Yes |
 | Import batch status (PG-56) | 5 s while processing | No (job continues server-side; status re-read on return) |
 | Export job status (PG-59, PG-62, PG-63) | 10 s while running | Yes |
 | Webhook delivery log (PG-61) | 60 s | Yes |
@@ -640,7 +648,7 @@ Events follow `<domain>.<object>.<verb>` and carry only IDs, enums, counts and d
 
 | KPI | Events |
 | --- | --- |
-| KPI-01 Quote-to-post | `load.quote.requested`, `load.posted` |
+| KPI-01 Quote-to-post | `load.quote.requested`, `quote.custom.requested`, `quote.custom.accepted`, `load.posted` |
 | KPI-02 Time to coverage | `load.posted`, `load.booked` |
 | KPI-03 Self-serve booking | `load.booked` (property `actorType`) |
 | KPI-04 On-time | `stop.arrived`, `stop.departed` (server) |
@@ -652,6 +660,7 @@ Events follow `<domain>.<object>.<verb>` and carry only IDs, enums, counts and d
 | KPI-10 Operations touches | `exception.resolved`, operations `actorType` on any mutation |
 | KPI-11 Disputed invoices | `invoice.disputed`, `invoice.issued` |
 | KPI-12 Task success | Research tooling, not product events |
+| Fleet planning (PG-65) | `fleet.plan.viewed`, `fleet.plan.window_filled`, `fleet.plan.load_moved` |
 | Enterprise adoption | `load.import.confirmed`, `approval.decided`, `security.sso.enforced`, `integration.key.created` |
 
 Every page's events are named in its Phase 4 implementation notes; any event not in this catalogue must be added here first.

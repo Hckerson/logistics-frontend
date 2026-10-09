@@ -1,6 +1,6 @@
 # Implementation Prompt — Haulr
 
-`Version 1.1.1` · `2026-10-09` · Start: [START_HERE](./START_HERE.md) · Setup: [SETUP-CHECKLIST](./SETUP-CHECKLIST.md) · Index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
+`Version 1.2.0` · `2026-10-09` · Start: [START_HERE](./START_HERE.md) · Setup: [SETUP-CHECKLIST](./SETUP-CHECKLIST.md) · Index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
 
 Copy this entire file into a new Claude Code session at the repository root, then name the sprint, page or feature to build.
 
@@ -127,7 +127,7 @@ app/
   api/tracking/[token]/  api/loads/[loadId]/positions/  api/loads/[loadId]/bids/
   api/exceptions/  api/threads/[threadId]/messages/  api/notifications/  api/rate-estimate/
   api/imports/[batchId]/  api/exports/  api/approvals/  api/attention/
-  api/webhooks/[endpointId]/deliveries/  api/auth/sso/[...step]/
+  api/webhooks/[endpointId]/deliveries/  api/auth/sso/[...step]/  api/quote-requests/  api/fleet-plan/
   auth/  (public)/  (workspace)/  (internal)/
 components/ui/  components/common/  components/wrappers/  components/providers/   (flat)
 components/home/  components/auth/                              (exist; page-domain, D-14)
@@ -175,6 +175,7 @@ instrumentation.ts  proxy.ts
 | `/carrier/saved` | `app/(workspace)/carrier/saved/page.tsx` | PG-36 |
 | `/carrier/fleet` | `app/(workspace)/carrier/fleet/page.tsx` | PG-37 |
 | `/carrier/settlements` | `app/(workspace)/carrier/settlements/page.tsx` | PG-38 |
+| `/carrier/plan` | `app/(workspace)/carrier/plan/page.tsx` | PG-65 |
 | `/driver/trips/[loadId]` | `app/(workspace)/driver/trips/[loadId]/page.tsx` | PG-39 |
 | `/loads/[loadId]` | `app/(workspace)/loads/[loadId]/page.tsx` | PG-40 |
 | `/messages` | `app/(workspace)/messages/page.tsx` | PG-41 |
@@ -189,6 +190,7 @@ instrumentation.ts  proxy.ts
 | `/shippers/[shipperId]` | `app/(workspace)/shippers/[shipperId]/page.tsx` | PG-04 |
 | `/ops` | `app/(internal)/ops/page.tsx` | PG-21 |
 | `/ops/exceptions` | `app/(internal)/ops/exceptions/page.tsx` | PG-50 |
+| `/ops/quotes` | `app/(internal)/ops/quotes/page.tsx` | PG-66 |
 | `/compliance` | `app/(internal)/compliance/page.tsx` | PG-22 |
 | `/compliance/carriers/[carrierId]` | `app/(internal)/compliance/carriers/[carrierId]/page.tsx` | PG-51 |
 | `/finance` | `app/(internal)/finance/page.tsx` | PG-23 |
@@ -272,8 +274,8 @@ Authoritative source: [Phase 8 §3](./phase-8-implementation-roadmap.md#3-sprint
 
 - **Contracts:** IC-08, IC-19, IC-20, IC-21, IC-22, IC-23, IC-32, IC-40, IC-46, IC-56, IC-57.
 - **Shared sections:** SH-01 timeline, SH-05 record collection, SH-14 money breakdown.
-- **Pages and flows:** PG-27, PG-32, PG-26 (SC-26.1), PG-40 (SC-40.1, 40.2, 40.3, 40.7, 40.8), PG-05, PG-01. Enterprise track: PG-57. Flows XF-01, XS-10, XS-11, XF-14 (templates).
-- **Sequencing:** PG-32 facilities → PG-27 posting → PG-40 core → PG-26 collection; PG-05 and PG-01 in parallel; PG-57 after PG-27 schemas.
+- **Pages and flows:** PG-27 (including SC-27.7), PG-32, PG-26 (SC-26.1), PG-40 (SC-40.1, 40.2, 40.3, 40.7, 40.8), PG-05, PG-01, PG-66. Enterprise track: PG-57. Flows XF-01, XS-10, XS-11, XF-14 (templates), XS-18.
+- **Sequencing:** PG-32 facilities → PG-27 posting → PG-40 core → PG-26 collection; PG-66 with SC-27.7, so every custom quote request has an answer; PG-05 and PG-01 in parallel; PG-57 after PG-27 schemas.
 
 ### Sprint 4 — Marketplace (2026-11-16 → 2026-11-27)
 
@@ -302,9 +304,9 @@ Authoritative source: [Phase 8 §3](./phase-8-implementation-roadmap.md#3-sprint
 
 ### Sprint 7 — Communication, dashboards and offline (2027-01-11 → 2027-01-22)
 
-- **Contracts:** IC-16, IC-17, IC-35, IC-36, IC-37, IC-45, IC-50, IC-53, IC-54.
+- **Contracts:** IC-16, IC-17, IC-35, IC-36, IC-37, IC-45, IC-50, IC-53, IC-54, IC-68.
 - **Shared sections:** SH-04 conversation, SH-07 attention queue, SH-08 metrics, SH-10 rating, SH-12 guidance.
-- **Pages and flows:** PG-41, PG-42, PG-47 (SC-47.3), PG-18, PG-19, PG-06, PG-07, PG-08, PG-40 (SC-40.11, 40.14); driver service worker caching. Enterprise track: PG-59, PG-61. Flows XS-03, XS-04, XS-05, XS-07, XD-01, XD-02, XS-14.
+- **Pages and flows:** PG-41, PG-42, PG-47 (SC-47.3), PG-18, PG-19, PG-06, PG-07, PG-08, PG-40 (SC-40.11, 40.14), PG-65 (after SC-19.3 recommended loads); driver service worker caching. Enterprise track: PG-59, PG-61. Flows XS-03, XS-04, XS-05, XS-07, XD-01, XD-02, XS-14, XF-17.
 - **Needs:** chart and product-analytics approvals.
 - **Milestone M5 (2027-01-22):** enterprise capabilities Verified (Phase 9 QA-217 … QA-247).
 
@@ -321,7 +323,7 @@ Authoritative source: [Phase 8 §3](./phase-8-implementation-roadmap.md#3-sprint
   - Go/no-go ([Phase 8 §15](./phase-8-implementation-roadmap.md#15-gono-go-and-hypercare)).
 - **Milestone M4 (2027-02-05):** every page Verified; launch gate passed.
 
-**Capacity warning.** Phase 8 §13 estimates a shortfall of about 19% at the stated team size. Raise it at every milestone; never absorb it by skipping states, tests or accessibility.
+**Capacity warning.** Phase 8 §13 estimates a shortfall of about 21% at the stated team size. Raise it at every milestone; never absorb it by skipping states, tests or accessibility.
 
 ### Dependencies and sequencing rules
 
@@ -333,7 +335,7 @@ Authoritative source: [Phase 8 §3](./phase-8-implementation-roadmap.md#3-sprint
 
 ## 7. Phase 9 Implementation — QA Checklist
 
-Authoritative source: [Phase 9](./phase-9-qa-checklist.md). A feature is **Verified** only when every applicable blocking item passes. The complete list follows, organised by category (267 items; **[B]** marks blocking).
+Authoritative source: [Phase 9](./phase-9-qa-checklist.md). A feature is **Verified** only when every applicable blocking item passes. The complete list follows, organised by category (270 items; **[B]** marks blocking).
 
 ### 7.1 Accessibility
 
@@ -362,6 +364,7 @@ Authoritative source: [Phase 9](./phase-9-qa-checklist.md). A feature is **Verif
 - [ ] **QA-023** Skip link present on every page and moves focus to the main landmark _(IC-52)_ **[B]**
 - [ ] **QA-024** Session timeout warns 2 minutes ahead and allows extension _(IC-54)_ **[B]**
 - [ ] **QA-025** Every page has exactly one level-one heading and a logical heading outline _(SSB-6)_
+- [ ] **QA-268** Every dispatch board action (open an entry, move a load, fill a window, mark a truck unavailable) works by keyboard alone and without dragging, and each move announces its start, target and result _(IC-68, 2.5.7)_ **[B]**
 
 ### 7.2 WCAG 2.2 AA Compliance
 
@@ -596,6 +599,8 @@ Authoritative source: [Phase 9](./phase-9-qa-checklist.md). A feature is **Verif
 - [ ] **QA-214** Return paths cannot redirect off-site _(Phase 3 §14, Phase 7 §19)_ **[B]**
 - [ ] **QA-215** Rate limits enforced on anonymous endpoints _(Phase 8 §10)_ **[B]**
 - [ ] **QA-216** CSP blocks non-allow-listed origins _(Phase 7 §19)_ **[B]**
+- [ ] **QA-269** A custom quote request is answered or escalated by its BR-31 deadline; a price below the margin floor is refused; carrier pay never reaches the shipper _(BR-31, BR-05)_ **[B]**
+- [ ] **QA-270** The dispatch board shows ELD hours exactly as reported: no hours warning, override or stored hours decision exists, and no analytics, audit or error payload carries hours values _(XF-17, SC-65.2, NFR-PRIV-3)_ **[B]**
 
 ### 7.16 Enterprise, Compliance and Operations
 
@@ -947,6 +952,8 @@ Authoritative source: [Phase 8 §8](./phase-8-implementation-roadmap.md#8-testin
 | Request an organisation export; download link expires and is re-issued | XS-15 | PG-62 |
 | View-as without a linked ticket is refused; with consent, a write is audited | XS-16 | PG-24 |
 | Filter the audit log beyond retention; export the result | XS-17 | PG-63 |
+| Plan the week: fill an open window from the load board; move a load to another truck by keyboard; no hours figure without an ELD, and no hours warning or override anywhere | XF-17 | PG-65, PG-33, PG-34 |
+| Request a custom quote; operations price it; the shipper posts on it; a below-floor price is refused; an overdue request escalates | XS-18 | PG-27, PG-66, PG-50 |
 | Permission boundaries: every role against every prefix | Phase 3 §5 | All |
 
 ### 9.4 Accessibility testing

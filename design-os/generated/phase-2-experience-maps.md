@@ -1,6 +1,6 @@
 # Phase 2 — Experience Maps
 
-`Haulr Design OS` · `Version 1.1.1` · `2026-10-09` · Previous: [Phase 1 — Product Vision](./phase-1-product-vision.md) · Next: [Phase 3 — Information Architecture](./phase-3-information-architecture.md)
+`Haulr Design OS` · `Version 1.2.0` · `2026-10-09` · Previous: [Phase 1 — Product Vision](./phase-1-product-vision.md) · Next: [Phase 3 — Information Architecture](./phase-3-information-architecture.md)
 
 Experiences come before pages. Each map below describes one journey end to end: what the user wants, what the system does, how the journey fails and how it recovers. Pages in [Phase 4](./phase-4-page-blueprints.md) exist to serve these journeys, and every page cites the experiences it serves.
 
@@ -39,10 +39,10 @@ Every map has the same twelve fields: **Personas**, **User intent**, **Trigger**
   3. The shipper adds references, stop instructions, accessorial expectations and the tender strategy (open market, preferred carriers, or both; BR-08).
   4. The shipper reviews the full terms and posts.
   5. Haulr confirms the load is live and shows its tender progress.
-- **Decision points:** accept the instant quote or request a custom quote from operations; open market or preferred-carrier waterfall; single or multiple stops; save as a template.
+- **Decision points:** accept the instant quote or request a custom quote from operations (XS-18); open market or preferred-carrier waterfall; single or multiple stops; save as a template.
 - **Emotional state:** Pressured by a customer deadline, uncertain about price; relief once the quote is firm and the load is live.
 - **Failure paths:** address not resolvable; pickup window already past; lane not serviceable; quote expires before posting; payment terms not yet approved for the organisation; the connection drops mid-entry.
-- **Recovery paths:** suggest matching known locations (PG-32); propose the next feasible window; offer a custom quote request; re-quote in one step while keeping every entry; route to shipper onboarding (XF-13); restore the draft from local persistence (PP-06).
+- **Recovery paths:** suggest matching known locations (PG-32); propose the next feasible window; offer a custom quote request (XS-18); re-quote in one step while keeping every entry; route to shipper onboarding (XF-13); restore the draft from local persistence (PP-06).
 - **System behavior:** validates each step against the load schema; prices through the quoting service; holds the quote for 30 minutes; persists the draft locally and to the server; on post, starts the tender waterfall or open-market listing and emits `load.posted`.
 - **Completion criteria:** load in `Posted` state with a valid quote, tender strategy recorded and confirmation shown.
 - **Dependencies:** quoting service, geocoding, shipper credit approval (XF-13), locations (XS-11), spend approval (XF-16), BR-01, BR-06, BR-08, BR-23.
@@ -171,7 +171,7 @@ Every map has the same twelve fields: **Personas**, **User intent**, **Trigger**
 
 - **Personas:** PR-08, PR-01, PR-02
 - **User intent:** Operations: "Catch loads going wrong and fix them before the shipper notices." Parties: "Tell me what's wrong and what happens next."
-- **Trigger:** A system rule fires: uncovered near pickup, unassigned by BR-09, late ETA, tracking gap, detention started, cancellation, compliance change (BR-18).
+- **Trigger:** A system rule fires: uncovered near pickup, unassigned by BR-09, late ETA, tracking gap, detention started, cancellation, compliance change (BR-18), custom quote request past its deadline (BR-31).
 - **Entry points:** PG-21 Operations Dashboard, PG-50 Exception Queue, PG-40 Load Details, notification.
 - **Journey:**
   1. Haulr raises an exception with a type, severity, the load and the rule that fired.
@@ -298,7 +298,7 @@ Every map has the same twelve fields: **Personas**, **User intent**, **Trigger**
 - **Decision points:** fix or skip invalid rows; post all or selected; tender strategy for the batch; recurrence generates drafts or posts automatically (posting automatically requires the quote to fall within a price guardrail).
 - **Emotional state:** Efficiency-driven; anxious about silent errors in large batches; needs proof that every row was handled.
 - **Failure paths:** unreadable file; unknown columns; duplicate references in file or against existing loads; facilities not found; pricing unavailable for some lanes; recurrence price exceeds guardrail.
-- **Recovery paths:** column mapping step with saved mappings; duplicates flagged with the existing load linked; facility creation without leaving the import; unpriced rows held as drafts with a custom-quote request; guardrail breach converts the recurrence occurrence to a draft and notifies the owner.
+- **Recovery paths:** column mapping step with saved mappings; duplicates flagged with the existing load linked; facility creation without leaving the import; unpriced rows held as drafts with a custom-quote request (XS-18); guardrail breach converts the recurrence occurrence to a draft and notifies the owner.
 - **System behavior:** import runs as a background job (LS-7) with per-row results retained 30 days; nothing posts before confirmation; each created load records its import batch ID; recurrences create drafts 72 h before pickup and re-quote them.
 - **Completion criteria:** every row has an outcome (posted, pending approval, draft, or rejected with reason) and the user has a downloadable result file.
 - **Dependencies:** XF-01, XF-16, PG-32 facilities, quoting service, BR-06, BR-28.
@@ -341,6 +341,26 @@ Every map has the same twelve fields: **Personas**, **User intent**, **Trigger**
 - **System behavior:** items in `PendingApproval` are excluded from the load board; approvers cannot approve their own requests; approval decisions are audited with reason (SSB-9).
 - **Completion criteria:** request approved and the original action completed, or rejected with a reason delivered to the requester.
 - **Dependencies:** BR-06, BR-23, XS-03, IC-62.
+
+### XF-17 — Plan the fleet (load plan)
+
+- **Personas:** PR-02 (dispatcher), PR-06 (fleet admin)
+- **User intent:** "Show me every truck's week, so no truck sits empty and every booked load has a driver who can make it."
+- **Trigger:** The start of the dispatcher's day or week; a load is booked, cancelled or amended; a truck reports an unplanned delay.
+- **Entry points:** PG-19 Carrier Dashboard, PG-65 Dispatch Board, PG-35 My Loads, a notification about an unassigned load (BR-09) or a changed load.
+- **Journey:**
+  1. The dispatcher opens the week's plan: each truck's booked and in-flight loads in time order, and where the truck ends up after each one.
+  2. Haulr flags scheduling conflicts: overlapping windows, a pickup that cannot be reached in time from the previous drop, and loads past their assignment deadline (BR-09). Where a driver's ELD is connected, the plan also shows that driver's remaining hours as the ELD reports them, as information only.
+  3. Haulr flags open windows: a truck idle between a drop and its next pickup, with its location, the length of the gap and the empty miles to reach work.
+  4. The dispatcher moves a booked load to another truck or driver (assignment per XF-05), or fills an open window: Haulr searches the load board for that truck's location, time and equipment (XF-02) and offers recommended loads that fit.
+  5. Booking from a window returns the dispatcher to the plan with the load in place, assigned or awaiting assignment.
+- **Decision points:** which truck takes a load; accept empty miles to fill a window or leave the truck idle; book outright or bid; mark a truck unavailable (maintenance, driver time off).
+- **Emotional state:** Juggling many trucks under time pressure; wants to see the problem before the phone rings.
+- **Failure paths:** the plan is stale because a stop event has not arrived; a load chosen for a window is booked by another carrier first; a reassignment collides with a change someone else made; ELD hours are unavailable; the truck's position is old.
+- **Recovery paths:** every plan entry states its source and age (PP-03); a lost booking returns to the window with similar loads (XF-02); version conflicts open IC-67; without an ELD connection the plan shows no hours rather than an estimate; a stale position falls back to the last stop event.
+- **System behavior:** the plan is derived from bookings, assignments, stop events and truck availability, never stored as a second schedule; moving a load between trucks is an assignment change carrying the load version (SSB-8) under BR-09; unavailable periods are stored per truck and feed recommended loads; hours come only from a connected ELD and are displayed as reported, never computed, evaluated against hours-of-service rules or turned into a warning by Haulr; the carrier alone is responsible for hours-of-service compliance, and Haulr records no carrier decision about hours; scheduling conflicts are advisory and never block a move.
+- **Completion criteria:** every booked load in the week has a truck and driver before its BR-09 deadline, and every open window is filled or deliberately left open.
+- **Dependencies:** XF-02, XF-05, XS-09, SH-15, IC-68, BR-09, ELD integration (A5).
 
 ---
 
@@ -617,7 +637,7 @@ Each dashboard is a starting point for a working session. The shared question is
 - **Decision points:** convert to a real quote.
 - **Emotional state:** Exploratory.
 - **Failure paths:** insufficient market data for the lane.
-- **Recovery paths:** state that the confidence is low and offer a custom quote request.
+- **Recovery paths:** state that the confidence is low and offer a custom quote request (XS-18), after sign-in for anonymous visitors.
 - **System behavior:** anonymous estimates are rate-limited; signed-in users can save estimates.
 - **Completion criteria:** estimate shown, or a reason given.
 - **Dependencies:** pricing service.
@@ -744,6 +764,25 @@ Each dashboard is a starting point for a working session. The shared question is
 - **Completion criteria:** the events needed are found or exported.
 - **Dependencies:** BR-26, SH-11, IC-65.
 
+### XS-18 — Request and price a custom quote
+
+- **Personas:** PR-01, PR-04 (requesters); PR-08 (pricer)
+- **User intent:** Shipper: "The instant price can't handle this lane; get me a real number fast." Operations: "Price it with the facts in front of me, before the deadline."
+- **Trigger:** The instant quote is unavailable or low-confidence, or the lane is unserviceable (PG-05, PG-27); bulk-import rows could not be priced (PG-56).
+- **Entry points:** PG-27 quote step, PG-05 (after sign-in, carrying the lane), PG-56 unpriced rows, PG-26 drafts; for operations, PG-66 Quote Desk, PG-21 and notifications.
+- **Journey:**
+  1. The shipper requests a custom quote from the draft. The lane, equipment, dates, freight and an optional note travel with it, and Haulr states the response deadline (BR-31).
+  2. An operations agent claims the request in PG-66 (IC-47), reviews market data and recent comparable loads for the lane, and either prices it (shipper price and carrier pay set separately, with a validity up to the cap, BR-31) or declines it with a reason.
+  3. The shipper is notified, and the priced quote appears on the draft with its breakdown (SH-14) and the validity the agent set.
+  4. The shipper accepts and continues posting (XF-01), subject to spend authority (XF-16), or lets the quote lapse.
+- **Decision points:** request a custom quote, or change the load until an instant quote is possible; price or decline; accept or let lapse.
+- **Emotional state:** Shipper: stuck and impatient. Operations: working against a clock and wary of mispricing.
+- **Failure paths:** no answer before the deadline; the shipper changes the lane, dates or equipment after pricing; the quote expires before posting; the price is below the margin floor; two agents try to price the same request.
+- **Recovery paths:** an overdue request is escalated as an exception (XF-08) and the shipper is told the new expectation; changing a priced draft voids the custom quote and offers a new request or an instant quote; an expired quote can be requested again with the previous price as a reference; a below-floor price is refused with the floor stated; a claimed request names its owner (IC-47), and a second pricing is refused (E-CONFLICT).
+- **System behavior:** request states `Requested → Priced → Accepted | Lapsed`, `Requested → Declined`, and `Requested | Priced → Withdrawn` (by the shipper); the load stays in `Draft` throughout; carrier pay is never shown to the shipper (BR-05); pricing and declines are audited with a reason (SSB-9).
+- **Completion criteria:** a priced quote accepted and the load posted; a declined reason delivered; or the request withdrawn.
+- **Dependencies:** XF-01, XF-08, XF-16, SH-14, IC-46, IC-47, BR-05, BR-06, BR-23, BR-31.
+
 ---
 
 ## 5. Load State Machine
@@ -839,6 +878,7 @@ An amendment is a separate record attached to a booked load; the load's own stat
 | XF-14 | PR-01, PR-04 | JTBD-13 | BR-06, BR-28 | PG-56, PG-57, PG-26 |
 | XF-15 | PR-01, PR-02, PR-08 | JTBD-16 | BR-04, BR-25 | PG-40, PG-64 |
 | XF-16 | PR-01, PR-04 | JTBD-15 | BR-23 | PG-58, PG-27, PG-28, PG-18 |
+| XF-17 | PR-02, PR-06 | JTBD-03 | BR-09 | PG-65, PG-35, PG-33, PG-37 |
 | XD-01 … XD-08 | per dashboard | JTBD-08, JTBD-10, JTBD-12 | — | PG-18 … PG-25 |
 | XS-01 | all | — | — | PG-10 … PG-15 |
 | XS-02 | PR-04, PR-06, PR-02, PR-12 | — | — | PG-48, PG-15, PG-37, PG-52 |
@@ -857,6 +897,7 @@ An amendment is a separate record attached to a booked load; the load's own stat
 | XS-15 | PR-04, PR-06, PR-13 | JTBD-17 | BR-26, BR-30 | PG-62 |
 | XS-16 | PR-11, PR-08, PR-12 | — | BR-27 | PG-24, PG-52 |
 | XS-17 | PR-13, PR-04, PR-06 | JTBD-17 | BR-26 | PG-63 |
+| XS-18 | PR-01, PR-04, PR-08 | JTBD-01 | BR-05, BR-31 | PG-27, PG-66, PG-26, PG-56 |
 
 ---
 
