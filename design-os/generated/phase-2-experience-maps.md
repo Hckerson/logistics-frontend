@@ -1,6 +1,6 @@
 # Phase 2 — Experience Maps
 
-`Haulr Design OS` · `Version 1.2.0` · `2026-10-09` · Previous: [Phase 1 — Product Vision](./phase-1-product-vision.md) · Next: [Phase 3 — Information Architecture](./phase-3-information-architecture.md)
+`Haulr Design OS` · `Version 1.3.0` · `2026-10-09` · Previous: [Phase 1 — Product Vision](./phase-1-product-vision.md) · Next: [Phase 3 — Information Architecture](./phase-3-information-architecture.md)
 
 Experiences come before pages. Each map below describes one journey end to end: what the user wants, what the system does, how the journey fails and how it recovers. Pages in [Phase 4](./phase-4-page-blueprints.md) exist to serve these journeys, and every page cites the experiences it serves.
 
@@ -259,7 +259,7 @@ Every map has the same twelve fields: **Personas**, **User intent**, **Trigger**
 - **Emotional state:** Carrier: impatient, wary of fraud-prevention friction. Compliance: sceptical, evidence-driven.
 - **Failure paths:** authority not active; insurance below minimum; identity mismatch (a fraud signal); abandonment partway through.
 - **Recovery paths:** explain exactly what is missing; let the carrier resume where they stopped; identity verification escalates to a call-back process.
-- **System behavior:** compliance status `NotStarted → InProgress → PendingReview → Approved | Rejected | InfoRequested`; continuous monitoring afterwards (BR-18); a compliance decision can move an approved carrier to `Suspended` (XD-05, SC-51.4).
+- **System behavior:** compliance status `NotStarted → InProgress → PendingReview → Approved | Rejected | InfoRequested`; continuous monitoring afterwards (BR-18); a compliance decision can move an approved carrier to `Suspended` (XD-05, SC-51.4), and back to `Approved` once the cause is resolved and recorded in a new review (PG-51).
 - **Completion criteria:** carrier `Approved` and able to book, or rejected with a reason recorded.
 - **Dependencies:** authority registry, insurance verification, e-signature, BR-03, BR-18.
 
@@ -358,7 +358,7 @@ Every map has the same twelve fields: **Personas**, **User intent**, **Trigger**
 - **Emotional state:** Juggling many trucks under time pressure; wants to see the problem before the phone rings.
 - **Failure paths:** the plan is stale because a stop event has not arrived; a load chosen for a window is booked by another carrier first; a reassignment collides with a change someone else made; ELD hours are unavailable; the truck's position is old.
 - **Recovery paths:** every plan entry states its source and age (PP-03); a lost booking returns to the window with similar loads (XF-02); version conflicts open IC-67; without an ELD connection the plan shows no hours rather than an estimate; a stale position falls back to the last stop event.
-- **System behavior:** the plan is derived from bookings, assignments, stop events and truck availability, never stored as a second schedule; moving a load between trucks is an assignment change carrying the load version (SSB-8) under BR-09; unavailable periods are stored per truck and feed recommended loads; hours come only from a connected ELD and are displayed as reported, never computed, evaluated against hours-of-service rules or turned into a warning by Haulr; the carrier alone is responsible for hours-of-service compliance, and Haulr records no carrier decision about hours; scheduling conflicts are advisory and never block a move.
+- **System behavior:** the plan is derived from bookings, assignments, stop events and truck availability, never stored as a second schedule; moving a load between trucks is an assignment change carrying the load version (SSB-8) under BR-09; unavailable periods are stored per truck and feed recommended loads; hours come only from a connected ELD, are shown only to the carrier's own users (never to Haulr staff, CMP-12) and are displayed as reported, never computed, evaluated against hours-of-service rules or turned into a warning by Haulr; the carrier alone is responsible for hours-of-service compliance, and Haulr records no carrier decision about hours; scheduling conflicts are advisory and never block a move; the board is the carrier's own optional tool, and Haulr never assigns, directs or penalises through it (CMP-13).
 - **Completion criteria:** every booked load in the week has a truck and driver before its BR-09 deadline, and every open window is filled or deliberately left open.
 - **Dependencies:** XF-02, XF-05, XS-09, SH-15, IC-68, BR-09, ELD integration (A5).
 
@@ -732,7 +732,7 @@ Each dashboard is a starting point for a working session. The shared question is
 
 ### XS-16 — Support view-as
 
-- **Personas:** PR-11, PR-08, PR-12; the customer organisation
+- **Personas:** PR-11, PR-12; the customer organisation
 - **User intent:** Support: "See exactly what the customer sees to fix their problem." Customer: "Know who looked and what they did."
 - **Trigger:** A ticket that cannot be resolved from the requester context (SC-24.3).
 - **Entry points:** PG-24 Support Console, PG-52 Accounts.
@@ -744,7 +744,7 @@ Each dashboard is a starting point for a working session. The shared question is
 - **Decision points:** read-only or with consent; which member to view as.
 - **Emotional state:** Agent: focused on resolution. Customer: needs trust.
 - **Failure paths:** no linked ticket; consent absent for a write action; member is an admin of a regulated capability (payouts) where view-as is never allowed to write.
-- **Recovery paths:** view-as refused with the reason; write actions blocked and explained; payout and security settings are always read-only in view-as.
+- **Recovery paths:** view-as refused with the reason; write actions blocked and explained; payout and payment methods and API keys are never shown in view-as, and security settings are read-only (Phase 3 §5.2).
 - **System behavior:** separate session token carrying the origin identity; SSB-10 purge on exit; audit per BR-27.
 - **Completion criteria:** session ended with its actions recorded and visible to the organisation.
 - **Dependencies:** BR-27, SEC-6, IC-64.
@@ -801,8 +801,8 @@ Legal transitions (BR-01). Any transition not listed is rejected by the backend,
 | Posted | Expired | System | Pickup window closed (BR-07) |
 | Posted | Cancelled | Shipper, Operations | None |
 | Booked | Dispatched | Carrier, Operations | Driver and truck assigned (BR-09) |
-| Booked | Posted | Operations | Carrier fell off; re-tender |
-| Booked, Dispatched | Cancelled | Shipper, Carrier, Operations | TONU and penalty rules (BR-12) |
+| Booked, Dispatched | Posted | Carrier, Operations | Carrier cancels or falls off; the load is re-tendered and the carrier's reliability penalty applies (BR-12) |
+| Booked, Dispatched | Cancelled | Shipper, Operations | TONU rules (BR-12) |
 | Dispatched | AtPickup | Driver, Carrier, System (geofence), Operations | None |
 | AtPickup | InTransit | Driver, Carrier, Operations | Loaded departure recorded |
 | InTransit | AtPickup | Driver, Carrier, System (geofence), Operations | Multi-stop: next pickup |
@@ -895,7 +895,7 @@ An amendment is a separate record attached to a booked load; the load's own stat
 | XS-13 | PR-13, PR-04, PR-06, PR-12 | JTBD-14 | BR-24 | PG-60, PG-10 |
 | XS-14 | PR-13, PR-04 | JTBD-14 | BR-29 | PG-61 |
 | XS-15 | PR-04, PR-06, PR-13 | JTBD-17 | BR-26, BR-30 | PG-62 |
-| XS-16 | PR-11, PR-08, PR-12 | — | BR-27 | PG-24, PG-52 |
+| XS-16 | PR-11, PR-12 | — | BR-27 | PG-24, PG-52 |
 | XS-17 | PR-13, PR-04, PR-06 | JTBD-17 | BR-26 | PG-63 |
 | XS-18 | PR-01, PR-04, PR-08 | JTBD-01 | BR-05, BR-31 | PG-27, PG-66, PG-26, PG-56 |
 

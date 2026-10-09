@@ -1,6 +1,6 @@
 # Phase 7 — Frontend Architecture
 
-`Haulr Design OS` · `Version 1.2.0` · `2026-10-09` · Previous: [Phase 6 — Interaction Contracts](./phase-6-interaction-contracts.md) · Next: [Phase 8 — Implementation Roadmap](./phase-8-implementation-roadmap.md)
+`Haulr Design OS` · `Version 1.3.0` · `2026-10-09` · Previous: [Phase 6 — Interaction Contracts](./phase-6-interaction-contracts.md) · Next: [Phase 8 — Implementation Roadmap](./phase-8-implementation-roadmap.md)
 
 How the code is organised to deliver Phases 1–6. This phase names files and folders because its job is code organisation. It says nothing about how anything looks; styling organisation follows the host repo's conventions (`styles/tokens.css`, `styles/globals.css`) and is not specified here.
 
@@ -35,6 +35,7 @@ How the code is organised to deliver Phases 1–6. This phase names files and fo
 25. [Internationalisation Readiness](#25-internationalisation-readiness)
 26. [Concurrency](#26-concurrency)
 27. [Analytics Event Catalogue](#27-analytics-event-catalogue)
+    - [27.1 Event catalogue](#271-event-catalogue)
 28. [Error Taxonomy Implementation](#28-error-taxonomy-implementation)
 
 ---
@@ -56,7 +57,7 @@ How the code is organised to deliver Phases 1–6. This phase names files and fo
 | D-11 | Feature flags are read server-side from one typed module `lib/flags.ts` backed by environment or a flag service, and passed to client components as props | Progressive rollout and kill switches for enterprise features without redeploying code paths; no client-side flag fetching | Single source of truth |
 | D-12 | Mutations on mutable records send the record `version` (or ETag via `If-Match`); a 412 is mapped to E-PRECONDITION and handled by IC-67 | SSB-8; no last-write-wins in a multi-user enterprise tenant | Contract carries `version` on mutable DTOs |
 | D-13 | Every Server Action and Route Handler is wrapped by one higher-order helper, `withAction` or `withHandler` in `lib/utils/`, which applies the session, role check, correlation ID, audit reason pass-through, error-class mapping and timing | One enforcement point for SEC-4, NFR-OBS-1 and Phase 4 §2.2; avoids copy-pasted guards | Extends the `create-user.ts` pattern rather than replacing it |
-| D-14 | Sections used by a single public or access page live in a page-domain folder, `components/home/` (PG-01) and `components/auth/` (PG-10 … PG-15), with matching `lib/home/`, `lib/auth/` and `lib/data/home/`, `lib/data/auth/`. Workspace and internal pages keep D-4 | Recorded after the fact (2026-10-09): both folders already exist and hold about 70 single-page files, and `eslint.config.ts` exempts each folder as a unit from `application-register-density` (its cinematic register) | Folder structure table lists only flat `ui`, `common`, `wrappers`, `providers`. **Deviation from D-4, needs maintainer confirmation** |
+| D-14 | Sections used by a single public or access page live in a page-domain folder, `components/home/` (PG-01) and `components/auth/` (PG-10 … PG-15), with matching `lib/home/`, `lib/auth/` and `lib/data/home/`, `lib/data/auth/`. Workspace and internal pages keep D-4 | Recorded after the fact (2026-10-09): both folders already exist and hold about 70 single-page files, and `eslint.config.ts` exempts each folder as a unit from `application-register-density` (its cinematic register) | Folder structure table lists only flat `ui`, `common`, `wrappers`, `providers`. Deviation from D-4, confirmed by the maintainer on 2026-10-09 and recorded in the `.claude/CLAUDE.md` folder table |
 
 ---
 
@@ -102,7 +103,8 @@ components/
 lib/
   actions/                           Server Actions (authenticated mutations and server reads)
   contract/                          (exists, generated) schemas.ts, routes.ts
-  data/                              (exists) seed data, help and legal content (D-3); home/, auth/ (exist, D-14)
+  data/                              (exists) seed data, help and legal content (D-3); home/, auth/ (exist, D-14); mocks/ (exists) mock fixtures
+  mocks/                             (exists) mocked backend: one handler per backend module, router.ts, store.ts (host "The mocked backend")
   enums/                             enumerations mirrored from the contract
   hooks/                             (exists) use-<resource>.ts
   types/                             (exists) <domain>.ts + index.ts
@@ -416,8 +418,9 @@ Pure, framework-free helpers in `lib/utils/` (existing files kept):
 | Server Actions | `lib/actions/<verb>-<noun>.ts` | One action per file, following `create-user.ts`: parse input with the contract schema, call `backendFetch(routes.x())`, parse the envelope, return `ActionResult<T>` |
 | Route Handlers | `app/api/<resource>/route.ts` | Authenticated polled reads; verify session, `backendFetch`, `relay` |
 | Hooks | `lib/hooks/use-<resource>.ts` | Wrap actions or `local` calls in TanStack Query |
+| Mocks | `lib/mocks/` (exists), fixtures in `lib/data/mocks/` | One handler per backend module, registered in `router.ts` under its contract route; answers at the `backendFetch` and `apiClient` seams while `NEXT_PUBLIC_API_MOCKS` is not `off`; responses use the backend envelopes with simulated latency; scenario accounts trigger error states |
 
-**Backend dependency.** Every Haulr resource above requires a NestJS module in the backend with `@ApiEnvelope(Dto)` annotations so its response types reach the contract. Until then, hooks may read typed seed data from `lib/data/` behind the same hook signature, so pages do not change when the backend arrives.
+**Backend dependency.** Every Haulr resource above requires a NestJS module in the backend with `@ApiEnvelope(Dto)` annotations so its response types reach the contract. Until then, the whole call path is built for real and answered by a mock handler in `lib/mocks/` with contract-shaped fixtures in `lib/data/mocks/` (host `.claude/CLAUDE.md`, "The mocked backend"); switching mocks off is the only change when the backend arrives. Handlers register under contract routes, never hand-typed paths, so each resource's DTO is published in the contract before its mock is written, even while the backend has not implemented it. A feature is not done until its endpoint has a mock handler returning contract-shaped data (host rule).
 
 **Error mapping.** `ActionResult` failures map to constants by status: 400 → field errors (IC-02), 401 → sign-in redirect, 403/404 → not found (Phase 3 §5.2), 409 → state conflict (IC-27, SC-40.2), 422 → validation, 429 → rate limit, 5xx → retry (IC-60).
 
@@ -589,7 +592,7 @@ Existing ESLint rules in `tools/eslint/rules/` already enforce much of this phas
 | `no-comments` | Host comment policy |
 | `application-register-density` | Host styling-register rule (not specified here); off for the cinematic register in `eslint.config.ts`: `app/page.tsx`, `components/home/`, `components/auth/` and two named `components/common/` files |
 
-Proposed additions, each with a colocated `.test.ts` per host convention: a rule forbidding string-literal internal paths in components (use `appRoutes`, IC-51); a rule forbidding `refetchInterval` literals outside feature constants; a rule requiring every exported Server Action and Route Handler to be wrapped by `withAction` or `withHandler` (D-13); and a rule forbidding analytics calls whose event name is not in the §27 catalogue. The existing codemod `extract-transport-to-hook` covers moving stray transport calls into hooks.
+Proposed additions, each with a colocated `.test.ts` per host convention: a rule forbidding string-literal internal paths in components (use `appRoutes`, IC-51); a rule forbidding `refetchInterval` literals outside feature constants; a rule requiring every exported Server Action and Route Handler to be wrapped by `withAction` or `withHandler` (D-13); and a rule forbidding analytics calls whose event name is not in the §27.1 catalogue. The existing codemod `extract-transport-to-hook` covers moving stray transport calls into hooks.
 
 ---
 
@@ -603,7 +606,7 @@ Proposed additions, each with a colocated `.test.ts` per host convention: a rule
 
 ## 22. Feature Flags and Configuration
 
-- `lib/validations/env.ts` (D-9): a schema for every environment variable (`NEXT_PUBLIC_API_URL`, `JWT_PUBLIC_KEY`, `CONTRACT_SOURCE`, map and processor keys, telemetry DSNs); parsed on server start.
+- `lib/validations/env.ts` (D-9): a schema for every environment variable (`NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_API_MOCKS`, `JWT_PUBLIC_KEY`, `CONTRACT_SOURCE`, map and processor keys, telemetry DSNs); parsed on server start.
 - `lib/flags.ts` (D-11): typed flags with a default, owner and removal date. Initial flags: `bulkImport`, `recurringLoads`, `spendApprovals`, `amendments`, `sso`, `scim`, `apiKeys`, `webhooks`, `edi`, `reports`, `viewAs`, `passkeys`, `driverServiceWorker`.
 - Flags gate availability, never authorisation. A flagged-off capability returns E-FORBIDDEN with "not yet available for your organisation", and the spec's status for it is still tracked in Phase 8.
 - Flags past their removal date fail CI (an ESLint rule or a test in `lib/flags.test.ts`).
@@ -644,7 +647,11 @@ Query keys always include the organisation ID as their first segment after the r
 
 ## 27. Analytics Event Catalogue
 
-Events follow `<domain>.<object>.<verb>` and carry only IDs, enums, counts and durations (NFR-PRIV-3). The catalogue lives in `lib/constants.ts` as a typed map, so an unknown event name fails type-checking. Each KPI's source events:
+Every analytics event is named `<domain>.<object>.<verb>` in lower case, with multi-word segments in snake_case (`auth.sign_in.succeeded`, `load_board.search.saved`) and the verb in the past tense; where the object is the domain's own record it is omitted (`load.posted`, `bid.accepted`, as in Phase 4 §2.7). Phase 4 names are canonical: a Phase 5 section that records the same action on the same page uses the Phase 4 name, and each area keeps the one domain Phase 4 gives it (`pricing`, not `lane`; `driver`, not `trip`; `billing.method`, not `payment_method`). Properties carry only IDs, enums, counts and durations, never personal data (NFR-PRIV-3). Audit events (Phase 4 §2.7, SH-11) are a separate namespace and are not listed here.
+
+One action, one event: where a specific event exists, the generic one is not also sent for that action. So `load.cancelled` replaces `load.action.performed`, `notification.all_read` replaces `notification.feed.marked_read`, `claim.resolution.accepted` replaces `claim.resolution.decided`, `exception.claimed` replaces `exception.ownership.changed`, and `saved_search.alert.paused` replaces `saved_search.alert.updated`, each for that action only.
+
+The catalogue lives in `lib/constants.ts` as a typed map, so an unknown event name fails type-checking. Each KPI's source events:
 
 | KPI | Events |
 | --- | --- |
@@ -663,7 +670,254 @@ Events follow `<domain>.<object>.<verb>` and carry only IDs, enums, counts and d
 | Fleet planning (PG-65) | `fleet.plan.viewed`, `fleet.plan.window_filled`, `fleet.plan.load_moved` |
 | Enterprise adoption | `load.import.confirmed`, `approval.decided`, `security.sso.enforced`, `integration.key.created` |
 
-Every page's events are named in its Phase 4 implementation notes; any event not in this catalogue must be added here first.
+`stop.arrived`, `stop.departed`, `position.received`, `settlement.paid` and `invoice.issued` are recorded by the backend rather than by a page or section, so they appear in the KPI table only.
+
+### 27.1 Event catalogue
+
+240 events across 50 domains. Each is listed once with every page (PG-) and section (SH-, SC-) that emits it; its properties are stated where it is emitted (Phase 4 implementation notes, Phase 5 technical notes). An event not in this table must be added here before it is emitted.
+
+| Domain | Event | Emitted by |
+| --- | --- | --- |
+| accessorial | `accessorial.approved` | PG-40 |
+|  | `accessorial.request.submitted` | SC-40.9 |
+| account | `account.standing_notice.fix_followed` | SH-06 |
+|  | `account.standing_notice.viewed` | SH-06 |
+| admin | `admin.account.changed` | PG-52, SC-52.2 |
+|  | `admin.account.searched` | PG-52 |
+|  | `admin.config.changed` | PG-25, SC-25.2 |
+|  | `admin.config.previewed` | PG-25 |
+| amendment | `amendment.decided` | PG-64, SC-64.3 |
+|  | `amendment.review.opened` | PG-35 |
+|  | `amendment.viewed` | PG-64 |
+| approval | `approval.decided` | PG-58, SC-58.3 |
+|  | `approval.requested` | PG-58 |
+| audit | `audit.exported` | PG-63, SH-11 |
+|  | `audit.searched` | PG-63, SH-11 |
+| auth | `auth.account.registered` | PG-11, SC-11.2 |
+|  | `auth.email.verified` | PG-14, SC-14.1 |
+|  | `auth.mfa.failed` | PG-14 |
+|  | `auth.mfa.verified` | PG-14, SC-14.2 |
+|  | `auth.password.reset` | PG-13, SC-13.1 |
+|  | `auth.recovery.followed` | SC-10.2 |
+|  | `auth.registration.failed` | PG-11 |
+|  | `auth.reset.requested` | PG-12, SC-12.1 |
+|  | `auth.side.selected` | SC-11.1 |
+|  | `auth.sign_in.failed` | PG-10, SC-10.1 |
+|  | `auth.sign_in.succeeded` | PG-10, SC-10.1 |
+|  | `auth.sso.completed` | SC-10.3 |
+|  | `auth.sso.redirected` | PG-10, SC-10.3 |
+| bid | `bid.accepted` | PG-28, SC-28.3 |
+|  | `bid.approval.requested` | PG-28 |
+|  | `bid.comparison.opened` | SC-28.2 |
+|  | `bid.countered` | PG-28, SC-28.3 |
+|  | `bid.declined` | PG-28, SC-28.3 |
+|  | `bid.submitted` | SC-40.4 |
+| billing | `billing.credit_increase.requested` | SC-49.3 |
+|  | `billing.method.added` | PG-49, SC-49.2 |
+|  | `billing.method.defaulted` | PG-49 |
+|  | `billing.method.removed` | PG-49 |
+|  | `billing.method.verified` | PG-49 |
+| carrier | `carrier.preferred.added` | PG-03, PG-29, SC-03.3 |
+|  | `carrier.preferred.removed` | PG-29, SC-03.3 |
+|  | `carrier.profile.viewed` | PG-03, SC-03.1 |
+| claim | `claim.filed` | PG-45, SC-45.1 |
+|  | `claim.list.filtered` | PG-44 |
+|  | `claim.list.viewed` | PG-44 |
+|  | `claim.resolution.accepted` | PG-45 |
+|  | `claim.resolution.decided` | SC-45.4 |
+|  | `claim.responded` | PG-45, SC-45.3 |
+|  | `claim.start.opened` | SC-40.13 |
+| compliance | `compliance.affected_load.opened` | SC-22.3 |
+|  | `compliance.authority.looked_up` | PG-17, SC-17.2 |
+|  | `compliance.event.opened` | PG-22 |
+|  | `compliance.monitoring.acknowledged` | SC-22.2 |
+|  | `compliance.queue.viewed` | PG-22 |
+|  | `compliance.vetting.decided` | PG-51, SC-51.4 |
+|  | `compliance.vetting_source.refreshed` | SC-51.1 |
+| dashboard | `dashboard.active_load.opened` | SC-19.2 |
+|  | `dashboard.attention.acted` | PG-18, SH-07 |
+|  | `dashboard.attention.opened` | SH-07 |
+|  | `dashboard.carrier.viewed` | PG-19 |
+|  | `dashboard.load_count.opened` | SC-18.2 |
+|  | `dashboard.metric.drilled` | SH-08 |
+|  | `dashboard.metric_period.changed` | SH-08 |
+|  | `dashboard.pay_outlook.opened` | SC-19.4 |
+|  | `dashboard.shipper.viewed` | PG-18 |
+| document | `document.compliance.replaced` | SC-43.2 |
+|  | `document.downloaded` | PG-43, SH-03 |
+|  | `document.previewed` | PG-43 |
+|  | `document.uploaded` | PG-43, SH-03 |
+| driver | `driver.contact.opened` | SC-39.7 |
+|  | `driver.event.undone` | PG-39 |
+|  | `driver.home.viewed` | PG-20 |
+|  | `driver.issue.reported` | PG-39, SC-39.4 |
+|  | `driver.location_consent.decided` | SC-15.2 |
+|  | `driver.pod.captured` | PG-39, SC-39.3 |
+|  | `driver.queue.drained` | PG-20, SC-20.3 |
+|  | `driver.stop_event.recorded` | PG-39, SC-39.2 |
+|  | `driver.trip.opened` | SC-20.1 |
+|  | `driver.upcoming_trip.opened` | SC-20.2 |
+| exception | `exception.claim.requested` | PG-21, SC-21.1 |
+|  | `exception.claimed` | PG-50, SC-40.12 |
+|  | `exception.context.opened` | SC-50.2 |
+|  | `exception.ownership.changed` | SC-50.4 |
+|  | `exception.resolved` | PG-50, SC-50.3 |
+|  | `exception.retendered` | PG-50 |
+| facility | `facility.created` | PG-32, SC-32.2 |
+|  | `facility.geocode.adjusted` | PG-32 |
+|  | `facility.updated` | PG-32, SC-32.2 |
+| finance | `finance.queue.viewed` | PG-23 |
+| fleet | `fleet.driver.invited` | PG-37, SC-37.2 |
+|  | `fleet.plan.conflict_resolved` | SC-65.2 |
+|  | `fleet.plan.load_moved` | PG-65, SC-65.3 |
+|  | `fleet.plan.viewed` | PG-65, SC-65.1 |
+|  | `fleet.plan.window_filled` | PG-65, SC-65.4 |
+|  | `fleet.truck.unavailable_set` | PG-65, SC-65.4 |
+|  | `fleet.vehicle.added` | PG-37 |
+| help | `help.article.opened` | PG-06 |
+|  | `help.article.viewed` | PG-07, SC-07.1, SC-07.3 |
+|  | `help.category.opened` | SC-06.2 |
+|  | `help.escalation.followed` | SC-06.3 |
+|  | `help.feedback.submitted` | PG-07, SC-07.2 |
+|  | `help.search.no_results_returned` | PG-06, SC-06.1 |
+|  | `help.search.performed` | PG-06, SC-06.1 |
+| integration | `integration.key.created` | PG-61 |
+|  | `integration.webhook.tested` | PG-61 |
+| invoice | `invoice.batch_pay.confirmed` | PG-30, SC-30.3 |
+|  | `invoice.disputed` | PG-31, SC-31.4 |
+|  | `invoice.list.viewed` | PG-30 |
+|  | `invoice.paid` | PG-31, SC-31.3 |
+|  | `invoice.statement.downloaded` | PG-30 |
+|  | `invoice.viewed` | PG-31, SC-31.1 |
+| legal | `legal.document.viewed` | PG-09, SC-09.1 |
+| load | `load.action.performed` | SC-40.2 |
+|  | `load.amendment.proposed` | PG-40, SC-40.16 |
+|  | `load.approval.decided` | PG-40 |
+|  | `load.approval.requested` | PG-27, SC-27.6 |
+|  | `load.assigned` | PG-35, SH-15, SC-34.4 |
+|  | `load.assignment.deferred` | SC-34.4 |
+|  | `load.booked` | PG-34, SC-34.3 |
+|  | `load.booking.blocked` | SC-34.2 |
+|  | `load.booking.conflicted` | PG-34 |
+|  | `load.booking.started` | PG-34 |
+|  | `load.cancelled` | PG-40 |
+|  | `load.draft.freight_completed` | SC-27.3 |
+|  | `load.draft.lane_completed` | SC-27.2 |
+|  | `load.draft.strategy_selected` | SC-27.5 |
+|  | `load.export.requested` | PG-26, SC-26.3 |
+|  | `load.import.confirmed` | PG-56, SC-56.3 |
+|  | `load.import.started` | PG-56, SC-56.1 |
+|  | `load.import.validated` | PG-56, SC-56.2 |
+|  | `load.instructions.updated` | SC-40.3 |
+|  | `load.list.filtered` | PG-26 |
+|  | `load.list.viewed` | PG-26, PG-35 |
+|  | `load.posted` | PG-27, SC-27.6 |
+|  | `load.quote.expired` | PG-27, SC-27.4 |
+|  | `load.quote.requested` | PG-27, SC-27.4 |
+|  | `load.recommendation.booked` | SC-19.3 |
+|  | `load.recommendation.dismissed` | SC-19.3 |
+|  | `load.recommendation.opened` | PG-19, SC-19.3 |
+|  | `load.recurrence.changed` | PG-57 |
+|  | `load.template.saved` | PG-57 |
+|  | `load.template.used` | PG-57 |
+|  | `load.terms.viewed` | SC-34.1 |
+|  | `load.timeline.filtered` | SH-01 |
+|  | `load.timeline_event.expanded` | SH-01 |
+|  | `load.viewed` | PG-40 |
+|  | `load.watch.toggled` | PG-36 |
+| load_board | `load_board.load.opened` | PG-33 |
+|  | `load_board.search.performed` | PG-33, SC-33.1 |
+|  | `load_board.search.saved` | PG-33, SC-33.4 |
+| marketing | `marketing.home.viewed` | PG-01 |
+|  | `marketing.journey.selected` | PG-01, SC-01.1 |
+| message | `message.send.failed` | PG-41 |
+|  | `message.sent` | PG-41, SH-04 |
+| money | `money.breakdown.opened` | SH-14 |
+| notification | `notification.all_read` | PG-42 |
+|  | `notification.feed.marked_read` | SC-42.2 |
+|  | `notification.opened` | PG-42 |
+| onboarding | `onboarding.carrier.approved` | SC-17.6 |
+|  | `onboarding.carrier.capability_saved` | SC-17.3 |
+|  | `onboarding.carrier.documents_completed` | SC-17.4 |
+|  | `onboarding.carrier.step_completed` | PG-17, SC-17.1 |
+|  | `onboarding.carrier.submitted` | PG-17, SC-17.6 |
+|  | `onboarding.guide.dismissed` | SH-12 |
+|  | `onboarding.shipper.billing_chosen` | SC-16.3 |
+|  | `onboarding.shipper.completed` | PG-16 |
+|  | `onboarding.shipper.credit_declined` | PG-16 |
+|  | `onboarding.shipper.profile_saved` | SC-16.2 |
+|  | `onboarding.shipper.step_completed` | PG-16, SC-16.1 |
+|  | `onboarding.shipper.team_invited` | SC-16.4 |
+|  | `onboarding.task.opened` | SH-12 |
+| ops | `ops.coverage.retendered` | SC-21.2 |
+|  | `ops.dashboard.viewed` | PG-21 |
+|  | `ops.tracking_health.stale_opened` | SC-21.3 |
+| payout | `payout.retry.requested` | PG-23, SC-23.4 |
+| pod | `pod.verification.completed` | PG-23, SC-23.1 |
+| pricing | `pricing.estimate.converted` | PG-05, SC-05.4 |
+|  | `pricing.estimate.delivered` | PG-05, SC-05.2 |
+|  | `pricing.estimate.rate_limited` | PG-05, SC-05.2 |
+|  | `pricing.estimate.requested` | PG-05, SC-05.1 |
+|  | `pricing.estimate.saved` | SC-05.4 |
+|  | `pricing.estimate.started` | SC-01.2 |
+|  | `pricing.trend.explored` | SC-05.3 |
+| profile | `profile.email.change_requested` | PG-46 |
+|  | `profile.updated` | PG-46 |
+| quote | `quote.custom.accepted` | SC-27.7 |
+|  | `quote.custom.claimed` | PG-66, SC-66.1 |
+|  | `quote.custom.declined` | PG-66, SC-66.3 |
+|  | `quote.custom.lapsed` | SC-27.7 |
+|  | `quote.custom.priced` | PG-66, SC-66.3 |
+|  | `quote.custom.requested` | SC-27.7 |
+| rating | `rating.counterparty.submitted` | SH-10 |
+| report | `report.exported` | PG-59 |
+|  | `report.scheduled` | PG-59 |
+|  | `report.viewed` | PG-59, SC-59.1 |
+| saved_search | `saved_search.alert.paused` | SC-36.2 |
+|  | `saved_search.alert.updated` | PG-36 |
+|  | `saved_search.deleted` | SC-36.2 |
+|  | `saved_search.opened` | PG-36 |
+| scorecard | `scorecard.definition.opened` | SH-09 |
+| security | `security.sso.configured` | PG-60 |
+|  | `security.sso.enforced` | PG-60 |
+| settings | `settings.mfa.enrolled` | PG-47 |
+|  | `settings.notification.updated` | PG-47 |
+|  | `settings.sessions.revoked` | PG-47 |
+| settlement | `settlement.dispute.started` | SC-38.4 |
+|  | `settlement.list.viewed` | PG-38 |
+|  | `settlement.quick_pay.requested` | PG-38, SC-38.3 |
+|  | `settlement.remittance.downloaded` | PG-38 |
+| shipper | `shipper.profile.viewed` | PG-04, SC-04.1 |
+| support | `support.requester.looked_up` | SC-24.3 |
+|  | `support.ticket.created` | PG-08, SC-08.1 |
+|  | `support.ticket.failed` | PG-08 |
+|  | `support.ticket.opened` | PG-24 |
+|  | `support.ticket.replied` | PG-24 |
+|  | `support.view_as.ended` | PG-24 |
+|  | `support.view_as.started` | PG-24, SC-24.4 |
+| system | `system.error.retried` | PG-54, SC-54.1 |
+|  | `system.error.viewed` | PG-54, SC-54.1 |
+|  | `system.forbidden.viewed` | PG-55, SC-55.1 |
+|  | `system.not_found.viewed` | PG-53, SC-53.1 |
+| team | `team.invitation.accepted` | PG-15, SC-15.1 |
+|  | `team.invitation.failed` | PG-15 |
+|  | `team.invitation.sent` | PG-48, SC-48.3 |
+|  | `team.member.removed` | PG-48 |
+|  | `team.organization_details.saved` | SC-48.1 |
+|  | `team.role.changed` | PG-48 |
+|  | `team.spend_limit.set` | PG-48 |
+| tender | `tender.rule.saved` | PG-29, SC-29.2 |
+|  | `tender.waterfall.skipped` | SC-28.4 |
+| thread | `thread.opened` | PG-41 |
+| tracking | `tracking.check_call.requested` | SH-02 |
+|  | `tracking.link.bulk_created` | PG-26, SC-26.3 |
+|  | `tracking.link.created` | PG-40, SC-40.15 |
+|  | `tracking.link.shared` | SC-40.15 |
+|  | `tracking.page.viewed` | PG-02, SC-02.1 |
+|  | `tracking.position.viewed` | SH-02 |
+|  | `tracking.public.conversion_followed` | SC-02.3 |
+|  | `tracking.token.expired` | PG-02 |
+|  | `tracking.token.rejected` | PG-02 |
 
 ## 28. Error Taxonomy Implementation
 

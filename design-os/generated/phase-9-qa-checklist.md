@@ -1,6 +1,6 @@
 # Phase 9 — Quality Assurance Checklist
 
-`Haulr Design OS` · `Version 1.2.0` · `2026-10-09` · Previous: [Phase 8 — Implementation Roadmap](./phase-8-implementation-roadmap.md) · Next: [START_HERE](./START_HERE.md)
+`Haulr Design OS` · `Version 1.3.0` · `2026-10-09` · Previous: [Phase 8 — Implementation Roadmap](./phase-8-implementation-roadmap.md) · Next: [START_HERE](./START_HERE.md)
 
 A review of the whole system. Each item is a check that must pass before a feature moves from **Built** to **Verified** in [Phase 8 §9](./phase-8-implementation-roadmap.md#9-per-feature-build-status). QA here is functional. Visual quality is judged when each page is built, with the owner.
 
@@ -240,7 +240,7 @@ Behavioural responsiveness only: every device need in Phase 4 is achievable. Vis
 | QA-157 | Internal prefixes reject non-internal roles at the edge | D-7 | Auto | Yes |
 | QA-158 | `appRoutes` used for every internal path (ESLint rule proposed in Phase 7 §20) | IC-51, Phase 7 §20 | Tool | Yes |
 | QA-159 | Idempotency keys generated with `nanoid` for book, accept, pay, quick pay | Phase 7 §19 | Review | Yes |
-| QA-160 | Seed data fallbacks live only in `lib/data/` behind hooks | Phase 7 §11 | Review | Yes |
+| QA-160 | Mock handlers live only in `lib/mocks/`, registered under contract routes, with fixtures in `lib/data/mocks/` | Phase 7 §11 | Review | Yes |
 | QA-161 | Every shared section in Phase 5 has one implementation in `components/common/` | Phase 7 §12 | Review | Yes |
 | QA-162 | Every Phase 6 contract has one implementation in `components/ui/` or is native | Phase 7 §12 | Review | Yes |
 | QA-163 | Library additions match approved Phase 7 §15 entries only | Phase 7 §15 | Review | Yes |
@@ -257,7 +257,7 @@ Behavioural responsiveness only: every device need in Phase 4 is achievable. Vis
 | QA-169 | Query key factories exported and used for invalidation | Phase 7 §8 | Review | No |
 | QA-170 | PR titles cite design OS IDs | Phase 7 §16 | Review | No |
 | QA-171 | Phase 8 §9 status updated in the same PR | Phase 8 §7 | Review | Yes |
-| QA-172 | Local development works against seed data without the backend | Phase 7 §11 | Manual | No |
+| QA-172 | Local development works with mocks on and no backend; setting `NEXT_PUBLIC_API_MOCKS=off` changes nothing else | Phase 7 §11 | Manual | No |
 | QA-173 | SETUP-CHECKLIST steps reproduce a working environment | SETUP-CHECKLIST | Manual | No |
 
 ## 12. SEO Readiness
@@ -323,7 +323,7 @@ Behavioural responsiveness only: every device need in Phase 4 is achievable. Vis
 | QA-215 | Rate limits enforced on anonymous endpoints | Phase 8 §10 | Auto | Yes |
 | QA-216 | CSP blocks non-allow-listed origins | Phase 7 §19 | Tool | Yes |
 | QA-269 | A custom quote request is answered or escalated by its BR-31 deadline; a price below the margin floor is refused; carrier pay never reaches the shipper | BR-31, BR-05 | Auto | Yes |
-| QA-270 | The dispatch board shows ELD hours exactly as reported: no hours warning, override or stored hours decision exists, and no analytics, audit or error payload carries hours values | XF-17, SC-65.2, NFR-PRIV-3 | Auto | Yes |
+| QA-270 | The dispatch board shows ELD hours exactly as reported and only to the carrier's own users: no hours warning, override or stored hours decision exists, and no analytics, audit or error payload carries hours values | XF-17, SC-65.2, CMP-12, NFR-PRIV-3 | Auto | Yes |
 
 ## 16. Enterprise, Compliance and Operations
 

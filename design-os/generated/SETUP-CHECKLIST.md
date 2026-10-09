@@ -1,6 +1,6 @@
 # Setup Checklist — Haulr
 
-`Version 1.2.0` · `2026-10-09` · Start: [START_HERE](./START_HERE.md) · Architecture: [Phase 7](./phase-7-frontend-architecture.md) · Build: [IMPLEMENTATION_PROMPT](./IMPLEMENTATION_PROMPT.md)
+`Version 1.3.0` · `2026-10-09` · Start: [START_HERE](./START_HERE.md) · Architecture: [Phase 7](./phase-7-frontend-architecture.md) · Build: [IMPLEMENTATION_PROMPT](./IMPLEMENTATION_PROMPT.md)
 
 Step by step, from a fresh machine to a repository ready for Sprint 1. Tick each box as you go. Steps marked **Approval** need the maintainer's go-ahead before you run them (Library Selection Policy, [Phase 7 §15](./phase-7-frontend-architecture.md#15-shared-libraries)).
 
@@ -40,7 +40,7 @@ Step by step, from a fresh machine to a repository ready for Sprint 1. Tick each
 ### 1.3 Decisions to close before Sprint 1
 
 - [ ] Maintainer confirms assumptions A1–A10 ([Phase 1 §1](./phase-1-product-vision.md#1-assumptions)).
-- [ ] Maintainer confirms or rejects D-2 (Route Handlers for polled authenticated reads) and D-14 (page-domain component folders) ([Phase 7 §1](./phase-7-frontend-architecture.md#1-architectural-decisions)).
+- [ ] Maintainer confirms or rejects D-2 (Route Handlers for polled authenticated reads) ([Phase 7 §1](./phase-7-frontend-architecture.md#1-architectural-decisions)).
 - [ ] Maintainer approves or declines the Sprint 1 libraries (§5.2 below).
 
 ---
@@ -105,6 +105,7 @@ This repository is already a Next.js 16 App Router project. **Do not run `create
 
 | Variable | Purpose | Where it comes from |
 | --- | --- | --- |
+| `NEXT_PUBLIC_API_MOCKS` | Mocked backend switch: on unless set to `off` | Leave unset to build against mocks; `off` to use the real backend |
 | `NEXT_PUBLIC_API_URL` | Backend base URL (defaults to `http://localhost:5100`) | Backend `.env` port |
 | `JWT_PUBLIC_KEY` | RS256 public key for session verification in `proxy.ts` and the session route | Backend `pnpm keys:generate` output |
 | `CONTRACT_SOURCE` | Location of the backend `openapi.json` for `pnpm contract` | Path to `../backend/openapi.json` |
@@ -132,6 +133,8 @@ This repository is already a Next.js 16 App Router project. **Do not run `create
 
 ## 4. Backend Pairing
 
+Optional. The frontend is built against mocks (host `.claude/CLAUDE.md`, "The mocked backend"), so day-to-day work needs no backend. With mocks on, sign in as `dispatch@northline.example` / `hunter22`; `busy@haulr.test` and `down@haulr.test` trigger the rate-limit and outage states. Pair with the backend to test against it with `NEXT_PUBLIC_API_MOCKS=off`.
+
 - [ ] In `../backend`, follow its README: `pnpm install`, `cp .env.example .env`, `pnpm keys:generate`, `pnpm exec prisma migrate dev`, `pnpm db:seed`, `pnpm start:dev`.
 - [ ] Confirm the API responds at `http://localhost:5100/api/health` and Swagger at `/api/docs`.
 - [ ] Generate the contract here:
@@ -140,7 +143,7 @@ This repository is already a Next.js 16 App Router project. **Do not run `create
   pnpm contract:check
   ```
 - [ ] Sign in with the seeded admin (`admin@example.com` / `password123`) at `/auth/login` to confirm the session flow works end to end.
-- [ ] Understand the gap: the backend currently ships `auth`, `users`, `stats` and `health` only. Haulr domain endpoints arrive sprint by sprint ([Phase 8 §5](./phase-8-implementation-roadmap.md#5-dependencies)). Until then, hooks read typed seed data from `lib/data/` behind the same signatures ([Phase 7 §11](./phase-7-frontend-architecture.md#11-api-organization)).
+- [ ] Understand the gap: the backend currently ships `auth`, `users`, `stats` and `health` only. Haulr domain endpoints arrive later; until then every route is answered by a mock handler ([Phase 8 §5](./phase-8-implementation-roadmap.md#5-dependencies)). Until then, hooks read typed seed data from `lib/data/` behind the same signatures ([Phase 7 §11](./phase-7-frontend-architecture.md#11-api-organization)).
 
 ---
 
@@ -187,7 +190,7 @@ Propose each with its reason, wait for approval, then install. Never hand-edit `
 
 Create folders only when their first file lands (empty folders are not committed). Target structure: [Phase 7 §2](./phase-7-frontend-architecture.md#2-folder-structure) and [Phase 7 §3](./phase-7-frontend-architecture.md#3-route-structure).
 
-### 6.1 Sprint 1 creations
+### 6.1 Stage 0 and 1 creations (solo build, [Phase 8 §16](./phase-8-implementation-roadmap.md#16-solo-build-order))
 
 - [ ] `app/(public)/layout.tsx`, `app/(workspace)/layout.tsx`, `app/(internal)/layout.tsx`; move the existing `app/page.tsx` (PG-01) to `app/(public)/page.tsx`
 - [ ] `app/auth/layout.tsx`; pages under `app/auth/` for PG-11 … PG-15
@@ -195,7 +198,7 @@ Create folders only when their first file lands (empty folders are not committed
 - [ ] `app/(workspace)/dashboard/page.tsx` (role-resolving redirect)
 - [ ] `lib/enums/` with `role-key.ts` and `load-status.ts`
 - [ ] `lib/loads/constants.ts`, `lib/loads/transitions.ts` (+ `.test.ts`)
-- [ ] `lib/data/` (seed data home)
+- [ ] `lib/mocks/` handlers and `lib/data/mocks/` fixtures for each resource as its stage begins (exist for auth)
 - [ ] `components/providers/announcer-provider.tsx`, `components/providers/session-provider.tsx`
 - [ ] `components/wrappers/section-boundary.tsx`
 - [ ] `components/ui/` primitives for the Sprint 1 contracts (IC-01, IC-02, IC-03, IC-04, IC-07, IC-09, IC-12, IC-14, IC-41, IC-52, IC-59, IC-60), extending what exists: `button.tsx` (IC-11), `input.tsx` and `components/common/panel-field.tsx` (IC-01, IC-03), `components/common/error-summary.tsx` (IC-02)
@@ -281,15 +284,15 @@ Everything installed and ready when all of these are true:
 - [ ] `node --version` ≥ 20.9 and `pnpm --version` works.
 - [ ] `pnpm install` completes without errors.
 - [ ] `.env` has `NEXT_PUBLIC_API_URL`, `JWT_PUBLIC_KEY`, `CONTRACT_SOURCE`.
-- [ ] Backend runs; `/api/health` responds.
+- [ ] With mocks on, the app runs with no backend; optionally, the backend runs and `/api/health` responds.
 - [ ] `pnpm contract:check` passes.
 - [ ] `pnpm type-check` passes.
 - [ ] `pnpm lint` passes.
 - [ ] `pnpm test` passes.
 - [ ] `pnpm dev` serves `http://localhost:3100`.
-- [ ] Signing in at `/auth/login` with the seeded admin sets the session cookie, and a protected prefix redirects when signed out.
+- [ ] Signing in at `/auth/login` (mock account, or the seeded admin with mocks off) sets the session cookie, and a protected prefix redirects when signed out.
 - [ ] Sprint 1 library approvals are recorded (approved or declined).
-- [ ] D-2, D-14 and assumptions A1–A10 are confirmed or amended.
+- [ ] D-2 and assumptions A1–A10 are confirmed or amended.
 - [ ] You can find, for any page ID, its blueprint (Phase 4), sections (Phase 5), route file (Phase 7 §3) and status (Phase 8 §9).
 - [ ] You have read the Visual Design Hand-off in [IMPLEMENTATION_PROMPT](./IMPLEMENTATION_PROMPT.md#visual-design-hand-off).
 

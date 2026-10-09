@@ -1,6 +1,6 @@
 # Start Here — Haulr Design OS
 
-`Version 1.2.0` · `2026-10-09` · Next: [README](./README.md)
+`Version 1.3.0` · `2026-10-09` · Next: [README](./README.md)
 
 Welcome. This folder is the complete specification for **Haulr**, a road freight marketplace where shippers post loads, carriers bid on and book them, drivers run each trip and everyone gets paid. It tells you what the product does and how the code is organised. How each page looks is decided when that page is built, with the owner.
 
@@ -19,7 +19,7 @@ The design OS has nine phases. Each one builds on the one before it.
 - [x] **Phase 5 — Section Blueprints:** 238 sections, one job each
 - [x] **Phase 6 — Interaction Contracts:** 68 contracts defining how every interactive element behaves
 - [x] **Phase 7 — Frontend Architecture:** folders, routes, hooks, libraries, reconciled with this repo
-- [x] **Phase 8 — Implementation Roadmap:** 8 sprints over 16 weeks, plus build status for every feature
+- [x] **Phase 8 — Implementation Roadmap:** the active solo build order (7 stages), the staffed 16-week plan, and build status for every feature
 - [x] **Phase 9 — QA Checklist:** 270 checks a feature must pass before it counts as Verified
 
 Plus six guides, including this one.
@@ -66,7 +66,7 @@ Open [IMPLEMENTATION_PROMPT.md](./IMPLEMENTATION_PROMPT.md) and copy its whole c
 
 Paste it into a new Claude Code session at the repository root, then name the sprint or page to build, for example:
 
-> Build Sprint 1 from the implementation prompt, starting with PG-11 Register.
+> Build solo stage 1 from the implementation prompt (Phase 8 §16), starting with PG-11 Register.
 
 The prompt tells the session to produce a visual concept for each page and get it approved before coding. That step is deliberate; don't skip it.
 
@@ -100,7 +100,7 @@ When you come back to this work:
 | Find where code goes | [Phase 7 §2](./phase-7-frontend-architecture.md#2-folder-structure) |
 | Find which hook to use | [Phase 7 §8](./phase-7-frontend-architecture.md#8-hooks) |
 | See which libraries are approved | [Phase 7 §15](./phase-7-frontend-architecture.md#15-shared-libraries) |
-| See what's in this sprint | [Phase 8 §3](./phase-8-implementation-roadmap.md#3-sprint-breakdown) |
+| See what's being built now | [Phase 8 §16](./phase-8-implementation-roadmap.md#16-solo-build-order) |
 | Update a feature's status | [Phase 8 §9](./phase-8-implementation-roadmap.md#9-per-feature-build-status) |
 | Verify a feature | [Phase 9](./phase-9-qa-checklist.md) |
 | Set up my machine | [SETUP-CHECKLIST](./SETUP-CHECKLIST.md) |

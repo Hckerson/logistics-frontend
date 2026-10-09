@@ -1,6 +1,6 @@
 # Haulr Design OS — Complete
 
-`Version 1.2.0` · `2026-10-09` · Status: **Complete, ready for engineering handoff** · Start: [START_HERE](./START_HERE.md) · Overview: [README](./README.md)
+`Version 1.3.0` · `2026-10-09` · Status: **Complete, ready for engineering handoff** · Start: [START_HERE](./START_HERE.md) · Overview: [README](./README.md)
 
 The master index. If something exists in this design OS, it is listed here.
 
@@ -32,7 +32,7 @@ It covers the product end to end:
 - **What each page and section must do:** 66 page blueprints and 238 section blueprints (Phases 4–5).
 - **How interaction behaves:** 68 interaction contracts at WCAG 2.2 AA (Phase 6).
 - **How the code is organised:** architecture reconciled with this repo's `.claude/CLAUDE.md` (Phase 7).
-- **How and when it gets built:** 16 weeks, 8 sprints, status for every feature (Phase 8).
+- **How and when it gets built:** an active solo build order of 7 stages (about 71 weeks), a staffed 16-week plan for reference, and status for every feature (Phase 8).
 - **How it's proven:** 270 QA checks (Phase 9).
 - **How to get going:** six guides, including a self-contained implementation prompt (Phase 10).
 
@@ -77,7 +77,7 @@ It deliberately contains **no visual design**. Each page's look is decided when 
 | Business goals | 6 | Phase 1 §4 |
 | Jobs to be done | 17 | Phase 1 §8 |
 | Business rules | 31 | Phase 1 §9 |
-| Non-functional, compliance, security, privacy and operations requirements | 45 | Phase 1 §18–22 |
+| Non-functional, compliance, security, privacy and operations requirements | 56 | Phase 1 §18–22 |
 | KPIs | 12 + North Star | Phase 1 §10 |
 | Product principles | 9 | Phase 1 §13 |
 | Primary flows | 17 | Phase 2 §2 |
@@ -91,7 +91,7 @@ It deliberately contains **no visual design**. Each page's look is decided when 
 | Interaction contracts | 68 | Phase 6 |
 | Architectural decisions | 14 (D-1 … D-14) | Phase 7 §1 |
 | Hook files | 52 resource hook files (5 existing) + 7 existing hooks without transport | Phase 7 §8 |
-| Sprints / weeks | 8 / 16 | Phase 8 |
+| Build plan | Solo: 7 stages, about 71 weeks (active). Staffed: 8 sprints, 16 weeks | Phase 8 §16, §3 |
 | Milestones | 5 | Phase 8 §4 |
 | Risks | 17 | Phase 8 §6 |
 | QA items | 270 | Phase 9 |
@@ -164,7 +164,7 @@ Integrity checks run at generation: 66 pages defined in Phases 3, 4, 5 and 8; 23
 - Behavioural contracts for every interactive element, with accessibility.
 - Code organisation reconciled with this repository.
 - Library recommendations under the reuse-first, confirm-before-install policy.
-- A dated 16-week plan, risks and dependencies.
+- A solo build order, a dated 16-week staffed plan, risks and dependencies.
 - A 270-item QA checklist and sign-off rules.
 - Guides and a self-contained implementation prompt.
 
@@ -181,27 +181,45 @@ Integrity checks run at generation: 66 pages defined in Phases 3, 4, 5 and 8; 23
 
 ## 10. Decisions Awaiting the Maintainer
 
+"Needed by" refers to the solo build order's stages ([Phase 8 §16](./phase-8-implementation-roadmap.md#16-solo-build-order)).
+
 | Item | Where | Needed by |
 | --- | --- | --- |
-| Confirm D-2 (Route Handlers for polled authenticated reads) | Phase 7 §1 | S1 |
-| Approve forms and testing libraries | Phase 7 §15 | S1 |
-| Confirm assumptions A1–A8 | Phase 1 §1 | S1 |
-| Confirm D-3 (help and legal content in `lib/data/`) | Phase 7 §1 | S2 |
-| Choose payments processor (with backend) | Phase 8 R-06 | S4 |
-| Approve the map base layer (deck.gl is installed and reused) | Phase 7 §15 | S5 |
-| Confirm D-14 (page-domain folders `components/home/`, `components/auth/`) | Phase 7 §1 | S1 |
-| Confirm BR-31 values: 2-business-hour response, validity default 4 hours and cap 24 hours (set per quote by the pricing agent), margin floor | Phase 1 §9 | S3 |
-| Legal review: the dispatch board shows ELD hours as reported, never evaluates them and stores no carrier hours decision | Phase 2 XF-17, Phase 8 §5 | S7 |
-| Approve processor SDK | Phase 7 §15 | S6 |
-| Approve chart library | Phase 7 §15 | S7 |
-| Decide on a headless accessible-primitives library (optional) | Phase 7 §15 | S1 |
-| Approve observability and error-reporting libraries (D-10) | Phase 7 §15 | S1 |
-| Confirm field and collection limits | Phase 7 §10 | S1 |
-| Confirm assumptions A9 (enterprise launch segment) and A10 (hosting, SOC 2 target) | Phase 1 §1 | S1 |
-| Choose a capacity option: add engineers, pre-agreed deferrals or one extra sprint | Phase 8 §13 | M2 |
-| Provision identity-provider test tenants (Okta, Entra ID, Google Workspace, OneLogin) | Phase 8 §5 | S2 |
-| Book the penetration test vendor | Phase 8 §5 | S5 |
-| Approve product analytics vendor after privacy review | Phase 7 §15 | S7 |
+| Confirm D-2 (Route Handlers for polled authenticated reads) | Phase 7 §1 | Stage 0 |
+| Approve forms and testing libraries | Phase 7 §15 | Stage 0 |
+| Confirm assumptions A1–A8, A9 (enterprise launch segment) and A10 (hosting, SOC 2 target) | Phase 1 §1 | Stage 0 |
+| Confirm field and collection limits | Phase 7 §10 | Stage 0 |
+| Decide on a headless accessible-primitives library (optional) | Phase 7 §15 | Stage 0 |
+| Approve the map base layer (deck.gl is installed and reused) | Phase 7 §15 | Stage 2 |
+| Choose the payments processor with the backend, and approve its SDK | Phase 8 R-06, Phase 7 §15 | Stage 7 |
+| Confirm D-3 (help and legal content in `lib/data/`) | Phase 7 §1 | When help or legal pages leave Deferred |
+| Approve the chart library | Phase 7 §15 | When SC-05.3 or reports leave Deferred |
+| Provision identity-provider test tenants (Okta, Entra ID, Google Workspace, OneLogin) | Phase 8 §5 | When SSO (XS-13) leaves Deferred |
+| Approve observability and error-reporting libraries (D-10) | Phase 7 §15 | Before launch |
+| Approve the product analytics vendor after privacy review | Phase 7 §15 | Before launch |
+| Counsel confirms the dispatch board's hours design | Phase 8 §5 | Before launch |
+| Book the penetration test vendor | Phase 8 §5 | Before launch |
+
+### 10.1 Decided on 2026-10-09
+
+| Decision | Outcome | Where |
+| --- | --- | --- |
+| D-14, page-domain component folders | Confirmed for public and access pages in the cinematic register; recorded in `.claude/CLAUDE.md` | Phase 7 §1 |
+| BR-31 custom quote values | 2-business-hour response; validity set per quote, default 4 hours, cap 24 hours; margin floor 8% of the shipper price, refused below it, changed only by `internal.admin` | Phase 1 §9 |
+| Driver hours on the dispatch board | Shown only to the carrier's own users, as the ELD reports them; never evaluated, warned on or stored. Based on *Montgomery v. Caribe Transport II* (2026), 49 CFR 390.6 and *Sperl v. C.H. Robinson*; safety rating and out-of-service checks added to BR-03 and BR-18; CMP-12 and CMP-13 added | Phase 1 §9, §19; Phase 2 XF-17 |
+| Capacity | Solo build order: seven pattern-first stages against the mocked backend; everything else Deferred | Phase 8 §16, §9.6 |
+| Analytics event names | Phase 4 names canonical; `<domain>.<object>.<verb>`, snake_case, past tense; one catalogue | Phase 7 §27 |
+| View-as reach | Payout and payment methods, API keys and data export never shown; security settings read-only | Phase 3 §5.2 |
+| Support read on Integrations (PG-61) | Allowed with a ticket; keys never shown | Phase 3 §5.1a |
+| Operations agents and view-as | Removed from XS-16 at the maintainer's instruction | Phase 2 XS-16 |
+| Carrier cancellation after booking | The load returns to `Posted` for re-tender and the carrier's reliability penalty applies | BR-12, Phase 2 §5 |
+| Idle timeout | Organisations set 15–120 minutes for workspace roles (default 30); internal roles fixed at 15 | SEC-3, BR-24 |
+| Scorecard threshold | Scorecard after 5 delivered loads; rating figure after 5 rated loads | Phase 4 PG-03, PG-04 |
+| Help feedback | Anonymous yes or no plus an optional reason code; no free text | Phase 4 PG-07, SC-07.2 |
+| Personal contact data | Classified Confidential | NFR-PRIV-1 |
+| Suspended carriers | Reinstated through a new compliance review | Phase 2 XF-12, SC-51.4 |
+| Carrier pay timing | "3 business days" everywhere | BG-03, BR-15 |
+| Contact Support (PG-08) | Indexed for search | Phase 3 §11 |
 
 ---
 
@@ -209,7 +227,7 @@ Integrity checks run at generation: 66 pages defined in Phases 3, 4, 5 and 8; 23
 
 | Field | Value |
 | --- | --- |
-| Version | 1.2.0 (dispatch board and quote desk; 1.1.1 was the audit and code reconciliation, 1.1.0 enterprise hardening, 1.0.0 the initial generation) |
+| Version | 1.3.0 (maintainer decisions, solo build order and mocked backend; 1.2.0 added the dispatch board and quote desk, 1.1.1 was the audit, 1.1.0 enterprise hardening, 1.0.0 the initial generation) |
 | Generated | 2026-09-30 |
 | Revised | 2026-10-09 |
 | Seed prompt | `docs/MASTER_PROMPT_COMPLETE.md` |
@@ -225,6 +243,7 @@ Integrity checks run at generation: 66 pages defined in Phases 3, 4, 5 and 8; 23
 | 1.1.0 | Enterprise hardening. Added a named state taxonomy (Phase 4 §2.1–2.8). About 2,300 thin field values across Phases 4–6 were rewritten against it. Added NFRs, compliance, identity and security, privacy and operations requirements (Phase 1 §18–22) and BR-23 … BR-30. Added nine enterprise pages, eight flows, 36 sections and seven contracts, and the amendment state machine. Phase 7 gained D-9 … D-13 and §21–28. Phase 8 gained sizing, capacity, Definition of Ready/Done, RACI, release, go/no-go and hypercare. Phase 9 gained 50 QA items. Nothing was removed. |
 | 1.1.1 | Audit and code reconciliation. Phases 7–8 and the guides now match the code on `development`: PG-01 and the identity-first sign-in are In progress, deck.gl is reused for maps, D-14 records the page-domain component folders, and existing hooks and the auth signal provider are listed. Contradictions between Phases 2–6 were reconciled: state machines, permissions, refresh intervals, the offline queue, the contract usage index, and ARIA and keyboard behaviour per WAI-ARIA. Missing states and enumerations were filled in, placement and component wording was rewritten as behaviour, and QA-267 (WCAG 3.2.6) was added. No feature was removed. Duplicated passages now point to the section that owns them. |
 | 1.2.0 | Added two pages the maintainer selected. **PG-65 Dispatch Board** (XF-17, SC-65.1 … SC-65.4, IC-68 planning grid) covers the "load plans" pattern the project brief names for Logistics; carriers plan trucks across days, fill open windows and record unavailable periods. **PG-66 Quote Desk** (XS-18, SC-66.1 … SC-66.3, BR-31) gives the custom quote requests already offered on PG-05, PG-27 and PG-56 an owner and a deadline; SC-27.7 gives shippers their side of the request. Also two Phase 4 §2.6 freshness rows, a quote request status enumeration, three capability rows, QA-268 … QA-270. Totals: 66 pages, 238 sections, 68 contracts, 43 experiences, 31 business rules, 270 QA items. Driver hours on the dispatch board are ELD-reported information only, pending legal review: no hours warning, override or stored decision. Custom quote validity is set per quote within a configured default and cap. The dispatch board is a pre-agreed deferral candidate (Phase 8 §13). Nothing removed. |
+| 1.3.0 | Maintainer decisions recorded in §10.1. Carrier vetting now checks the FMCSA safety rating and out-of-service orders (BR-03, BR-18), after *Montgomery v. Caribe Transport II* (2026); CMP-12 (driver coercion) and CMP-13 (broker, not carrier) added; dispatch-board hours shown only to the carrier's own users. Custom quote values set (BR-31). View-as reach, support read on PG-61, carrier cancellation, idle timeout, scorecard threshold, help feedback, personal-data classification, carrier reinstatement and pay timing reconciled. The active plan is now the solo build order (Phase 8 §16): 17 pages, 10 flows, 67 sections and 42 contracts in seven pattern-first stages; everything else Deferred with its spec unchanged. The mocked backend from `.claude/CLAUDE.md` replaces the seed-data fallback. Analytics events normalised to one convention with a 240-event catalogue (Phase 7 §27.1). Operations agents removed from XS-16 at the maintainer's instruction; no other feature removed. |
 
 ---
 

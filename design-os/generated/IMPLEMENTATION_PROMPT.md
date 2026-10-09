@@ -1,6 +1,6 @@
 # Implementation Prompt — Haulr
 
-`Version 1.2.0` · `2026-10-09` · Start: [START_HERE](./START_HERE.md) · Setup: [SETUP-CHECKLIST](./SETUP-CHECKLIST.md) · Index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
+`Version 1.3.0` · `2026-10-09` · Start: [START_HERE](./START_HERE.md) · Setup: [SETUP-CHECKLIST](./SETUP-CHECKLIST.md) · Index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
 
 Copy this entire file into a new Claude Code session at the repository root, then name the sprint, page or feature to build.
 
@@ -31,7 +31,7 @@ Copy this entire file into a new Claude Code session at the repository root, the
 **How to use it.**
 
 1. The user names a target: a sprint (`Sprint 3`), a page (`PG-27`), a section (`SC-40.9`), a contract (`IC-12`) or a flow (`XF-02`).
-2. Look the target up in [Phase 8 §3](./phase-8-implementation-roadmap.md#3-sprint-breakdown) and [Phase 8 §9](./phase-8-implementation-roadmap.md#9-per-feature-build-status) to confirm it is Scheduled, and to find its dependencies.
+2. Look the target up in [Phase 8 §16](./phase-8-implementation-roadmap.md#16-solo-build-order), the active solo build order, and [Phase 8 §9](./phase-8-implementation-roadmap.md#9-per-feature-build-status) to confirm it is Scheduled, and to find its dependencies.
 3. Follow the [Per-Page Build Procedure](#10-per-page-build-procedure) for each page. It begins with the Visual Design Hand-off.
 4. Finish with the [Pre-merge Checklist](#11-pre-merge-checklist) and update Phase 8 §9.
 
@@ -237,7 +237,7 @@ Transport per hook: authenticated mutations and non-polled reads → Server Acti
 | --- | --- | --- |
 | `components/ui/` | Domain-free primitives, one per Phase 6 contract (or native element); `button.tsx`, `input.tsx` exist | Phase 6 |
 | `components/common/` | Shared sections (SH-01 … SH-15) and page sections, domain-prefixed filenames | Phase 5 |
-| `components/home/`, `components/auth/` | Sections used by one public or access page (exist; D-14, pending confirmation) | Phase 5 |
+| `components/home/`, `components/auth/` | Sections used by one public or access page (exist; D-14) | Phase 5 |
 | `components/wrappers/` | `section-boundary.tsx` (Suspense + error boundary per section), `motion-wrapper.tsx` (exists) | Phase 4 SSB-1, SSB-3 |
 | `components/providers/` | §5.3 | Phase 7 §5 |
 
@@ -247,7 +247,7 @@ A section used by two pages lives once in `components/common/`. Page sections al
 
 ## 6. Phase 8 Implementation — Sprint Breakdown
 
-Authoritative source: [Phase 8 §3](./phase-8-implementation-roadmap.md#3-sprint-breakdown). 16 weeks, 8 sprints, starting 2026-10-05, with a parallel enterprise track from Sprint 2. Stories enter a sprint only when they meet the Definition of Ready ([Phase 8 §11](./phase-8-implementation-roadmap.md#11-definition-of-ready-and-definition-of-done)).
+**The active plan is the solo build order in [Phase 8 §16](./phase-8-implementation-roadmap.md#16-solo-build-order)**: seven stages, about 71 weeks for one engineer, pattern-first, with everything else Deferred. The sprints below are the staffed plan, kept for reference. Authoritative source: [Phase 8 §3](./phase-8-implementation-roadmap.md#3-sprint-breakdown). 16 weeks, 8 sprints, starting 2026-10-05, with a parallel enterprise track from Sprint 2. Stories enter a sprint only when they meet the Definition of Ready ([Phase 8 §11](./phase-8-implementation-roadmap.md#11-definition-of-ready-and-definition-of-done)).
 
 ### Sprint 1 — Foundations (2026-10-05 → 2026-10-16)
 
@@ -327,7 +327,7 @@ Authoritative source: [Phase 8 §3](./phase-8-implementation-roadmap.md#3-sprint
 
 ### Dependencies and sequencing rules
 
-- Backend endpoints land one sprint ahead. If an endpoint is late, the hook reads typed seed data from `lib/data/` with the same signature (R-01). The page does not change when the endpoint arrives.
+- Backend endpoints land one sprint ahead. Until an endpoint exists, the real call path is answered by a mock handler on its contract route in `lib/mocks/`, with fixtures in `lib/data/mocks/` (R-01; host "The mocked backend"). The page does not change when the endpoint arrives.
 - Visual concepts for next sprint's pages are produced and approved during the current sprint (R-10).
 - If a sprint slips, move items to **Deferred** in Phase 8 §9 with reason and revisit trigger. Never delete them.
 
@@ -527,7 +527,7 @@ Authoritative source: [Phase 9](./phase-9-qa-checklist.md). A feature is **Verif
 - [ ] **QA-157** Internal prefixes reject non-internal roles at the edge _(D-7)_ **[B]**
 - [ ] **QA-158** `appRoutes` used for every internal path (ESLint rule proposed in Phase 7 §20) _(IC-51, Phase 7 §20)_ **[B]**
 - [ ] **QA-159** Idempotency keys generated with `nanoid` for book, accept, pay, quick pay _(Phase 7 §19)_ **[B]**
-- [ ] **QA-160** Seed data fallbacks live only in `lib/data/` behind hooks _(Phase 7 §11)_ **[B]**
+- [ ] **QA-160** Mock handlers live only in `lib/mocks/`, registered under contract routes, with fixtures in `lib/data/mocks/` _(Phase 7 §11)_ **[B]**
 - [ ] **QA-161** Every shared section in Phase 5 has one implementation in `components/common/` _(Phase 7 §12)_ **[B]**
 - [ ] **QA-162** Every Phase 6 contract has one implementation in `components/ui/` or is native _(Phase 7 §12)_ **[B]**
 - [ ] **QA-163** Library additions match approved Phase 7 §15 entries only _(Phase 7 §15)_ **[B]**
@@ -542,7 +542,7 @@ Authoritative source: [Phase 9](./phase-9-qa-checklist.md). A feature is **Verif
 - [ ] **QA-169** Query key factories exported and used for invalidation _(Phase 7 §8)_
 - [ ] **QA-170** PR titles cite design OS IDs _(Phase 7 §16)_
 - [ ] **QA-171** Phase 8 §9 status updated in the same PR _(Phase 8 §7)_ **[B]**
-- [ ] **QA-172** Local development works against seed data without the backend _(Phase 7 §11)_
+- [ ] **QA-172** Local development works with mocks on and no backend; setting `NEXT_PUBLIC_API_MOCKS=off` changes nothing else _(Phase 7 §11)_
 - [ ] **QA-173** SETUP-CHECKLIST steps reproduce a working environment _(SETUP-CHECKLIST)_
 
 ### 7.12 SEO Readiness
@@ -600,7 +600,7 @@ Authoritative source: [Phase 9](./phase-9-qa-checklist.md). A feature is **Verif
 - [ ] **QA-215** Rate limits enforced on anonymous endpoints _(Phase 8 §10)_ **[B]**
 - [ ] **QA-216** CSP blocks non-allow-listed origins _(Phase 7 §19)_ **[B]**
 - [ ] **QA-269** A custom quote request is answered or escalated by its BR-31 deadline; a price below the margin floor is refused; carrier pay never reaches the shipper _(BR-31, BR-05)_ **[B]**
-- [ ] **QA-270** The dispatch board shows ELD hours exactly as reported: no hours warning, override or stored hours decision exists, and no analytics, audit or error payload carries hours values _(XF-17, SC-65.2, NFR-PRIV-3)_ **[B]**
+- [ ] **QA-270** The dispatch board shows ELD hours exactly as reported and only to the carrier's own users: no hours warning, override or stored hours decision exists, and no analytics, audit or error payload carries hours values _(XF-17, SC-65.2, CMP-12, NFR-PRIV-3)_ **[B]**
 
 ### 7.16 Enterprise, Compliance and Operations
 
@@ -925,7 +925,7 @@ Authoritative source: [Phase 8 §8](./phase-8-implementation-roadmap.md#8-testin
 2. Route Handlers re-verify session and role.
 3. Error mapping helper for every status in §8.5.
 4. `proxy.ts` prefix and role enforcement (extend `proxy.test.ts`).
-5. Response shaping assumptions (BR-05) against seed data fixtures.
+5. Response shaping assumptions (BR-05) against the mock fixtures.
 
 ### 9.3 End-to-end scenarios
 
@@ -970,11 +970,11 @@ For each page in the current sprint:
 
 1. **Confirm status.** The page is Scheduled for this sprint in Phase 8 §9. Set it to **In progress** in your branch.
 2. **Read.** Phase 4 blueprint → Phase 5 sections (and SH- they instance) → Phase 6 contracts they cite → Phase 3 row (route, roles) → Phase 2 flows served.
-3. **Check dependencies.** Primitives for the cited contracts exist; hooks exist or can read seed data; backend endpoints available or seeded.
+3. **Check dependencies.** Primitives for the cited contracts exist; hooks exist; every route the page calls has a mock handler, or its DTO is published so one can be written.
 4. **Visual concept.** Load the UI skill, produce the concept, present it to the owner, wait for approval ([Visual Design Hand-off](#visual-design-hand-off)).
 5. **Scaffold.** `page.tsx`, `loading.tsx`, `error.tsx` at the Phase 7 path; `generateMetadata`; route guard via the role layout.
 6. **Build sections.** One file each in `components/common/` (or the page-domain folder for a public or access page, D-14); reuse SH- implementations; wrap each in `SectionBoundary`.
-7. **Wire data.** Hooks from Phase 7 §8; Server Actions or Route Handlers per D-2; seed data behind hooks if needed.
+7. **Wire data.** Hooks from Phase 7 §8; Server Actions or Route Handlers per D-2; a mock handler for every endpoint the page calls.
 8. **Implement every state.** Loading, empty, error, success from Phase 4 and 5, with copy in constants.
 9. **Test.** Unit (logic), component (contracts), E2E (flows), axe.
 10. **Owner review.** Render the page; the owner reviews the result.
@@ -997,6 +997,7 @@ For each page in the current sprint:
 - [ ] No dependency added without recorded approval.
 - [ ] No specified feature removed; unfinished items marked Deferred with reason and trigger.
 - [ ] Deviations recorded as decisions in the affected phase.
+- [ ] Every endpoint the page calls has a mock handler returning contract-shaped data (host rule).
 - [ ] Phase 8 §9 status updated.
 
 ---
