@@ -280,6 +280,8 @@
     --haulr-shell: 84rem;
     --haulr-auth-form: 24rem;
     --haulr-auth-band: 26svh;
+    --haulr-auth-ease: cubic-bezier(0.65, 0, 0.35, 1);
+    --haulr-beam: max(16rem, 24vw);
     --haulr-header: 4.5rem;
     --haulr-section: clamp(5rem, 11vw, 9rem);
     --haulr-wide: 125%;

@@ -1,27 +1,29 @@
 "use client";
 import { useEffect, useRef, type ChangeEvent, type FormEvent } from "react";
-import { ArrowRight, Checkmark } from "@carbon/icons-react";
+import AuthSubmit from "@/components/auth/auth-submit";
 import ConsentCheck from "@/components/auth/consent-check";
 import IdentityRow from "@/components/auth/identity-row";
+import ManifestRows from "@/components/auth/manifest-rows";
 import PasswordRule from "@/components/auth/password-rule";
-import PanelField from "@/components/common/panel-field";
-import { haulrButtonClass } from "@/components/home/haulr-button";
+import BoardField from "@/components/common/board-field";
+import AssemblyProvider, { useAssembly } from "@/components/providers/assembly-provider";
+import { FIELD_FLIP } from "@/lib/auth/constants";
 import { ACCOUNT_SIDES, PASSWORD_MIN_LENGTH } from "@/lib/constants";
 import { REGISTER_COPY } from "@/lib/data/auth/register";
 import { AUTH_COPY } from "@/lib/data/auth/shared";
 import { useCapsLock } from "@/lib/hooks/use-caps-lock";
+import type { useManifest } from "@/lib/hooks/use-manifest";
 import type { AccountDraft, AccountField } from "@/lib/types";
-
-type Editable = Exclude<AccountField, "side">;
 
 interface Props {
     idOf: (field: AccountField) => string;
     values: AccountDraft;
     errorFor: (field: AccountField) => string | undefined;
+    manifest: ReturnType<typeof useManifest>;
     advanced: boolean;
     pending: boolean;
     created: boolean;
-    onChange: (field: Editable) => (event: ChangeEvent<HTMLInputElement>) => void;
+    onChange: (field: Exclude<AccountField, "side">) => (event: ChangeEvent<HTMLInputElement>) => void;
     onBack: () => void;
     onSubmit: (event: FormEvent) => void;
 }
@@ -29,19 +31,22 @@ interface Props {
 const { side, fields } = REGISTER_COPY;
 
 export default function DetailsStep(props: Props) {
-    const { idOf, values, errorFor, advanced, pending, created, onChange, onBack, onSubmit } = props;
-    const first = useRef<HTMLInputElement>(null);
+    const { idOf, values, errorFor, manifest, advanced, pending, created, onChange, onBack, onSubmit } = props;
+    const board = useRef<HTMLInputElement>(null);
     const caps = useCapsLock();
+    const inherited = useAssembly();
     const busy = pending || created;
     const chosen = values.side ?? ACCOUNT_SIDES[0];
+    const { field, last, moved } = manifest;
     const ruleId = `${idOf("password")}-rule`;
+    const secret = field === "password";
 
     useEffect(() => {
-        if (advanced) first.current?.focus();
-    }, [advanced]);
+        if (advanced || moved) board.current?.focus();
+    }, [advanced, moved, field]);
 
     return (
-        <form onSubmit={onSubmit} noValidate aria-busy={pending} className="flex flex-col gap-4">
+        <form onSubmit={onSubmit} noValidate aria-busy={pending} className="haulr-boot-rows flex flex-col gap-5">
             <IdentityRow
                 label={side.identity}
                 value={side.names[chosen]}
@@ -50,61 +55,60 @@ export default function DetailsStep(props: Props) {
                 disabled={busy}
                 onChange={onBack}
             />
-            <PanelField
-                ref={first}
-                id={idOf("fullName")}
-                {...fields.fullName}
-                value={values.fullName}
-                onChange={onChange("fullName")}
-                readOnly={busy}
-                error={errorFor("fullName")}
+            {manifest.done.length > 0 ? (
+                <ManifestRows fields={manifest.done} values={values} disabled={busy} onEdit={manifest.edit} />
+            ) : null}
+            <AssemblyProvider boot={moved ? FIELD_FLIP : inherited}>
+                <BoardField
+                    key={field}
+                    ref={board}
+                    id={idOf(field)}
+                    {...fields[field]}
+                    inputMode={field === "email" ? "email" : undefined}
+                    spellCheck={field === "fullName" ? undefined : false}
+                    value={values[field]}
+                    onChange={onChange(field)}
+                    readOnly={busy}
+                    error={errorFor(field)}
+                    {...(secret
+                        ? {
+                              revealLabel: AUTH_COPY.reveal,
+                              describedBy: ruleId,
+                              hint: caps.on ? AUTH_COPY.capsLock : null,
+                              onKeyDown: caps.track,
+                              onKeyUp: caps.track,
+                              onBlur: caps.clear,
+                              aside: (
+                                  <PasswordRule
+                                      id={ruleId}
+                                      rule={REGISTER_COPY.rule}
+                                      met={values.password.length >= PASSWORD_MIN_LENGTH}
+                                  />
+                              ),
+                          }
+                        : {})}
+                />
+            </AssemblyProvider>
+            {last ? (
+                <ConsentCheck
+                    id={idOf("consent")}
+                    side={chosen}
+                    checked={values.consent}
+                    error={errorFor("consent")}
+                    disabled={busy}
+                    onChange={onChange("consent")}
+                />
+            ) : null}
+            <AuthSubmit
+                label={last ? REGISTER_COPY.submit : REGISTER_COPY.manifest.next}
+                pendingLabel={REGISTER_COPY.pending}
+                doneLabel={REGISTER_COPY.arrived}
+                pending={pending}
+                done={created}
             />
-            <PanelField
-                id={idOf("email")}
-                {...fields.email}
-                inputMode="email"
-                spellCheck={false}
-                value={values.email}
-                onChange={onChange("email")}
-                readOnly={busy}
-                error={errorFor("email")}
-            />
-            <PanelField
-                id={idOf("password")}
-                {...fields.password}
-                value={values.password}
-                onChange={onChange("password")}
-                onKeyDown={caps.track}
-                onKeyUp={caps.track}
-                onBlur={caps.clear}
-                readOnly={busy}
-                error={errorFor("password")}
-                revealLabel={AUTH_COPY.reveal}
-                describedBy={ruleId}
-                hint={caps.on ? AUTH_COPY.capsLock : null}
-                aside={
-                    <PasswordRule id={ruleId} rule={REGISTER_COPY.rule} met={values.password.length >= PASSWORD_MIN_LENGTH} />
-                }
-            />
-            <ConsentCheck
-                id={idOf("consent")}
-                side={chosen}
-                checked={values.consent}
-                error={errorFor("consent")}
-                disabled={busy}
-                onChange={onChange("consent")}
-            />
-            <button
-                type="submit"
-                aria-disabled={busy}
-                className={haulrButtonClass("ink", "lg", "mt-1 w-full cursor-pointer aria-disabled:cursor-wait")}
-            >
-                {created ? REGISTER_COPY.arrived : pending ? REGISTER_COPY.pending : REGISTER_COPY.submit}
-                {created ? <Checkmark aria-hidden className="size-4" /> : null}
-                {busy ? null : (
-                    <ArrowRight aria-hidden className="size-4 transition-transform duration-300 group-hover:translate-x-0.5" />
-                )}
-            </button>
+            {last ? (
+                <input type="email" name="username" autoComplete="username" value={values.email} readOnly tabIndex={-1} className="sr-only" />
+            ) : null}
         </form>
     );
 }

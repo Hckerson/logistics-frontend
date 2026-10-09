@@ -23,7 +23,7 @@ export function registerFailure(error: unknown): FormProblem {
     if (!isAxiosError(error) || !error.response) return { message: AUTH_COPY.errors.network };
     const { status, headers, data } = error.response;
     if (status === 429) return rateLimitProblem(headers["retry-after"]);
-    if (status === CONFLICT) return { message: errors.conflict, links: REGISTER_COPY.conflictLinks };
+    if (status === CONFLICT) return { field: "email", message: errors.conflict, links: REGISTER_COPY.conflictLinks };
     if (messageBody.safeParse(data).data?.message === SESSION_UNAVAILABLE) {
         return { message: errors.session, links: REGISTER_COPY.sessionLinks };
     }

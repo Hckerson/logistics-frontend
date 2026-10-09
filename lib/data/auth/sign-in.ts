@@ -14,6 +14,7 @@ export const SIGN_IN_COPY = {
     },
     email: {
         name: "email",
+        index: "01",
         label: "Work email",
         type: "email",
         autoComplete: "username",
@@ -22,6 +23,7 @@ export const SIGN_IN_COPY = {
     },
     password: {
         name: "password",
+        index: "02",
         label: "Password",
         autoComplete: "current-password",
         identity: "Signing in as",

@@ -1,8 +1,7 @@
 "use client";
 import { useEffect, useRef, type ChangeEvent, type FormEvent } from "react";
-import { ArrowRight } from "@carbon/icons-react";
-import PanelField from "@/components/common/panel-field";
-import { haulrButtonClass } from "@/components/home/haulr-button";
+import AuthSubmit from "@/components/auth/auth-submit";
+import BoardField from "@/components/common/board-field";
 import { SIGN_IN_COPY } from "@/lib/data/auth/sign-in";
 
 interface Props {
@@ -24,11 +23,12 @@ export default function EmailStep({ id, value, error, returned, onChange, onSubm
     }, [returned]);
 
     return (
-        <form onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
-            <PanelField
+        <form onSubmit={onSubmit} noValidate className="haulr-boot-rows flex flex-col gap-5">
+            <BoardField
                 ref={input}
                 id={id}
                 name={email.name}
+                index={email.index}
                 label={email.label}
                 type={email.type}
                 inputMode="email"
@@ -39,10 +39,7 @@ export default function EmailStep({ id, value, error, returned, onChange, onSubm
                 onChange={onChange}
                 error={error}
             />
-            <button type="submit" className={haulrButtonClass("ink", "lg", "w-full cursor-pointer")}>
-                {email.next}
-                <ArrowRight aria-hidden className="size-4 transition-transform duration-300 group-hover:translate-x-0.5" />
-            </button>
+            <AuthSubmit label={email.next} />
         </form>
     );
 }

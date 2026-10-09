@@ -35,7 +35,7 @@ export default function ConsentCheck({ id, side, checked, error, disabled, onCha
                         aria-invalid={error ? true : undefined}
                         aria-describedby={error ? fieldErrorId(id) : undefined}
                         className={clsx(
-                            "peer bg-background checked:border-text checked:bg-text focus-visible:outline-text size-4 cursor-pointer appearance-none rounded-xs border transition-colors focus-visible:outline-2 focus-visible:outline-offset-2",
+                            "peer bg-background checked:border-text checked:bg-text focus-visible:outline-text size-4 cursor-pointer appearance-none border transition-colors focus-visible:outline-2 focus-visible:outline-offset-2",
                             error ? "border-error" : "border-text-muted",
                         )}
                     />

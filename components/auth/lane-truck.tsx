@@ -3,7 +3,7 @@ import clsx from "clsx";
 import { useEffect } from "react";
 import { animate, motion, useMotionValue, useTransform, useVelocity } from "motion/react";
 import { useAuthSignal } from "@/components/providers/auth-signal-provider";
-import { TRUCK_RUN } from "@/lib/auth/constants";
+import { LEG, TRUCK_RUN } from "@/lib/auth/constants";
 import { percentOf, pointAlong } from "@/lib/auth/point-along";
 import { REVEAL_EASE } from "@/lib/home/constants";
 import { useReduced } from "@/lib/hooks/use-reduced";
@@ -22,16 +22,16 @@ interface Props {
 const STROKE = { fill: "none", pathLength: 1, strokeLinecap: "round" } as const;
 const WAITING: readonly AuthSignal[] = ["origin", "midway", "held"];
 
-const targetFor = (signal: AuthSignal, midway: number) => {
+const targetFor = (signal: AuthSignal, midway: number, leg: number) => {
     if (signal === "origin") return 0;
     if (signal === "arrived") return 1;
     if (signal === "pending") return midway + (1 - midway) * TRUCK_RUN.creep;
-    return midway;
+    return midway + (1 - midway) * LEG.truck * leg;
 };
 
 export default function LaneTruck({ width, height, route, points, times, midway, tag }: Props) {
     const reduced = useReduced();
-    const { signal } = useAuthSignal();
+    const { signal, leg } = useAuthSignal();
     const progress = useMotionValue(0);
     const speed = useVelocity(progress);
     const glow = useTransform(speed, (value) => Math.min(1, Math.abs(value) * 6));
@@ -39,7 +39,9 @@ export default function LaneTruck({ width, height, route, points, times, midway,
     const top = useTransform(progress, (t) => percentOf(pointAlong(points, times, t)[1], height));
     const trail = useTransform(progress, (t) => TRUCK_RUN.trail - t);
     const core = useTransform(progress, (t) => TRUCK_RUN.core - t);
-    const target = targetFor(signal, midway);
+    const target = targetFor(signal, midway, leg);
+    const past = target > midway;
+    const status = signal === "midway" && past ? tag.rolling : tag.status[signal];
 
     useEffect(() => {
         const creeping = signal === "pending";
@@ -69,10 +71,10 @@ export default function LaneTruck({ width, height, route, points, times, midway,
                     {WAITING.includes(signal) ? <span className="bg-accent/40 absolute inset-0 animate-ping rounded-full" /> : null}
                     <span className="relative size-2.5 rounded-full bg-(--haulr-hot) shadow-[0_0_12px_var(--colors-accent)]" />
                 </span>
-                <span className="border-border-dark bg-background/85 absolute right-4 bottom-4 hidden flex-col gap-1 rounded-sm border px-3 py-2.5 whitespace-nowrap lg:flex">
+                <span className={clsx("border-border-dark bg-background/85 absolute hidden flex-col gap-1 rounded-sm border px-3 py-2.5 whitespace-nowrap lg:flex", past ? "top-4 left-4" : "right-4 bottom-4")}>
                     <span className="haulr-label text-text-muted">{tag.title}</span>
                     <span className="text-text text-sm">{tag.route}</span>
-                    <span className={clsx("text-xs", signal === "held" ? "text-error" : "text-accent")}>{tag.status[signal]}</span>
+                    <span className={clsx("text-xs", signal === "held" ? "text-error" : "text-accent")}>{status}</span>
                 </span>
             </motion.div>
         </motion.div>
