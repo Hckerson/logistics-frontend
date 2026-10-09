@@ -1,12 +1,18 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { backendFetch, readJson } from "@/lib/api-server";
+import { backendFetch, readJson, relay } from "@/lib/api-server";
 import { INVALID_CREDENTIALS, SESSION_COOKIE } from "@/lib/constants";
 import { routes } from "@/lib/contract/routes";
 import { startSession } from "@/lib/utils/session";
 import { loginSchema } from "@/lib/validations/auth";
 
+const RATE_LIMITED = 429;
+const SERVER_ERROR = 500;
+
 const rejected = (status: number) =>
     NextResponse.json({ message: INVALID_CREDENTIALS }, { status });
+
+const passesThrough = (status: number) =>
+    status === RATE_LIMITED || status >= SERVER_ERROR;
 
 export const POST = async (request: NextRequest) => {
     const credentials = loginSchema.safeParse(await readJson(request));
@@ -16,6 +22,7 @@ export const POST = async (request: NextRequest) => {
         method: "POST",
         body: JSON.stringify(credentials.data),
     });
+    if (passesThrough(upstream.status)) return relay(upstream);
 
     return (await startSession(upstream)) ?? rejected(401);
 };

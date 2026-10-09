@@ -78,6 +78,29 @@ describe("creating a session", () => {
         expect(response.headers.get("set-cookie")).toBeNull();
     });
 
+    it("passes a rate limit through with its wait", async () => {
+        vi.stubGlobal(
+            "fetch",
+            vi.fn().mockResolvedValue(
+                new Response(JSON.stringify({ message: "Too many requests" }), {
+                    status: 429,
+                    headers: { "Content-Type": "application/json", "Retry-After": "120" },
+                }),
+            ),
+        );
+
+        const response = await postWith(CREDENTIALS);
+
+        expect(response.status).toBe(429);
+        expect(response.headers.get("retry-after")).toBe("120");
+    });
+
+    it("passes a backend outage through instead of blaming the credentials", async () => {
+        vi.stubGlobal("fetch", respondWith(503, { message: "Unavailable" }));
+
+        expect((await postWith(CREDENTIALS)).status).toBe(503);
+    });
+
     it("refuses a response that does not carry a token", async () => {
         vi.stubGlobal("fetch", respondWith(200, { data: { user: {} } }));
 
