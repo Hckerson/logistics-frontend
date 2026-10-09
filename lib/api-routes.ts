@@ -9,4 +9,6 @@ export const unpublishedRoutes = {
     passwordResetConfirm: () => "/api/auth/password-reset/confirm",
     verifyEmail: () => "/api/auth/verify-email",
     verifyEmailResend: () => "/api/auth/verify-email/resend",
+    mfaChallenge: () => "/api/auth/mfa/challenge",
+    mfaVerify: () => "/api/auth/mfa/verify",
 } as const;

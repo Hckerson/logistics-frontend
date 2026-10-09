@@ -1,8 +1,10 @@
-import type { AccountSide } from "@/lib/types";
+import type { AccountSide, MfaMethod } from "@/lib/types";
 
 export const DATE_VALUE_FORMAT = "yyyy-MM-dd";
 
 export const SESSION_COOKIE = "session";
+
+export const MFA_COOKIE = "mfa_challenge";
 
 export const AUTH_ROUTE_PREFIX = "/auth";
 
@@ -31,6 +33,14 @@ export const legalRoute = (document: string) => `/legal/${document}`;
 export const ACCOUNT_SIDES = ["shipper", "carrier"] as const satisfies readonly AccountSide[];
 
 export const registerRoute = (side: AccountSide) => `${REGISTER_ROUTE}?side=${side}`;
+
+export const loginRoute = (next: string) => `${LOGIN_ROUTE}?next=${encodeURIComponent(next)}`;
+
+export const MFA_STEP = "code";
+
+export const mfaRoute = (next: string) => `${VERIFY_ROUTE}?step=${MFA_STEP}&next=${encodeURIComponent(next)}`;
+
+export const ACCOUNT_RECOVERY_ROUTE = `${SUPPORT_ROUTE}?topic=account-recovery`;
 
 export const PROTECTED_ROUTE_PREFIXES = [DASHBOARD_ROUTE];
 
@@ -61,7 +71,16 @@ export const VERIFICATION_LINK_HOURS = 24;
 
 export const VERIFICATION_RESEND_COOLDOWN_S = 60;
 
+export const MFA_CHALLENGE_MINUTES = 5;
+
+export const MFA_CODE_LENGTH = 6;
+
+export const MFA_BACKUP_CODE_LENGTH = 8;
+
+export const MFA_METHODS = ["totp", "backup"] as const satisfies readonly MfaMethod[];
+
 export const HTTP_STATUS = {
+    accepted: 202,
     badRequest: 400,
     unauthorized: 401,
     notFound: 404,

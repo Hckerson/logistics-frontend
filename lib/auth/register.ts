@@ -13,7 +13,7 @@ const messageBody = z.object({ message: z.string() });
 export function accountProblems(draft: AccountDraft, fields: readonly AccountField[]): FormProblem[] {
     const result = accountSchema.safeParse(draft);
     if (result.success) return [];
-    return issuesToProblems<Exclude<AccountField, "confirm">>(result.error.issues, errors).filter(
+    return issuesToProblems<Exclude<AccountField, "confirm" | "code">>(result.error.issues, errors).filter(
         (problem) => problem.field && fields.includes(problem.field),
     );
 }

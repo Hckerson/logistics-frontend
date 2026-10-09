@@ -1,5 +1,5 @@
 import type { VerifyStatus, VerifyView } from "@/lib/types";
-import { LOGIN_ROUTE, VERIFICATION_LINK_HOURS, VERIFY_ROUTE } from "@/lib/constants";
+import { loginRoute, VERIFICATION_LINK_HOURS, VERIFY_ROUTE } from "@/lib/constants";
 import { AUTH_COPY } from "@/lib/data/auth/shared";
 
 const lead = "Confirm your email to finish setting up Haulr.";
@@ -62,7 +62,7 @@ export const VERIFY_COPY = {
     proceed: "Continue",
     signIn: {
         message: "Sign in to get a new verification link.",
-        links: [{ id: "sign-in", label: "Sign in", href: `${LOGIN_ROUTE}?next=${encodeURIComponent(VERIFY_ROUTE)}` }],
+        links: [{ id: "sign-in", label: "Sign in", href: loginRoute(VERIFY_ROUTE) }],
     },
     footer: AUTH_COPY.recovery,
 } as const;

@@ -1,4 +1,5 @@
-import type { MockResponse } from "@/lib/types";
+import { signMockToken } from "@/lib/mocks/session-token";
+import type { MockErrorDetails, MockResponse, MockUser } from "@/lib/types";
 
 const SUCCESS = "Success";
 
@@ -17,7 +18,13 @@ export const ok = (status: number, data: unknown): MockResponse => ({
     body: { statusCode: status, message: SUCCESS, data, timestamp: new Date().toISOString() },
 });
 
-export const fail = (status: number, message: string, path: string, headers?: Record<string, string>): MockResponse => ({
+export const fail = (
+    status: number,
+    message: string,
+    path: string,
+    headers?: Record<string, string>,
+    details?: MockErrorDetails,
+): MockResponse => ({
     status,
     headers,
     body: {
@@ -26,5 +33,11 @@ export const fail = (status: number, message: string, path: string, headers?: Re
         error: ERRORS[status] ?? "HttpException",
         path,
         timestamp: new Date().toISOString(),
+        ...details,
     },
 });
+
+const publicUser = ({ id, name, email, role }: MockUser) => ({ id, name, email, role });
+
+export const issueSession = async (status: number, user: MockUser) =>
+    ok(status, { user: publicUser(user), accessToken: await signMockToken(user) });
