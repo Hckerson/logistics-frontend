@@ -38,6 +38,15 @@ export default function LaneArt({ art, tag }: Props) {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                 />
+                <path
+                    d={art.route}
+                    pathLength={1}
+                    fill="none"
+                    strokeDasharray="0.03 2"
+                    className="haulr-spark stroke-(--haulr-hot) drop-shadow-[0_0_6px_var(--colors-accent)] motion-reduce:hidden"
+                    strokeWidth={2.5}
+                    strokeLinecap="round"
+                />
             </svg>
             <svg viewBox={viewBox} className={clsx(LAYER, "will-change-transform motion-reduce:hidden")}>
                 {art.traffic.map((run) => (

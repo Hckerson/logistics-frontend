@@ -4,6 +4,8 @@ export type SignInField = "email" | "password";
 
 export type AccountField = "side" | "fullName" | "email" | "password" | "consent";
 
+export type ManifestField = "fullName" | "email" | "password";
+
 export type SignInStep = "email" | "password";
 
 export type RegisterStep = "side" | "details";
@@ -67,4 +69,5 @@ export interface LaneTag {
     title: string;
     route: string;
     status: Record<AuthSignal, string>;
+    rolling: string;
 }

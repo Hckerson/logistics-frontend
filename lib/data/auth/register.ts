@@ -1,4 +1,4 @@
-import type { AuthLink } from "@/lib/types";
+import type { AccountSide, AuthLink } from "@/lib/types";
 import {
     FORGOT_PASSWORD_ROUTE,
     HELP_ROUTE,
@@ -7,7 +7,11 @@ import {
     SESSION_UNAVAILABLE,
     legalRoute,
 } from "@/lib/constants";
+import { SIDE_SWITCH } from "@/lib/data/home/brand";
+import { DOORS } from "@/lib/data/home/fork";
 
+const [shipDoor, haulDoor] = DOORS;
+const [shipWord, haulWord] = SIDE_SWITCH.options;
 const signIn = { id: "sign-in", label: "Sign in", href: LOGIN_ROUTE };
 const reset = { id: "reset", label: "Reset your password", href: FORGOT_PASSWORD_ROUTE };
 const terms = { id: "terms", label: "Terms of service", href: legalRoute("terms") };
@@ -15,6 +19,7 @@ const terms = { id: "terms", label: "Terms of service", href: legalRoute("terms"
 export const REGISTER_COPY = {
     label: "Create account",
     title: ["Ship it.", "Or haul it."],
+    titleSides: ["shipper", "carrier"] satisfies AccountSide[],
     lead: "One Haulr account, set up for the side of the load you're on.",
     status: {
         origin: "Step 1 of 2",
@@ -24,27 +29,47 @@ export const REGISTER_COPY = {
         held: "Held",
     },
     side: {
+        index: "01",
         legend: "How will you use Haulr?",
         next: "Continue",
         options: [
-            { value: "shipper", title: "I ship freight", detail: "Price lanes, post loads and track every truck." },
-            { value: "carrier", title: "I haul freight", detail: "Find loads and book them at the posted rate." },
+            {
+                value: "shipper",
+                word: shipWord.label,
+                title: "I ship freight",
+                detail: shipDoor.title,
+            },
+            {
+                value: "carrier",
+                word: haulWord.label,
+                title: "I haul freight",
+                detail: haulDoor.title,
+            },
         ],
+        hint: "Choose once. Each account stays on one side.",
+        agreement: "Your agreement",
         identity: "Account side",
         names: { shipper: "Shipper", carrier: "Carrier" },
         change: "Change",
         changeLabel: "Change account side",
     },
     fields: {
-        fullName: { name: "fullName", label: "Full name", autoComplete: "name" },
+        fullName: { name: "fullName", index: "02", label: "Full name", autoComplete: "name" },
         email: {
             name: "email",
+            index: "03",
             label: "Work email",
             type: "email",
             autoComplete: "email",
             placeholder: "name@company.com",
         },
-        password: { name: "password", label: "Password", autoComplete: "new-password" },
+        password: { name: "password", index: "04", label: "Password", autoComplete: "new-password" },
+    },
+    manifest: {
+        next: "Next",
+        edit: "Edit",
+        editLabel: "Edit {field}",
+        labels: { fullName: "Name", email: "Email", password: "Password" },
     },
     rule: `At least ${PASSWORD_MIN_LENGTH} characters`,
     consent: {

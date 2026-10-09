@@ -1,10 +1,9 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useRef, type ChangeEvent, type FormEvent } from "react";
-import { ArrowRight, Checkmark } from "@carbon/icons-react";
+import AuthSubmit from "@/components/auth/auth-submit";
 import IdentityRow from "@/components/auth/identity-row";
-import PanelField from "@/components/common/panel-field";
-import { haulrButtonClass } from "@/components/home/haulr-button";
+import BoardField from "@/components/common/board-field";
 import { QUIET_LINK } from "@/lib/auth/constants";
 import { FORGOT_PASSWORD_ROUTE } from "@/lib/constants";
 import { AUTH_COPY } from "@/lib/data/auth/shared";
@@ -33,8 +32,7 @@ export default function PasswordStep({ id, email, value, error, pending, arrived
     useEffect(() => input.current?.focus(), []);
 
     return (
-        <form onSubmit={onSubmit} noValidate aria-busy={pending} className="flex flex-col gap-5">
-            <input type="email" name="username" autoComplete="username" value={email} readOnly tabIndex={-1} className="sr-only" />
+        <form onSubmit={onSubmit} noValidate aria-busy={pending} className="haulr-boot-rows flex flex-col gap-5">
             <IdentityRow
                 label={password.identity}
                 value={email}
@@ -44,10 +42,11 @@ export default function PasswordStep({ id, email, value, error, pending, arrived
                 mono
                 onChange={onBack}
             />
-            <PanelField
+            <BoardField
                 ref={input}
                 id={id}
                 name={password.name}
+                index={password.index}
                 label={password.label}
                 autoComplete={password.autoComplete}
                 value={value}
@@ -65,17 +64,14 @@ export default function PasswordStep({ id, email, value, error, pending, arrived
                     </Link>
                 }
             />
-            <button
-                type="submit"
-                aria-disabled={busy}
-                className={haulrButtonClass("ink", "lg", "w-full cursor-pointer aria-disabled:cursor-wait")}
-            >
-                {arrived ? SIGN_IN_COPY.arrived : pending ? SIGN_IN_COPY.pending : SIGN_IN_COPY.submit}
-                {arrived ? <Checkmark aria-hidden className="size-4" /> : null}
-                {busy ? null : (
-                    <ArrowRight aria-hidden className="size-4 transition-transform duration-300 group-hover:translate-x-0.5" />
-                )}
-            </button>
+            <AuthSubmit
+                label={SIGN_IN_COPY.submit}
+                pendingLabel={SIGN_IN_COPY.pending}
+                doneLabel={SIGN_IN_COPY.arrived}
+                pending={pending}
+                done={arrived}
+            />
+            <input type="email" name="username" autoComplete="username" value={email} readOnly tabIndex={-1} className="sr-only" />
         </form>
     );
 }

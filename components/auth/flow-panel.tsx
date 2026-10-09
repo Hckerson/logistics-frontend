@@ -1,14 +1,15 @@
 "use client";
-import { useEffect, type ReactNode } from "react";
-import { AnimatePresence, motion, type Variants } from "motion/react";
-import StepLane from "@/components/auth/step-lane";
+import { useEffect, useState, type ReactNode } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import TicketLane from "@/components/auth/ticket-lane";
+import StepFrame from "@/components/auth/step-frame";
+import TicketPerforation from "@/components/auth/ticket-perforation";
 import ErrorSummary from "@/components/common/error-summary";
 import HudPanel from "@/components/common/hud-panel";
 import { useAuthSignal } from "@/components/providers/auth-signal-provider";
-import { STEP_SLIDE } from "@/lib/auth/constants";
+import { ASSEMBLY, ENTRY, STEP_SLIDE } from "@/lib/auth/constants";
 import { problemCount } from "@/lib/auth/problems";
 import { AUTH_COPY } from "@/lib/data/auth/shared";
-import { REVEAL_EASE } from "@/lib/home/constants";
 import type { AccountField, AuthSignal, FormProblem } from "@/lib/types";
 
 interface Props {
@@ -19,27 +20,39 @@ interface Props {
     attempt: number;
     fieldId: (field: AccountField) => string;
     step: string;
-    forward: boolean;
+    leg?: number;
     footer: ReactNode;
     children: ReactNode;
 }
 
-const SLIDE: Variants = {
-    enter: (direction: number) => ({ opacity: 0, x: direction * STEP_SLIDE.distance }),
-    center: { opacity: 1, x: 0 },
-    exit: (direction: number) => ({ opacity: 0, x: -direction * STEP_SLIDE.distance }),
-};
+const ASSEMBLE_MS = ASSEMBLY.note * ASSEMBLY.unit * 1000;
 
 export default function FlowPanel(props: Props) {
-    const { label, status, signal, problems, attempt, fieldId, step, forward, footer, children } = props;
-    const { setSignal } = useAuthSignal();
-    const direction = forward ? 1 : -1;
+    const { label, status, signal, problems, attempt, fieldId, step, leg = 0, footer, children } = props;
+    const { setSignal, setLeg, booted } = useAuthSignal();
+    const [boot] = useState<number>(booted ? ENTRY.rewrite : ENTRY.catch);
+    const [assembled, setAssembled] = useState(false);
+    const content = assembled ? ENTRY.rewrite : boot + ASSEMBLY.content * ASSEMBLY.unit;
 
     useEffect(() => setSignal(signal), [signal, setSignal]);
+    useEffect(() => setLeg(leg), [leg, setLeg]);
+
+    useEffect(() => {
+        const done = setTimeout(() => setAssembled(true), boot * 1000 + ASSEMBLE_MS);
+        return () => clearTimeout(done);
+    }, [boot]);
 
     return (
-        <HudPanel label={label} status={status[signal]} alert={signal === "held"} note={AUTH_COPY.note} footer={footer}>
-            <StepLane signal={signal} />
+        <HudPanel
+            label={label}
+            status={status[signal]}
+            alert={signal === "held"}
+            note={AUTH_COPY.note}
+            footer={footer}
+            boot={boot}
+        >
+            <TicketLane signal={signal} leg={leg} delay={boot + ASSEMBLY.codes * ASSEMBLY.unit} />
+            <TicketPerforation />
             <ErrorSummary
                 problems={problems}
                 attempt={attempt}
@@ -47,17 +60,9 @@ export default function FlowPanel(props: Props) {
                 count={problemCount(problems.length)}
                 fieldId={fieldId}
             />
-            <AnimatePresence mode="wait" initial={false} custom={direction}>
-                <motion.div
-                    key={step}
-                    custom={direction}
-                    variants={SLIDE}
-                    initial="enter"
-                    animate="center"
-                    exit="exit"
-                    transition={{ duration: STEP_SLIDE.seconds, ease: REVEAL_EASE }}
-                >
-                    {children}
+            <AnimatePresence mode="wait" initial={false}>
+                <motion.div key={step} exit={{ opacity: 0 }} transition={{ duration: STEP_SLIDE.seconds }}>
+                    <StepFrame base={content}>{children}</StepFrame>
                 </motion.div>
             </AnimatePresence>
         </HudPanel>

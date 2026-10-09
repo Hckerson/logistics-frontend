@@ -26,7 +26,6 @@ export default function LoginForm({ next, footer }: Props) {
             attempt={flow.attempt}
             fieldId={idOf}
             step={flow.step}
-            forward={flow.step === "password"}
             footer={footer}
         >
             {flow.step === "email" ? (

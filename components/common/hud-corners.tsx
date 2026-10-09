@@ -1,14 +1,31 @@
 import clsx from "clsx";
 
-const CORNER = "border-text-muted absolute block size-3";
+type Tone = "muted" | "accent" | "error";
 
-export default function HudCorners() {
+interface Props {
+    tone?: Tone;
+    className?: string;
+}
+
+const TONES: Record<Tone, string> = {
+    muted: "border-text-muted",
+    accent: "border-accent",
+    error: "border-error",
+};
+
+const CORNERS = [
+    "-top-px -left-px border-t border-l [--haulr-snap-x:-2.5rem] [--haulr-snap-y:-2.5rem]",
+    "-top-px -right-px border-t border-r [--haulr-snap-x:2.5rem] [--haulr-snap-y:-2.5rem]",
+    "-bottom-px -left-px border-b border-l [--haulr-snap-x:-2.5rem] [--haulr-snap-y:2.5rem]",
+    "-right-px -bottom-px border-r border-b [--haulr-snap-x:2.5rem] [--haulr-snap-y:2.5rem]",
+];
+
+export default function HudCorners({ tone = "muted", className }: Props) {
     return (
         <span aria-hidden>
-            <span className={clsx(CORNER, "-top-px -left-px border-t border-l")} />
-            <span className={clsx(CORNER, "-top-px -right-px border-t border-r")} />
-            <span className={clsx(CORNER, "-bottom-px -left-px border-b border-l")} />
-            <span className={clsx(CORNER, "-right-px -bottom-px border-r border-b")} />
+            {CORNERS.map((corner) => (
+                <span key={corner} className={clsx("absolute block size-3", TONES[tone], corner, className)} />
+            ))}
         </span>
     );
 }

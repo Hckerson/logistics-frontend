@@ -1,10 +1,9 @@
 "use client";
 import clsx from "clsx";
 import { useEffect, useRef, type FormEvent } from "react";
-import { ArrowRight } from "@carbon/icons-react";
-import SideOption from "@/components/auth/side-option";
+import AuthSubmit from "@/components/auth/auth-submit";
+import SidePicker from "@/components/auth/side-picker";
 import FieldError, { fieldErrorId } from "@/components/common/field-error";
-import { haulrButtonClass } from "@/components/home/haulr-button";
 import { REGISTER_COPY } from "@/lib/data/auth/register";
 import type { AccountSide } from "@/lib/types";
 
@@ -17,7 +16,7 @@ interface Props {
     onSubmit: (event: FormEvent) => void;
 }
 
-const { side } = REGISTER_COPY;
+const { side, consent } = REGISTER_COPY;
 
 export default function SideStep({ id, value, error, returned, onChoose, onSubmit }: Props) {
     const group = useRef<HTMLFieldSetElement>(null);
@@ -27,7 +26,7 @@ export default function SideStep({ id, value, error, returned, onChoose, onSubmi
     }, [returned]);
 
     return (
-        <form onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
+        <form onSubmit={onSubmit} noValidate className="haulr-boot-rows flex flex-col gap-5">
             <fieldset
                 ref={group}
                 id={id}
@@ -35,24 +34,28 @@ export default function SideStep({ id, value, error, returned, onChoose, onSubmi
                 aria-describedby={error ? fieldErrorId(id) : undefined}
                 className="flex flex-col gap-3 outline-none"
             >
-                <legend className={clsx("mb-2 text-sm", error ? "text-error" : "text-text-muted")}>{side.legend}</legend>
-                {side.options.map((option) => (
-                    <SideOption
-                        key={option.value}
-                        name={`${id}-choice`}
-                        value={option.value}
-                        title={option.title}
-                        detail={option.detail}
-                        checked={value === option.value}
-                        onChoose={() => onChoose(option.value)}
-                    />
-                ))}
+                <legend
+                    className={clsx("haulr-label mb-3 flex items-baseline gap-2.5", error ? "text-error" : "text-text-muted")}
+                >
+                    <span className={clsx(!error && "text-accent")}>{side.index}</span>
+                    {side.legend}
+                </legend>
+                <SidePicker name={`${id}-choice`} value={value} error={Boolean(error)} onChoose={onChoose} />
+                {error ? (
+                    <FieldError id={id} message={error} />
+                ) : (
+                    <p aria-live="polite" className="text-text-muted text-xs">
+                        {value ? (
+                            <>
+                                {side.agreement}: <span className="text-text-secondary">{consent.documents[value][1].label}</span>
+                            </>
+                        ) : (
+                            side.hint
+                        )}
+                    </p>
+                )}
             </fieldset>
-            {error ? <FieldError id={id} message={error} /> : null}
-            <button type="submit" className={haulrButtonClass("ink", "lg", "w-full cursor-pointer")}>
-                {side.next}
-                <ArrowRight aria-hidden className="size-4 transition-transform duration-300 group-hover:translate-x-0.5" />
-            </button>
+            <AuthSubmit label={side.next} />
         </form>
     );
 }
