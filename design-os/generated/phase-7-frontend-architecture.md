@@ -1,6 +1,6 @@
 # Phase 7 — Frontend Architecture
 
-`Haulr Design OS` · `Version 1.3.1` · `2026-10-09` · Previous: [Phase 6 — Interaction Contracts](./phase-6-interaction-contracts.md) · Next: [Phase 8 — Implementation Roadmap](./phase-8-implementation-roadmap.md)
+`Haulr Design OS` · `Version 1.3.3` · `2026-10-10` · Previous: [Phase 6 — Interaction Contracts](./phase-6-interaction-contracts.md) · Next: [Phase 8 — Implementation Roadmap](./phase-8-implementation-roadmap.md)
 
 How the code is organised to deliver Phases 1–6. This phase names files and folders because its job is code organisation. It says nothing about how anything looks; styling organisation follows the host repo's conventions (`styles/tokens.css`, `styles/globals.css`) and is not specified here.
 
@@ -57,7 +57,7 @@ How the code is organised to deliver Phases 1–6. This phase names files and fo
 | D-11 | Feature flags are read server-side from one typed module `lib/flags.ts` backed by environment or a flag service, and passed to client components as props | Progressive rollout and kill switches for enterprise features without redeploying code paths; no client-side flag fetching | Single source of truth |
 | D-12 | Mutations on mutable records send the record `version` (or ETag via `If-Match`); a 412 is mapped to E-PRECONDITION and handled by IC-67 | SSB-8; no last-write-wins in a multi-user enterprise tenant | Contract carries `version` on mutable DTOs |
 | D-13 | Every Server Action and Route Handler is wrapped by one higher-order helper, `withAction` or `withHandler` in `lib/utils/`, which applies the session, role check, correlation ID, audit reason pass-through, error-class mapping and timing | One enforcement point for SEC-4, NFR-OBS-1 and Phase 4 §2.2; avoids copy-pasted guards | Extends the `create-user.ts` pattern rather than replacing it |
-| D-14 | Sections used by a single public or access page live in a page-domain folder, `components/home/` (PG-01) and `components/auth/` (PG-10 … PG-15), with matching `lib/home/`, `lib/auth/` and `lib/data/home/`, `lib/data/auth/`. Workspace and internal pages keep D-4 | Recorded after the fact (2026-10-09): both folders already exist and hold about 70 single-page files, and `eslint.config.ts` exempts each folder as a unit from `application-register-density` (its cinematic register) | Folder structure table lists only flat `ui`, `common`, `wrappers`, `providers`. Deviation from D-4, confirmed by the maintainer on 2026-10-09 and recorded in the `.claude/CLAUDE.md` folder table |
+| D-14 | Sections used by a single public or access page live in a page-domain folder, `components/home/` (PG-01), `components/auth/` (PG-10 … PG-15 and the system pages PG-53 … PG-55) and `components/legal/` (PG-09), with matching `lib/home/`, `lib/auth/` and `lib/data/home/`, `lib/data/auth/`. Workspace and internal pages keep D-4 | Recorded after the fact (2026-10-09): both folders already exist and hold about 70 single-page files, and `eslint.config.ts` exempts each folder as a unit from `application-register-density` (its cinematic register) | Folder structure table lists only flat `ui`, `common`, `wrappers`, `providers`. Deviation from D-4, confirmed by the maintainer on 2026-10-09 and recorded in the `.claude/CLAUDE.md` folder table |
 
 ---
 
@@ -69,9 +69,10 @@ Existing starter files are marked `(exists)`. Everything else is to be created. 
 app/
   layout.tsx                         (exists) root layout: providers, skip link (IC-52)
   page.tsx                           (exists) PG-01; moves to (public)/page.tsx when route groups land (D-1)
-  not-found.tsx                      PG-53
-  global-error.tsx                   PG-54 (root)
-  forbidden.tsx                      PG-55
+  global-not-found.tsx               (exists) PG-53 for unknown URLs (`experimental.globalNotFound`); segments add `not-found.tsx` for records, and `(public)/not-found.tsx` exists
+  global-error.tsx, error.tsx        (exist) PG-54 at the root and app level; `auth/error.tsx` and `dashboard/error.tsx` exist
+  forbidden.tsx                      (exists) PG-55 (`experimental.authInterrupts`)
+  dashboard/                         (exists) interim signed-in holding page until the workspace roots exist (Phase 8 §16)
   sitemap.ts, robots.ts              Phase 3 §11
   api/
     session/route.ts                 (exists)
@@ -99,11 +100,11 @@ components/
   common/                            (exists, flat) shared compositions; login-form.tsx, error-summary.tsx, board-field.tsx, board-cells.tsx, field-error.tsx, assembly-frame.tsx, scramble-text.tsx, hud-panel.tsx, hud-corners.tsx (exist)
   wrappers/                          (exists, flat) motion-wrapper.tsx (exists), boundaries
   providers/                         (exists, flat) provider.tsx, auth-signal-provider.tsx, assembly-provider.tsx (exist)
-  home/  auth/                       (exist) page-domain sections for PG-01 and the access pages (D-14)
+  home/  auth/  legal/               (exist) page-domain sections for PG-01, the access and system pages, and PG-09 (D-14)
 lib/
   actions/                           Server Actions (authenticated mutations and server reads)
   contract/                          (exists, generated) schemas.ts, routes.ts
-  data/                              (exists) seed data, help and legal content (D-3); home/, auth/ (exist, D-14); mocks/ (exists) mock fixtures
+  data/                              (exists) seed data, help and legal content (D-3); home/, auth/ (exist, D-14); legal/ (exists, D-3); system.ts (exists, system page copy); mocks/ (exists) mock fixtures
   mocks/                             (exists) mocked backend: one handler per backend module, router.ts, store.ts (host "The mocked backend")
   enums/                             enumerations mirrored from the contract
   hooks/                             (exists) use-<resource>.ts
@@ -131,7 +132,7 @@ Every page from [Phase 3 §3](./phase-3-information-architecture.md#3-sitemap), 
 ```text
 app/
   (public)/
-    layout.tsx                                   public layout
+    layout.tsx                                   (exists) public layout with session-aware navigation (SC-01.4)
     page.tsx                                     PG-01  / (exists at app/page.tsx until the group lands)
     track/[token]/page.tsx                       PG-02
     carriers/[carrierId]/page.tsx                PG-03
@@ -139,7 +140,7 @@ app/
     help/page.tsx                                PG-06
     help/[slug]/page.tsx                         PG-07
     support/page.tsx                             PG-08
-    legal/[document]/page.tsx                    PG-09
+    legal/[document]/[[...version]]/page.tsx     PG-09 (exists; the optional segment serves superseded editions)
   auth/                                          (exists)
     layout.tsx                                   access layout
     login/page.tsx                               PG-10 (exists)
@@ -150,7 +151,7 @@ app/
     invite/[token]/page.tsx                      PG-15
   (workspace)/
     layout.tsx                                   authenticated workspace layout
-    dashboard/page.tsx                           role-resolving redirect
+    dashboard/page.tsx                           role-resolving redirect (an interim holding page exists at app/dashboard/)
     onboarding/shipper/page.tsx                  PG-16
     onboarding/carrier/page.tsx                  PG-17
     shipper/layout.tsx                           shipper role guard
@@ -208,7 +209,7 @@ app/
     admin/accounts/page.tsx                      PG-52
 ```
 
-Every data-bearing segment adds `loading.tsx` (SSB-1) and `error.tsx` (SSB-3, PG-54 behaviour). Each group adds `not-found.tsx` (Phase 3 §14).
+Every data-bearing segment adds `loading.tsx` (SSB-1) and `error.tsx` (SSB-3, PG-54 behaviour). Each group adds `not-found.tsx` (Phase 3 §14). Unknown URLs fall to `app/global-not-found.tsx` (exists).
 
 **Route helpers.** All internal paths are built by `lib/api-routes.ts`-style helpers in a new `appRoutes` object in `lib/constants.ts` (for example `appRoutes.load(loadId)`), never string literals in components (IC-51).
 
@@ -351,6 +352,7 @@ Every hook lives in `lib/hooks/use-<resource>.ts` (host rule), and components co
 | `use-countdown.ts` (exists) | `useCountdown` | IC-46 countdowns (reset link, resend wait) |
 | `use-form-problems.ts` (exists) | `useFormProblems` | IC-02 problem list and focus attempts shared by the access forms |
 | `use-manifest.ts`, `use-board-noise.ts` (exist) | `useManifest`, `useBoardNoise` | Access-page presentation; no data, no transport |
+| `use-active-section.ts` (exists) | `useActiveSection` | PG-09 contents: tracks the section in view (`legal-contents.tsx`) |
 | `use-scene-progress.ts`, `use-truck-readouts.ts`, `use-freight-map.ts` (exist) | `useSceneProgress`, `useTruckReadouts`, `useFreightMap` | PG-01 and access-page scenes; no data, no transport |
 
 **Naming across phases.** Phases 5 and 6 cite hooks in the kebab form used for files, with parameters (for example `use-account-standing()`). The export is always the camelCase equivalent (`useAccountStanding`), and it lives in the file listed in this table, which may group several related hooks (`useAccountStanding` is exported from `use-organization.ts`).
@@ -393,7 +395,7 @@ Pure, framework-free helpers in `lib/utils/` (existing files kept):
 - **Feature constants** in `lib/<feature>/constants.ts` (§6): status labels, refresh intervals, thresholds (BR-06, BR-08, BR-10, BR-11), glossary definitions (IC-56), notification copy.
 - **`lib/enums/`** holds one file per enumeration from Phase 3 §6 (`load-status.ts`, `bid-status.ts`, `equipment-type.ts`, `stop-type.ts`, `accessorial-type.ts`, `document-type.ts`, `exception-type.ts`, `invoice-status.ts`, `settlement-status.ts`, `claim-type.ts`, `claim-status.ts`, `compliance-status.ts`, `notification-event.ts`, `role-key.ts`, `amendment-status.ts`, `approval-status.ts`, `exception-severity.ts`, `api-scope.ts`, `webhook-event.ts`, `export-dataset.ts`, `import-row-outcome.ts`, `audit-action.ts`, `audit-actor-type.ts`, `ticket-status.ts`, `ticket-urgency.ts`, `facility-type.ts`, `quote-request-status.ts`). Each derives from the generated contract enum where one exists, so a backend change breaks type-checking here.
 - **Configurable values.** Where the platform configuration (SC-25.2) owns a value, the constant is the fallback and the server value wins.
-- **Field and collection limits** live in one `LIMITS` map in `lib/constants.ts`, mirrored by the backend DTO validators so that the contract enforces them (G-7). Defaults below are proposed and need confirmation by product and backend before Sprint 1:
+- **Field and collection limits** live in one `LIMITS` map in `lib/constants.ts`, mirrored by the backend DTO validators so that the contract enforces them (G-7). Confirmed by the maintainer on 2026-10-10. Values already in code: password minimum 8 (`PASSWORD_MIN_LENGTH`; the 128 maximum below is not yet enforced in `lib/validations/auth.ts`), reset link 30 minutes (`RESET_LINK_MINUTES`), MFA code 6 digits and backup code 8 characters (`MFA_CODE_LENGTH`, `MFA_BACKUP_CODE_LENGTH`), MFA challenge window 5 minutes (`MFA_CHALLENGE_MINUTES`), session 7 days (`SESSION_MAX_AGE`), automatic retries 3 (`ERROR_RETRY_LIMIT`). The other defaults:
 
 | Limit | Default | Limit | Default |
 | --- | --- | --- | --- |
@@ -436,8 +438,8 @@ Pure, framework-free helpers in `lib/utils/` (existing files kept):
 | Folder | What goes there | Examples (names only; appearance decided at build) |
 | --- | --- | --- |
 | `components/ui/` | Domain-free primitives implementing Phase 6 contracts | `button.tsx` (exists, IC-11), `input.tsx` (exists, IC-01), `combobox.tsx` (IC-05/07), `date-window-field.tsx` (IC-08), `dialog.tsx` (IC-41), `confirm-dialog.tsx` (IC-12), `tabs.tsx` (IC-16), `file-drop.tsx` (IC-24), `switch.tsx` (IC-36), `data-table.tsx` (IC-22), `pagination.tsx` (IC-21), `status-label.tsx` (IC-59), `countdown.tsx` (IC-46), `toggletip.tsx` (IC-56), `menu.tsx` (IC-57), `skip-link.tsx` (IC-52) |
-| `components/common/` | Shared compositions implementing shared sections (SH-) and repeated page sections | `record-collection.tsx` (SH-05), `load-timeline.tsx` (SH-01), `load-position.tsx` (SH-02), `document-set.tsx` (SH-03), `conversation.tsx` (SH-04), `account-standing.tsx` (SH-06), `attention-queue.tsx` (SH-07), `metric-set.tsx` (SH-08), `scorecard.tsx` (SH-09), `money-breakdown.tsx` (SH-14), `assignment-picker.tsx` (SH-15), `step-flow.tsx` (SH-13), `section-state.tsx` (one loading, empty and error handler for every section, SSB-1 … SSB-3), `login-form.tsx` (exists, SC-10.1), `error-summary.tsx` (exists, IC-02), `board-field.tsx` (exists, IC-01 label and error wiring with `field-error.tsx`, IC-03 reveal) |
-| `components/home/`, `components/auth/` | Sections used by one public or access page (D-14) | `fork-section.tsx` (exists, SC-01.1), `lane-form.tsx` (exists, SC-01.2), `email-step.tsx` and `password-step.tsx` (exist, SC-10.1), `auth-links.tsx` (exists, SC-10.2), `forgot-form.tsx` (exists, SC-12.1), `reset-form.tsx` (exists, SC-13.1), `verify-email.tsx` (exists, SC-14.1), `link-countdown.tsx` (exists, IC-46) |
+| `components/common/` | Shared compositions implementing shared sections (SH-) and repeated page sections | `record-collection.tsx` (SH-05), `load-timeline.tsx` (SH-01), `load-position.tsx` (SH-02), `document-set.tsx` (SH-03), `conversation.tsx` (SH-04), `account-standing.tsx` (SH-06), `attention-queue.tsx` (SH-07), `metric-set.tsx` (SH-08), `scorecard.tsx` (SH-09), `money-breakdown.tsx` (SH-14), `assignment-picker.tsx` (SH-15), `step-flow.tsx` (SH-13), `section-state.tsx` (one loading, empty and error handler for every section, SSB-1 … SSB-3), `login-form.tsx` (exists, SC-10.1), `error-summary.tsx` (exists, IC-02), `board-field.tsx` (exists, IC-01 label and error wiring with `field-error.tsx`, IC-03 reveal), `root-document.tsx` (exists, the document shell `global-not-found.tsx` needs) |
+| `components/home/`, `components/auth/`, `components/legal/` | Sections used by one public, access, system or legal page (D-14) | `fork-section.tsx` (exists, SC-01.1), `lane-form.tsx` (exists, SC-01.2), `email-step.tsx` and `password-step.tsx` (exist, SC-10.1), `auth-links.tsx` (exists, SC-10.2), `forgot-form.tsx` (exists, SC-12.1), `reset-form.tsx` (exists, SC-13.1), `verify-email.tsx` (exists, SC-14.1), `code-challenge.tsx` and `code-step.tsx` (exist, SC-14.2, IC-04), `expired-panel.tsx` (exists, SC-13.1 expired link), `side-picker.tsx` (exists, SC-11.1), `consent-check.tsx` (exists, IC-38), `link-countdown.tsx` (exists, IC-46), `system-page.tsx` (exists, PG-53, PG-55), `server-error.tsx` (exists, PG-54), `signed-in.tsx` (exists, interim dashboard); in `components/legal/`: `legal-document.tsx`, `legal-history.tsx`, `legal-contents.tsx`, `sub-processors.tsx` and `print-button.tsx` (exist, SC-09.1, NFR-PRIV-7) |
 | `components/wrappers/` | Behavioural wrappers | `motion-wrapper.tsx` (exists), `section-boundary.tsx` (error + suspense per section, SSB-1/3), `role-gate.tsx` (render by capability, never security) |
 | `components/providers/` | Providers (§5) | `provider.tsx`, `auth-signal-provider.tsx` (exist) |
 
@@ -505,19 +507,19 @@ Per the master prompt's Library Selection Policy: reuse first, otherwise recomme
 | IDs | Reuse | `nanoid` (installed) | Host rule |
 | Session | Reuse | `jose` (installed) | Existing verification |
 | Unit tests | Reuse | `vitest` (installed), `fast-check` (installed) | Host standard |
-| Forms | **Proposed** | `react-hook-form` + `@hookform/resolvers` | Most widely recommended React form library; uncontrolled inputs perform well for long forms (PG-27); Zod resolver keeps the contract schemas as the source |
+| Forms | **Declined** (2026-10-10) | Native pattern: Zod schemas in `lib/validations/`, `use-form-problems` (IC-02) and `board-field.tsx` (IC-01, IC-03) | The access forms meet IC-01 … IC-03 without a library; `react-hook-form` was proposed and is revisited only if PG-27 needs it |
 | Maps | Reuse | `@deck.gl/core`, `@deck.gl/layers`, `@deck.gl/geo-layers` (installed; PG-01 freight map), with `topojson-client` and `us-atlas` (installed) for static geometry | Reuse first: the repo already renders maps with deck.gl, so IC-30 builds on it rather than a second map library. Changed in 1.1.1; 1.1.0 proposed `maplibre-gl` + `react-map-gl` before deck.gl was installed |
 | Map base layer | **Proposed** | `maplibre-gl` as deck.gl's base map, with a tile provider chosen separately | Street-level tracking (PG-02, PG-26, PG-40) needs roads and labels under the deck.gl layers; static geometry is enough only for PG-01 |
 | Charts | **Proposed** | `recharts` | Most widely used React chart library; SVG output supports the IC-45 accessible equivalents |
-| Component tests | **Proposed** | `@testing-library/react`, `@testing-library/user-event`, `jsdom` | Standard for behaviour-first component tests with Vitest |
-| End-to-end | **Proposed** | `@playwright/test` | The recommended E2E runner for Next.js; multi-browser (Phase 9 cross-browser) |
-| Accessibility tests | **Proposed** | `@axe-core/playwright` | Automated WCAG checks within E2E |
+| Component tests | **Later** | `@testing-library/react`, `@testing-library/user-event`, `jsdom` | Added once shared primitives multiply (decided 2026-10-10) |
+| End-to-end | **Approved** (2026-10-10), not yet installed | `@playwright/test` | The recommended E2E runner for Next.js; multi-browser (Phase 9 cross-browser); Phase 9's blocking flow checks need it |
+| Accessibility tests | **Approved** (2026-10-10), not yet installed | `@axe-core/playwright` | Automated WCAG checks within E2E; Phase 9's blocking accessibility checks need it |
 | Payments entry | **Proposed** | Processor's official React SDK | Required by A6; chosen with the backend processor decision |
 | Observability | **Proposed** | `@vercel/otel` (or `@opentelemetry/sdk-node` if not on Vercel) via `instrumentation.ts`; `@sentry/nextjs` for error reporting | Framework-native OpenTelemetry hook; Sentry is the most widely used Next.js error reporter with source maps and release tracking (D-10) |
 | Product analytics | **Proposed** | Vendor chosen with privacy review (for example PostHog, self-hostable) | Event catalogue in §27; NFR-PRIV-3 constrains properties |
 | Feature flags | **Reuse first** | Environment-backed `lib/flags.ts`; a flag service only if targeting by organisation is required | D-11 |
 | Passkeys | **Reuse** | Browser WebAuthn API (no dependency); server library chosen by the backend | SEC-1 |
-| Accessible primitives | **Open question** | None proposed by default | The host builds primitives in `components/ui/`; if the team prefers a headless library for combobox, dialog and menu (IC-05, IC-41, IC-57), propose it explicitly |
+| Accessible primitives | **None** (2026-10-10) | Native `<dialog>` for IC-41 | The host builds its own primitives; revisit at the location combobox (IC-05), where React Aria's combobox is the option to propose |
 
 ---
 

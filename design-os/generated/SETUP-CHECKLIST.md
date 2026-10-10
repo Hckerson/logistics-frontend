@@ -1,6 +1,6 @@
 # Setup Checklist — Haulr
 
-`Version 1.3.1` · `2026-10-09` · Start: [START_HERE](./START_HERE.md) · Architecture: [Phase 7](./phase-7-frontend-architecture.md) · Build: [IMPLEMENTATION_PROMPT](./IMPLEMENTATION_PROMPT.md)
+`Version 1.3.3` · `2026-10-10` · Start: [START_HERE](./START_HERE.md) · Architecture: [Phase 7](./phase-7-frontend-architecture.md) · Build: [IMPLEMENTATION_PROMPT](./IMPLEMENTATION_PROMPT.md)
 
 Step by step, from a fresh machine to a repository ready for Sprint 1. Tick each box as you go. Steps marked **Approval** need the maintainer's go-ahead before you run them (Library Selection Policy, [Phase 7 §15](./phase-7-frontend-architecture.md#15-shared-libraries)).
 
@@ -127,7 +127,7 @@ This repository is already a Next.js 16 App Router project. **Do not run `create
 - [ ] In `next.config.ts`, plan for (added in the sprint that needs them):
   - [ ] `images.remotePatterns` for document and avatar storage (S2).
   - [ ] Security headers including CSP ([Phase 7 §19](./phase-7-frontend-architecture.md#19-security)) (S1).
-  - [ ] `experimental.authInterrupts` if `forbidden()` is adopted for PG-55 (S1, risk R-08).
+  - [x] `experimental.authInterrupts` and `experimental.globalNotFound` are enabled for PG-55 and PG-53 (R-08 resolved).
 
 ---
 
@@ -171,9 +171,9 @@ Propose each with its reason, wait for approval, then install. Never hand-edit `
 
 | Sprint | Package(s) | Purpose | Command after approval |
 | --- | --- | --- | --- |
-| S1 | `react-hook-form`, `@hookform/resolvers` | Forms with Zod | `pnpm add react-hook-form @hookform/resolvers` |
-| S1 | `@testing-library/react`, `@testing-library/user-event`, `@testing-library/jest-dom`, `jsdom` | Component tests | `pnpm add -D @testing-library/react @testing-library/user-event @testing-library/jest-dom jsdom` |
-| S1 | `@playwright/test`, `@axe-core/playwright` | E2E and accessibility tests | `pnpm add -D @playwright/test @axe-core/playwright` then `pnpm exec playwright install` |
+| — | `react-hook-form`, `@hookform/resolvers` | Declined 2026-10-10: the native form pattern stays (Phase 7 §15) | — |
+| Later | `@testing-library/react`, `@testing-library/user-event`, `@testing-library/jest-dom`, `jsdom` | Component tests, once shared primitives multiply | `pnpm add -D @testing-library/react @testing-library/user-event @testing-library/jest-dom jsdom` |
+| Next (approved 2026-10-10) | `@playwright/test`, `@axe-core/playwright` | E2E and accessibility tests | `pnpm add -D @playwright/test @axe-core/playwright` then `pnpm exec playwright install` |
 | S5 | `maplibre-gl` | Base map under the installed deck.gl layers (IC-30) | `pnpm add maplibre-gl` |
 | S6 | Processor React SDK | Payment method entry (IC-42) | Decided with the processor |
 | S7 | `recharts` | Charts (IC-45) | `pnpm add recharts` |
@@ -194,7 +194,7 @@ Create folders only when their first file lands (empty folders are not committed
 
 - [ ] `app/(public)/layout.tsx`, `app/(workspace)/layout.tsx`, `app/(internal)/layout.tsx`; move the existing `app/page.tsx` (PG-01) to `app/(public)/page.tsx`
 - [ ] `app/auth/layout.tsx`; pages under `app/auth/` for PG-11 … PG-15
-- [ ] `app/not-found.tsx`, `app/global-error.tsx`, `app/forbidden.tsx`
+- [x] `app/global-not-found.tsx`, `app/error.tsx`, `app/global-error.tsx`, `app/forbidden.tsx` (exist)
 - [ ] `app/(workspace)/dashboard/page.tsx` (role-resolving redirect)
 - [ ] `lib/enums/` with `role-key.ts` and `load-status.ts`
 - [ ] `lib/loads/constants.ts`, `lib/loads/transitions.ts` (+ `.test.ts`)

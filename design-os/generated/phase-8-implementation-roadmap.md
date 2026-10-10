@@ -1,6 +1,6 @@
 # Phase 8 — Implementation Roadmap
 
-`Haulr Design OS` · `Version 1.3.1` · `2026-10-09` · Previous: [Phase 7 — Frontend Architecture](./phase-7-frontend-architecture.md) · Next: [Phase 9 — QA Checklist](./phase-9-qa-checklist.md)
+`Haulr Design OS` · `Version 1.3.3` · `2026-10-10` · Previous: [Phase 7 — Frontend Architecture](./phase-7-frontend-architecture.md) · Next: [Phase 9 — QA Checklist](./phase-9-qa-checklist.md)
 
 The plan for building Phases 1–7 in 16 weeks (8 two-week sprints), plus the single record of build status for every page, section, interaction contract and flow. Status lives here and nowhere else; the blueprints in Phases 1–7 record intent and are never edited to reflect progress (Critical Rules › Scope Preservation).
 
@@ -171,7 +171,7 @@ This breakdown is the staffed plan; the active order is §16. Every page is buil
 | R-05 | Mobile browsers restrict background location | High | High | Tracking prefers ELD; driver web collects only while open; check-call fallback; native app in Phase 1 §16 | Product |
 | R-06 | Payments processor not selected in time | Medium | High | Sandbox integration behind IC-42; decision due by S4 | Finance lead |
 | R-07 | 66 pages in 16 weeks exceeds capacity | High | High | Capacity check in §13; enterprise track staffed separately; deferral candidates pre-agreed with the maintainer; never deletion | Engineering manager |
-| R-08 | `forbidden()` requires an experimental flag in Next.js 16 | Medium | Low | Fallback: `notFound()` for access-denied routes plus the PG-55 route | Tech lead |
+| R-08 | `forbidden()` requires an experimental flag in Next.js 16 | — | — | Resolved 2026-10-10: `next.config.ts` enables `experimental.authInterrupts` (and `globalNotFound`) | Tech lead |
 | R-09 | Contract drift between backend and frontend | Medium | High | `pnpm contract:check` in CI | Tech lead |
 | R-10 | Visual concept approval becomes a bottleneck | Medium | Medium | Concepts produced one sprint ahead for the next sprint's pages | Designer |
 | R-11 | Offline replay conflicts with geofence events | Medium | Medium | Server wins; driver told (IC-29) | Tech lead |
@@ -229,14 +229,21 @@ Every page, section, interaction contract and flow carries exactly one status:
 
 A feature with no implementation is **Specified**, not absent. Status is never resolved by deletion.
 
-**Stage or sprint.** `Solo n` is a stage of the solo build order (§16), the active plan. `Sn (team plan)` is the staffed plan's sprint, kept for reference on items outside the slice.
+**Stage or sprint.** `Solo n` is a stage of the solo build order (§16), the active plan. `Sn (team plan)` is the staffed plan's sprint, kept for reference on items outside the slice. `Built ahead` marks an item built before its place in the order.
 
 **Baseline as of 2026-09-30:** the starter already contains a sign-in page (`app/auth/login`), login form, session and register route handlers, login/register/logout hooks and a button primitive. Those items are **In progress** (they exist but need Haulr extensions and Phase 9 verification). Everything else is **Scheduled**.
 
 **Update 2026-10-09:**
 
 - **PG-01 Home** was built ahead of its S3 slot at `app/page.tsx`, so it is **In progress** with SC-01.1, SC-01.2 and SC-01.4. Still open: SC-01.2 suggestions use a static list, not IC-05 (`use-location-suggestions`), and SC-01.4 is not yet session-aware. SC-01.3 stays **Scheduled**. The page states product targets, not the network statistics SC-01.3 requires from the `stats` endpoint.
-- **PG-10 Sign In** is now identity-first (email, then password), the shape SC-10.3 needs for SSO discovery. SC-10.2 is **In progress** (`components/auth/auth-links.tsx`). Forgot Password, Reset Password and Verify (PG-12, PG-13, PG-14) are **In progress** with their mock handlers; the MFA challenge (SC-14.2) has its Server Action, mock and hooks, with no screen yet. IC-01, IC-02 and IC-03 are **In progress**: `components/ui/input.tsx`, `components/common/board-field.tsx` (label, error wiring with `field-error.tsx`, and reveal), `components/common/error-summary.tsx` and `lib/hooks/use-caps-lock.ts`.
+- **PG-10 Sign In** is now identity-first (email, then password), the shape SC-10.3 needs for SSO discovery.
+
+**Update 2026-10-10:**
+
+- **System pages built:** Not Found (PG-53) through `app/global-not-found.tsx` and `(public)/not-found.tsx`; Server Error (PG-54) through `error.tsx` at the app, auth and dashboard levels plus `global-error.tsx`; Access Denied (PG-55) through `app/forbidden.tsx`.
+- **Legal (PG-09) built ahead of the slice** at `(public)/legal/[document]/[[...version]]`, with superseded editions, print and the sub-processor list, content in `lib/data/legal/` (D-3).
+- **Signed-in landing:** `/dashboard` is an interim holding page (`app/dashboard/`) until the workspace roots exist. The public layout's navigation is session-aware (SC-01.4).
+- Built pages need Phase 9 verification and the owner's recorded review (Definition of Done, §11) before they count as Verified. SC-10.2 is **In progress** (`components/auth/auth-links.tsx`). Forgot Password, Reset Password and Verify (PG-12, PG-13, PG-14) are **In progress** with their mock handlers; the MFA challenge (SC-14.2) asks two-step accounts for a code before the session starts (`components/auth/code-challenge.tsx`, `code-step.tsx`). Register's side selection (SC-11.1) and consent (IC-38) are built (`side-picker.tsx`, `consent-check.tsx`). IC-01, IC-02 and IC-03 are **In progress**: `components/ui/input.tsx`, `components/common/board-field.tsx` (label, error wiring with `field-error.tsx`, and reveal), `components/common/error-summary.tsx` and `lib/hooks/use-caps-lock.ts`.
 
 ### 9.2 Flows
 
@@ -283,7 +290,7 @@ Size: **S** ≈ 2 engineer-days, **M** ≈ 5, **L** ≈ 10, **XL** ≈ 15, exclu
 | PG-06 | Help Center | S | Specified | S7 (team plan) | PG-38 | Settlements | M | Specified | S6 (team plan) |
 | PG-07 | Help Article | S | Specified | S7 (team plan) | PG-39 | Driver Trip | XL | Scheduled | Solo 4 |
 | PG-08 | Contact Support | S | Specified | S7 (team plan) | PG-40 | Load Details | XL | Scheduled | Solo 2 |
-| PG-09 | Legal | S | Specified | S2 (team plan) | PG-41 | Messages | M | Specified | S7 (team plan) |
+| PG-09 | Legal | S | In progress | Built ahead (S2 team plan) | PG-41 | Messages | M | Specified | S7 (team plan) |
 | PG-10 | Sign In | S | In progress | Solo 1 | PG-42 | Notifications | S | Specified | S7 (team plan) |
 | PG-11 | Register | S | In progress | Solo 1 | PG-43 | Documents | M | Specified | S6 (team plan) |
 | PG-12 | Forgot Password | S | In progress | Solo 1 | PG-44 | Claims | S | Specified | S6 (team plan) |
@@ -295,9 +302,9 @@ Size: **S** ≈ 2 engineer-days, **M** ≈ 5, **L** ≈ 10, **XL** ≈ 15, exclu
 | PG-18 | Shipper Dashboard | M | Specified | S7 (team plan) | PG-50 | Exception Queue | L | Specified | S8 (team plan) |
 | PG-19 | Carrier Dashboard | M | Specified | S7 (team plan) | PG-51 | Carrier Vetting Review | M | Specified | S4 (team plan) |
 | PG-20 | Driver Home | S | Scheduled | Solo 4 | PG-52 | Accounts | M | Specified | S8 (team plan) |
-| PG-21 | Operations Dashboard | M | Specified | S8 (team plan) | PG-53 | Not Found | S | Scheduled | Solo 1 |
-| PG-22 | Compliance Dashboard | S | Specified | S4 (team plan) | PG-54 | Server Error | S | Scheduled | Solo 1 |
-| PG-23 | Finance Operations Dashboard | M | Specified | S6, S8 (team plan) | PG-55 | Access Denied | S | Scheduled | Solo 1 |
+| PG-21 | Operations Dashboard | M | Specified | S8 (team plan) | PG-53 | Not Found | S | In progress | Solo 1 |
+| PG-22 | Compliance Dashboard | S | Specified | S4 (team plan) | PG-54 | Server Error | S | In progress | Solo 1 |
+| PG-23 | Finance Operations Dashboard | M | Specified | S6, S8 (team plan) | PG-55 | Access Denied | S | In progress | Solo 1 |
 | PG-24 | Support Console | L | Specified | S8 (team plan) | PG-56 | Bulk Load Import | L | Specified | S4 (team plan) |
 | PG-25 | Admin Dashboard | M | Specified | S8 (team plan) | PG-57 | Templates and Recurring Loads | M | Specified | S3 (team plan) |
 | PG-26 | Shipments | L | Scheduled | Solo 2 | PG-58 | Approvals | M | Specified | S4 (team plan) |
@@ -315,9 +322,10 @@ Each section appears once. Where a group of sections shares one status and stage
 
 | Sections | Status | Stage or sprint |
 | --- | --- | --- |
-| SC-01.1, SC-01.4, SC-10.1, SC-10.2, SC-11.2, SC-12.1, SC-13.1, SC-14.1, SC-14.2 | In progress | Solo 1 |
+| SC-01.1, SC-01.4, SC-10.1, SC-10.2, SC-11.1, SC-11.2, SC-12.1, SC-13.1, SC-14.1, SC-14.2, SC-53.1, SC-54.1, SC-55.1 | In progress | Solo 1 |
 | SC-01.2 | In progress | Solo 5 |
-| SC-01.3, SC-11.1, SC-53.1, SC-54.1, SC-55.1 | Scheduled | Solo 1 |
+| SC-09.1 | In progress | Built ahead (S2 team plan) |
+| SC-01.3 | Scheduled | Solo 1 |
 | SC-02.1 … SC-02.3, SC-26.1, SC-26.2, SC-40.1 … SC-40.4, SC-40.6 … SC-40.8, SC-40.10, SC-40.15, SH-01, SH-02, SH-03, SH-05, SH-14 | Scheduled | Solo 2 |
 | SC-40.5, SC-65.1 … SC-65.4, SH-06, SH-15 | Scheduled | Solo 3 |
 | SC-20.1 … SC-20.3, SC-39.1 … SC-39.3, SC-39.5 … SC-39.7 | Scheduled | Solo 4 |
@@ -325,7 +333,7 @@ Each section appears once. Where a group of sections shares one status and stage
 | SC-33.1 … SC-33.3, SC-33.5, SC-34.1 … SC-34.4 | Scheduled | Solo 6 |
 | SC-31.1 … SC-31.3 | Scheduled | Solo 7 |
 | SC-15.1, SC-15.2 | Specified | S1 (team plan) |
-| SC-09.1, SC-10.3, SC-16.1, SC-16.2, SC-16.4, SC-17.1 … SC-17.4, SC-17.6, SC-46.1, SC-46.2, SC-47.1, SC-47.2, SC-48.1 … SC-48.3, SC-60.1 … SC-60.5 | Specified | S2 (team plan) |
+| SC-10.3, SC-16.1, SC-16.2, SC-16.4, SC-17.1 … SC-17.4, SC-17.6, SC-46.1, SC-46.2, SC-47.1, SC-47.2, SC-48.1 … SC-48.3, SC-60.1 … SC-60.5 | Specified | S2 (team plan) |
 | SC-05.3, SC-27.7, SC-32.1, SC-32.2, SC-57.1 … SC-57.3, SC-66.1 … SC-66.3 | Specified | S3 (team plan) |
 | SC-03.1 … SC-03.3, SC-04.1, SC-04.2, SC-22.1 … SC-22.3, SC-28.1 … SC-28.4, SC-29.1, SC-29.2, SC-33.4, SC-35.1, SC-36.1, SC-36.2, SC-40.17, SC-48.4, SC-51.1 … SC-51.5, SC-56.1 … SC-56.4, SC-58.1 … SC-58.4, SH-09 | Specified | S4 (team plan) |
 | SC-26.3, SC-35.2, SC-37.1, SC-37.2, SC-39.4, SC-40.12, SC-40.16, SC-64.1 … SC-64.4 | Specified | S5 (team plan) |
@@ -341,8 +349,8 @@ Check: 15 shared + 223 page sections = 238, matching [Phase 5 §13](./phase-5-se
 
 | Contracts | Status | Stage or sprint |
 | --- | --- | --- |
-| IC-01, IC-02, IC-03, IC-11, IC-46 | In progress | Solo 1 |
-| IC-04, IC-09, IC-12, IC-14, IC-19, IC-38, IC-41, IC-44, IC-51, IC-52, IC-55, IC-59, IC-60, IC-67 | Scheduled | Solo 1 |
+| IC-01, IC-02, IC-03, IC-04, IC-11, IC-38, IC-46 | In progress | Solo 1 |
+| IC-09, IC-12, IC-14, IC-19, IC-41, IC-44, IC-51, IC-52, IC-55, IC-59, IC-60, IC-67 | Scheduled | Solo 1 |
 | IC-05, IC-07, IC-08, IC-10, IC-18, IC-20, IC-21, IC-22, IC-24, IC-25, IC-30, IC-32, IC-56, IC-58 | Scheduled | Solo 2 |
 | IC-06, IC-39, IC-68 | Scheduled | Solo 3 |
 | IC-29, IC-31 | Scheduled | Solo 4 |
@@ -358,7 +366,7 @@ Check: 15 shared + 223 page sections = 238, matching [Phase 5 §13](./phase-5-se
 | IC-47, IC-48, IC-49, IC-64 | Specified | S8 (team plan) |
 | IC-42 | Deferred | S6 (team plan) |
 
-In progress contracts build on existing files: IC-01 `input.tsx` with `board-field.tsx` and `field-error.tsx`, IC-02 `error-summary.tsx`, IC-03 `board-field.tsx` (reveal) and `use-caps-lock.ts`, IC-11 `button.tsx`, IC-46 `link-countdown.tsx` with `use-countdown.ts`.
+In progress contracts build on existing files: IC-01 `input.tsx` with `board-field.tsx` and `field-error.tsx`, IC-02 `error-summary.tsx`, IC-03 `board-field.tsx` (reveal) and `use-caps-lock.ts`, IC-11 `button.tsx`, IC-46 `link-countdown.tsx` with `use-countdown.ts`, IC-04 `code-step.tsx` over a fixed-cell `board-field.tsx`, IC-38 `consent-check.tsx`.
 
 Check: 68 contracts, matching [Phase 6 §13](./phase-6-interaction-contracts.md#13-contract-usage-index).
 
@@ -483,7 +491,7 @@ Burn-down is reviewed at every milestone; the decision among these options is du
 | Stage | Delivers | Pages | Flows | ≈ Weeks | Ends ≈ week |
 | --- | --- | --- | --- | --- | --- |
 | 0 Foundations | Route groups and guards (D-7), `appRoutes`, error taxonomy with `section-state` and `section-boundary`, announcer and session providers, `withAction` and `withHandler` (D-13), `lib/enums/`, `lib/loads/transitions.ts`, security headers | — | — | 8 | 8 |
-| 1 Access | Sign in, register, password recovery, email verification and MFA, system pages; the home page finished (session-aware access routing, network proof) | PG-10, PG-11, PG-12, PG-13, PG-14, PG-53, PG-54, PG-55, PG-01 | XS-01 | 11 | 19 |
+| 1 Access | Sign in, register, password recovery, email verification and MFA, system pages; the home page finished (session-aware access routing, network proof). Brings forward from stage 0 the pieces these need: the announcer provider (IC-14), the error taxonomy (PG-54) and the route guards (PG-55) | PG-10, PG-11, PG-12, PG-13, PG-14, PG-53, PG-54, PG-55, PG-01 | XS-01 | 11 | 19 |
 | 2 Load and live tracking | Load details core, live position and ETA, shipments with their map, public tracking and its link | PG-40, PG-26, PG-02 | XF-07 | 21 | 40 |
 | 3 Load plan | The dispatch board and assignment | PG-65 (with SC-40.5) | XF-17, XF-05 | 7 | 47 |
 | 4 Driver | Driver home and trip: stop events, POD capture, offline queue | PG-20, PG-39 | XF-06, XF-09 | 7 | 54 |
@@ -504,7 +512,8 @@ Each stage's sections and contracts are listed in §9.4 and §9.5. A stage ends 
 
 **Interim behaviour while pages are outside the slice.** These are build-time stand-ins, not spec changes:
 
-- Role roots: shipper roles land on PG-26 and carrier roles on PG-65 until PG-18 and PG-19 ship; drivers land on PG-20 as specified (Phase 3 §4).
+- Role roots: shipper roles land on PG-26 and carrier roles on PG-65 until PG-18 and PG-19 ship; drivers land on PG-20 as specified (Phase 3 §4). Until PG-26 and PG-65 exist, `/dashboard` is a signed-in holding page (`app/dashboard/`).
+- Network statistics (SC-01.3): the three figures come from a stats mock on a contract route, shown with a "Sample figures" label as the home page's other panels are, until the backend's `stats` module reports them.
 - Mock fixtures provide approved carriers (PG-16, PG-17, PG-51), fleets (PG-37) and saved payment methods (PG-49); PODs verify on capture until PG-23 ships; positions move along seeded routes.
 
 **After stage 7.** Choose the next stage from the Specified set with the maintainer. Candidates, in order of value to the slice: PG-35 My Loads and PG-37 Fleet; PG-18 and PG-19 dashboards; PG-15 Accept Invitation; bidding (XF-03, PG-28); custom quotes (PG-66 with SC-27.7).
