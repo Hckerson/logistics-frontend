@@ -1,6 +1,6 @@
 import { HTTP_STATUS } from "@/lib/constants";
 import { AUTH_COPY } from "@/lib/data/auth/shared";
-import type { AccountField, ActionFailure, FormProblem } from "@/lib/types";
+import type { ActionFailure, FormProblem } from "@/lib/types";
 
 interface Issue {
     path: readonly PropertyKey[];
@@ -10,10 +10,10 @@ interface Issue {
 const SECONDS_PER_MINUTE = 60;
 const plural = new Intl.PluralRules("en");
 
-export function issuesToProblems<F extends AccountField>(
+export function issuesToProblems<F extends string>(
     issues: readonly Issue[],
     messages: Record<F, Record<string, string>>,
-): FormProblem[] {
+): FormProblem<F>[] {
     const seen = new Set<F>();
     return issues.flatMap((issue) => {
         const field = issue.path[0] as F;
@@ -24,7 +24,7 @@ export function issuesToProblems<F extends AccountField>(
     });
 }
 
-export function rateLimitProblem(retryAfter: unknown): FormProblem {
+export function rateLimitProblem(retryAfter: unknown): FormProblem<never> {
     const seconds = Number(retryAfter);
     const { rateLimit, rateLimitUnknown } = AUTH_COPY.errors;
     return {
@@ -32,7 +32,7 @@ export function rateLimitProblem(retryAfter: unknown): FormProblem {
     };
 }
 
-export const requestFailure = ({ status, retryAfter }: ActionFailure): FormProblem =>
+export const requestFailure = ({ status, retryAfter }: ActionFailure): FormProblem<never> =>
     status === HTTP_STATUS.tooManyRequests ? rateLimitProblem(retryAfter) : { message: AUTH_COPY.errors.network };
 
 export const problemCount = (count: number) =>

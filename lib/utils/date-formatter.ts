@@ -1,4 +1,5 @@
 import { format } from "date-fns";
+import { twoDigits } from "@/lib/utils/number";
 
 export const dateFormatter = (date: string, formatString: string) => {
     if (!date) return "";
@@ -7,6 +8,5 @@ export const dateFormatter = (date: string, formatString: string) => {
 };
 
 const SECONDS_PER_MINUTE = 60;
-const pad = (value: number) => String(value).padStart(2, "0");
 
-export const formatClock = (seconds: number) => `${pad(Math.floor(seconds / SECONDS_PER_MINUTE))}:${pad(seconds % SECONDS_PER_MINUTE)}`;
+export const formatClock = (seconds: number) => `${twoDigits(Math.floor(seconds / SECONDS_PER_MINUTE))}:${twoDigits(seconds % SECONDS_PER_MINUTE)}`;

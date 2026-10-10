@@ -4,6 +4,7 @@ import { forwardRef, useState, type InputHTMLAttributes, type ReactNode, type Sy
 import { View, ViewOff } from "@carbon/icons-react";
 import BoardCells from "@/components/common/board-cells";
 import FieldError, { fieldErrorId } from "@/components/common/field-error";
+import FieldLabel from "@/components/common/field-label";
 import HudCorners from "@/components/common/hud-corners";
 import { useAssembly } from "@/components/providers/assembly-provider";
 import { boardWindow } from "@/lib/auth/board";
@@ -41,19 +42,7 @@ const BoardField = forwardRef<HTMLInputElement, Props>(function BoardField(props
 
     return (
         <div className="group/field flex flex-col">
-            <div className="mb-2 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                <label
-                    htmlFor={id}
-                    className={clsx(
-                        "haulr-label flex items-baseline gap-2.5 whitespace-nowrap transition-colors",
-                        error ? "text-error" : "text-text-muted group-focus-within/field:text-text-secondary",
-                    )}
-                >
-                    {index ? <span className={clsx(!error && "group-focus-within/field:text-accent")}>{index}</span> : null}
-                    {label}
-                </label>
-                {aside}
-            </div>
+            <FieldLabel htmlFor={id} label={label} index={index} error={Boolean(error)} aside={aside} />
             <div className="relative flex items-stretch gap-1">
                 <div className="relative min-w-0 flex-1">
                     <BoardCells glyphs={board.glyphs} caret={board.caret} ghost={ghost} noise={noise} error={Boolean(error)} tall={tall} />
