@@ -1,6 +1,6 @@
 import { HOME_ROUTE } from "@/lib/constants";
 
-export const internalPath = (candidate: string | undefined): string =>
+export const internalPath = (candidate: string | undefined, fallback: string = HOME_ROUTE): string =>
     candidate?.startsWith("/") && !candidate.startsWith("//")
         ? candidate
-        : HOME_ROUTE;
+        : fallback;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { HOME_ROUTE } from "@/lib/constants";
+import { DASHBOARD_ROUTE, HOME_ROUTE } from "@/lib/constants";
 import { internalPath } from "./internal-path";
 
 describe("post-login redirect targets", () => {
@@ -17,5 +17,9 @@ describe("post-login redirect targets", () => {
 
     it("falls back home when nothing was requested", () => {
         expect(internalPath(undefined)).toBe(HOME_ROUTE);
+    });
+
+    it("falls back to the caller's destination when one is given", () => {
+        expect(internalPath("https://evil.test/steal", DASHBOARD_ROUTE)).toBe(DASHBOARD_ROUTE);
     });
 });

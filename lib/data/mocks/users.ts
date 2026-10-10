@@ -41,6 +41,8 @@ export const MOCK_RESET_TOKENS: Record<string, string> = {
     rst_down: "down@haulr.test",
 };
 
+export const MOCK_OUTAGE_TOKENS: readonly string[] = ["rst_outage"];
+
 export const MOCK_VERIFY_TOKENS: Record<string, string> = {
     vrf_fresh: "fresh@northline.example",
     vrf_dispatch: "dispatch@northline.example",

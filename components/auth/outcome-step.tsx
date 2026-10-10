@@ -9,6 +9,7 @@ interface Props {
     detail?: string | null;
     body: string;
     tone?: OutcomeTone;
+    before?: ReactNode;
     children: ReactNode;
 }
 
@@ -18,7 +19,7 @@ const TONES = {
     error: { Icon: WarningAltFilled, color: "text-error" },
 } as const;
 
-export default function OutcomeStep({ label, detail, body, tone = "accent", children }: Props) {
+export default function OutcomeStep({ label, detail, body, tone = "accent", before, children }: Props) {
     const panel = useRef<HTMLDivElement>(null);
     const { Icon, color } = TONES[tone];
 
@@ -26,6 +27,7 @@ export default function OutcomeStep({ label, detail, body, tone = "accent", chil
 
     return (
         <div ref={panel} tabIndex={-1} className="haulr-boot-rows flex flex-col gap-5 outline-none">
+            {before}
             <div className="flex flex-col gap-2">
                 <p className={clsx("haulr-label flex items-center gap-2", color)}>
                     <Icon aria-hidden className="size-3.5" />

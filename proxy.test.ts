@@ -2,7 +2,7 @@ import { generateKeyPairSync } from "node:crypto";
 import { SignJWT, importPKCS8 } from "jose";
 import { NextRequest } from "next/server";
 import { beforeAll, describe, expect, it } from "vitest";
-import { LOGIN_ROUTE, SESSION_COOKIE } from "@/lib/constants";
+import { DASHBOARD_ROUTE, LOGIN_ROUTE, SESSION_COOKIE, VERIFY_ROUTE } from "@/lib/constants";
 
 const real = generateKeyPairSync("rsa", {
     modulusLength: 2048,
@@ -81,10 +81,16 @@ describe("route protection", () => {
         expect(response.headers.get("location")).toBeNull();
     });
 
-    it("bounces a signed-in visitor away from the auth pages", async () => {
+    it("sends a signed-in visitor on the auth pages to the dashboard", async () => {
         const response = await proxy(requestFor(LOGIN_ROUTE, validToken));
 
-        expect(locationOf(response).pathname).toBe("/");
+        expect(locationOf(response).pathname).toBe(DASHBOARD_ROUTE);
+    });
+
+    it("keeps email verification open to a signed-in visitor", async () => {
+        const response = await proxy(requestFor(VERIFY_ROUTE, validToken));
+
+        expect(response.headers.get("location")).toBeNull();
     });
 
     it("leaves the auth pages reachable while signed out", async () => {

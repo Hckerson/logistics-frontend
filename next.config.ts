@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {};
+const nextConfig: NextConfig = {
+    experimental: { authInterrupts: true, globalNotFound: true },
+};
 
 export default nextConfig;

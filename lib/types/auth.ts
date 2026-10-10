@@ -45,6 +45,15 @@ export interface VerifyView {
 
 export type AuthSignal = "origin" | "midway" | "pending" | "arrived" | "held";
 
+export interface SystemView {
+    code: string;
+    label: string;
+    status: Record<AuthSignal, string>;
+    title: readonly string[];
+    lead: string;
+    outcome: { label: string; body: string };
+}
+
 export interface AuthLink {
     id: string;
     label: string;
