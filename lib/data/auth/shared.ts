@@ -1,8 +1,10 @@
 import type { AuthLink, LaneTag } from "@/lib/types";
-import { HELP_ROUTE, LOGIN_ROUTE, PASSWORD_MIN_LENGTH } from "@/lib/constants";
+import { HELP_ROUTE, HOME_ROUTE, LOGIN_ROUTE, PASSWORD_MIN_LENGTH, SUPPORT_ROUTE } from "@/lib/constants";
 import { HERO_LANE, HUBS } from "@/lib/data/home/hubs";
 
 const cityOf = (code: string) => HUBS.find((hub) => hub.code === code)?.name.split(",")[0] ?? code;
+
+const help = { id: "help", label: "Get help", href: HELP_ROUTE } satisfies AuthLink;
 
 export const AUTH_COPY = {
     note: "Design study",
@@ -13,10 +15,12 @@ export const AUTH_COPY = {
     link: { expired: ["Link", "expired."], dead: "Link no longer works" },
     recovery: {
         label: "Other options",
-        links: [
-            { id: "sign-in", label: "Back to sign in", href: LOGIN_ROUTE },
-            { id: "help", label: "Get help", href: HELP_ROUTE },
-        ] satisfies AuthLink[],
+        links: [{ id: "sign-in", label: "Back to sign in", href: LOGIN_ROUTE }, help] satisfies AuthLink[],
+    },
+    links: {
+        home: { id: "home", label: "Back to home", href: HOME_ROUTE } satisfies AuthLink,
+        help,
+        support: { id: "support", label: "Contact support", href: SUPPORT_ROUTE } satisfies AuthLink,
     },
     ticket: {
         from: { code: HERO_LANE.from, city: cityOf(HERO_LANE.from) },

@@ -17,7 +17,7 @@ const BREACHED = "Password found in a data breach";
 const VERIFY_LINK_DEAD = "Verification link is invalid or expired";
 const ALREADY_VERIFIED = "Email already verified";
 
-const scenario = (email: string, path: string): MockResponse | null => {
+export const scenario = (email: string, path: string): MockResponse | null => {
     const found = MOCK_SCENARIOS[email.toLowerCase()];
     if (!found) return null;
     if (found.kind === "rate-limited") return fail(429, TOO_MANY, path, { "Retry-After": String(found.retryAfter) });

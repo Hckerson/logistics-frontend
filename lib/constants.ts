@@ -1,4 +1,4 @@
-import type { AccountSide, MfaMethod } from "@/lib/types";
+import type { AccountSide, MfaMethod, SupportContext } from "@/lib/types";
 
 export const DATE_VALUE_FORMAT = "yyyy-MM-dd";
 
@@ -40,7 +40,15 @@ export const MFA_STEP = "code";
 
 export const mfaRoute = (next: string) => `${VERIFY_ROUTE}?step=${MFA_STEP}&next=${encodeURIComponent(next)}`;
 
-export const ACCOUNT_RECOVERY_ROUTE = `${SUPPORT_ROUTE}?topic=account-recovery`;
+export const helpArticleRoute = (slug: string) => `${HELP_ROUTE}/${slug}`;
+
+export const supportRoute = (context: SupportContext) => {
+    const query = new URLSearchParams();
+    for (const [key, value] of Object.entries(context)) if (value) query.set(key, value);
+    return `${SUPPORT_ROUTE}?${query}`;
+};
+
+export const ACCOUNT_RECOVERY_ROUTE = supportRoute({ topic: "account" });
 
 export const PROTECTED_ROUTE_PREFIXES = [DASHBOARD_ROUTE];
 

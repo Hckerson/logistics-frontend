@@ -19,6 +19,8 @@ const CINEMATIC = [
     "components/auth/**/*.tsx",
     "app/(public)/**/*.tsx",
     "components/legal/**/*.tsx",
+    "components/help/**/*.tsx",
+    "components/support/**/*.tsx",
     "components/common/login-form.tsx",
     "components/common/hud-panel.tsx",
 ];

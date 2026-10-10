@@ -4,6 +4,8 @@ import { unpublishedRoutes } from "@/lib/api-routes";
 import { checkReset, confirmReset, login, register, requestReset, resendVerification, verifyEmail } from "@/lib/mocks/auth";
 import { fail } from "@/lib/mocks/http";
 import { answerChallenge, challengeStatus } from "@/lib/mocks/mfa";
+import { recordFeedback } from "@/lib/mocks/help";
+import { createTicket, listTickets } from "@/lib/mocks/support";
 import type { MockHandler, MockRequest, MockResponse } from "@/lib/types";
 
 const NO_MOCK = "No mock handler for";
@@ -18,6 +20,9 @@ const HANDLERS: Record<string, MockHandler> = {
     [`POST ${unpublishedRoutes.verifyEmailResend()}`]: resendVerification,
     [`POST ${unpublishedRoutes.mfaChallenge()}`]: challengeStatus,
     [`POST ${unpublishedRoutes.mfaVerify()}`]: answerChallenge,
+    [`POST ${unpublishedRoutes.helpFeedback()}`]: recordFeedback,
+    [`POST ${unpublishedRoutes.supportTickets()}`]: createTicket,
+    [`POST ${unpublishedRoutes.supportTicketsMine()}`]: listTickets,
 };
 
 const randomLatency = () => MOCK_LATENCY_MS.min + Math.random() * (MOCK_LATENCY_MS.max - MOCK_LATENCY_MS.min);

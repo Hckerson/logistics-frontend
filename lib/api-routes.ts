@@ -11,4 +11,7 @@ export const unpublishedRoutes = {
     verifyEmailResend: () => "/api/auth/verify-email/resend",
     mfaChallenge: () => "/api/auth/mfa/challenge",
     mfaVerify: () => "/api/auth/mfa/verify",
+    helpFeedback: () => "/api/help/feedback",
+    supportTickets: () => "/api/support/tickets",
+    supportTicketsMine: () => "/api/support/tickets/mine",
 } as const;
