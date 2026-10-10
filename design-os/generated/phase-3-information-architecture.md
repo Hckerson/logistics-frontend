@@ -1,6 +1,6 @@
 # Phase 3 — Information Architecture
 
-`Haulr Design OS` · `Version 1.3.1` · `2026-10-09` · Previous: [Phase 2 — Experience Maps](./phase-2-experience-maps.md) · Next: [Phase 4 — Page Blueprints](./phase-4-page-blueprints.md)
+`Haulr Design OS` · `Version 1.3.3` · `2026-10-10` · Previous: [Phase 2 — Experience Maps](./phase-2-experience-maps.md) · Next: [Phase 4 — Page Blueprints](./phase-4-page-blueprints.md)
 
 This phase fixes which pages exist, how they relate, which route group each belongs to and who can reach each one. It describes structure and reachability only. What any layout shows, and how, is decided when each page is built.
 
@@ -63,7 +63,7 @@ Route groups use the App Router's native parenthesised folders, which organise c
 | PG-06 | Help Center | `/help` | Static | Everyone |
 | PG-07 | Help Article | `/help/[slug]` | Static (generated params) | Everyone |
 | PG-08 | Contact Support | `/support` | Dynamic | Everyone; ticket history when signed in |
-| PG-09 | Legal | `/legal/[document]` | Static | Everyone |
+| PG-09 | Legal | `/legal/[document]` (superseded editions at `/legal/[document]/[version]`) | Static | Everyone |
 
 ### 3.2 Access — existing folder `app/auth`
 
@@ -140,7 +140,7 @@ Route groups use the App Router's native parenthesised folders, which organise c
 
 | ID | Page | Mechanism | Roles |
 | --- | --- | --- | --- |
-| PG-53 | Not Found (404) | `app/not-found.tsx`, plus per-group `not-found.tsx` and `notFound()` | Everyone |
+| PG-53 | Not Found (404) | `app/global-not-found.tsx` for unknown URLs, plus per-group `not-found.tsx` and `notFound()` for records | Everyone |
 | PG-54 | Server Error (500) | `app/global-error.tsx` and per-segment `error.tsx` | Everyone |
 | PG-55 | Access Denied (403) | `forbidden()` with `app/forbidden.tsx` | Authenticated without permission |
 
@@ -169,7 +169,7 @@ The set of global destinations each role can reach from anywhere in its workspac
 
 **Role resolution.** `/dashboard` and a successful sign-in resolve to the role root: shipper roles to PG-18, carrier admin and dispatcher to PG-19, drivers to PG-20, a user holding only `org.security` to PG-60, each internal role to its own root. Users holding several roles resolve by the sequence shipper, carrier, driver, security, and can switch roots from any workspace page. A user whose organisation has not finished onboarding resolves to PG-16 or PG-17 instead.
 
-**Interim role roots (solo build).** Until PG-18 and PG-19 are built, shipper roles resolve to PG-26 and carrier roles to PG-65 ([Phase 8 §16](./phase-8-implementation-roadmap.md#16-solo-build-order)). This is a build-time stand-in; the role roots above remain the specification.
+**Interim role roots (solo build).** Until PG-18 and PG-19 are built, shipper roles resolve to PG-26 and carrier roles to PG-65 ([Phase 8 §16](./phase-8-implementation-roadmap.md#16-solo-build-order)). Until those pages exist, `/dashboard` is a signed-in holding page. This is a build-time stand-in; the role roots above remain the specification.
 
 ## 5. Permissions
 

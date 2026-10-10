@@ -1,6 +1,6 @@
 # Implementation Prompt — Haulr
 
-`Version 1.3.1` · `2026-10-09` · Start: [START_HERE](./START_HERE.md) · Setup: [SETUP-CHECKLIST](./SETUP-CHECKLIST.md) · Index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
+`Version 1.3.3` · `2026-10-10` · Start: [START_HERE](./START_HERE.md) · Setup: [SETUP-CHECKLIST](./SETUP-CHECKLIST.md) · Index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
 
 Copy this entire file into a new Claude Code session at the repository root, then name the sprint, page or feature to build.
 
@@ -122,7 +122,7 @@ Authoritative source: [Phase 7](./phase-7-frontend-architecture.md).
 ```text
 app/
   layout.tsx  page.tsx (exist; page.tsx moves into (public)/)
-  not-found.tsx  global-error.tsx  forbidden.tsx  sitemap.ts  robots.ts
+  global-not-found.tsx  error.tsx  global-error.tsx  forbidden.tsx (exist)  sitemap.ts  robots.ts
   api/session/  api/register/                                   (exist)
   api/tracking/[token]/  api/loads/[loadId]/positions/  api/loads/[loadId]/bids/
   api/exceptions/  api/threads/[threadId]/messages/  api/notifications/  api/rate-estimate/
@@ -149,7 +149,7 @@ instrumentation.ts  proxy.ts
 | `/help` | `app/(public)/help/page.tsx` | PG-06 |
 | `/help/[slug]` | `app/(public)/help/[slug]/page.tsx` | PG-07 |
 | `/support` | `app/(public)/support/page.tsx` | PG-08 |
-| `/legal/[document]` | `app/(public)/legal/[document]/page.tsx` | PG-09 |
+| `/legal/[document]` | `app/(public)/legal/[document]/[[...version]]/page.tsx` (exists) | PG-09 |
 | `/auth/login` | `app/auth/login/page.tsx` (exists) | PG-10 |
 | `/auth/register` | `app/auth/register/page.tsx` | PG-11 |
 | `/auth/forgot-password` | `app/auth/forgot-password/page.tsx` | PG-12 |
@@ -206,7 +206,7 @@ instrumentation.ts  proxy.ts
 | `/settings/privacy` | `app/(workspace)/settings/privacy/page.tsx` | PG-62 |
 | `/settings/audit` | `app/(workspace)/settings/audit/page.tsx` | PG-63 |
 | `/loads/[loadId]/amendments/[amendmentId]` | `app/(workspace)/loads/[loadId]/amendments/[amendmentId]/page.tsx` | PG-64 |
-| — | `app/not-found.tsx`, `app/global-error.tsx`, `app/forbidden.tsx` | PG-53, PG-54, PG-55 |
+| — | `app/global-not-found.tsx`, `app/error.tsx`, `app/global-error.tsx`, `app/forbidden.tsx` (exist) | PG-53, PG-54, PG-55 |
 
 Every data-bearing segment adds `loading.tsx` and `error.tsx`; each route group adds `not-found.tsx`.
 

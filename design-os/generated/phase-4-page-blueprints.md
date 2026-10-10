@@ -1,6 +1,6 @@
 # Phase 4 — Page Blueprints
 
-`Haulr Design OS` · `Version 1.3.1` · `2026-10-09` · Previous: [Phase 3 — Information Architecture](./phase-3-information-architecture.md) · Next: [Phase 5 — Section Blueprints](./phase-5-section-blueprints.md)
+`Haulr Design OS` · `Version 1.3.3` · `2026-10-10` · Previous: [Phase 3 — Information Architecture](./phase-3-information-architecture.md) · Next: [Phase 5 — Section Blueprints](./phase-5-section-blueprints.md)
 
 A functional blueprint for each of the 66 pages in the [Phase 3 sitemap](./phase-3-information-architecture.md#3-sitemap). Each blueprint says what the page is for, what users come to get done, what data and permissions it needs, and what happens in every state. It never says what the page contains or how it looks; that is decided when the page is built, with the owner.
 
@@ -1203,7 +1203,7 @@ Mechanism in Phase 3 §3.5 · Serves Phase 3 §14 fallbacks · Sections: [SC-55.
 - **Error states:** No error state of its own: it fetches nothing that could fail; a render failure falls through to PG-54.
 - **Success states:** SU-2: user returns to their role root.
 - **Dependencies:** Phase 3 §5.
-- **Implementation notes:** HTTP 403 via `forbidden()`, which is experimental in Next.js 16 and requires `experimental.authInterrupts` in `next.config.ts`. Acceptance: given a `shipper.member` opening `/shipper/invoices`, then HTTP 403 with the admins named; given an internal route requested by a customer, then the response does not confirm which internal role would grant it. Analytics: `system.forbidden.viewed` (route pattern, role), mirroring E-FORBIDDEN telemetry (§2.2). No audit events.
+- **Implementation notes:** HTTP 403 via `forbidden()`, which is experimental in Next.js 16 and requires `experimental.authInterrupts` in `next.config.ts`, which is enabled. Acceptance: given a `shipper.member` opening `/shipper/invoices`, then HTTP 403 with the admins named; given an internal route requested by a customer, then the response does not confirm which internal role would grant it. Analytics: `system.forbidden.viewed` (route pattern, role), mirroring E-FORBIDDEN telemetry (§2.2). No audit events.
 
 ## 12a. Enterprise Pages
 

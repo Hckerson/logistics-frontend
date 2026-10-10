@@ -1,6 +1,6 @@
 # Phase 9 — Quality Assurance Checklist
 
-`Haulr Design OS` · `Version 1.3.1` · `2026-10-09` · Previous: [Phase 8 — Implementation Roadmap](./phase-8-implementation-roadmap.md) · Next: [START_HERE](./START_HERE.md)
+`Haulr Design OS` · `Version 1.3.3` · `2026-10-10` · Previous: [Phase 8 — Implementation Roadmap](./phase-8-implementation-roadmap.md) · Next: [START_HERE](./START_HERE.md)
 
 A review of the whole system. Each item is a check that must pass before a feature moves from **Built** to **Verified** in [Phase 8 §9](./phase-8-implementation-roadmap.md#9-per-feature-build-status). QA here is functional. Visual quality is judged when each page is built, with the owner.
 

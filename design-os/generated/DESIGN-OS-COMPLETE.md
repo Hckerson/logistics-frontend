@@ -1,6 +1,6 @@
 # Haulr Design OS — Complete
 
-`Version 1.3.1` · `2026-10-09` · Status: **Complete, ready for engineering handoff** · Start: [START_HERE](./START_HERE.md) · Overview: [README](./README.md)
+`Version 1.3.3` · `2026-10-10` · Status: **Complete, ready for engineering handoff** · Start: [START_HERE](./START_HERE.md) · Overview: [README](./README.md)
 
 The master index. If something exists in this design OS, it is listed here.
 
@@ -186,13 +186,9 @@ Integrity checks run at generation: 66 pages defined in Phases 3, 4, 5 and 8; 23
 | Item | Where | Needed by |
 | --- | --- | --- |
 | Confirm D-2 (Route Handlers for polled authenticated reads) | Phase 7 §1 | Stage 0 |
-| Approve forms and testing libraries | Phase 7 §15 | Stage 0 |
 | Confirm assumptions A1–A8, A9 (enterprise launch segment) and A10 (hosting, SOC 2 target) | Phase 1 §1 | Stage 0 |
-| Confirm field and collection limits | Phase 7 §10 | Stage 0 |
-| Decide on a headless accessible-primitives library (optional) | Phase 7 §15 | Stage 0 |
 | Approve the map base layer (deck.gl is installed and reused) | Phase 7 §15 | Stage 2 |
 | Choose the payments processor with the backend, and approve its SDK | Phase 8 R-06, Phase 7 §15 | Stage 7 |
-| Confirm D-3 (help and legal content in `lib/data/`) | Phase 7 §1 | When help or legal pages are scheduled |
 | Approve the chart library | Phase 7 §15 | When SC-05.3 or reports are scheduled |
 | Provision identity-provider test tenants (Okta, Entra ID, Google Workspace, OneLogin) | Phase 8 §5 | When SSO (XS-13) is scheduled |
 | Approve observability and error-reporting libraries (D-10) | Phase 7 §15 | Before launch |
@@ -221,6 +217,15 @@ Integrity checks run at generation: 66 pages defined in Phases 3, 4, 5 and 8; 23
 | Suspended carriers | Reinstated through a new compliance review | Phase 2 XF-12, SC-51.4 |
 | Carrier pay timing | "3 business days" everywhere | BG-03, BR-15 |
 | Contact Support (PG-08) | Indexed for search | Phase 3 §11 |
+| Form library (2026-10-10) | Declined; the native pattern (Zod, `use-form-problems`, `board-field`) is the house standard | Phase 7 §15 |
+| Testing libraries (2026-10-10) | Playwright and axe approved, not yet installed; Testing Library later | Phase 7 §15 |
+| Field and collection limits (2026-10-10) | Phase 7 §10 confirmed, with the values already in code recorded; the 128-character password maximum is not yet enforced | Phase 7 §10 |
+| Accessible component library (2026-10-10) | None; native `<dialog>` for IC-41; revisit at the location combobox (IC-05) | Phase 7 §15 |
+| D-3, help and legal content (2026-10-10) | Typed modules in `lib/data/`; confirmed in practice by `lib/data/legal/` | Phase 7 §1 |
+| Signed-in landing (2026-10-10) | `/dashboard` is an interim holding page until the workspace roots exist | Phase 8 §16, Phase 3 §4 |
+| Network statistics (2026-10-10) | A stats mock on a contract route, labelled "Sample figures", until the backend reports them | Phase 8 §16 |
+| Not Found (2026-10-10) | `app/global-not-found.tsx` for unknown URLs, segment `not-found.tsx` for records | Phase 7 §2, Phase 3 §3.5 |
+| R-08, `forbidden()` flag (2026-10-10) | Resolved: `experimental.authInterrupts` and `globalNotFound` are enabled | Phase 8 §6 |
 
 ---
 
@@ -228,9 +233,9 @@ Integrity checks run at generation: 66 pages defined in Phases 3, 4, 5 and 8; 23
 
 | Field | Value |
 | --- | --- |
-| Version | 1.3.1 (status catch-up, Specified for unblocked items, code drift; 1.3.0 recorded the maintainer decisions, solo build order and mocked backend; 1.2.0 added the dispatch board and quote desk, 1.1.1 was the audit, 1.1.0 enterprise hardening, 1.0.0 the initial generation) |
+| Version | 1.3.3 (stage 1 decisions and system and legal pages; 1.3.2 synced statuses after the MFA step; 1.3.1 caught statuses up, relabelled unblocked items Specified and fixed code drift; 1.3.0 recorded the maintainer decisions, solo build order and mocked backend; 1.2.0 added the dispatch board and quote desk, 1.1.1 was the audit, 1.1.0 enterprise hardening, 1.0.0 the initial generation) |
 | Generated | 2026-09-30 |
-| Revised | 2026-10-09 |
+| Revised | 2026-10-10 |
 | Seed prompt | `docs/MASTER_PROMPT_COMPLETE.md` |
 | Output directory | `design-os/generated/` |
 | Generation mode | 1.1.0 is a merge over 1.0.0: nothing removed; thin fields raised to the Phase 4 §2 taxonomy; enterprise scope added |
@@ -246,6 +251,8 @@ Integrity checks run at generation: 66 pages defined in Phases 3, 4, 5 and 8; 23
 | 1.2.0 | Added two pages the maintainer selected. **PG-65 Dispatch Board** (XF-17, SC-65.1 … SC-65.4, IC-68 planning grid) covers the "load plans" pattern the project brief names for Logistics; carriers plan trucks across days, fill open windows and record unavailable periods. **PG-66 Quote Desk** (XS-18, SC-66.1 … SC-66.3, BR-31) gives the custom quote requests already offered on PG-05, PG-27 and PG-56 an owner and a deadline; SC-27.7 gives shippers their side of the request. Also two Phase 4 §2.6 freshness rows, a quote request status enumeration, three capability rows, QA-268 … QA-270. Totals: 66 pages, 238 sections, 68 contracts, 43 experiences, 31 business rules, 270 QA items. Driver hours on the dispatch board are ELD-reported information only, pending legal review: no hours warning, override or stored decision. Custom quote validity is set per quote within a configured default and cap. The dispatch board is a pre-agreed deferral candidate (Phase 8 §13). Nothing removed. |
 | 1.3.0 | Maintainer decisions recorded in §10.1. Carrier vetting now checks the FMCSA safety rating and out-of-service orders (BR-03, BR-18), after *Montgomery v. Caribe Transport II* (2026); CMP-12 (driver coercion) and CMP-13 (broker, not carrier) added; dispatch-board hours shown only to the carrier's own users. Custom quote values set (BR-31). View-as reach, support read on PG-61, carrier cancellation, idle timeout, scorecard threshold, help feedback, personal-data classification, carrier reinstatement and pay timing reconciled. The active plan is now the solo build order (Phase 8 §16): 17 pages, 10 flows, 67 sections and 42 contracts in seven pattern-first stages; everything else Deferred with its spec unchanged. The mocked backend from `.claude/CLAUDE.md` replaces the seed-data fallback. Analytics events normalised to one convention with a 240-event catalogue (Phase 7 §27.1). Operations agents removed from XS-16 at the maintainer's instruction; no other feature removed. |
 | 1.3.1 | Statuses caught up with the code: Forgot Password, Reset Password and Verify (PG-12, PG-13, PG-14) and their sections are In progress in solo stage 1, with the MFA challenge (SC-14.2) started; the countdown (IC-46) is In progress and the one-time code input (IC-04) Scheduled. Items outside the slice relabelled from Deferred to Specified, because capacity alone is not a blocker (maintainer's fix-before-drop rule); only payment and payout method entry stays Deferred, blocked on the payments processor choice. Phase 7 brought up to date with the code: `board-field.tsx`, `field-error.tsx`, `board-cells.tsx`, `auth-links.tsx`, `assembly-provider.tsx`, one hook file per access action, the step-flow hooks and the access presentation hooks. Capacity options reordered so both fixes come before any deferral. Nothing removed. |
+| 1.3.2 | Status sync with commits up to `bfbe4cc`: the MFA challenge (SC-14.2) now has its code step on `/auth/verify`; register's side selection (SC-11.1), the one-time code input (IC-04) and the consent checkbox (IC-38) are In progress. Phase 7 lists the new access files (`code-challenge.tsx`, `code-step.tsx`, `expired-panel.tsx`, `side-picker.tsx`, `consent-check.tsx`). No spec change. |
+| 1.3.3 | Stage 1 decisions recorded: form library declined in favour of the native pattern, Playwright and axe approved, Testing Library later, field limits confirmed with the values in code, no headless component library, D-3 confirmed by `lib/data/legal/`. Statuses synced with the working tree: system pages (PG-53 … PG-55) and Legal (PG-09, ahead of the slice) In progress; `/dashboard` recorded as an interim holding page; network statistics to use a labelled stats mock; Not Found through `global-not-found.tsx`; R-08 resolved. Phase 7 lists `components/legal/`, the system components, `root-document.tsx` and `use-active-section.ts`. No spec change. |
 
 ---
 
