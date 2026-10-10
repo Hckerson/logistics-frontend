@@ -3,9 +3,18 @@ import FooterRoute from "@/components/home/footer-route";
 import HaulrWordmark from "@/components/home/haulr-wordmark";
 import { HAULR_BRAND } from "@/lib/data/home/brand";
 import { FOOTER_COPY, FOOTER_GROUPS } from "@/lib/data/home/footer";
+import { accessLink } from "@/lib/home/access";
 import { WORDMARK } from "@/lib/home/constants";
+import { LOGIN_ROUTE } from "@/lib/constants";
+import type { NavLinkItem } from "@/lib/types";
 
-export default function HaulrFooter() {
+interface Props {
+    signedIn: boolean;
+}
+
+export default function HaulrFooter({ signedIn }: Props) {
+    const shown = (link: NavLinkItem) => (link.href === LOGIN_ROUTE ? { ...link, ...accessLink(signedIn) } : link);
+
     return (
         <footer className="overflow-hidden">
             <div className="haulr-shell flex flex-col gap-16 pt-14">
@@ -22,7 +31,7 @@ export default function HaulrFooter() {
                             <div key={group.id} className="flex flex-col gap-4">
                                 <p className="haulr-label text-text-muted">{group.label}</p>
                                 <ul className="flex flex-col gap-3">
-                                    {group.links.map((link) => (
+                                    {group.links.map(shown).map((link) => (
                                         <li key={link.id}>
                                             <Link
                                                 href={link.href}
