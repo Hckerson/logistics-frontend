@@ -28,7 +28,7 @@ export const HELP_ROUTE = "/help";
 
 export const SUPPORT_ROUTE = "/support";
 
-export const legalRoute = (document: string) => `/legal/${document}`;
+export const legalRoute = (document: string, version?: string) => `/legal/${document}${version ? `/${version}` : ""}`;
 
 export const ACCOUNT_SIDES = ["shipper", "carrier"] as const satisfies readonly AccountSide[];
 
