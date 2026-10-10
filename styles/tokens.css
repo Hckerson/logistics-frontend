@@ -288,3 +288,18 @@
     --haulr-semi: 112%;
     --haulr-ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
+
+@media print {
+    .theme-haulr {
+        --colors-background: #ffffff;
+        --colors-background-muted: #f2f2f2;
+        --colors-text: #111111;
+        --colors-text-secondary: #333333;
+        --colors-text-muted: #666666;
+        --colors-accent: #111111;
+        --colors-accent-dark: #111111;
+        --colors-error: #111111;
+        --colors-border: #cccccc;
+        --colors-border-dark: #999999;
+    }
+}
