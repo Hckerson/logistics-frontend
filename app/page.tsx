@@ -9,11 +9,14 @@ import ProductsSection from "@/components/home/products-section";
 import QuoteClose from "@/components/home/quote-close";
 import TargetsSection from "@/components/home/targets-section";
 import TrailRule from "@/components/home/trail-rule";
+import { getSession } from "@/lib/utils/session";
 
-export default function Home() {
+export default async function Home() {
+    const signedIn = (await getSession()) !== null;
+
     return (
         <>
-            <HaulrNav />
+            <HaulrNav signedIn={signedIn} />
             <main>
                 <Lifecycle />
                 <TrailRule />
@@ -27,7 +30,7 @@ export default function Home() {
                 <QuoteClose />
             </main>
             <TrailRule />
-            <HaulrFooter />
+            <HaulrFooter signedIn={signedIn} />
         </>
     );
 }

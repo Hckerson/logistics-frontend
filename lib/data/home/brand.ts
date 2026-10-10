@@ -1,5 +1,5 @@
 import type { Side } from "@/lib/types";
-import { HOME_ROUTE, LOGIN_ROUTE } from "@/lib/constants";
+import { DASHBOARD_ROUTE, HOME_ROUTE, LOGIN_ROUTE } from "@/lib/constants";
 import { PRICE_ANCHOR } from "@/lib/home/constants";
 
 export const HAULR_BRAND = {
@@ -8,6 +8,7 @@ export const HAULR_BRAND = {
     navLabel: "Account",
     tag: "Design study · placeholder freight marketplace",
     signIn: { label: "Sign in", href: LOGIN_ROUTE },
+    dashboard: { label: "Dashboard", href: DASHBOARD_ROUTE },
     price: { label: "Get a price", href: PRICE_ANCHOR },
     metaTitle: "Haulr · Placeholder freight marketplace",
     metaDescription:
