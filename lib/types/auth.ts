@@ -51,8 +51,8 @@ export interface AuthLink {
     href: string;
 }
 
-export interface FormProblem {
-    field?: AccountField;
+export interface FormProblem<F extends string = AccountField> {
+    field?: F;
     message: string;
     links?: readonly AuthLink[];
 }

@@ -3,17 +3,17 @@ import Link from "next/link";
 import { useEffect, useId, useRef, type MouseEvent } from "react";
 import type { AccountField, FormProblem } from "@/lib/types";
 
-interface Props {
-    problems: readonly FormProblem[];
+interface Props<F extends string> {
+    problems: readonly FormProblem<F>[];
     attempt: number;
     heading: string;
     count: string;
-    fieldId: (field: AccountField) => string;
+    fieldId: (field: F) => string;
 }
 
 const LINK = "text-text-secondary hover:text-text decoration-error/70 underline underline-offset-4 transition-colors";
 
-export default function ErrorSummary({ problems, attempt, heading, count, fieldId }: Props) {
+export default function ErrorSummary<F extends string = AccountField>({ problems, attempt, heading, count, fieldId }: Props<F>) {
     const ref = useRef<HTMLDivElement>(null);
     const headingId = useId();
 
