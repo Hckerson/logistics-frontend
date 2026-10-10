@@ -14,3 +14,8 @@ export interface ActionFailure {
 }
 
 export type ActionResult<TData> = { ok: true; data: TData } | ActionFailure;
+
+export interface RouteError {
+    error: Error & { digest?: string };
+    unstable_retry: () => void;
+}

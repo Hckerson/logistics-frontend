@@ -1,7 +1,13 @@
 import { nanoid } from "nanoid";
 import { loginDtoSchema, registerDtoSchema } from "@/lib/contract/schemas";
 import { linkTokenSchema, resetPasswordSchema, resetRequestSchema } from "@/lib/validations/auth";
-import { MOCK_BREACHED_PASSWORDS, MOCK_RESET_TOKENS, MOCK_SCENARIOS, MOCK_VERIFY_TOKENS } from "@/lib/data/mocks/users";
+import {
+    MOCK_BREACHED_PASSWORDS,
+    MOCK_OUTAGE_TOKENS,
+    MOCK_RESET_TOKENS,
+    MOCK_SCENARIOS,
+    MOCK_VERIFY_TOKENS,
+} from "@/lib/data/mocks/users";
 import { fail, issueSession, ok } from "@/lib/mocks/http";
 import { openChallenge } from "@/lib/mocks/mfa";
 import { mockStore } from "@/lib/mocks/store";
@@ -61,6 +67,7 @@ export const requestReset: MockHandler = ({ body, path }) => {
 export const checkReset: MockHandler = ({ body, path }) => {
     const input = linkTokenSchema.safeParse(body);
     if (!input.success) return fail(400, INVALID_BODY, path);
+    if (MOCK_OUTAGE_TOKENS.includes(input.data.token)) return fail(503, UNAVAILABLE, path);
     const email = mockStore().resetTokens.get(input.data.token);
     return email ? ok(200, { email }) : fail(404, LINK_DEAD, path);
 };

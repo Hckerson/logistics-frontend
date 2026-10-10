@@ -1,6 +1,7 @@
 import AuthIntro from "@/components/auth/auth-intro";
 import AuthLinks from "@/components/auth/auth-links";
 import LoginForm from "@/components/common/login-form";
+import { DASHBOARD_ROUTE } from "@/lib/constants";
 import { SIGN_IN_COPY } from "@/lib/data/auth/sign-in";
 import { internalPath } from "@/lib/utils/internal-path";
 
@@ -16,7 +17,7 @@ export default async function LoginPage({ searchParams }: Props) {
     return (
         <>
             <AuthIntro title={title} lead={lead} />
-            <LoginForm next={internalPath(next)} footer={<AuthLinks label={recovery.label} links={recovery.links} />} />
+            <LoginForm next={internalPath(next, DASHBOARD_ROUTE)} footer={<AuthLinks label={recovery.label} links={recovery.links} />} />
         </>
     );
 }

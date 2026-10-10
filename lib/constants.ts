@@ -50,7 +50,11 @@ export const supportRoute = (context: SupportContext) => {
 
 export const ACCOUNT_RECOVERY_ROUTE = supportRoute({ topic: "account" });
 
+export const ERROR_RETRY_LIMIT = 3;
+
 export const PROTECTED_ROUTE_PREFIXES = [DASHBOARD_ROUTE];
+
+export const SIGNED_IN_ACCESS_ROUTES = [VERIFY_ROUTE];
 
 export const API_BASE_URL =
     process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5100";
