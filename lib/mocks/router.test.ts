@@ -5,6 +5,7 @@ import { MOCK_BREACHED_PASSWORDS, MOCK_RESET_TOKENS, MOCK_USERS, MOCK_VERIFY_TOK
 import { MOCK_MFA } from "@/lib/data/mocks/mfa";
 import { mockRequest } from "@/lib/mocks/router";
 import { mfaChallengeSchema } from "@/lib/validations/auth";
+import { ticketListSchema, ticketReceiptSchema } from "@/lib/validations/support";
 
 const [user] = MOCK_USERS;
 const send = (method: string, path: string, body: unknown = null) => mockRequest({ method, path, body }, 0);
@@ -98,5 +99,39 @@ describe("mock backend", () => {
         for (let attempt = 0; attempt < MOCK_MFA.attempts; attempt += 1) statuses.push((await answer(third, "totp", "000000")).status);
         expect(statuses.at(-1)).toBe(429);
         expect((await answer(third, "totp", MOCK_MFA.code)).status).toBe(404);
+    });
+
+    it("opens a ticket once per idempotency key and lists it first for its owner", async () => {
+        const ticket = {
+            key: "key-retry",
+            email: user.email,
+            category: "billing",
+            urgency: "urgent",
+            subject: "Payment failed on HL-48213",
+            description: "The card was declined twice.",
+            load: "",
+            context: {},
+        };
+        const first = ticketReceiptSchema.parse((await send("POST", unpublishedRoutes.supportTickets(), ticket)).body);
+        const retry = ticketReceiptSchema.parse((await send("POST", unpublishedRoutes.supportTickets(), ticket)).body);
+        const mine = ticketListSchema.parse((await send("POST", unpublishedRoutes.supportTicketsMine(), { email: user.email })).body);
+
+        expect(retry.data.reference).toBe(first.data.reference);
+        expect(mine.data[0]).toMatchObject({ reference: first.data.reference, status: "open" });
+        expect(mine.data.filter((entry) => entry.reference === first.data.reference)).toHaveLength(1);
+    });
+
+    it("rate limits anonymous tickets from the busy scenario", async () => {
+        const response = await send("POST", unpublishedRoutes.supportTickets(), {
+            key: "key-busy",
+            email: "busy@haulr.test",
+            category: "other",
+            urgency: "normal",
+            subject: "Hello",
+            description: "Testing the wait.",
+            load: "",
+            context: {},
+        });
+        expect(response.status).toBe(429);
     });
 });

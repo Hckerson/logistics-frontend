@@ -1,3 +1,5 @@
+import type { TicketCategory, TicketStatus, TicketUrgency } from "@/lib/types/support";
+
 export interface MockUser {
     id: string;
     name: string;
@@ -32,3 +34,14 @@ export interface MockResponse {
 }
 
 export type MockHandler = (request: MockRequest) => MockResponse | Promise<MockResponse>;
+
+export interface MockTicket {
+    reference: string;
+    key: string;
+    owner: string;
+    subject: string;
+    category: TicketCategory;
+    urgency: TicketUrgency;
+    status: TicketStatus;
+    updated: string;
+}

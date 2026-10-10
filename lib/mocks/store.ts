@@ -1,5 +1,6 @@
+import { MOCK_TICKETS } from "@/lib/data/mocks/tickets";
 import { MOCK_RESET_TOKENS, MOCK_USERS } from "@/lib/data/mocks/users";
-import type { MockChallenge, MockUser } from "@/lib/types";
+import type { MockChallenge, MockTicket, MockUser } from "@/lib/types";
 
 interface MockStore {
     users: Map<string, MockUser>;
@@ -7,6 +8,7 @@ interface MockStore {
     verifiedEmails: Set<string>;
     mfaChallenges: Map<string, MockChallenge>;
     usedBackupCodes: Set<string>;
+    tickets: Map<string, MockTicket>;
 }
 
 const holder = globalThis as typeof globalThis & { haulrMockStore?: Partial<MockStore> };
@@ -19,6 +21,7 @@ const seed = (): MockStore => ({
     verifiedEmails: new Set(MOCK_USERS.filter((user) => user.verified).map(keyOf)),
     mfaChallenges: new Map(),
     usedBackupCodes: new Set(),
+    tickets: new Map(MOCK_TICKETS.map((ticket) => [ticket.reference, { ...ticket }])),
 });
 
 export const mockStore = (): MockStore => {
