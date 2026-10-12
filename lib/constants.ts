@@ -42,6 +42,11 @@ export const mfaRoute = (next: string) => `${VERIFY_ROUTE}?step=${MFA_STEP}&next
 
 export const helpArticleRoute = (slug: string) => `${HELP_ROUTE}/${slug}`;
 
+export const POST_LOAD_ROUTE = "/shipper/loads/new";
+
+export const postLoadRoute = (lane: string, quote?: "custom") =>
+    `${POST_LOAD_ROUTE}?lane=${encodeURIComponent(lane)}${quote ? `&quote=${quote}` : ""}`;
+
 export const supportRoute = (context: SupportContext) => {
     const query = new URLSearchParams();
     for (const [key, value] of Object.entries(context)) if (value) query.set(key, value);
@@ -101,6 +106,7 @@ export const HTTP_STATUS = {
     tooManyRequests: 429,
     serverError: 500,
     badGateway: 502,
+    serviceUnavailable: 503,
 } as const;
 
 export const MOTION_DURATION = {

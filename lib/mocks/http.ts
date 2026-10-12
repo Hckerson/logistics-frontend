@@ -1,5 +1,5 @@
 import { signMockToken } from "@/lib/mocks/session-token";
-import type { MockErrorDetails, MockResponse, MockUser } from "@/lib/types";
+import type { MockErrorDetails, MockResponse, MockScenario, MockUser } from "@/lib/types";
 
 const SUCCESS = "Success";
 
@@ -36,6 +36,16 @@ export const fail = (
         ...details,
     },
 });
+
+export const UNAVAILABLE = "Service temporarily unavailable";
+
+const TOO_MANY = "Too many requests";
+
+export const playScenario = (found: MockScenario | undefined, path: string): MockResponse | null => {
+    if (!found) return null;
+    if (found.kind === "rate-limited") return fail(429, TOO_MANY, path, { "Retry-After": String(found.retryAfter) });
+    return fail(503, UNAVAILABLE, path);
+};
 
 const publicUser = ({ id, name, email, role }: MockUser) => ({ id, name, email, role });
 

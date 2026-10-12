@@ -8,7 +8,7 @@ import {
     MOCK_SCENARIOS,
     MOCK_VERIFY_TOKENS,
 } from "@/lib/data/mocks/users";
-import { fail, issueSession, ok } from "@/lib/mocks/http";
+import { fail, issueSession, ok, playScenario, UNAVAILABLE } from "@/lib/mocks/http";
 import { openChallenge } from "@/lib/mocks/mfa";
 import { mockStore } from "@/lib/mocks/store";
 import type { MockHandler, MockResponse, MockUser } from "@/lib/types";
@@ -16,19 +16,13 @@ import type { MockHandler, MockResponse, MockUser } from "@/lib/types";
 const INVALID_BODY = "Validation failed";
 const INVALID_CREDENTIALS = "Invalid credentials";
 const EMAIL_TAKEN = "Email already registered";
-const TOO_MANY = "Too many requests";
-const UNAVAILABLE = "Service temporarily unavailable";
 const LINK_DEAD = "Reset link is invalid or expired";
 const BREACHED = "Password found in a data breach";
 const VERIFY_LINK_DEAD = "Verification link is invalid or expired";
 const ALREADY_VERIFIED = "Email already verified";
 
-export const scenario = (email: string, path: string): MockResponse | null => {
-    const found = MOCK_SCENARIOS[email.toLowerCase()];
-    if (!found) return null;
-    if (found.kind === "rate-limited") return fail(429, TOO_MANY, path, { "Retry-After": String(found.retryAfter) });
-    return fail(503, UNAVAILABLE, path);
-};
+export const scenario = (email: string, path: string): MockResponse | null =>
+    playScenario(MOCK_SCENARIOS[email.toLowerCase()], path);
 
 export const login: MockHandler = async ({ body, path }) => {
     const input = loginDtoSchema.safeParse(body);

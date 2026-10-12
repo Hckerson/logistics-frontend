@@ -1,5 +1,8 @@
 import { format } from "date-fns";
+import { DATE_VALUE_FORMAT } from "@/lib/constants";
 import { twoDigits } from "@/lib/utils/number";
+
+export const todayValue = () => format(new Date(), DATE_VALUE_FORMAT);
 
 export const dateFormatter = (date: string, formatString: string) => {
     if (!date) return "";

@@ -9,7 +9,7 @@ interface Props<T extends string> {
     index?: string;
     options: readonly ChoiceOption<T>[];
     value: T | null;
-    columns?: 1 | 2;
+    columns?: 1 | 2 | 3;
     error?: string;
     disabled?: boolean;
     onChange: (value: T) => void;
@@ -31,7 +31,7 @@ export default function ChoiceGrid<T extends string>(props: Props<T>) {
                 {index ? <span>{index}</span> : null}
                 {legend}
             </legend>
-            <div className={clsx("grid gap-1", columns === 2 && "sm:grid-cols-2")}>
+            <div className={clsx("grid gap-1", columns === 2 && "sm:grid-cols-2", columns === 3 && "grid-cols-3")}>
                 {options.map((option) => (
                     <label
                         key={option.value}
