@@ -30,9 +30,12 @@ export interface LegalDocument {
     subProcessors?: readonly SubProcessor[];
 }
 
+export type ClauseRevision = "new" | "changed";
+
 export interface LegalEdition {
     document: LegalDocument;
     edition: LegalVersion;
     current: LegalVersion;
     replacedBy: LegalVersion | null;
+    revised: Readonly<Record<string, ClauseRevision>>;
 }

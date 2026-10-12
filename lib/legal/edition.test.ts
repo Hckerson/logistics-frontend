@@ -27,6 +27,12 @@ describe("legal editions", () => {
         expect(legalParams()).toHaveLength(versions);
     });
 
+    it("tags sections that are new or changed against the previous version", () => {
+        expect(findEdition("terms")?.revised).toMatchObject({ records: "new", marketplace: "changed", changes: "changed" });
+        expect(findEdition("terms")?.revised.about).toBeUndefined();
+        expect(findEdition("terms", ["1.0"])?.revised).toEqual({});
+    });
+
     it("formats effective dates without shifting the day", () => {
         expect(legalDate("2026-10-01")).toBe("October 1, 2026");
     });
