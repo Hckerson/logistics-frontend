@@ -4,6 +4,7 @@ import ProgressLine from "@/components/common/progress-line";
 import HudPanel from "@/components/common/hud-panel";
 import EstimateActions from "@/components/estimator/estimate-actions";
 import EstimateFigures from "@/components/estimator/estimate-figures";
+import EstimateLane from "@/components/estimator/estimate-lane";
 import EstimateNotice from "@/components/estimator/estimate-notice";
 import { ESTIMATOR_COPY } from "@/lib/data/quotes/estimator";
 import type { useRateEstimate } from "@/lib/hooks/use-rate-estimate";
@@ -39,17 +40,19 @@ export default function EstimatePanel({ query, failure, slow, signedIn }: Props)
                     <EstimateFigures lane={shown.lane} estimate={shown.estimate} />
                     <EstimateActions key={queryString(shown.lane)} lane={shown.lane} estimate={shown.estimate} signedIn={signedIn} />
                 </div>
-            ) : query.isFetching ? (
-                <div className="flex flex-col gap-3">
-                    <p role="status" className="text-text-secondary text-sm">
-                        {slow ? result.slow : ESTIMATOR_COPY.pending}
-                    </p>
-                    <ProgressLine className="bg-border" />
-                </div>
             ) : (
-                <div className="flex flex-col gap-2">
-                    <p className="text-text text-sm">{result.emptyTitle}</p>
-                    <p className="text-text-secondary text-sm">{result.emptyBody}</p>
+                <div className="flex flex-col gap-6">
+                    <EstimateLane estimate={null} sweep={null} />
+                    {query.isFetching ? (
+                        <div className="flex flex-col gap-3">
+                            <p role="status" className="text-text-secondary text-sm">
+                                {slow ? result.slow : ESTIMATOR_COPY.pending}
+                            </p>
+                            <ProgressLine className="bg-border" />
+                        </div>
+                    ) : (
+                        <p className="text-text-secondary text-sm">{result.empty}</p>
+                    )}
                 </div>
             )}
             {shown && query.isFetching && slow ? (
