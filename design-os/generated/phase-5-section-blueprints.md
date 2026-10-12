@@ -1,6 +1,6 @@
 # Phase 5 — Section Blueprints
 
-`Haulr Design OS` · `Version 1.3.3` · `2026-10-10` · Previous: [Phase 4 — Page Blueprints](./phase-4-page-blueprints.md) · Next: [Phase 6 — Interaction Contracts](./phase-6-interaction-contracts.md)
+`Haulr Design OS` · `Version 1.3.4` · `2026-10-10` · Previous: [Phase 4 — Page Blueprints](./phase-4-page-blueprints.md) · Next: [Phase 6 — Interaction Contracts](./phase-6-interaction-contracts.md)
 
 Every page from [Phase 4](./phase-4-page-blueprints.md) is broken into sections, one per job. A section is a unit of behaviour: what it is responsible for, the data it needs, how the user interacts with it, and what happens when it is loading, empty or failing. Sections never say what they show, which components or controls they use, how they are arranged, their order on screen, their size, imagery or animation.
 
@@ -63,7 +63,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Error states:** E-UNAVAILABLE or E-SERVER on the location feed → last known position with age, "Live updates paused" and retry (IC-60); automatic read retries per Phase 4 §2.2. Map library or tile failure (E-UNAVAILABLE for maps, NFR-AV-4) → text equivalent only, stated once. E-OFFLINE → last cached values with age. E-CONFLICT on a check-call request → a request is already open; state who requested it and when. E-RATE-LIMIT on check calls → state when another request is allowed. E-CONTRACT → as E-SERVER with correlation ID.
 - **Empty states:** EM-4 before pickup: "Tracking starts at pickup" with the pickup appointment window in facility-local time. EM-4 after delivery: final position replaced by the delivery time; no live tracking is expected.
 - **Reuse potential:** PG-40, PG-02, PG-26 (collection map), PG-35, PG-50; implemented once and reused by reference (location per Phase 7 §12).
-- **Technical notes:** Polling via TanStack Query `refetchInterval` with `refetchIntervalInBackground: false`; query key `positionKeys.latest(loadId)`; subscriptions only for loads in view (Phase 7 §18); stale threshold from BR-10 in constants; map base layer pending approval (deck.gl installed; Phase 7 §15). Precise positions are Restricted (NFR-PRIV-1) and never leave the client in analytics; `tracking.position.viewed` and `tracking.check_call.requested` carry the load ID and source enum only. A check call emits the audit event `load.check_call_requested`. Position-to-visible latency target ≤ 90 s (NFR-PERF-5).
+- **Technical notes:** Polling via TanStack Query `refetchInterval` with `refetchIntervalInBackground: false`; query key `positionKeys.latest(loadId)`; subscriptions only for loads in view (Phase 7 §18); stale threshold from BR-10 in constants; map base layer (MapLibre with Protomaps tiles; Phase 7 §15). Precise positions are Restricted (NFR-PRIV-1) and never leave the client in analytics; `tracking.position.viewed` and `tracking.check_call.requested` carry the load ID and source enum only. A check call emits the audit event `load.check_call_requested`. Position-to-visible latency target ≤ 90 s (NFR-PERF-5).
 
 ### SH-03 — Document set
 

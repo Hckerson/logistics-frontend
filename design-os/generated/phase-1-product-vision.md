@@ -1,6 +1,6 @@
 # Phase 1 — Product Vision
 
-`Haulr Design OS` · `Version 1.3.3` · `2026-10-10` · Next: [Phase 2 — Experience Maps](./phase-2-experience-maps.md) · Index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
+`Haulr Design OS` · `Version 1.3.4` · `2026-10-10` · Next: [Phase 2 — Experience Maps](./phase-2-experience-maps.md) · Index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
 
 This document is the single source of truth for what Haulr is, who it serves and which rules it obeys. Every later phase cites the IDs defined here (`A` assumptions, `BG-` goals, `PR-` personas, `JTBD-` jobs, `BR-` business rules, `KPI-` metrics, `PP-` product principles, and the `NFR-`, `CMP-`, `SEC-` and `OPS-` requirements).
 
@@ -49,7 +49,7 @@ The master prompt's placeholders were resolved as follows. The maintainer chose 
 | `{{ROLE_DASHBOARDS}}` | XD-01 … XD-08 ([Phase 2](./phase-2-experience-maps.md)) | One per operating role |
 | `{{DOMAIN_TOOL}}` | Lane Rate Estimator | Price discovery is the most common reason shippers visit |
 | `{{DOMAIN_TRANSACTION}}` | Load booking (rate confirmation) | The moment a carrier commits to move a load |
-| `{{DOMAIN_SPECIFIC_LIBS}}` | Map rendering: deck.gl (installed, reused); a map base layer is proposed, pending approval ([Phase 7 §15](./phase-7-frontend-architecture.md#15-shared-libraries)) | Tracking requires an interactive map |
+| `{{DOMAIN_SPECIFIC_LIBS}}` | Map rendering: deck.gl layers over a MapLibre base map with Protomaps tiles; truck routing and ETAs from HERE on the backend (approved 2026-10-10 ([Phase 7 §15](./phase-7-frontend-architecture.md#15-shared-libraries)) | Tracking requires an interactive map |
 | `{{SCALE_TARGET}}` | 5 million loads per year, 250,000 carriers, 40,000 shipper organisations, 1.5 million location updates per hour at peak | Mid-size national marketplace at year three |
 | `{{COMPONENT_COUNT}}` | 68 interaction contracts | [Phase 6](./phase-6-interaction-contracts.md) |
 | `{{SECTION_COUNT}}` | 238 sections (15 shared, 223 page) | [Phase 5](./phase-5-section-blueprints.md) |
@@ -65,11 +65,13 @@ Domain assumptions:
 - **A3 — Equipment at launch.** Dry van, refrigerated (reefer) and flatbed full-truckload. Partial and LTL are Section 16 expansions.
 - **A4 — Carrier authority.** Carriers must hold active operating authority (USDOT number and MC number) and meet insurance minimums. Authority and insurance data come from a public registry and an insurance verification provider through the backend.
 - **A5 — Tracking sources.** Location comes from, in order of preference, an electronic logging device (ELD) integration, the driver's mobile browser, or manual check calls logged by the carrier or Haulr operations.
-- **A6 — Payments.** Money moves through a regulated payments processor chosen by the backend team. The frontend never handles raw bank or card numbers; it hosts the processor's tokenised entry.
+- **A6 — Payments.** Money moves through two regulated providers: Stripe collects from shippers (hosted Payment Element, bank debit and card, invoicing) and Triumph pays carriers (standard pay, QuickPay, payment to a carrier's factoring company, fraud checks). The frontend never handles raw bank or card numbers; it hosts each provider's tokenised entry.
 - **A7 — Backend.** The paired NestJS backend currently ships `auth`, `users`, `stats` and `health` only. Every Haulr domain endpoint in this design OS is backend work to be done. Its DTOs become the frontend contract (`lib/contract/`) once published.
 - **A8 — Driver access.** Drivers use the product in a mobile browser. A native app is a Section 16 expansion; the web experience must work alone.
 - **A9 — Enterprise buyers.** Shipper organisations with more than 50 users are a launch segment. They require SSO, automated provisioning, spend approvals, integrations and audit export before signing, so these are launch scope (Sections 18–22), not later expansions.
 - **A10 — Hosting.** Frontend and backend run in US regions only, on infrastructure whose provider holds SOC 2 Type II and ISO 27001 reports. Haulr itself targets SOC 2 Type II within 12 months of launch.
+
+**Confirmed by the maintainer on 2026-10-10.** A6 is amended to two providers. A9 and A10 hold for the full product and do not drive the solo slice (Phase 8 §16).
 
 ## 2. Business Vision
 

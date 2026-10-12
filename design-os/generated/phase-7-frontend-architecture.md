@@ -1,6 +1,6 @@
 # Phase 7 — Frontend Architecture
 
-`Haulr Design OS` · `Version 1.3.3` · `2026-10-10` · Previous: [Phase 6 — Interaction Contracts](./phase-6-interaction-contracts.md) · Next: [Phase 8 — Implementation Roadmap](./phase-8-implementation-roadmap.md)
+`Haulr Design OS` · `Version 1.3.4` · `2026-10-10` · Previous: [Phase 6 — Interaction Contracts](./phase-6-interaction-contracts.md) · Next: [Phase 8 — Implementation Roadmap](./phase-8-implementation-roadmap.md)
 
 How the code is organised to deliver Phases 1–6. This phase names files and folders because its job is code organisation. It says nothing about how anything looks; styling organisation follows the host repo's conventions (`styles/tokens.css`, `styles/globals.css`) and is not specified here.
 
@@ -45,7 +45,7 @@ How the code is organised to deliver Phases 1–6. This phase names files and fo
 | ID | Decision | Reason | Host rule |
 | --- | --- | --- | --- |
 | D-1 | Route groups `(public)`, `(workspace)`, `(internal)` organise `app/`; URLs are unchanged | Distinct layouts and guards per audience without URL prefixes (IA-P2, IA-P3); groups are native App Router | "Nesting here is the URL" (groups do not alter URLs) |
-| D-2 | Authenticated **mutations** use Server Actions in `lib/actions/`, wrapped by hooks. Authenticated **polled reads** (positions, bids, exceptions, messages, notifications) use Route Handlers in `app/api/<resource>/` that relay through `backendFetch`, consumed with the `local` client | Server Actions are POST-only, uncacheable and dispatched one at a time per client, so a page polling several sources would serialise. Route Handlers are already the host pattern for `app/api/session` and `app/api/register` | "A hook for an authenticated call wraps a Server Action." **Extension, needs maintainer confirmation** |
+| D-2 | Server Actions in `lib/actions/` are for **mutations only**. Reads happen in Server Components, or from the client through GET Route Handlers in `app/api/<resource>/` that relay through `backendFetch`, consumed with the `local` client. Live positions and ETAs stream over Server-Sent Events from a Route Handler, with polling as the fallback | Next.js dispatches Server Actions one at a time per client and documents them for mutations, so reads made through them queue and cannot be cached; live tracking is Haulr's core pattern and should move continuously | The host async row says a hook for an authenticated call wraps a Server Action. **Extension confirmed by the maintainer on 2026-10-10: authenticated reads go through Route Handlers** |
 | D-3 | Help and legal content lives as typed modules in `lib/data/help/` and `lib/data/legal/` until a CMS exists | No new dependency (MDX would add one); content is static seed data | "Seed and sample data lives in `lib/data/`" |
 | D-4 | `components/common/` stays flat; domain compositions use a domain prefix in the filename (`load-…`, `bid-…`) instead of subfolders | Host rule: `components/common` is flat | Folder structure table |
 | D-5 | Feature-scoped constants and pure domain logic sit in `lib/<feature>/` (for example `lib/loads/constants.ts`); pure helpers without a feature home stay in `lib/utils/` | Host allows `lib/<feature>/constants.ts`; keeps the Phase 2 state machines next to their constants | "Feature-scoped `lib/<feature>/constants.ts`" |
@@ -57,7 +57,7 @@ How the code is organised to deliver Phases 1–6. This phase names files and fo
 | D-11 | Feature flags are read server-side from one typed module `lib/flags.ts` backed by environment or a flag service, and passed to client components as props | Progressive rollout and kill switches for enterprise features without redeploying code paths; no client-side flag fetching | Single source of truth |
 | D-12 | Mutations on mutable records send the record `version` (or ETag via `If-Match`); a 412 is mapped to E-PRECONDITION and handled by IC-67 | SSB-8; no last-write-wins in a multi-user enterprise tenant | Contract carries `version` on mutable DTOs |
 | D-13 | Every Server Action and Route Handler is wrapped by one higher-order helper, `withAction` or `withHandler` in `lib/utils/`, which applies the session, role check, correlation ID, audit reason pass-through, error-class mapping and timing | One enforcement point for SEC-4, NFR-OBS-1 and Phase 4 §2.2; avoids copy-pasted guards | Extends the `create-user.ts` pattern rather than replacing it |
-| D-14 | Sections used by a single public or access page live in a page-domain folder, `components/home/` (PG-01), `components/auth/` (PG-10 … PG-15 and the system pages PG-53 … PG-55) and `components/legal/` (PG-09), with matching `lib/home/`, `lib/auth/` and `lib/data/home/`, `lib/data/auth/`. Workspace and internal pages keep D-4 | Recorded after the fact (2026-10-09): both folders already exist and hold about 70 single-page files, and `eslint.config.ts` exempts each folder as a unit from `application-register-density` (its cinematic register) | Folder structure table lists only flat `ui`, `common`, `wrappers`, `providers`. Deviation from D-4, confirmed by the maintainer on 2026-10-09 and recorded in the `.claude/CLAUDE.md` folder table |
+| D-14 | Sections used by a single public or access page live in a page-domain folder, `components/home/` (PG-01), `components/auth/` (PG-10 … PG-15 and the system pages PG-53 … PG-55), `components/legal/` (PG-09), `components/help/` (PG-06, PG-07) and `components/support/` (PG-08), with matching `lib/home/`, `lib/auth/` and `lib/data/home/`, `lib/data/auth/`. Workspace and internal pages keep D-4 | Recorded after the fact (2026-10-09): both folders already exist and hold about 70 single-page files, and `eslint.config.ts` exempts each folder as a unit from `application-register-density` (its cinematic register) | Folder structure table lists only flat `ui`, `common`, `wrappers`, `providers`. Deviation from D-4, confirmed by the maintainer on 2026-10-09 and recorded in the `.claude/CLAUDE.md` folder table |
 
 ---
 
@@ -97,21 +97,21 @@ app/
   (public)/  (workspace)/  (internal)/   see §3
 components/
   ui/                                (exists, flat) domain-free primitives; button.tsx, input.tsx (exist)
-  common/                            (exists, flat) shared compositions; login-form.tsx, error-summary.tsx, board-field.tsx, board-cells.tsx, field-error.tsx, assembly-frame.tsx, scramble-text.tsx, hud-panel.tsx, hud-corners.tsx (exist)
+  common/                            (exists, flat) shared compositions; login-form.tsx, error-summary.tsx, board-field.tsx, board-cells.tsx, field-error.tsx, field-label.tsx, area-field.tsx, choice-grid.tsx, page-intro.tsx, assembly-frame.tsx, scramble-text.tsx, hud-panel.tsx, hud-corners.tsx (exist)
   wrappers/                          (exists, flat) motion-wrapper.tsx (exists), boundaries
   providers/                         (exists, flat) provider.tsx, auth-signal-provider.tsx, assembly-provider.tsx (exist)
-  home/  auth/  legal/               (exist) page-domain sections for PG-01, the access and system pages, and PG-09 (D-14)
+  home/  auth/  legal/  help/  support/   (exist) page-domain sections for PG-01, the access and system pages, PG-09, PG-06 and PG-07, and PG-08 (D-14)
 lib/
   actions/                           Server Actions (authenticated mutations and server reads)
   contract/                          (exists, generated) schemas.ts, routes.ts
-  data/                              (exists) seed data, help and legal content (D-3); home/, auth/ (exist, D-14); legal/ (exists, D-3); system.ts (exists, system page copy); mocks/ (exists) mock fixtures
+  data/                              (exists) seed data, help and legal content (D-3); home/, auth/ (exist, D-14); legal/, help/ and support/ (exist, D-3); system.ts (exists, system page copy); mocks/ (exists) mock fixtures
   mocks/                             (exists) mocked backend: one handler per backend module, router.ts, store.ts (host "The mocked backend")
   enums/                             enumerations mirrored from the contract
   hooks/                             (exists) use-<resource>.ts
   types/                             (exists) <domain>.ts + index.ts
   utils/                             (exists) pure helpers
   validations/                       (exists) Zod schemas composed over the contract; auth.ts (exists), env.ts (D-9), lane.ts, load.ts
-  home/  auth/                       (exist) feature constants and domain logic for PG-01 and sign-in (D-5, D-14)
+  home/  auth/  help/  support/     (exist) feature constants and domain logic for PG-01, the access pages, help and support (D-5, D-14)
   loads/  tracking/  billing/  compliance/  ops/   feature constants and domain logic (D-5)
   constants.ts                       (exists) app-wide constants
   api-client.ts, api-routes.ts, api-server.ts      (exist) transport
@@ -291,52 +291,52 @@ Every hook lives in `lib/hooks/use-<resource>.ts` (host rule), and components co
 | `use-create-user.ts` (exists) | `useCreateUser` | Server Action |
 | `use-debounced-search.ts` (exists) | `useDebouncedSearch` | — |
 | `use-request-password-reset.ts`, `use-reset-password.ts`, `use-verify-email.ts`, `use-resend-verification.ts`, `use-mfa-challenge.ts` (exist; one file per hook, recorded 2026-10-09) | `useRequestPasswordReset`, `useResetPassword`, `useVerifyEmail`, `useResendVerification`, `useMfaChallenge` | Server Actions in `lib/actions/` (`request-password-reset.ts`, `reset-password.ts`, `verify-email.ts`, `mfa-challenge.ts`) |
-| `use-mfa.ts` | `useMfa` | Server Actions |
-| `use-sessions.ts` | `useSessions` | Server Actions |
-| `use-profile.ts` | `useProfile`, `useChangeEmail`, `useChangePassword` | Server Actions |
-| `use-organization.ts` | `useOrganization`, `useAccountStanding`, `useOnboarding`, `useCreditApplication`, `useCredit` | Server Actions |
-| `use-members.ts` | `useMembers`, `useInvitations`, `useInvitation`, `useAcceptInvitation` | Server Actions |
-| `use-facilities.ts` | `useFacilities` | Server Actions |
+| `use-mfa.ts` | `useMfa` | Route Handlers (reads); Server Actions (writes) |
+| `use-sessions.ts` | `useSessions` | Route Handlers (reads); Server Actions (writes) |
+| `use-profile.ts` | `useProfile`, `useChangeEmail`, `useChangePassword` | Route Handlers (reads); Server Actions (writes) |
+| `use-organization.ts` | `useOrganization`, `useAccountStanding`, `useOnboarding`, `useCreditApplication`, `useCredit` | Route Handlers (reads); Server Actions (writes) |
+| `use-members.ts` | `useMembers`, `useInvitations`, `useInvitation`, `useAcceptInvitation` | Route Handlers (reads); Server Actions (writes) |
+| `use-facilities.ts` | `useFacilities` | Route Handlers (reads); Server Actions (writes) |
 | `use-location-suggestions.ts` | `useLocationSuggestions` | Route Handler |
-| `use-loads.ts` | `useLoads`, `useLoad`, `useLoadCounts`, `useLoadActions`, `usePostLoad`, `useExportLoads` | Server Actions |
-| `use-load-timeline.ts` | `useLoadTimeline` | Server Action |
-| `use-load-positions.ts` | `useLoadPositions`, `useTrackingHealth` | Route Handler (polled) |
-| `use-tracking.ts` | `useTracking`, `useTrackingLinks` | Route Handler (public), Server Actions |
-| `use-quote.ts` | `useQuote`, `useRateEstimate`, `useLaneTrend`, `useSavedEstimates` | Server Action, Route Handler (anonymous) |
-| `use-bids.ts` | `useBids`, `useBidActions`, `useTenders`, `useTenderRules` | Route Handler (polled), Server Actions |
-| `use-preferred-carriers.ts` | `usePreferredCarriers`, `useCarrierRelationship` | Server Actions |
-| `use-load-board.ts` | `useLoadBoard`, `useRecommendedLoads`, `useBookLoad`, `useWatchedLoads` | Server Actions |
-| `use-saved-searches.ts` | `useSavedSearches` | Server Actions |
-| `use-fleet.ts` | `useFleet`, `useAssignLoad` | Server Actions |
-| `use-trip.ts` | `useDriverTrips`, `useTrip`, `useStopEvents`, `useReportIssue`, `useLocationConsent` | Server Actions + offline queue |
-| `use-documents.ts` | `useDocuments`, `useDocumentUpload`, `usePodUpload`, `useSignAgreement` | Server Actions (presigned upload) |
-| `use-accessorials.ts` | `useAccessorials` | Server Actions |
-| `use-invoices.ts` | `useInvoices`, `useInvoice`, `useInvoiceSummary`, `usePayInvoices` | Server Actions |
-| `use-settlements.ts` | `useSettlements`, `useSettlement`, `useSettlementSummary`, `useQuickPay` | Server Actions |
-| `use-payment-methods.ts` | `usePaymentMethods` | Server Actions |
-| `use-claims.ts` | `useClaims`, `useClaim`, `useCreateClaim`, `useClaimActions` | Server Actions |
-| `use-messages.ts` | `useThreads`, `useMessages`, `useSendMessage` | Route Handler (polled), Server Action |
-| `use-notifications.ts` | `useNotifications`, `useNotificationPreferences` | Route Handler (polled), Server Actions |
+| `use-loads.ts` | `useLoads`, `useLoad`, `useLoadCounts`, `useLoadActions`, `usePostLoad`, `useExportLoads` | Route Handlers (reads); Server Actions (writes) |
+| `use-load-timeline.ts` | `useLoadTimeline` | Route Handler (read) |
+| `use-load-positions.ts` | `useLoadPositions`, `useTrackingHealth` | Server-Sent Events stream from a Route Handler; polling as the fallback |
+| `use-tracking.ts` | `useTracking`, `useTrackingLinks` | Route Handlers (reads, public); Server Actions (writes) |
+| `use-quote.ts` | `useQuote`, `useRateEstimate`, `useLaneTrend`, `useSavedEstimates` | Route Handlers (reads, anonymous for the estimator); Server Action (saving estimates) |
+| `use-bids.ts` | `useBids`, `useBidActions`, `useTenders`, `useTenderRules` | Route Handlers (reads, polled); Server Actions (writes) |
+| `use-preferred-carriers.ts` | `usePreferredCarriers`, `useCarrierRelationship` | Route Handlers (reads); Server Actions (writes) |
+| `use-load-board.ts` | `useLoadBoard`, `useRecommendedLoads`, `useBookLoad`, `useWatchedLoads` | Route Handlers (reads); Server Actions (writes) |
+| `use-saved-searches.ts` | `useSavedSearches` | Route Handlers (reads); Server Actions (writes) |
+| `use-fleet.ts` | `useFleet`, `useAssignLoad` | Route Handlers (reads); Server Actions (writes) |
+| `use-trip.ts` | `useDriverTrips`, `useTrip`, `useStopEvents`, `useReportIssue`, `useLocationConsent` | Route Handlers (reads); Server Actions (writes) + offline queue |
+| `use-documents.ts` | `useDocuments`, `useDocumentUpload`, `usePodUpload`, `useSignAgreement` | Route Handlers (reads); Server Actions (writes, presigned upload) |
+| `use-accessorials.ts` | `useAccessorials` | Route Handlers (reads); Server Actions (writes) |
+| `use-invoices.ts` | `useInvoices`, `useInvoice`, `useInvoiceSummary`, `usePayInvoices` | Route Handlers (reads); Server Actions (writes) |
+| `use-settlements.ts` | `useSettlements`, `useSettlement`, `useSettlementSummary`, `useQuickPay` | Route Handlers (reads); Server Actions (writes) |
+| `use-payment-methods.ts` | `usePaymentMethods` | Route Handlers (reads); Server Actions (writes) |
+| `use-claims.ts` | `useClaims`, `useClaim`, `useCreateClaim`, `useClaimActions` | Route Handlers (reads); Server Actions (writes) |
+| `use-messages.ts` | `useThreads`, `useMessages`, `useSendMessage` | Route Handlers (reads, polled); Server Action (send) |
+| `use-notifications.ts` | `useNotifications`, `useNotificationPreferences` | Route Handlers (reads, polled); Server Actions (writes) |
 | `use-attention-items.ts` | `useAttentionItems` | Route Handler (polled) |
-| `use-metrics.ts` | `useMetrics`, `useScorecard` | Server Actions |
+| `use-metrics.ts` | `useMetrics`, `useScorecard` | Route Handlers (reads); Server Actions (writes) |
 | `use-ratings.ts` | `useRateCounterparty` | Server Action |
-| `use-profiles.ts` | `useCarrierProfile`, `useShipperProfile` | Server Actions |
-| `use-exceptions.ts` | `useExceptions`, `useException`, `useExceptionSummary`, `useExceptionActions`, `useCoverageRisk` | Route Handler (polled), Server Actions |
-| `use-compliance.ts` | `useComplianceStatus`, `useAuthorityLookup`, `useCarrierVetting`, `useVettingDecision`, `useMonitoringEvents` | Server Actions |
-| `use-finance-queues.ts` | `usePodQueue`, `useVerifyPod`, `usePayoutFailures`, `useRetryPayout` | Server Actions |
-| `use-tickets.ts` | `useTickets`, `useCreateTicket`, `useRequesterContext` | Server Actions |
-| `use-admin.ts` | `useAccounts`, `usePlatformConfig`, `useUpdateConfig`, `useAuditLog` | Server Actions |
-| `use-help.ts` | `useHelpSearch`, `useArticleFeedback` | Local index, Server Action |
-| `use-quick-find.ts` | `useQuickFind` | Server Action |
-| `use-bulk-import.ts` | `useImportBatch`, `useImportMappings`, `useImportRows`, `useUpdateImportRow`, `usePriceImportBatch`, `useConfirmImportBatch`, `useImportBatches` | Server Actions; Route Handler for batch status (polled) |
-| `use-templates.ts` | `useLoadTemplates`, `useRecurrences` | Server Actions |
-| `use-approvals.ts` | `useApprovalRequests`, `useApprovalRequest`, `useDecideApproval`, `useApprovalDelegations`, `useSpendPolicy` | Route Handler (polled queue), Server Actions |
-| `use-reports.ts` | `useReport`, `useSavedReports`, `useReportSchedules` | Server Actions |
-| `use-security.ts` | `useVerifiedDomains`, `useSsoConnection`, `useScim`, `useRoleMappings`, `useSessionPolicy` | Server Actions (all sensitive, IC-13) |
-| `use-integrations.ts` | `useApiKeys`, `useWebhooks`, `useWebhookDeliveries`, `useEdiConnections` | Server Actions; Route Handler for deliveries (polled) |
-| `use-privacy.ts` | `useExports`, `useRequestExport`, `usePrivacyRequests` | Server Actions; Route Handler for job status (polled) |
-| `use-fleet-plan.ts` | `useFleetPlan`, `useTruckAvailability` | Route Handler (polled); Server Action |
-| `use-quote-requests.ts` | `useQuoteRequests`, `useQuoteRequest`, `useRequestCustomQuote`, `useWithdrawQuoteRequest`, `useClaimQuoteRequest`, `usePriceQuoteRequest`, `useDeclineQuoteRequest`, `useLaneEvidence` | Route Handler (polled); Server Actions |
+| `use-profiles.ts` | `useCarrierProfile`, `useShipperProfile` | Route Handlers (reads); Server Actions (writes) |
+| `use-exceptions.ts` | `useExceptions`, `useException`, `useExceptionSummary`, `useExceptionActions`, `useCoverageRisk` | Route Handlers (reads, polled); Server Actions (writes) |
+| `use-compliance.ts` | `useComplianceStatus`, `useAuthorityLookup`, `useCarrierVetting`, `useVettingDecision`, `useMonitoringEvents` | Route Handlers (reads); Server Actions (writes) |
+| `use-finance-queues.ts` | `usePodQueue`, `useVerifyPod`, `usePayoutFailures`, `useRetryPayout` | Route Handlers (reads); Server Actions (writes) |
+| `use-tickets.ts`, `use-create-ticket.ts` (exist) | `useTickets`, `useCreateTicket`, `useRequesterContext` | Server Actions today: `list-tickets.ts` reads and `create-ticket.ts` writes. Under D-2 the ticket list moves to a Route Handler |
+| `use-admin.ts` | `useAccounts`, `usePlatformConfig`, `useUpdateConfig`, `useAuditLog` | Route Handlers (reads); Server Actions (writes) |
+| `use-help-search.ts`, `use-article-feedback.ts` (exist; one file per hook) | `useHelpSearch`, `useArticleFeedback` | Local index; Server Action for feedback (`send-article-feedback.ts`) |
+| `use-quick-find.ts` | `useQuickFind` | Route Handler (read) |
+| `use-bulk-import.ts` | `useImportBatch`, `useImportMappings`, `useImportRows`, `useUpdateImportRow`, `usePriceImportBatch`, `useConfirmImportBatch`, `useImportBatches` | Route Handlers (reads, batch status polled); Server Actions (writes) |
+| `use-templates.ts` | `useLoadTemplates`, `useRecurrences` | Route Handlers (reads); Server Actions (writes) |
+| `use-approvals.ts` | `useApprovalRequests`, `useApprovalRequest`, `useDecideApproval`, `useApprovalDelegations`, `useSpendPolicy` | Route Handlers (reads, polled queue); Server Actions (writes) |
+| `use-reports.ts` | `useReport`, `useSavedReports`, `useReportSchedules` | Route Handlers (reads); Server Actions (writes) |
+| `use-security.ts` | `useVerifiedDomains`, `useSsoConnection`, `useScim`, `useRoleMappings`, `useSessionPolicy` | Route Handlers (reads); Server Actions (writes, all sensitive, IC-13) |
+| `use-integrations.ts` | `useApiKeys`, `useWebhooks`, `useWebhookDeliveries`, `useEdiConnections` | Route Handlers (reads, deliveries polled); Server Actions (writes) |
+| `use-privacy.ts` | `useExports`, `useRequestExport`, `usePrivacyRequests` | Route Handlers (reads, job status polled); Server Actions (writes) |
+| `use-fleet-plan.ts` | `useFleetPlan`, `useTruckAvailability` | Route Handlers (reads, polled); Server Action (truck availability) |
+| `use-quote-requests.ts` | `useQuoteRequests`, `useQuoteRequest`, `useRequestCustomQuote`, `useWithdrawQuoteRequest`, `useClaimQuoteRequest`, `usePriceQuoteRequest`, `useDeclineQuoteRequest`, `useLaneEvidence` | Route Handlers (reads, polled); Server Actions (writes) |
 
 **Additions to existing hook files (version 1.1.0):** `use-loads.ts` gains `useAmendments`, `useAmendment`, `useProposeAmendment` and `useDecideAmendment`; the access hooks gain `useSsoDiscovery` (`use-sso-discovery.ts`, following the one-file-per-hook split above); `use-tickets.ts` gains `useViewAs`.
 
@@ -353,6 +353,8 @@ Every hook lives in `lib/hooks/use-<resource>.ts` (host rule), and components co
 | `use-form-problems.ts` (exists) | `useFormProblems` | IC-02 problem list and focus attempts shared by the access forms |
 | `use-manifest.ts`, `use-board-noise.ts` (exist) | `useManifest`, `useBoardNoise` | Access-page presentation; no data, no transport |
 | `use-active-section.ts` (exists) | `useActiveSection` | PG-09 contents: tracks the section in view (`legal-contents.tsx`) |
+| `use-ticket-flow.ts`, `use-ticket-draft.ts` (exist) | `useTicketFlow`, `useTicketDraft` | PG-08 ticket steps over `useCreateTicket`, with the draft kept locally (PP-06) |
+| `use-slow.ts` (exists) | `useSlow` | LS-3: reports when a pending request passes the slow threshold |
 | `use-scene-progress.ts`, `use-truck-readouts.ts`, `use-freight-map.ts` (exist) | `useSceneProgress`, `useTruckReadouts`, `useFreightMap` | PG-01 and access-page scenes; no data, no transport |
 
 **Naming across phases.** Phases 5 and 6 cite hooks in the kebab form used for files, with parameters (for example `use-account-standing()`). The export is always the camelCase equivalent (`useAccountStanding`), and it lives in the file listed in this table, which may group several related hooks (`useAccountStanding` is exported from `use-organization.ts`).
@@ -361,7 +363,7 @@ Every hook lives in `lib/hooks/use-<resource>.ts` (host rule), and components co
 
 - Query keys come from one factory per resource (`loadKeys.list(params)`, `loadKeys.detail(id)`), defined in the hook file and exported for invalidation.
 - Mutations invalidate by key factory. Optimistic updates only where Phase 5 says so (SH-04, IC-29, IC-33, IC-36).
-- Server components prefetch the initial data with the same action functions and pass it through TanStack Query's `HydrationBoundary`, so the first render never waits on the client.
+- Server components prefetch the initial data with the same server-only read the Route Handler relays (D-2) and pass it through TanStack Query's `HydrationBoundary`, so the first render never waits on the client.
 - Polling uses `refetchInterval` from feature constants and `refetchIntervalInBackground: false`.
 
 ---
@@ -423,7 +425,7 @@ Pure, framework-free helpers in `lib/utils/` (existing files kept):
 | Browser transport | `lib/api-client.ts` (exists) | `local` gains `get` for same-origin Route Handlers (D-2); `query` remains for unauthenticated backend calls |
 | Server transport | `lib/api-server.ts` (exists) | `backendFetch` attaches the session token; `relay` passes responses through |
 | Server Actions | `lib/actions/<verb>-<noun>.ts` | One action per file, following `create-user.ts`: parse input with the contract schema, call `backendFetch(routes.x())`, parse the envelope, return `ActionResult<T>` |
-| Route Handlers | `app/api/<resource>/route.ts` | Authenticated polled reads; verify session, `backendFetch`, `relay` |
+| Route Handlers | `app/api/<resource>/route.ts` | Authenticated reads, polled or not, and Server-Sent Events streams for live positions and ETAs (D-2); verify session, `backendFetch`, `relay` |
 | Hooks | `lib/hooks/use-<resource>.ts` | Wrap actions or `local` calls in TanStack Query |
 | Mocks | `lib/mocks/` (exists), fixtures in `lib/data/mocks/` | One handler per backend module, registered in `router.ts` under its contract route; answers at the `backendFetch` and `apiClient` seams while `NEXT_PUBLIC_API_MOCKS` is not `off`; responses use the backend envelopes with simulated latency; scenario accounts trigger error states |
 
@@ -437,7 +439,7 @@ Pure, framework-free helpers in `lib/utils/` (existing files kept):
 
 | Folder | What goes there | Examples (names only; appearance decided at build) |
 | --- | --- | --- |
-| `components/ui/` | Domain-free primitives implementing Phase 6 contracts | `button.tsx` (exists, IC-11), `input.tsx` (exists, IC-01), `combobox.tsx` (IC-05/07), `date-window-field.tsx` (IC-08), `dialog.tsx` (IC-41), `confirm-dialog.tsx` (IC-12), `tabs.tsx` (IC-16), `file-drop.tsx` (IC-24), `switch.tsx` (IC-36), `data-table.tsx` (IC-22), `pagination.tsx` (IC-21), `status-label.tsx` (IC-59), `countdown.tsx` (IC-46), `toggletip.tsx` (IC-56), `menu.tsx` (IC-57), `skip-link.tsx` (IC-52) |
+| `components/ui/` | Domain-free primitives implementing Phase 6 contracts, built on React Aria Components (§15) and styled with the host tokens | `button.tsx` (exists, IC-11), `input.tsx` (exists, IC-01), `combobox.tsx` (IC-05/07), `date-window-field.tsx` (IC-08), `dialog.tsx` (IC-41), `confirm-dialog.tsx` (IC-12), `tabs.tsx` (IC-16), `file-drop.tsx` (IC-24), `switch.tsx` (IC-36), `data-table.tsx` (IC-22), `pagination.tsx` (IC-21), `status-label.tsx` (IC-59), `countdown.tsx` (IC-46), `toggletip.tsx` (IC-56), `menu.tsx` (IC-57), `skip-link.tsx` (IC-52) |
 | `components/common/` | Shared compositions implementing shared sections (SH-) and repeated page sections | `record-collection.tsx` (SH-05), `load-timeline.tsx` (SH-01), `load-position.tsx` (SH-02), `document-set.tsx` (SH-03), `conversation.tsx` (SH-04), `account-standing.tsx` (SH-06), `attention-queue.tsx` (SH-07), `metric-set.tsx` (SH-08), `scorecard.tsx` (SH-09), `money-breakdown.tsx` (SH-14), `assignment-picker.tsx` (SH-15), `step-flow.tsx` (SH-13), `section-state.tsx` (one loading, empty and error handler for every section, SSB-1 … SSB-3), `login-form.tsx` (exists, SC-10.1), `error-summary.tsx` (exists, IC-02), `board-field.tsx` (exists, IC-01 label and error wiring with `field-error.tsx`, IC-03 reveal), `root-document.tsx` (exists, the document shell `global-not-found.tsx` needs) |
 | `components/home/`, `components/auth/`, `components/legal/` | Sections used by one public, access, system or legal page (D-14) | `fork-section.tsx` (exists, SC-01.1), `lane-form.tsx` (exists, SC-01.2), `email-step.tsx` and `password-step.tsx` (exist, SC-10.1), `auth-links.tsx` (exists, SC-10.2), `forgot-form.tsx` (exists, SC-12.1), `reset-form.tsx` (exists, SC-13.1), `verify-email.tsx` (exists, SC-14.1), `code-challenge.tsx` and `code-step.tsx` (exist, SC-14.2, IC-04), `expired-panel.tsx` (exists, SC-13.1 expired link), `side-picker.tsx` (exists, SC-11.1), `consent-check.tsx` (exists, IC-38), `link-countdown.tsx` (exists, IC-46), `system-page.tsx` (exists, PG-53, PG-55), `server-error.tsx` (exists, PG-54), `signed-in.tsx` (exists, interim dashboard); in `components/legal/`: `legal-document.tsx`, `legal-history.tsx`, `legal-contents.tsx`, `sub-processors.tsx` and `print-button.tsx` (exist, SC-09.1, NFR-PRIV-7) |
 | `components/wrappers/` | Behavioural wrappers | `motion-wrapper.tsx` (exists), `section-boundary.tsx` (error + suspense per section, SSB-1/3), `role-gate.tsx` (render by capability, never security) |
@@ -449,7 +451,7 @@ Pure, framework-free helpers in `lib/utils/` (existing files kept):
 
 ## 13. Real-time and Offline
 
-**Transport choice for live data.** Polling through TanStack Query `refetchInterval` via Route Handlers (D-2) at launch, with intervals from constants:
+**Transport choice for live data.** Live positions and ETAs (SH-02 on PG-40, the PG-26 map and PG-02) stream over Server-Sent Events from a Route Handler (native `ReadableStream`, no dependency) from stage 2; the mock layer streams positions along seeded routes. Everything else polls through TanStack Query `refetchInterval` via Route Handlers (D-2), and positions fall back to polling when the stream drops. Intervals come from constants:
 
 | Data | Interval | Pause when hidden |
 | --- | --- | --- |
@@ -472,7 +474,7 @@ Pure, framework-free helpers in `lib/utils/` (existing files kept):
 | Attention queue (SH-07, dashboards) | 60 s and on focus | Yes |
 | Recommended loads (SC-19.3) | 5 min | Yes |
 
-Server-sent events via a Route Handler (native `ReadableStream`, no dependency) are the upgrade path for messages and exceptions once the backend exposes a stream. Hooks keep the same signature either way.
+Messages and exceptions move to the same Server-Sent Events pattern once the backend exposes a stream. Hooks keep the same signature either way.
 
 **Offline (driver, PP-06).**
 
@@ -507,19 +509,22 @@ Per the master prompt's Library Selection Policy: reuse first, otherwise recomme
 | IDs | Reuse | `nanoid` (installed) | Host rule |
 | Session | Reuse | `jose` (installed) | Existing verification |
 | Unit tests | Reuse | `vitest` (installed), `fast-check` (installed) | Host standard |
-| Forms | **Declined** (2026-10-10) | Native pattern: Zod schemas in `lib/validations/`, `use-form-problems` (IC-02) and `board-field.tsx` (IC-01, IC-03) | The access forms meet IC-01 … IC-03 without a library; `react-hook-form` was proposed and is revisited only if PG-27 needs it |
+| Forms | **Approved** (2026-10-10), not yet installed | `@tanstack/react-form` with Zod through Standard Schema | Type-safe field arrays with no casts (the no-unchecked-cast rule), per-step validation for multi-step forms (PG-27, PG-17), and the TanStack family already used for server state. New forms use it; the access forms' native pattern moves over when next changed |
 | Maps | Reuse | `@deck.gl/core`, `@deck.gl/layers`, `@deck.gl/geo-layers` (installed; PG-01 freight map), with `topojson-client` and `us-atlas` (installed) for static geometry | Reuse first: the repo already renders maps with deck.gl, so IC-30 builds on it rather than a second map library. Changed in 1.1.1; 1.1.0 proposed `maplibre-gl` + `react-map-gl` before deck.gl was installed |
-| Map base layer | **Proposed** | `maplibre-gl` as deck.gl's base map, with a tile provider chosen separately | Street-level tracking (PG-02, PG-26, PG-40) needs roads and labels under the deck.gl layers; static geometry is enough only for PG-01 |
-| Charts | **Proposed** | `recharts` | Most widely used React chart library; SVG output supports the IC-45 accessible equivalents |
-| Component tests | **Later** | `@testing-library/react`, `@testing-library/user-event`, `jsdom` | Added once shared primitives multiply (decided 2026-10-10) |
+| Map base layer | **Approved** (2026-10-10), not yet installed | `maplibre-gl` with `@deck.gl/mapbox` (deck.gl layers interleaved) and Protomaps vector tiles styled with the Haulr tokens | Street-level tracking (PG-02, PG-26, PG-40) needs roads and labels under the deck.gl layers; MapLibre is open with no per-load fees, and deck.gl keeps the landing page's visual standard |
+| Truck routing and ETAs | **Approved** for the backend (2026-10-10) | HERE Routing API, truck profile | Deepest truck rules (weight per axle group for US bridge limits, hazmat, height); drives ETAs, reachability and empty miles (SH-02, SC-65.2, SC-65.4); the frontend only renders its results |
+| Charts | **Approved** (2026-10-10), not yet installed | `@visx/*` packages as needed (scales, shapes, axes) | Bespoke styling to the landing page's standard with accessible SVG and the IC-45 data equivalents |
+| Component tests | **Approved** (2026-10-10), not yet installed | Vitest Browser Mode: `@vitest/browser-playwright`, `vitest-browser-react` | Runs every IC- contract's focus, keyboard and ARIA behaviour in a real browser, which jsdom cannot reproduce; stable since Vitest 4 |
 | End-to-end | **Approved** (2026-10-10), not yet installed | `@playwright/test` | The recommended E2E runner for Next.js; multi-browser (Phase 9 cross-browser); Phase 9's blocking flow checks need it |
 | Accessibility tests | **Approved** (2026-10-10), not yet installed | `@axe-core/playwright` | Automated WCAG checks within E2E; Phase 9's blocking accessibility checks need it |
-| Payments entry | **Proposed** | Processor's official React SDK | Required by A6; chosen with the backend processor decision |
-| Observability | **Proposed** | `@vercel/otel` (or `@opentelemetry/sdk-node` if not on Vercel) via `instrumentation.ts`; `@sentry/nextjs` for error reporting | Framework-native OpenTelemetry hook; Sentry is the most widely used Next.js error reporter with source maps and release tracking (D-10) |
-| Product analytics | **Proposed** | Vendor chosen with privacy review (for example PostHog, self-hostable) | Event catalogue in §27; NFR-PRIV-3 constrains properties |
-| Feature flags | **Reuse first** | Environment-backed `lib/flags.ts`; a flag service only if targeting by organisation is required | D-11 |
+| Shipper payments | **Approved** (2026-10-10), not yet installed | Stripe: `@stripe/react-stripe-js`, `@stripe/stripe-js` (hosted Payment Element) | Hosted entry keeps Haulr in PCI SAQ-A (CMP-5); bank debit and card for shippers (A6) |
+| Carrier payments | **Approved** for the backend (2026-10-10) | Triumph payments network | Standard pay, QuickPay (BR-15) and payment to a carrier's factoring company; fraud checks across brokers. Carrier payout details are captured through Triumph's broker integration, chosen with the backend (A6) |
+| Observability | **Approved** (2026-10-10), not yet installed; needed before a public deployment | `@vercel/otel` (or `@opentelemetry/sdk-node` if not on Vercel) via `instrumentation.ts`; `@sentry/nextjs` for errors and performance | Framework-native tracing and the most widely used Next.js error reporter (D-10) |
+| Product analytics | **Approved** (2026-10-10) after the privacy review, not yet installed | PostHog (`posthog-js`, `posthog-node`), self-hostable | Funnels for the KPIs, session replay with masking, and the §27 catalogue; its feature flags back `lib/flags.ts` (D-11). NFR-PRIV-3 constrains properties |
+| Feature flags | **Approved** (2026-10-10) | PostHog feature flags behind `lib/flags.ts`, read server-side and passed as props | One typed module (D-11); targeting by organisation for enterprise pilots without a second service |
 | Passkeys | **Reuse** | Browser WebAuthn API (no dependency); server library chosen by the backend | SEC-1 |
-| Accessible primitives | **None** (2026-10-10) | Native `<dialog>` for IC-41 | The host builds its own primitives; revisit at the location combobox (IC-05), where React Aria's combobox is the option to propose |
+| Accessible primitives | **Approved** (2026-10-10), not yet installed | `react-aria-components` | Unstyled, WAI-ARIA-complete combobox (IC-05), time-zone-aware date and time windows (IC-08, through `@internationalized/date`), sortable tables and selection (IC-22, IC-23), keyboard-accessible drag and drop (IC-40, IC-68), dialog, menu, tabs and switch. `components/ui/` primitives wrap it, so the look stays bespoke |
+| Enterprise SSO and provisioning | **Approved** for the backend (2026-10-10) | WorkOS (SAML, OIDC, SCIM, admin portal) | One integration covers every identity provider; its admin portal matches PG-60's self-service setup; testing uses WorkOS's test provider |
 
 ---
 

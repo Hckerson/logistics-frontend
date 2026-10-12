@@ -1,6 +1,6 @@
 # Setup Checklist — Haulr
 
-`Version 1.3.3` · `2026-10-10` · Start: [START_HERE](./START_HERE.md) · Architecture: [Phase 7](./phase-7-frontend-architecture.md) · Build: [IMPLEMENTATION_PROMPT](./IMPLEMENTATION_PROMPT.md)
+`Version 1.3.4` · `2026-10-10` · Start: [START_HERE](./START_HERE.md) · Architecture: [Phase 7](./phase-7-frontend-architecture.md) · Build: [IMPLEMENTATION_PROMPT](./IMPLEMENTATION_PROMPT.md)
 
 Step by step, from a fresh machine to a repository ready for Sprint 1. Tick each box as you go. Steps marked **Approval** need the maintainer's go-ahead before you run them (Library Selection Policy, [Phase 7 §15](./phase-7-frontend-architecture.md#15-shared-libraries)).
 
@@ -112,7 +112,7 @@ This repository is already a Next.js 16 App Router project. **Do not run `create
 
 - [ ] Later sprints add: telemetry DSNs (S1), map tile key (S5), payments processor publishable key (S6), analytics key (S7). Never commit keys.
 - [ ] Every variable is declared in `lib/validations/env.ts` (D-9); the app refuses to start when one is missing or malformed.
-- [ ] For SSO work (S2), get access to the staging identity-provider tenants (Okta developer, Entra ID test, Google Workspace, OneLogin) from the security engineer (Phase 8 §5).
+- [ ] For SSO work (S2), use WorkOS's test identity provider; Okta and Entra ID developer tenants only for spot checks (Phase 8 §5).
 
 ### 3.3 TypeScript configuration
 
@@ -171,16 +171,16 @@ Propose each with its reason, wait for approval, then install. Never hand-edit `
 
 | Sprint | Package(s) | Purpose | Command after approval |
 | --- | --- | --- | --- |
-| — | `react-hook-form`, `@hookform/resolvers` | Declined 2026-10-10: the native form pattern stays (Phase 7 §15) | — |
-| Later | `@testing-library/react`, `@testing-library/user-event`, `@testing-library/jest-dom`, `jsdom` | Component tests, once shared primitives multiply | `pnpm add -D @testing-library/react @testing-library/user-event @testing-library/jest-dom jsdom` |
+| Next (approved 2026-10-10) | `@tanstack/react-form` | Forms (PG-27 first), Zod through Standard Schema | `pnpm add @tanstack/react-form` |
+| Next (approved 2026-10-10) | `@vitest/browser-playwright`, `vitest-browser-react` | Component tests in a real browser (Vitest Browser Mode) | `pnpm add -D @vitest/browser-playwright vitest-browser-react` |
 | Next (approved 2026-10-10) | `@playwright/test`, `@axe-core/playwright` | E2E and accessibility tests | `pnpm add -D @playwright/test @axe-core/playwright` then `pnpm exec playwright install` |
-| S5 | `maplibre-gl` | Base map under the installed deck.gl layers (IC-30) | `pnpm add maplibre-gl` |
-| S6 | Processor React SDK | Payment method entry (IC-42) | Decided with the processor |
-| S7 | `recharts` | Charts (IC-45) | `pnpm add recharts` |
+| Stage 2 (approved) | `maplibre-gl`, `@deck.gl/mapbox` | Base map under the deck.gl layers, with Protomaps tiles (IC-30) | `pnpm add maplibre-gl @deck.gl/mapbox` |
+| Stage 7 (approved) | `@stripe/react-stripe-js`, `@stripe/stripe-js` | Shipper payment entry (IC-42); carrier payouts through Triumph on the backend | `pnpm add @stripe/react-stripe-js @stripe/stripe-js` |
+| When a chart is scheduled (approved) | `@visx/*` as needed | Charts (IC-45) | `pnpm add @visx/scale @visx/shape @visx/axis` |
 | S1 | `@vercel/otel` (or `@opentelemetry/sdk-node`), `@sentry/nextjs` | Tracing and error reporting (D-10) | `pnpm add @vercel/otel @sentry/nextjs` |
-| S7 | Product analytics SDK (after privacy review) | Event catalogue (Phase 7 §27) | Decided with the vendor |
+| Before a public deployment (approved) | `posthog-js`, `posthog-node` | Analytics catalogue (Phase 7 §27) and feature flags (D-11), after the privacy review | `pnpm add posthog-js posthog-node` |
 | S8 | `k6` (CLI, not a package dependency), OWASP ZAP (CI container) | Load and security testing (Phase 8 §8) | Installed in CI images, not in `package.json` |
-| Optional | Headless accessible primitives | Combobox, dialog, menu | Only if proposed and approved |
+| Next (approved 2026-10-10) | `react-aria-components` | Accessible primitives under `components/ui/` (Phase 7 §15) | `pnpm add react-aria-components` |
 
 - [ ] Record each approval in the PR that installs the package.
 
@@ -226,8 +226,8 @@ Create folders only when their first file lands (empty folders are not committed
 
 ### 7.2 Component tests (after approval)
 
-- [ ] Configure Vitest with a `jsdom` environment for `*.test.tsx` in `vitest.config.mts`.
-- [ ] Add a setup file registering `@testing-library/jest-dom` matchers.
+- [ ] Add a Vitest Browser Mode project for `*.test.tsx` in `vitest.config.mts`, with the Playwright provider and a Chromium instance.
+- [ ] Render components with `vitest-browser-react` and assert with Vitest's built-in browser locators and matchers.
 - [ ] Add one reference test per contract type (for example IC-12 confirmation: focus moves to heading, Escape cancels, focus returns).
 
 ### 7.3 End-to-end and accessibility (after approval)

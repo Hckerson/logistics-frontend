@@ -1,6 +1,6 @@
 # Implementation Prompt — Haulr
 
-`Version 1.3.3` · `2026-10-10` · Start: [START_HERE](./START_HERE.md) · Setup: [SETUP-CHECKLIST](./SETUP-CHECKLIST.md) · Index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
+`Version 1.3.4` · `2026-10-10` · Start: [START_HERE](./START_HERE.md) · Setup: [SETUP-CHECKLIST](./SETUP-CHECKLIST.md) · Index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
 
 Copy this entire file into a new Claude Code session at the repository root, then name the sprint, page or feature to build.
 
@@ -229,13 +229,13 @@ Every data-bearing segment adds `loading.tsx` and `error.tsx`; each route group 
 
 One file per resource in `lib/hooks/use-<resource>.ts`, exporting that resource's query and mutation hooks and its query-key factory. The complete mapping from Phase 5 hook names to files is [Phase 7 §8](./phase-7-frontend-architecture.md#8-hooks). Existing hooks (`use-login`, `use-logout`, `use-register`, `use-create-user`, `use-debounced-search`) are kept. So are the access hooks, one file per hook (`use-request-password-reset`, `use-reset-password`, `use-verify-email`, `use-resend-verification`, `use-mfa-challenge`), and the existing hooks without transport: the step flows (`use-sign-in-flow`, `use-forgot-flow`, `use-reset-flow`, `use-verify-flow`, `use-register-flow`, `use-mfa-flow`), `use-caps-lock` (IC-03), `use-countdown` (IC-46), `use-form-problems` (IC-02), `use-side` (SC-01.1), `use-reduced`, and the PG-01 and access-page presentation hooks (Phase 7 §8).
 
-Transport per hook: authenticated mutations and non-polled reads → Server Action; polled authenticated reads → Route Handler via `local` (D-2, pending confirmation); anonymous public reads → Route Handler.
+Transport per hook (D-2, confirmed 2026-10-10): every read goes through a Server Component or a GET Route Handler via `local`; every mutation wraps a Server Action; live positions and ETAs stream over Server-Sent Events from a Route Handler, with polling as the fallback; anonymous public reads use Route Handlers.
 
 ### 5.6 Component organisation
 
 | Folder | Holds | Built from |
 | --- | --- | --- |
-| `components/ui/` | Domain-free primitives, one per Phase 6 contract (or native element); `button.tsx`, `input.tsx` exist | Phase 6 |
+| `components/ui/` | Domain-free primitives, one per Phase 6 contract, built on React Aria Components (Phase 7 §15); `button.tsx`, `input.tsx` exist | Phase 6 |
 | `components/common/` | Shared sections (SH-01 … SH-15) and page sections, domain-prefixed filenames | Phase 5 |
 | `components/home/`, `components/auth/` | Sections used by one public or access page (exist; D-14) | Phase 5 |
 | `components/wrappers/` | `section-boundary.tsx` (Suspense + error boundary per section), `motion-wrapper.tsx` (exists) | Phase 4 SSB-1, SSB-3 |
@@ -247,7 +247,7 @@ A section used by two pages lives once in `components/common/`. Page sections al
 
 ## 6. Phase 8 Implementation — Sprint Breakdown
 
-**The active plan is the solo build order in [Phase 8 §16](./phase-8-implementation-roadmap.md#16-solo-build-order)**: seven stages, about 71 weeks for one engineer, pattern-first; everything else is Specified and queued after stage 7, and only payment method entry is Deferred (no processor chosen). The sprints below are the staffed plan, kept for reference. Authoritative source: [Phase 8 §3](./phase-8-implementation-roadmap.md#3-sprint-breakdown). 16 weeks, 8 sprints, starting 2026-10-05, with a parallel enterprise track from Sprint 2. Stories enter a sprint only when they meet the Definition of Ready ([Phase 8 §11](./phase-8-implementation-roadmap.md#11-definition-of-ready-and-definition-of-done)).
+**The active plan is the solo build order in [Phase 8 §16](./phase-8-implementation-roadmap.md#16-solo-build-order)**: seven stages, about 71 weeks for one engineer, pattern-first; everything else is Specified and queued after stage 7, and nothing is Deferred. The sprints below are the staffed plan, kept for reference. Authoritative source: [Phase 8 §3](./phase-8-implementation-roadmap.md#3-sprint-breakdown). 16 weeks, 8 sprints, starting 2026-10-05, with a parallel enterprise track from Sprint 2. Stories enter a sprint only when they meet the Definition of Ready ([Phase 8 §11](./phase-8-implementation-roadmap.md#11-definition-of-ready-and-definition-of-done)).
 
 ### Sprint 1 — Foundations (2026-10-05 → 2026-10-16)
 
@@ -291,7 +291,7 @@ A section used by two pages lives once in `components/common/`. Page sections al
 - **Shared sections:** SH-02 live position and ETA, SH-15 assignment.
 - **Pages and flows:** PG-37, PG-35 (SC-35.2), PG-20, PG-39, PG-02, PG-40 (SC-40.5, 40.6, 40.12, 40.15, 40.16), PG-26 (SC-26.2, 26.3). Enterprise track: PG-64. Flows XF-05, XF-06, XF-07, XF-09 (capture), XD-03, XF-15.
 - **Sequencing:** PG-37 → SH-15 → PG-39 (with offline queue) → SH-02 → PG-02; SC-40.16 → PG-64.
-- **Needs:** map base layer approval (deck.gl is installed and reused; Phase 7 §15).
+- **Map base layer:** approved (MapLibre with Protomaps tiles; Phase 7 §15).
 
 ### Sprint 6 — Money (2026-12-14 → 2027-01-08, holiday weeks excluded)
 
@@ -359,7 +359,7 @@ Authoritative source: [Phase 9](./phase-9-qa-checklist.md). A feature is **Verif
 - [ ] **QA-018** Industry terms have an accessible explanation available _(IC-56, PP-07)_
 - [ ] **QA-019** Driver workflow targets meet 44 × 44 CSS px _(G-2)_ **[B]**
 - [ ] **QA-020** Camera capture relies on native file input with capture _(IC-25)_ **[B]**
-- [ ] **QA-021** Payment processor entry passes an axe scan (proposed, Phase 7 §15) and a keyboard pass _(IC-42)_ **[B]**
+- [ ] **QA-021** Payment processor entry passes an axe scan (approved, Phase 7 §15) and a keyboard pass _(IC-42)_ **[B]**
 - [ ] **QA-022** Keyboard shortcuts can be turned off or are scoped to focus _(IC-49)_ **[B]**
 - [ ] **QA-023** Skip link present on every page and moves focus to the main landmark _(IC-52)_ **[B]**
 - [ ] **QA-024** Session timeout warns 2 minutes ahead and allows extension _(IC-54)_ **[B]**
@@ -735,7 +735,8 @@ import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query
 import SectionBoundary from "@/components/wrappers/section-boundary";
 import LoadIdentity from "@/components/common/load-identity";
 import LoadTimeline from "@/components/common/load-timeline";
-import { getLoad } from "@/lib/actions/get-load";
+import { backendFetch, readJson } from "@/lib/api-server";
+import { routes } from "@/lib/contract";
 import { loadKeys } from "@/lib/hooks/use-loads";
 
 interface Props {
@@ -747,7 +748,7 @@ export default async function LoadPage({ params }: Props) {
     const queryClient = new QueryClient();
     await queryClient.prefetchQuery({
         queryKey: loadKeys.detail(loadId),
-        queryFn: () => getLoad(loadId),
+        queryFn: async () => readJson(await backendFetch(routes.loadsFindOne(loadId))),
     });
 
     return (
@@ -765,16 +766,17 @@ export default async function LoadPage({ params }: Props) {
 }
 ```
 
-Rules: the page composes its Phase 5 sections and holds page-level state only; each data section sits in its own `SectionBoundary`; prefetch on the server with the same action the hook uses; `generateMetadata` sets `<Page> · Haulr` from constants. Which sections render, and in what arrangement, follows the page's Phase 5 inventory and approved concept.
+Rules: the page composes its Phase 5 sections and holds page-level state only; each data section sits in its own `SectionBoundary`; prefetch on the server with the same read the Route Handler relays (D-2); `generateMetadata` sets `<Page> · Haulr` from constants. Which sections render, and in what arrangement, follows the page's Phase 5 inventory and approved concept.
 
 ### 8.3 Hook patterns
 
 ```ts
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getLoad } from "@/lib/actions/get-load";
+import { local } from "@/lib/api-client";
+import { apiRoutes } from "@/lib/api-routes";
 import { transitionLoad } from "@/lib/actions/transition-load";
 import { unwrap } from "@/lib/utils/action-result";
-import type { LoadTransitionDto } from "@/lib/contract/schemas";
+import type { LoadDto, LoadTransitionDto } from "@/lib/contract/schemas";
 
 export const loadKeys = {
     all: ["loads"] as const,
@@ -786,7 +788,7 @@ export const loadKeys = {
 export const useLoad = (loadId: string) =>
     useQuery({
         queryKey: loadKeys.detail(loadId),
-        queryFn: async () => unwrap(await getLoad(loadId)),
+        queryFn: () => local.get<LoadDto>(apiRoutes.load(loadId)),
     });
 
 export const useLoadActions = (loadId: string) => {

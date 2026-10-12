@@ -1,6 +1,6 @@
 # Phase 8 — Implementation Roadmap
 
-`Haulr Design OS` · `Version 1.3.3` · `2026-10-10` · Previous: [Phase 7 — Frontend Architecture](./phase-7-frontend-architecture.md) · Next: [Phase 9 — QA Checklist](./phase-9-qa-checklist.md)
+`Haulr Design OS` · `Version 1.3.4` · `2026-10-10` · Previous: [Phase 7 — Frontend Architecture](./phase-7-frontend-architecture.md) · Next: [Phase 9 — QA Checklist](./phase-9-qa-checklist.md)
 
 The plan for building Phases 1–7 in 16 weeks (8 two-week sprints), plus the single record of build status for every page, section, interaction contract and flow. Status lives here and nowhere else; the blueprints in Phases 1–7 record intent and are never edited to reflect progress (Critical Rules › Scope Preservation).
 
@@ -106,7 +106,7 @@ This breakdown is the staffed plan; the active order is §16. Every page is buil
 - **Shared sections:** SH-02, SH-15.
 - **Pages:** PG-37, PG-35 (assignment), PG-20, PG-39, PG-02, PG-40 (SC-40.5, 40.6, 40.12, 40.15, 40.16), PG-26 (map, sharing); enterprise track: PG-64.
 - **Flows:** XF-05, XF-06, XF-07, XF-09 (capture), XD-03, XF-15.
-- **Library approval needed:** map base layer (deck.gl is installed and reused; Phase 7 §15).
+- **Map base layer:** approved (MapLibre with Protomaps tiles; Phase 7 §15).
 
 ### Sprint 6 — Money (2026-12-14 → 2027-01-08, holiday weeks excluded)
 
@@ -146,14 +146,14 @@ This breakdown is the staffed plan; the active order is §16. Every page is buil
 | Dependency | Needed by | Owner | Fallback |
 | --- | --- | --- | --- |
 | Backend modules with `@ApiEnvelope` DTOs: auth extensions (MFA, reset, invites), organisations | S1–S2 | Backend | Mock handlers on the contract routes in `lib/mocks/`, fixtures in `lib/data/mocks/` (Phase 7 §11) |
-| Identity service: SAML/OIDC, SCIM, domain verification, session policy | S2 | Backend, security | Staging identity-provider tenants (Okta developer, Entra ID test) |
+| Identity service: SAML/OIDC, SCIM, domain verification, session policy | S2 | Backend, security | WorkOS test identity provider; Okta and Entra ID developer tenants for spot checks |
 | Loads, quotes, custom quote requests, facilities, stats, templates | S3 | Backend | Same mock fallback |
 | Bids, tenders, load board search index, compliance, e-signature, approvals, import jobs | S4 | Backend | Same mock fallback; e-signature stubbed with a recorded acceptance |
 | Fleet, trips, stop events, positions, tracking tokens, documents, amendments | S5 | Backend | Same mock fallback; positions simulated along seeded routes |
 | Invoices, settlements, payments processor, claims, audit store, export jobs | S6 | Backend, finance | Processor sandbox |
 | Messages, notifications, metrics, tickets, reporting service, API keys, webhooks, fleet plan and truck availability | S7 | Backend | Same mock fallback |
 | Exceptions, admin config, view-as sessions | S8 | Backend | Same mock fallback |
-| Library approvals (Phase 7 §15) | S1 forms, tests, observability; S5 map base layer; S6 processor SDK; S7 charts, analytics | Maintainer | Build contracts without the library only where the host allows (for example native form handling) |
+| Library approvals (Phase 7 §15) | S1 forms, tests, observability; approved 2026-10-10: forms, tests, accessible primitives, map base layer, payments, charts, observability, analytics | Maintainer | Build contracts without the library only where the host allows (for example native form handling) |
 | Per-page visual concept approval | Before each page starts | Owner, designer | Page is not started until approved |
 | `pnpm contract` regeneration after each backend change | Continuous | Frontend | `pnpm contract:check` fails the gate |
 | Legal: carrier agreement, shipper terms, privacy notice, DPA, sub-processor list | S2 (agreements), S6 (DPA) | Legal | Launch blocked without them (CMP-4, CMP-7) |
@@ -166,17 +166,17 @@ This breakdown is the staffed plan; the active order is §16. Every page is buil
 | --- | --- | --- | --- | --- | --- |
 | R-01 | Backend endpoints lag frontend sprints | High | High | Mock handlers on the contract routes (host rule); DTOs published to the contract one stage ahead, before the backend implements them | Engineering manager |
 | R-02 | Library approvals delay forms, maps or tests | Medium | Medium | Request approvals in S1; list alternatives in Phase 7 §15 | Tech lead |
-| R-03 | Server Actions serialise polled reads (D-2) | High if D-2 rejected | Medium | Route Handler relays for polled reads; measure INP on PG-40 | Tech lead |
+| R-03 | Server Actions serialise reads (D-2) | — | — | Resolved 2026-10-10: D-2 confirmed and widened; all reads go through Route Handlers or Server Components, positions stream over Server-Sent Events | Tech lead |
 | R-04 | Map accessibility gaps | Medium | High | Text equivalent is the reference (PP-08); map is additive | Accessibility lead |
 | R-05 | Mobile browsers restrict background location | High | High | Tracking prefers ELD; driver web collects only while open; check-call fallback; native app in Phase 1 §16 | Product |
-| R-06 | Payments processor not selected in time | Medium | High | Sandbox integration behind IC-42; decision due by S4 | Finance lead |
+| R-06 | Payments provider not selected in time | — | — | Decided 2026-10-10: Stripe for shipper payments, Triumph for carrier payments; sandbox integrations behind IC-42 | Finance lead |
 | R-07 | 66 pages in 16 weeks exceeds capacity | High | High | Capacity check in §13; enterprise track staffed separately; deferral candidates pre-agreed with the maintainer; never deletion | Engineering manager |
 | R-08 | `forbidden()` requires an experimental flag in Next.js 16 | — | — | Resolved 2026-10-10: `next.config.ts` enables `experimental.authInterrupts` (and `globalNotFound`) | Tech lead |
 | R-09 | Contract drift between backend and frontend | Medium | High | `pnpm contract:check` in CI | Tech lead |
 | R-10 | Visual concept approval becomes a bottleneck | Medium | Medium | Concepts produced one sprint ahead for the next sprint's pages | Designer |
 | R-11 | Offline replay conflicts with geofence events | Medium | Medium | Server wins; driver told (IC-29) | Tech lead |
 | R-12 | Fraud (carrier impersonation) exploits onboarding | Medium | High | Compliance review (PG-51) required before booking; fraud signals (SC-51.3); OFAC screening (CMP-11) | Compliance lead |
-| R-13 | Identity-provider variance breaks SSO for some customers | Medium | High | Interop tests with Okta, Entra ID, Google Workspace, OneLogin; diagnostics in SC-60.2; break-glass admin | Security engineer |
+| R-13 | Identity-provider variance breaks SSO for some customers | Low | High | WorkOS normalises SAML, OIDC and SCIM across providers; spot-check Okta and Entra ID; diagnostics in SC-60.2; break-glass admin | Security engineer |
 | R-14 | Cross-tenant data exposure | Low | Critical | Server-side scoping (SEC-5), automated isolation tests per resource (§8), organisation in query keys (Phase 7 §23), SSB-10 purges | Security engineer |
 | R-15 | SOC 2 evidence gaps discovered late | Medium | High | Controls mapped to CI, audit log and access reviews from S1; readiness assessment at M5 | Security engineer |
 | R-16 | Poor-quality customer import files flood support | Medium | Medium | Column dictionary, saved mappings, row-level outcomes and a results file (IC-61); import help articles | Product |
@@ -201,7 +201,7 @@ This breakdown is the staffed plan; the active order is §16. Every page is buil
 | --- | --- | --- | --- |
 | Unit | Vitest (installed) | `lib/loads/transitions.ts` against Phase 2 §5, §5.1 and §6 tables, formatters, reducers, schemas, query-string, offline queue, error-class mapping, flags | 90% line coverage in `lib/` |
 | Property | fast-check (installed) | State machines (no illegal transition reachable), money formatting, date windows, import row validation | Every state machine |
-| Component | Testing Library (proposed) | Every Phase 6 contract's states, keyboard support and ARIA | Every IC- contract |
+| Component | Vitest Browser Mode (approved) | Every Phase 6 contract's states, keyboard support and ARIA, in a real browser | Every IC- contract |
 | Integration | Vitest with mocks off, so tests exercise the real transport (host rule); the mock router has its own tests | Server Actions and Route Handlers: parsing, error mapping (Phase 4 §2.2), `withAction` guards, version handling (IC-67) | Every action and handler |
 | End-to-end | Playwright (proposed) | Every XF- and XS- flow's happy path plus listed failure paths | Every flow in Phase 2 |
 | Accessibility | axe with Playwright (proposed) + manual screen reader passes (NVDA + Firefox, VoiceOver + Safari iOS) | Every page, every state class | Zero serious or critical violations; VPAT at launch |
@@ -243,6 +243,7 @@ A feature with no implementation is **Specified**, not absent. Status is never r
 - **System pages built:** Not Found (PG-53) through `app/global-not-found.tsx` and `(public)/not-found.tsx`; Server Error (PG-54) through `error.tsx` at the app, auth and dashboard levels plus `global-error.tsx`; Access Denied (PG-55) through `app/forbidden.tsx`.
 - **Legal (PG-09) built ahead of the slice** at `(public)/legal/[document]/[[...version]]`, with superseded editions, print and the sub-processor list, content in `lib/data/legal/` (D-3).
 - **Signed-in landing:** `/dashboard` is an interim holding page (`app/dashboard/`) until the workspace roots exist. The public layout's navigation is session-aware (SC-01.4).
+- **Help and support built ahead of the slice:** Help Center and Help Article (PG-06, PG-07) and Contact Support (PG-08), with ticket and feedback mocks; content in `lib/data/help/` and `lib/data/support/` (D-3).
 - Built pages need Phase 9 verification and the owner's recorded review (Definition of Done, §11) before they count as Verified. SC-10.2 is **In progress** (`components/auth/auth-links.tsx`). Forgot Password, Reset Password and Verify (PG-12, PG-13, PG-14) are **In progress** with their mock handlers; the MFA challenge (SC-14.2) asks two-step accounts for a code before the session starts (`components/auth/code-challenge.tsx`, `code-step.tsx`). Register's side selection (SC-11.1) and consent (IC-38) are built (`side-picker.tsx`, `consent-check.tsx`). IC-01, IC-02 and IC-03 are **In progress**: `components/ui/input.tsx`, `components/common/board-field.tsx` (label, error wiring with `field-error.tsx`, and reveal), `components/common/error-summary.tsx` and `lib/hooks/use-caps-lock.ts`.
 
 ### 9.2 Flows
@@ -264,7 +265,7 @@ A feature with no implementation is **Specified**, not absent. Status is never r
 | XF-13 | Specified | S2 (team plan) | XS-05 | Specified | S7 (team plan) |
 | XF-14 | Specified | S3–S4 (team plan) | XS-06 | Specified | S6 (team plan) |
 | XF-15 | Specified | S5 (team plan) | XS-07 | Specified | S7 (team plan) |
-| XF-16 | Specified | S4 (team plan) | XS-08 | Deferred | S6 (team plan) |
+| XF-16 | Specified | S4 (team plan) | XS-08 | Specified | S6 (team plan) |
 | XF-17 | Scheduled | Solo 3 | XS-09 | Specified | S4 (team plan) |
 | | | | XS-10 | Scheduled | Solo 5 |
 | | | | XS-11 | Specified | S3 (team plan) |
@@ -287,9 +288,9 @@ Size: **S** ≈ 2 engineer-days, **M** ≈ 5, **L** ≈ 10, **XL** ≈ 15, exclu
 | PG-03 | Carrier Public Profile | S | Specified | S4 (team plan) | PG-35 | My Loads (carrier) | M | Specified | S4–S5 (team plan) |
 | PG-04 | Shipper Public Profile | S | Specified | S4 (team plan) | PG-36 | Saved Loads and Searches | S | Specified | S4 (team plan) |
 | PG-05 | Lane Rate Estimator | M | Scheduled | Solo 5 | PG-37 | Fleet | M | Specified | S5 (team plan) |
-| PG-06 | Help Center | S | Specified | S7 (team plan) | PG-38 | Settlements | M | Specified | S6 (team plan) |
-| PG-07 | Help Article | S | Specified | S7 (team plan) | PG-39 | Driver Trip | XL | Scheduled | Solo 4 |
-| PG-08 | Contact Support | S | Specified | S7 (team plan) | PG-40 | Load Details | XL | Scheduled | Solo 2 |
+| PG-06 | Help Center | S | In progress | Built ahead (S7 team plan) | PG-38 | Settlements | M | Specified | S6 (team plan) |
+| PG-07 | Help Article | S | In progress | Built ahead (S7 team plan) | PG-39 | Driver Trip | XL | Scheduled | Solo 4 |
+| PG-08 | Contact Support | S | In progress | Built ahead (S7 team plan) | PG-40 | Load Details | XL | Scheduled | Solo 2 |
 | PG-09 | Legal | S | In progress | Built ahead (S2 team plan) | PG-41 | Messages | M | Specified | S7 (team plan) |
 | PG-10 | Sign In | S | In progress | Solo 1 | PG-42 | Notifications | S | Specified | S7 (team plan) |
 | PG-11 | Register | S | In progress | Solo 1 | PG-43 | Documents | M | Specified | S6 (team plan) |
@@ -298,7 +299,7 @@ Size: **S** ≈ 2 engineer-days, **M** ≈ 5, **L** ≈ 10, **XL** ≈ 15, exclu
 | PG-14 | Verify | S | In progress | Solo 1 | PG-46 | Profile | S | Specified | S2 (team plan) |
 | PG-15 | Accept Invitation | S | Specified | S1 (team plan) | PG-47 | Settings | M | Specified | S2, S7 (team plan) |
 | PG-16 | Shipper Onboarding | M | Specified | S2 (team plan) | PG-48 | Organization and Team | M | Specified | S2, S4 (team plan) |
-| PG-17 | Carrier Onboarding | L | Specified | S2 (team plan) | PG-49 | Payment and Payout Methods | M | Deferred | S6 (team plan) |
+| PG-17 | Carrier Onboarding | L | Specified | S2 (team plan) | PG-49 | Payment and Payout Methods | M | Specified | S6 (team plan) |
 | PG-18 | Shipper Dashboard | M | Specified | S7 (team plan) | PG-50 | Exception Queue | L | Specified | S8 (team plan) |
 | PG-19 | Carrier Dashboard | M | Specified | S7 (team plan) | PG-51 | Carrier Vetting Review | M | Specified | S4 (team plan) |
 | PG-20 | Driver Home | S | Scheduled | Solo 4 | PG-52 | Accounts | M | Specified | S8 (team plan) |
@@ -325,6 +326,7 @@ Each section appears once. Where a group of sections shares one status and stage
 | SC-01.1, SC-01.4, SC-10.1, SC-10.2, SC-11.1, SC-11.2, SC-12.1, SC-13.1, SC-14.1, SC-14.2, SC-53.1, SC-54.1, SC-55.1 | In progress | Solo 1 |
 | SC-01.2 | In progress | Solo 5 |
 | SC-09.1 | In progress | Built ahead (S2 team plan) |
+| SC-06.1 … SC-06.3, SC-07.1 … SC-07.3, SC-08.1, SC-08.2 | In progress | Built ahead (S7 team plan) |
 | SC-01.3 | Scheduled | Solo 1 |
 | SC-02.1 … SC-02.3, SC-26.1, SC-26.2, SC-40.1 … SC-40.4, SC-40.6 … SC-40.8, SC-40.10, SC-40.15, SH-01, SH-02, SH-03, SH-05, SH-14 | Scheduled | Solo 2 |
 | SC-40.5, SC-65.1 … SC-65.4, SH-06, SH-15 | Scheduled | Solo 3 |
@@ -333,15 +335,13 @@ Each section appears once. Where a group of sections shares one status and stage
 | SC-33.1 … SC-33.3, SC-33.5, SC-34.1 … SC-34.4 | Scheduled | Solo 6 |
 | SC-31.1 … SC-31.3 | Scheduled | Solo 7 |
 | SC-15.1, SC-15.2 | Specified | S1 (team plan) |
-| SC-10.3, SC-16.1, SC-16.2, SC-16.4, SC-17.1 … SC-17.4, SC-17.6, SC-46.1, SC-46.2, SC-47.1, SC-47.2, SC-48.1 … SC-48.3, SC-60.1 … SC-60.5 | Specified | S2 (team plan) |
+| SC-10.3, SC-16.1 … SC-16.4, SC-17.1 … SC-17.6, SC-46.1, SC-46.2, SC-47.1, SC-47.2, SC-48.1 … SC-48.3, SC-60.1 … SC-60.5 | Specified | S2 (team plan) |
 | SC-05.3, SC-27.7, SC-32.1, SC-32.2, SC-57.1 … SC-57.3, SC-66.1 … SC-66.3 | Specified | S3 (team plan) |
 | SC-03.1 … SC-03.3, SC-04.1, SC-04.2, SC-22.1 … SC-22.3, SC-28.1 … SC-28.4, SC-29.1, SC-29.2, SC-33.4, SC-35.1, SC-36.1, SC-36.2, SC-40.17, SC-48.4, SC-51.1 … SC-51.5, SC-56.1 … SC-56.4, SC-58.1 … SC-58.4, SH-09 | Specified | S4 (team plan) |
 | SC-26.3, SC-35.2, SC-37.1, SC-37.2, SC-39.4, SC-40.12, SC-40.16, SC-64.1 … SC-64.4 | Specified | S5 (team plan) |
-| SC-23.1, SC-30.1 … SC-30.3, SC-31.4, SC-38.1 … SC-38.4, SC-40.9, SC-40.13, SC-43.1, SC-43.2, SC-44.1, SC-44.2, SC-45.1 … SC-45.4, SC-62.1, SC-62.2, SC-63.1, SC-63.2, SH-11 | Specified | S6 (team plan) |
-| SC-06.1 … SC-06.3, SC-07.1 … SC-07.3, SC-08.1, SC-08.2, SC-18.1 … SC-18.5, SC-19.1 … SC-19.5, SC-40.11, SC-40.14, SC-41.1, SC-41.2, SC-42.1, SC-42.2, SC-47.3, SC-59.1 … SC-59.3, SC-61.1 … SC-61.3, SH-04, SH-07, SH-08, SH-10, SH-12 | Specified | S7 (team plan) |
+| SC-23.1, SC-30.1 … SC-30.3, SC-31.4, SC-38.1 … SC-38.4, SC-40.9, SC-40.13, SC-43.1, SC-43.2, SC-44.1, SC-44.2, SC-45.1 … SC-45.4, SC-49.1 … SC-49.3, SC-62.1, SC-62.2, SC-63.1, SC-63.2, SH-11 | Specified | S6 (team plan) |
+| SC-18.1 … SC-18.5, SC-19.1 … SC-19.5, SC-40.11, SC-40.14, SC-41.1, SC-41.2, SC-42.1, SC-42.2, SC-47.3, SC-59.1 … SC-59.3, SC-61.1 … SC-61.3, SH-04, SH-07, SH-08, SH-10, SH-12 | Specified | S7 (team plan) |
 | SC-21.1 … SC-21.4, SC-23.2 … SC-23.5, SC-24.1 … SC-24.4, SC-25.1 … SC-25.3, SC-50.1 … SC-50.4, SC-52.1 … SC-52.4 | Specified | S8 (team plan) |
-| SC-16.3, SC-17.5 | Deferred | S2 (team plan) |
-| SC-49.1 … SC-49.3 | Deferred | S6 (team plan) |
 
 Check: 15 shared + 223 page sections = 238, matching [Phase 5 §13](./phase-5-section-blueprints.md#13-section-inventory).
 
@@ -349,8 +349,8 @@ Check: 15 shared + 223 page sections = 238, matching [Phase 5 §13](./phase-5-se
 
 | Contracts | Status | Stage or sprint |
 | --- | --- | --- |
-| IC-01, IC-02, IC-03, IC-04, IC-11, IC-38, IC-46 | In progress | Solo 1 |
-| IC-09, IC-12, IC-14, IC-19, IC-41, IC-44, IC-51, IC-52, IC-55, IC-59, IC-60, IC-67 | Scheduled | Solo 1 |
+| IC-01, IC-02, IC-03, IC-04, IC-09, IC-11, IC-19, IC-38, IC-46 | In progress | Solo 1 |
+| IC-12, IC-14, IC-41, IC-44, IC-51, IC-52, IC-55, IC-59, IC-60, IC-67 | Scheduled | Solo 1 |
 | IC-05, IC-07, IC-08, IC-10, IC-18, IC-20, IC-21, IC-22, IC-24, IC-25, IC-30, IC-32, IC-56, IC-58 | Scheduled | Solo 2 |
 | IC-06, IC-39, IC-68 | Scheduled | Solo 3 |
 | IC-29, IC-31 | Scheduled | Solo 4 |
@@ -361,18 +361,17 @@ Check: 15 shared + 223 page sections = 238, matching [Phase 5 §13](./phase-5-se
 | IC-23, IC-57 | Specified | S3 (team plan) |
 | IC-28, IC-33, IC-34, IC-61, IC-62 | Specified | S4 (team plan) |
 | IC-66 | Specified | S5 (team plan) |
-| IC-65 | Specified | S6 (team plan) |
+| IC-42, IC-65 | Specified | S6 (team plan) |
 | IC-16, IC-17, IC-35, IC-36, IC-37, IC-45, IC-50, IC-53, IC-54 | Specified | S7 (team plan) |
 | IC-47, IC-48, IC-49, IC-64 | Specified | S8 (team plan) |
-| IC-42 | Deferred | S6 (team plan) |
 
-In progress contracts build on existing files: IC-01 `input.tsx` with `board-field.tsx` and `field-error.tsx`, IC-02 `error-summary.tsx`, IC-03 `board-field.tsx` (reveal) and `use-caps-lock.ts`, IC-11 `button.tsx`, IC-46 `link-countdown.tsx` with `use-countdown.ts`, IC-04 `code-step.tsx` over a fixed-cell `board-field.tsx`, IC-38 `consent-check.tsx`.
+In progress contracts build on existing files: IC-01 `input.tsx` with `board-field.tsx` and `field-error.tsx`, IC-02 `error-summary.tsx`, IC-03 `board-field.tsx` (reveal) and `use-caps-lock.ts`, IC-11 `button.tsx`, IC-46 `link-countdown.tsx` with `use-countdown.ts`, IC-04 `code-step.tsx` over a fixed-cell `board-field.tsx`, IC-38 `consent-check.tsx`, IC-09 `choice-grid.tsx`, IC-19 `help-search-field.tsx`.
 
 Check: 68 contracts, matching [Phase 6 §13](./phase-6-interaction-contracts.md#13-contract-usage-index).
 
 ### 9.6 Deferred register
 
-**2026-10-09, payment and payout method entry (approved by the maintainer).** IC-42, PG-49, SC-16.3, SC-17.5, SC-49.1 … SC-49.3 and XS-08. Blocker: no payments processor is chosen (R-06), so its hosted entry fields do not exist to build against. Revisit trigger: the processor is chosen. Specs are unchanged.
+**2026-10-09 → closed 2026-10-10, payment and payout method entry.** IC-42, PG-49, SC-16.3, SC-17.5, SC-49.1 … SC-49.3 and XS-08 were Deferred because no payments processor was chosen. The maintainer chose Stripe (shippers) and Triumph (carriers) on 2026-10-10, so they are Specified again. The register has no open entries.
 
 Items outside the solo slice are **Specified**, not Deferred: nothing blocks them, and they are queued after §16 stage 7. (Version 1.3.0 had marked them Deferred; 1.3.1 relabelled them because capacity alone is not a blocker.)
 
@@ -484,7 +483,7 @@ Burn-down is reviewed at every milestone; the decision among these options is du
 
 ## 16. Solo Build Order
 
-**This is the active plan.** One engineer builds the end-to-end slice below against the mocked backend (host `.claude/CLAUDE.md`, "The mocked backend"). The order delivers the interface patterns the project brief names for Logistics first (live tracking maps, ETAs and load plans, `docs/economy-coverage-map.md`), then the rest of the quote-to-paid lifecycle. Mock fixtures stand in for loads that were never posted, so tracking and planning do not wait for posting and booking. Everything outside the slice is **Specified** in §9: fully defined and queued after stage 7. Only payment and payout method entry is **Deferred**, because no payments processor is chosen (§9.6). Sections 1–15 stay as the staffed plan.
+**This is the active plan.** One engineer builds the end-to-end slice below against the mocked backend (host `.claude/CLAUDE.md`, "The mocked backend"). The order delivers the interface patterns the project brief names for Logistics first (live tracking maps, ETAs and load plans, `docs/economy-coverage-map.md`), then the rest of the quote-to-paid lifecycle. Mock fixtures stand in for loads that were never posted, so tracking and planning do not wait for posting and booking. Everything outside the slice is **Specified** in §9: fully defined and queued after stage 7. Nothing is **Deferred**: the payments decision on 2026-10-10 removed the last blocker (§9.6). Sections 1–15 stay as the staffed plan.
 
 **Capacity.** One engineer at the §13 focus factor gives about 3.75 engineer-days a week. The slice is about 265 engineer-days, including mock handlers and 15% hardening, so about 71 weeks.
 
@@ -492,7 +491,7 @@ Burn-down is reviewed at every milestone; the decision among these options is du
 | --- | --- | --- | --- | --- | --- |
 | 0 Foundations | Route groups and guards (D-7), `appRoutes`, error taxonomy with `section-state` and `section-boundary`, announcer and session providers, `withAction` and `withHandler` (D-13), `lib/enums/`, `lib/loads/transitions.ts`, security headers | — | — | 8 | 8 |
 | 1 Access | Sign in, register, password recovery, email verification and MFA, system pages; the home page finished (session-aware access routing, network proof). Brings forward from stage 0 the pieces these need: the announcer provider (IC-14), the error taxonomy (PG-54) and the route guards (PG-55) | PG-10, PG-11, PG-12, PG-13, PG-14, PG-53, PG-54, PG-55, PG-01 | XS-01 | 11 | 19 |
-| 2 Load and live tracking | Load details core, live position and ETA, shipments with their map, public tracking and its link | PG-40, PG-26, PG-02 | XF-07 | 21 | 40 |
+| 2 Load and live tracking | Load details core, live position and ETA streamed over Server-Sent Events, shipments with their map, public tracking and its link | PG-40, PG-26, PG-02 | XF-07 | 21 | 40 |
 | 3 Load plan | The dispatch board and assignment | PG-65 (with SC-40.5) | XF-17, XF-05 | 7 | 47 |
 | 4 Driver | Driver home and trip: stop events, POD capture, offline queue | PG-20, PG-39 | XF-06, XF-09 | 7 | 54 |
 | 5 Price and post | Lane estimator and posting, with the home page's price entry | PG-05, PG-27 (with SC-01.2) | XS-10, XF-01 | 9 | 63 |
