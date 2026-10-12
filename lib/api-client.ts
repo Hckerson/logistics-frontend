@@ -29,6 +29,16 @@ export const local = {
         (await sameOriginClient.delete<T>(url)).data,
 };
 
+export const storage = {
+    put: async (url: string, file: Blob, onProgress?: (share: number) => void) =>
+        (
+            await axios.put(url, file, {
+                headers: { "Content-Type": file.type },
+                onUploadProgress: ({ loaded, total }) => onProgress?.(total ? loaded / total : 0),
+            })
+        ).status,
+};
+
 const request = async <T>(
     config: AxiosRequestConfig,
 ): Promise<ApiResponse<T>> => {

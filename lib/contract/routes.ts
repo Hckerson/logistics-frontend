@@ -3,9 +3,24 @@ import type { Endpoint } from "@/lib/types/api";
 import { queryString } from "@/lib/utils/query-string";
 import type {
     AuthResponseDto,
+    CheckCallResponseDto,
+    DocumentDto,
+    DownloadLinkDto,
     HealthResponseDto,
+    LoadCountDto,
+    LoadDto,
+    LoadEventPageDto,
+    LoadPageDto,
+    LoadPositionsDto,
+    MapPositionDto,
+    NotificationPageDto,
     PeriodSeriesResponseDto,
     PeriodTotalResponseDto,
+    PublicTrackingDto,
+    QuickFindDto,
+    TrackingLinkDto,
+    UnreadCountDto,
+    UploadTicketDto,
     UserResponseDto,
 } from "./schemas";
 
@@ -29,4 +44,58 @@ export const routes = {
         `/api/stats/users/total${queryString(query)}` as Endpoint<PeriodTotalResponseDto>,
     statsUsersSeries: (query: { period: "day" | "month" | "year" }) =>
         `/api/stats/users/series${queryString(query)}` as Endpoint<PeriodSeriesResponseDto>,
+    loadsFindAll: (query?: {
+        cursor?: string;
+        limit?: number;
+        status?: string;
+        equipment?: string;
+        q?: string;
+        late?: boolean;
+    }) => `/api/loads${queryString(query)}` as Endpoint<LoadPageDto>,
+    loadsCounts: () => "/api/loads/counts" as Endpoint<LoadCountDto[]>,
+    loadsFindOne: (loadId: string) =>
+        `/api/loads/${loadId}` as Endpoint<LoadDto>,
+    loadsTransition: (loadId: string) =>
+        `/api/loads/${loadId}/transitions` as Endpoint<LoadDto>,
+    positionsForLoad: (loadId: string) =>
+        `/api/loads/${loadId}/positions` as Endpoint<LoadPositionsDto>,
+    positionsCheckCall: (loadId: string) =>
+        `/api/loads/${loadId}/check-calls` as Endpoint<CheckCallResponseDto>,
+    positionsLatest: () =>
+        "/api/positions/latest" as Endpoint<MapPositionDto[]>,
+    timelineList: (
+        loadId: string,
+        query?: {
+            cursor?: string;
+            limit?: number;
+            category?: "status" | "stop" | "tracking" | "document";
+        },
+    ) =>
+        `/api/loads/${loadId}/events${queryString(query)}` as Endpoint<LoadEventPageDto>,
+    trackingLinksList: (loadId: string) =>
+        `/api/loads/${loadId}/tracking-links` as Endpoint<TrackingLinkDto[]>,
+    trackingLinksCreate: (loadId: string) =>
+        `/api/loads/${loadId}/tracking-links` as Endpoint<TrackingLinkDto>,
+    trackingLinksRevoke: (linkId: string) =>
+        `/api/tracking-links/${linkId}/revoke` as Endpoint<TrackingLinkDto>,
+    publicTrackingFind: (token: string) =>
+        `/api/tracking/${token}` as Endpoint<PublicTrackingDto>,
+    documentsList: (loadId: string) =>
+        `/api/loads/${loadId}/documents` as Endpoint<DocumentDto[]>,
+    documentsRequestUpload: (loadId: string) =>
+        `/api/loads/${loadId}/documents` as Endpoint<UploadTicketDto>,
+    documentsComplete: (documentId: string) =>
+        `/api/documents/${documentId}/complete` as Endpoint<DocumentDto>,
+    documentsDownload: (documentId: string) =>
+        `/api/documents/${documentId}/download` as Endpoint<DownloadLinkDto>,
+    notificationsList: (query?: { cursor?: string; limit?: number }) =>
+        `/api/notifications${queryString(query)}` as Endpoint<NotificationPageDto>,
+    notificationsUnreadCount: () =>
+        "/api/notifications/unread-count" as Endpoint<UnreadCountDto>,
+    notificationsMarkAllRead: () =>
+        "/api/notifications/read-all" as Endpoint<UnreadCountDto>,
+    notificationsMarkRead: (notificationId: string) =>
+        `/api/notifications/${notificationId}/read` as Endpoint<UnreadCountDto>,
+    searchFind: (query: { q: string }) =>
+        `/api/search${queryString(query)}` as Endpoint<QuickFindDto>,
 } as const;

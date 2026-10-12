@@ -4,11 +4,15 @@ export const MOCK_ORGANISATIONS: Record<string, MockOrganisation> = {
     northline: { name: "Northline Freight", side: "shipper", sso: false },
     ridgeway: { name: "Ridgeway Haulage", side: "carrier", sso: false },
     harbor: { name: "Harbor Foods", side: "shipper", sso: true },
+    blueMesa: { name: "Blue Mesa Transport", side: "carrier", sso: false },
+    granite: { name: "Granite Line Carriers", side: "carrier", sso: false },
 };
 
 export const MOCK_MEMBERSHIPS: Record<string, string> = {
     "dispatch@northline.example": "northline",
     "approver@northline.example": "northline",
+    "ray@ridgeway.example": "ridgeway",
+    "driver@ridgeway.example": "ridgeway",
 };
 
 const northline = { organisation: "northline", inviter: "Priya Raman", role: "shipper.member" } as const;

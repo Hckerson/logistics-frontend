@@ -72,3 +72,8 @@ export const readRetryDelays = (error: unknown): readonly number[] => {
     if (failure.errorClass === "rate-limit") return failure.retryAfter ? [failure.retryAfter * SECOND] : [];
     return READ_RETRY_DELAYS_MS[failure.errorClass] ?? [];
 };
+
+export const READ_RETRY = {
+    retry: (failureCount: number, error: unknown) => failureCount < readRetryDelays(error).length,
+    retryDelay: (failureCount: number, error: unknown) => readRetryDelays(error)[failureCount] ?? 0,
+} as const;
