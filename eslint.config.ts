@@ -38,6 +38,8 @@ type RestrictedImports = [
 ];
 
 const ID_SOURCE = "IDs come from nanoid — never uuid or Date.now().";
+const LITERAL_ROUTE = "JSXAttribute[name.name='href'] Literal[value=/^\\//]";
+const ROUTE_SOURCE = "Build internal paths with appRoutes from @/lib/app-routes (IC-51), never a string literal.";
 
 const restrictedImports = (...paths: RestrictedPath[]): RestrictedImports => [
     "error",
@@ -92,6 +94,10 @@ const starterConfig: ConfigArray = [
                     "Components consume hooks. Import a use-<resource> hook from @/lib/hooks instead.",
             }),
         },
+    },
+    {
+        files: VIEWS,
+        rules: { "no-restricted-syntax": ["error", { selector: LITERAL_ROUTE, message: ROUTE_SOURCE }] },
     },
     {
         files: COMPONENTS,

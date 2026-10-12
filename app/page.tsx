@@ -9,6 +9,7 @@ import ProductsSection from "@/components/home/products-section";
 import QuoteClose from "@/components/home/quote-close";
 import TargetsSection from "@/components/home/targets-section";
 import TrailRule from "@/components/home/trail-rule";
+import { MAIN_CONTENT_ID } from "@/lib/constants";
 import { getSession } from "@/lib/utils/session";
 
 export default async function Home() {
@@ -17,7 +18,7 @@ export default async function Home() {
     return (
         <>
             <HaulrNav signedIn={signedIn} />
-            <main>
+            <main id={MAIN_CONTENT_ID} tabIndex={-1} className="outline-none">
                 <Lifecycle />
                 <TrailRule />
                 <TargetsSection />

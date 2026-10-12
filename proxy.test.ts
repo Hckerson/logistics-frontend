@@ -2,7 +2,9 @@ import { generateKeyPairSync } from "node:crypto";
 import { SignJWT, importPKCS8 } from "jose";
 import { NextRequest } from "next/server";
 import { beforeAll, describe, expect, it } from "vitest";
+import { appRoutes } from "@/lib/app-routes";
 import { DASHBOARD_ROUTE, LOGIN_ROUTE, SESSION_COOKIE, VERIFY_ROUTE } from "@/lib/constants";
+import { CSP_HEADER } from "@/lib/security/headers";
 
 const real = generateKeyPairSync("rsa", {
     modulusLength: 2048,
@@ -97,5 +99,26 @@ describe("route protection", () => {
         const response = await proxy(requestFor(LOGIN_ROUTE));
 
         expect(response.headers.get("location")).toBeNull();
+    });
+
+    it("guards every workspace and staff area, not only the dashboard", async () => {
+        for (const path of [appRoutes.shipments(), appRoutes.dispatchBoard(), appRoutes.driverHome(), appRoutes.load("HL-1"), appRoutes.operations()]) {
+            expect(locationOf(await proxy(requestFor(path))).pathname).toBe(LOGIN_ROUTE);
+        }
+    });
+
+    it("leaves public profiles open even though they share a prefix with the workspace", async () => {
+        expect((await proxy(requestFor(appRoutes.carrierProfile("cr_1")))).headers.get("location")).toBeNull();
+    });
+});
+
+describe("security headers", () => {
+    it("sends a fresh script nonce in the content security policy of every page", async () => {
+        const first = (await proxy(requestFor("/"))).headers.get(CSP_HEADER) ?? "";
+        const second = (await proxy(requestFor("/"))).headers.get(CSP_HEADER) ?? "";
+
+        expect(first).toMatch(/script-src 'self' 'nonce-[\w-]+' 'strict-dynamic'/);
+        expect(first).toContain("frame-ancestors 'none'");
+        expect(first).not.toBe(second);
     });
 });

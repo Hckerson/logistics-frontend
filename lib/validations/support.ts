@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { apiEnvelopeDtoSchema } from "@/lib/contract/schemas";
-import { TICKET_CATEGORIES, TICKET_LIMITS, TICKET_STATUSES, TICKET_URGENCIES } from "@/lib/support/constants";
+import { TICKET_STATUSES } from "@/lib/enums/ticket-status";
+import { TICKET_URGENCIES } from "@/lib/enums/ticket-urgency";
+import { TICKET_CATEGORIES, TICKET_LIMITS } from "@/lib/support/constants";
 
 export const ticketContextSchema = z.object({
     topic: z.enum(TICKET_CATEGORIES).optional(),
@@ -58,6 +60,8 @@ export const ticketSummarySchema = z.object({
     status: z.enum(TICKET_STATUSES),
     updated: z.string(),
 });
+
+export const ticketStatusQuerySchema = z.enum(TICKET_STATUSES).optional();
 
 export const ticketListRequestSchema = z.object({
     email: z.string().email(),

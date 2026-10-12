@@ -1,0 +1,16 @@
+export const ROLE_KEYS = [
+    "shipper.member",
+    "shipper.admin",
+    "shipper.finance",
+    "shipper.approver",
+    "carrier.dispatcher",
+    "carrier.admin",
+    "carrier.driver",
+    "public.tracking",
+    "internal.ops",
+    "internal.compliance",
+    "internal.finance",
+    "internal.support",
+    "internal.admin",
+    "org.security",
+] as const;

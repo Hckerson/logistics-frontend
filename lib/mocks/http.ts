@@ -6,6 +6,7 @@ const SUCCESS = "Success";
 const ERRORS: Record<number, string> = {
     400: "BadRequestException",
     401: "UnauthorizedException",
+    403: "ForbiddenException",
     404: "NotFoundException",
     409: "ConflictException",
     422: "UnprocessableEntityException",

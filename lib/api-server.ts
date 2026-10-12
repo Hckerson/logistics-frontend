@@ -1,8 +1,11 @@
 import "server-only";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { API_BASE_URL, API_MOCKS, REQUEST_FAILED, SESSION_COOKIE } from "@/lib/constants";
+import { API_BASE_URL, API_MOCKS, SESSION_COOKIE } from "@/lib/constants";
+import { CORRELATION_HEADER } from "@/lib/errors/constants";
 import type { ActionFailure } from "@/lib/types/api";
+import { failureOf } from "@/lib/utils/action-result";
+import { correlationId } from "@/lib/utils/correlation";
 
 const parseBody = (body: RequestInit["body"]): unknown => {
     if (typeof body !== "string") return body ?? null;
@@ -22,6 +25,7 @@ export const backendFetch = async (path: string, init: RequestInit = {}) => {
     if (API_MOCKS) return mockFetch(path, init);
 
     const token = (await cookies()).get(SESSION_COOKIE)?.value;
+    const requestId = correlationId();
 
     return fetch(`${API_BASE_URL}${path}`, {
         ...init,
@@ -30,6 +34,7 @@ export const backendFetch = async (path: string, init: RequestInit = {}) => {
             "Content-Type": "application/json",
             ...init.headers,
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            ...(requestId ? { [CORRELATION_HEADER]: requestId } : {}),
         },
     });
 };
@@ -50,9 +55,8 @@ export const relay = (upstream: Response) => {
     });
 };
 
-export const actionFailure = (upstream: Response): ActionFailure => ({
-    ok: false,
-    status: upstream.status,
-    message: REQUEST_FAILED,
-    retryAfter: Number(upstream.headers.get(RETRY_AFTER)) || undefined,
-});
+export const actionFailure = (upstream: Response): ActionFailure =>
+    failureOf(upstream.status, {
+        retryAfter: Number(upstream.headers.get(RETRY_AFTER)) || undefined,
+        correlationId: upstream.headers.get(CORRELATION_HEADER) ?? correlationId(),
+    });

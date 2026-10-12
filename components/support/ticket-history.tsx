@@ -2,12 +2,12 @@
 import clsx from "clsx";
 import Link from "next/link";
 import { useState } from "react";
-import ProgressLine from "@/components/auth/progress-line";
+import SectionState from "@/components/common/section-state";
 import { QUIET_LINK } from "@/lib/auth/constants";
 import { SUPPORT_ROUTE, loginRoute } from "@/lib/constants";
 import { SUPPORT_COPY } from "@/lib/data/support/copy";
 import { useTickets } from "@/lib/hooks/use-tickets";
-import { TICKET_STATUSES } from "@/lib/support/constants";
+import { TICKET_STATUSES } from "@/lib/enums/ticket-status";
 import type { TicketStatus } from "@/lib/types";
 import { dateFormatter } from "@/lib/utils/date-formatter";
 
@@ -58,26 +58,27 @@ export default function TicketHistory({ signedIn }: Props) {
                     </button>
                 ))}
             </div>
-            {tickets.isPending ? (
-                <ProgressLine className="bg-border" />
-            ) : tickets.isError ? (
-                <p className="text-text-muted text-xs">{history.failed}</p>
-            ) : tickets.data.length === 0 ? (
-                <p className="text-text-muted text-xs">{history.empty}</p>
-            ) : (
-                <ul className="border-border border-t">
-                    {tickets.data.map((ticket) => (
-                        <li key={ticket.reference} className="border-border flex flex-col gap-1 border-b py-2.5">
-                            <div className="flex items-baseline justify-between gap-3">
-                                <span className="text-text font-mono text-xs">{ticket.reference}</span>
-                                <span className={clsx("haulr-label", TONE[ticket.status])}>{history.filters[ticket.status]}</span>
-                            </div>
-                            <p className="text-text-secondary text-xs">{ticket.subject}</p>
-                            <p className="text-text-muted text-xs">{dateFormatter(ticket.updated, history.dateFormat)}</p>
-                        </li>
-                    ))}
-                </ul>
-            )}
+            <SectionState
+                label={history.part}
+                query={tickets}
+                isEmpty={(list) => list.length === 0}
+                empty={<p className="text-text-muted text-xs">{history.empty}</p>}
+            >
+                {(list) => (
+                    <ul className="border-border border-t">
+                        {list.map((ticket) => (
+                            <li key={ticket.reference} className="border-border flex flex-col gap-1 border-b py-2.5">
+                                <div className="flex items-baseline justify-between gap-3">
+                                    <span className="text-text font-mono text-xs">{ticket.reference}</span>
+                                    <span className={clsx("haulr-label", TONE[ticket.status])}>{history.filters[ticket.status]}</span>
+                                </div>
+                                <p className="text-text-secondary text-xs">{ticket.subject}</p>
+                                <p className="text-text-muted text-xs">{dateFormatter(ticket.updated, history.dateFormat)}</p>
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </SectionState>
         </section>
     );
 }

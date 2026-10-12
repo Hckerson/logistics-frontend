@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { ArrowRight, Checkmark } from "@carbon/icons-react";
-import ProgressLine from "@/components/auth/progress-line";
+import ProgressLine from "@/components/common/progress-line";
 import { CONSOLE_ACTION } from "@/lib/auth/constants";
 import { AUTH_COPY } from "@/lib/data/auth/shared";
 

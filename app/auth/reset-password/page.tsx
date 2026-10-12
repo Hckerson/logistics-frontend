@@ -2,7 +2,7 @@ import AuthIntro from "@/components/auth/auth-intro";
 import AuthLinks from "@/components/auth/auth-links";
 import ExpiredPanel from "@/components/auth/expired-panel";
 import ResetForm from "@/components/auth/reset-form";
-import { checkResetToken } from "@/lib/actions/reset-password";
+import { checkResetToken } from "@/lib/auth/server-checks";
 import { LINK_PAGE_METADATA } from "@/lib/auth/constants";
 import { RESET_COPY } from "@/lib/data/auth/reset";
 

@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { checkResetToken, resetPassword } from "./reset-password";
+import { checkResetToken } from "@/lib/auth/server-checks";
+import { resetPassword } from "./reset-password";
 
 vi.mock("next/headers", () => ({
     cookies: () => Promise.resolve({ get: () => undefined }),

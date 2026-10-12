@@ -1,13 +1,13 @@
-import { HTTP_STATUS } from "@/lib/constants";
 import { AUTH_COPY } from "@/lib/data/auth/shared";
+import { ERROR_COPY } from "@/lib/errors/constants";
 import type { ActionFailure, FormProblem } from "@/lib/types";
+import { errorClassOf, errorMessage } from "@/lib/utils/action-result";
 
 interface Issue {
     path: readonly PropertyKey[];
     message: string;
 }
 
-const SECONDS_PER_MINUTE = 60;
 const plural = new Intl.PluralRules("en");
 
 export function issuesToProblems<F extends string>(
@@ -24,16 +24,13 @@ export function issuesToProblems<F extends string>(
     });
 }
 
-export function rateLimitProblem(retryAfter: unknown): FormProblem<never> {
-    const seconds = Number(retryAfter);
-    const { rateLimit, rateLimitUnknown } = AUTH_COPY.errors;
-    return {
-        message: seconds ? rateLimit.replace("{minutes}", String(Math.ceil(seconds / SECONDS_PER_MINUTE))) : rateLimitUnknown,
-    };
-}
+export const rateLimitProblem = (retryAfter: unknown): FormProblem<never> => ({
+    message: errorMessage({ errorClass: "rate-limit", retryAfter: Number(retryAfter) || undefined }),
+});
 
-export const requestFailure = ({ status, retryAfter }: ActionFailure): FormProblem<never> =>
-    status === HTTP_STATUS.tooManyRequests ? rateLimitProblem(retryAfter) : { message: AUTH_COPY.errors.network };
+export const requestFailure = (failure: ActionFailure): FormProblem<never> => ({ message: errorMessage(failure) });
+
+export const responseFailure = (status: number): FormProblem<never> => ({ message: ERROR_COPY[errorClassOf(status)] });
 
 export const problemCount = (count: number) =>
     (plural.select(count) === "one" ? AUTH_COPY.summary.one : AUTH_COPY.summary.other).replace("{count}", String(count));

@@ -1,19 +1,22 @@
 import { useEffect, useEffectEvent, useRef, useState } from "react";
+import { useAnnounce } from "@/components/providers/announcer-provider";
 import { resendFailure, VERIFY_SIGNAL, verifyOutcome } from "@/lib/auth/verify";
 import { requestFailure } from "@/lib/auth/problems";
 import { HTTP_STATUS } from "@/lib/constants";
-import { AUTH_COPY } from "@/lib/data/auth/shared";
+import { VERIFY_COPY } from "@/lib/data/auth/verify";
+import { ERROR_COPY } from "@/lib/errors/constants";
 import { useFormProblems } from "@/lib/hooks/use-form-problems";
 import { useResendVerification } from "@/lib/hooks/use-resend-verification";
 import { useVerifyEmail } from "@/lib/hooks/use-verify-email";
 import type { VerifyStatus } from "@/lib/types";
 
-const network = { message: AUTH_COPY.errors.network };
+const network = { message: ERROR_COPY.offline };
 
 export function useVerifyFlow(token: string | null, sessionEmail: string | null) {
     const checks = useFormProblems();
     const verify = useVerifyEmail();
     const resend = useResendVerification();
+    const announce = useAnnounce();
     const started = useRef(false);
     const [status, setStatus] = useState<VerifyStatus>(token ? "verifying" : "inbox");
     const [email, setEmail] = useState(sessionEmail);
@@ -63,6 +66,7 @@ export function useVerifyFlow(token: string | null, sessionEmail: string | null)
                 checks.reset();
                 setResent(status === "inbox");
                 setSentAt(performance.now());
+                announce({ message: VERIFY_COPY.resend.announced });
                 setStatus("inbox");
             },
             onError: () => checks.fail([network]),

@@ -1,6 +1,8 @@
 import type { z } from "zod";
 import type { AuthResponseUserDto } from "@/lib/contract/schemas";
 import type { ActionFailure } from "@/lib/types/api";
+import type { RoleKey } from "@/lib/types/enums";
+import type { SessionPayload } from "@/lib/utils/verify-session-token";
 import type { mfaAnswerSchema, mfaStatusSchema } from "@/lib/validations/auth";
 
 export type AccountSide = "shipper" | "carrier";
@@ -113,3 +115,5 @@ export interface LaneTag {
     status: Record<AuthSignal, string>;
     rolling: string;
 }
+
+export type SessionUser = Pick<SessionPayload, "email" | "role"> & { id: string; roles: RoleKey[] };

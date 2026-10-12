@@ -1,8 +1,8 @@
 import { isAxiosError } from "axios";
 import type { Credentials, FormProblem, SignInField } from "@/lib/types";
-import { issuesToProblems, rateLimitProblem } from "@/lib/auth/problems";
+import { issuesToProblems, rateLimitProblem, responseFailure } from "@/lib/auth/problems";
 import { HTTP_STATUS } from "@/lib/constants";
-import { AUTH_COPY } from "@/lib/data/auth/shared";
+import { ERROR_COPY } from "@/lib/errors/constants";
 import { SIGN_IN_COPY } from "@/lib/data/auth/sign-in";
 import { signInSchema } from "@/lib/validations/auth";
 
@@ -14,8 +14,8 @@ export function signInProblems(credentials: Credentials): FormProblem[] {
 }
 
 export function failureProblem(error: unknown): FormProblem {
-    if (!isAxiosError(error) || !error.response) return { message: AUTH_COPY.errors.network };
+    if (!isAxiosError(error) || !error.response) return { message: ERROR_COPY.offline };
     const { status, headers } = error.response;
     if (status === HTTP_STATUS.tooManyRequests) return rateLimitProblem(headers["retry-after"]);
-    return { message: status < 500 ? errors.credentials : AUTH_COPY.errors.network };
+    return status < HTTP_STATUS.serverError ? { message: errors.credentials } : responseFailure(status);
 }

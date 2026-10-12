@@ -2,7 +2,7 @@ import { useState, type ChangeEvent, type FormEvent } from "react";
 import { requestFailure } from "@/lib/auth/problems";
 import { resetProblems } from "@/lib/auth/reset";
 import { flowSignal } from "@/lib/auth/signal";
-import { AUTH_COPY } from "@/lib/data/auth/shared";
+import { ERROR_COPY } from "@/lib/errors/constants";
 import { useFormProblems } from "@/lib/hooks/use-form-problems";
 import { useRequestPasswordReset } from "@/lib/hooks/use-request-password-reset";
 import type { ResetStep } from "@/lib/types";
@@ -27,7 +27,7 @@ export function useForgotFlow() {
                 setSentAt(performance.now());
                 setResent(again);
             },
-            onError: () => checks.fail([{ message: AUTH_COPY.errors.network }]),
+            onError: () => checks.fail([{ message: ERROR_COPY.offline }]),
         });
 
     const submit = (event: FormEvent) => {

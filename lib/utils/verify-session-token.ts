@@ -2,6 +2,7 @@ import { importSPKI, jwtVerify } from "jose";
 import { z } from "zod";
 import { API_MOCKS } from "@/lib/constants";
 import { createUserDtoSchema } from "@/lib/contract/schemas";
+import { ROLE_KEYS } from "@/lib/enums/role-key";
 import { MOCK_TOKEN_ALGORITHM, MOCK_TOKEN_SECRET } from "@/lib/mocks/session-token";
 
 const ALGORITHM = "RS256";
@@ -11,6 +12,7 @@ const sessionPayloadSchema = z.object({
     sub: z.string().min(1),
     email: z.string().email(),
     role: createUserDtoSchema.shape.role.unwrap(),
+    roles: z.array(z.enum(ROLE_KEYS)).optional(),
     iat: z.number(),
     exp: z.number(),
 });

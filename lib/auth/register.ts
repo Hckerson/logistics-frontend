@@ -1,9 +1,9 @@
 import { isAxiosError } from "axios";
 import { z } from "zod";
 import type { AccountDraft, AccountField, FormProblem } from "@/lib/types";
-import { issuesToProblems, rateLimitProblem } from "@/lib/auth/problems";
+import { issuesToProblems, rateLimitProblem, responseFailure } from "@/lib/auth/problems";
 import { HTTP_STATUS, SESSION_UNAVAILABLE } from "@/lib/constants";
-import { AUTH_COPY } from "@/lib/data/auth/shared";
+import { ERROR_COPY } from "@/lib/errors/constants";
 import { REGISTER_COPY } from "@/lib/data/auth/register";
 import { accountSchema } from "@/lib/validations/auth";
 
@@ -19,12 +19,12 @@ export function accountProblems(draft: AccountDraft, fields: readonly AccountFie
 }
 
 export function registerFailure(error: unknown): FormProblem {
-    if (!isAxiosError(error) || !error.response) return { message: AUTH_COPY.errors.network };
+    if (!isAxiosError(error) || !error.response) return { message: ERROR_COPY.offline };
     const { status, headers, data } = error.response;
     if (status === HTTP_STATUS.tooManyRequests) return rateLimitProblem(headers["retry-after"]);
     if (status === HTTP_STATUS.conflict) return { field: "email", message: errors.conflict, links: REGISTER_COPY.conflictLinks };
     if (messageBody.safeParse(data).data?.message === SESSION_UNAVAILABLE) {
         return { message: errors.session, links: REGISTER_COPY.sessionLinks };
     }
-    return { message: status < 500 ? errors.rejected : AUTH_COPY.errors.network };
+    return status < HTTP_STATUS.serverError ? { message: errors.rejected } : responseFailure(status);
 }

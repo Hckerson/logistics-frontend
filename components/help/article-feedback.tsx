@@ -1,6 +1,7 @@
 "use client";
 import { useState, useSyncExternalStore } from "react";
 import ConsoleLink from "@/components/auth/console-link";
+import { useAnnounce } from "@/components/providers/announcer-provider";
 import ChoiceGrid from "@/components/common/choice-grid";
 import Button from "@/components/ui/button";
 import { supportRoute } from "@/lib/constants";
@@ -21,6 +22,7 @@ export default function ArticleFeedback({ slug }: Props) {
     const key = `${HELP_FEEDBACK_STORAGE}.${slug}`;
     const given = useSyncExternalStore(ignore, () => sessionStorage.getItem(key) !== null, () => false);
     const send = useArticleFeedback();
+    const announce = useAnnounce();
     const [helpful, setHelpful] = useState<boolean | null>(null);
     const [reason, setReason] = useState<FeedbackReason | null>(null);
     const [failed, setFailed] = useState(false);
@@ -33,6 +35,7 @@ export default function ArticleFeedback({ slug }: Props) {
                 if (!result.ok) return setFailed(true);
                 sessionStorage.setItem(key, String(answer.helpful));
                 setSent(true);
+                announce({ message: feedback.announced });
             },
             onError: () => setFailed(true),
         });

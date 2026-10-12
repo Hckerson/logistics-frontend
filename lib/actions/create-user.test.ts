@@ -82,9 +82,10 @@ describe("createUser", () => {
             respondWith(409, { message: "User already exists" }),
         );
 
-        expect(await createUser(NEW_USER)).toEqual({
+        expect(await createUser(NEW_USER)).toMatchObject({
             ok: false,
             status: 409,
+            errorClass: "conflict",
             message: "User already exists",
         });
     });

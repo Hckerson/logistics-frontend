@@ -28,11 +28,6 @@ export const AUTH_COPY = {
         load: HERO_LANE.load,
     },
     summary: { heading: "There's a problem", one: "1 problem", other: "{count} problems" },
-    errors: {
-        rateLimit: "Too many attempts. Try again in {minutes} min.",
-        rateLimitUnknown: "Too many attempts. Wait a few minutes, then try again.",
-        network: "We couldn't reach Haulr. Check your connection, then try again.",
-    },
     tag: {
         title: HERO_LANE.load,
         route: `${HERO_LANE.from} → ${HERO_LANE.to}`,

@@ -57,7 +57,14 @@ export const VERIFY_COPY = {
             body: "Your link still works. Try again in a moment.",
         },
     } satisfies Record<VerifyStatus, VerifyView>,
-    resend: { ready: "Resend email", fresh: "Send a new link", wait: "Resend in {time}", pending: "Sending…", sent: "Sent again" },
+    resend: {
+        ready: "Resend email",
+        fresh: "Send a new link",
+        wait: "Resend in {time}",
+        pending: "Sending…",
+        sent: "Sent again",
+        announced: "Verification email sent.",
+    },
     retry: "Try again",
     proceed: "Continue",
     signIn: {

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { apiEnvelopeDtoSchema } from "@/lib/contract/schemas";
-import { EQUIPMENT_TYPES, PLACE_QUERY } from "@/lib/quotes/constants";
+import { EQUIPMENT_TYPES } from "@/lib/enums/equipment-type";
+import { PLACE_QUERY } from "@/lib/quotes/constants";
 import { todayValue } from "@/lib/utils/date-formatter";
 
 const place = z.string().trim().min(1, "missing").max(PLACE_QUERY.max, "long");

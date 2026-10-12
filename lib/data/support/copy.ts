@@ -48,6 +48,7 @@ export const SUPPORT_COPY = {
         label: "Ticket opened",
         body: "We'll reply within {time}. Replies go to {email}.",
         another: "Open another ticket",
+        announced: "Ticket {reference} opened.",
     },
     errors: {
         fields: {
@@ -62,9 +63,9 @@ export const SUPPORT_COPY = {
     },
     history: {
         label: "Your tickets",
+        part: "your tickets",
         filters: { all: "All", open: "Open", waiting: "Waiting on you", resolved: "Resolved" } satisfies Record<TicketStatus | "all", string>,
         empty: "No tickets yet. Anything you send appears here.",
-        failed: "Your tickets couldn't load. The form still works.",
         signedOut: "Sign in to follow the tickets you've opened.",
         signIn: "Sign in",
         dateFormat: "d MMM",

@@ -4,17 +4,17 @@ import AuthIntro from "@/components/auth/auth-intro";
 import FlowPanel from "@/components/auth/flow-panel";
 import OutcomeStep from "@/components/auth/outcome-step";
 import VerifyAction from "@/components/auth/verify-action";
+import { useSession } from "@/components/providers/session-provider";
 import { VERIFY_COPY } from "@/lib/data/auth/verify";
 import { useVerifyFlow } from "@/lib/hooks/use-verify-flow";
 
 interface Props {
     token: string | null;
-    email: string | null;
     footer: ReactNode;
 }
 
-export default function VerifyEmail({ token, email, footer }: Props) {
-    const flow = useVerifyFlow(token, email);
+export default function VerifyEmail({ token, footer }: Props) {
+    const flow = useVerifyFlow(token, useSession()?.email ?? null);
     const view = VERIFY_COPY.states[flow.status];
 
     return (

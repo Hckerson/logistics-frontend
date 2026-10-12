@@ -1,6 +1,7 @@
 import "@/styles/globals.css";
 import type { Metadata, Viewport } from "next";
 import RootDocument from "@/components/common/root-document";
+import SkipLink from "@/components/common/skip-link";
 import Provider from "@/components/providers/provider";
 import { HAULR_BRAND } from "@/lib/data/home/brand";
 import { HAULR_THEME_COLOR } from "@/lib/home/constants";
@@ -24,6 +25,7 @@ export default function RootLayout({
 }) {
     return (
         <RootDocument>
+            <SkipLink />
             <Provider>{children}</Provider>
         </RootDocument>
     );

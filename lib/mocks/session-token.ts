@@ -7,7 +7,7 @@ export const MOCK_TOKEN_ALGORITHM = "HS256";
 export const MOCK_TOKEN_SECRET = new TextEncoder().encode("haulr-mock-session-secret-not-for-production");
 
 export const signMockToken = (user: MockUser) =>
-    new SignJWT({ email: user.email, role: user.role })
+    new SignJWT({ email: user.email, role: user.role, roles: user.roles })
         .setProtectedHeader({ alg: MOCK_TOKEN_ALGORITHM })
         .setSubject(user.id)
         .setIssuedAt()

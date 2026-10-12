@@ -1,5 +1,3 @@
-export const EQUIPMENT_TYPES = ["dry-van", "reefer", "flatbed"] as const;
-
 export const LANE_FIELDS = ["origin", "destination", "equipment", "date"] as const;
 
 export const PLACE_QUERY = { min: 2, max: 200, debounce: 250, limit: 6 } as const;
