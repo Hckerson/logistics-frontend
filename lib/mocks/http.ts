@@ -48,7 +48,7 @@ export const playScenario = (found: MockScenario | undefined, path: string): Moc
     return fail(503, UNAVAILABLE, path);
 };
 
-const publicUser = ({ id, name, email, role }: MockUser) => ({ id, name, email, role });
+const publicUser = ({ id, name, email, role, roles }: MockUser) => ({ id, name, email, role, roles });
 
 export const issueSession = async (status: number, user: MockUser) =>
     ok(status, { user: publicUser(user), accessToken: await signMockToken(user) });

@@ -9,6 +9,8 @@ import { createTicket, listTickets } from "@/lib/mocks/support";
 import { places } from "@/lib/mocks/geo";
 import { estimate, saveEstimate, trend } from "@/lib/mocks/pricing";
 import { acceptInvitation, checkInvitation, recordLocationConsent } from "@/lib/mocks/team";
+import { FREIGHT_HANDLERS } from "@/lib/mocks/freight-routes";
+import { resolveRoute } from "@/lib/mocks/match-route";
 import type { MockHandler, MockRequest, MockResponse } from "@/lib/types";
 
 const NO_MOCK = "No mock handler for";
@@ -33,6 +35,7 @@ const HANDLERS: Record<string, MockHandler> = {
     [`POST ${unpublishedRoutes.invitationCheck()}`]: checkInvitation,
     [`POST ${unpublishedRoutes.invitationAccept()}`]: acceptInvitation,
     [`POST ${unpublishedRoutes.locationConsent()}`]: recordLocationConsent,
+    ...FREIGHT_HANDLERS,
 };
 
 const randomLatency = () => MOCK_LATENCY_MS.min + Math.random() * (MOCK_LATENCY_MS.max - MOCK_LATENCY_MS.min);
@@ -41,9 +44,10 @@ const pause = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export async function mockRequest(request: MockRequest, latency = randomLatency()): Promise<MockResponse> {
     await pause(latency);
-    const key = `${request.method.toUpperCase()} ${request.path.split("?")[0]}`;
-    const handler = HANDLERS[key];
-    return handler ? handler(request) : fail(404, `${NO_MOCK} ${key}`, request.path);
+    const method = request.method.toUpperCase();
+    const path = request.path.split("?")[0];
+    const found = resolveRoute(HANDLERS, method, path);
+    return found ? found.handler(request, found.params) : fail(404, `${NO_MOCK} ${method} ${path}`, request.path);
 }
 
 export const toResponse = ({ status, body, headers }: MockResponse) =>

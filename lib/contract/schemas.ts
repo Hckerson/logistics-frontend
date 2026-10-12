@@ -13,6 +13,24 @@ export const authResponseUserDtoSchema = z.object({
     name: z.string(),
     email: z.string(),
     role: z.string(),
+    roles: z.array(
+        z.enum([
+            "shipper.member",
+            "shipper.admin",
+            "shipper.finance",
+            "shipper.approver",
+            "carrier.dispatcher",
+            "carrier.admin",
+            "carrier.driver",
+            "public.tracking",
+            "internal.ops",
+            "internal.compliance",
+            "internal.finance",
+            "internal.support",
+            "internal.admin",
+            "org.security",
+        ]),
+    ),
 });
 export type AuthResponseUserDto = z.infer<typeof authResponseUserDtoSchema>;
 
@@ -100,3 +118,515 @@ export const periodSeriesResponseDtoSchema = z.object({
 export type PeriodSeriesResponseDto = z.infer<
     typeof periodSeriesResponseDtoSchema
 >;
+
+export const partyDtoSchema = z.object({ id: z.string(), name: z.string() });
+export type PartyDto = z.infer<typeof partyDtoSchema>;
+
+export const stopPlaceDtoSchema = z.object({
+    type: z.enum(["pickup", "delivery"]),
+    city: z.string(),
+    region: z.string(),
+    windowStart: z.string(),
+    windowEnd: z.string(),
+    timeZone: z.string(),
+});
+export type StopPlaceDto = z.infer<typeof stopPlaceDtoSchema>;
+
+export const etaDtoSchema = z.object({
+    at: z.string(),
+    confidence: z.enum(["high", "medium", "low"]),
+    late: z.boolean(),
+    milesRemaining: z.number().nullable(),
+});
+export type EtaDto = z.infer<typeof etaDtoSchema>;
+
+export const loadSummaryDtoSchema = z.object({
+    id: z.string(),
+    status: z.enum([
+        "Draft",
+        "PendingApproval",
+        "Posted",
+        "Booked",
+        "Dispatched",
+        "AtPickup",
+        "InTransit",
+        "AtDelivery",
+        "Delivered",
+        "PodVerified",
+        "Invoiced",
+        "Paid",
+        "Closed",
+        "Cancelled",
+        "Expired",
+        "OnHold",
+        "Disputed",
+    ]),
+    equipment: z.enum(["dry-van", "reefer", "flatbed"]),
+    shipper: partyDtoSchema,
+    carrier: partyDtoSchema.nullable(),
+    origin: stopPlaceDtoSchema,
+    destination: stopPlaceDtoSchema,
+    eta: etaDtoSchema.nullable(),
+    lastPositionAt: z.string().nullable(),
+    lastPositionCity: z.string().nullable(),
+    updatedAt: z.string(),
+});
+export type LoadSummaryDto = z.infer<typeof loadSummaryDtoSchema>;
+
+export const loadPageDtoSchema = z.object({
+    items: z.array(loadSummaryDtoSchema),
+    nextCursor: z.string().nullable(),
+});
+export type LoadPageDto = z.infer<typeof loadPageDtoSchema>;
+
+export const loadCountDtoSchema = z.object({
+    status: z.enum([
+        "Draft",
+        "PendingApproval",
+        "Posted",
+        "Booked",
+        "Dispatched",
+        "AtPickup",
+        "InTransit",
+        "AtDelivery",
+        "Delivered",
+        "PodVerified",
+        "Invoiced",
+        "Paid",
+        "Closed",
+        "Cancelled",
+        "Expired",
+        "OnHold",
+        "Disputed",
+    ]),
+    count: z.number(),
+});
+export type LoadCountDto = z.infer<typeof loadCountDtoSchema>;
+
+export const facilityPlaceDtoSchema = z.object({
+    name: z.string(),
+    line1: z.string(),
+    city: z.string(),
+    region: z.string(),
+    postalCode: z.string(),
+    latitude: z.number(),
+    longitude: z.number(),
+    timeZone: z.string(),
+});
+export type FacilityPlaceDto = z.infer<typeof facilityPlaceDtoSchema>;
+
+export const stopDtoSchema = z.object({
+    id: z.string(),
+    sequence: z.number(),
+    type: z.enum(["pickup", "delivery"]),
+    windowStart: z.string(),
+    windowEnd: z.string(),
+    reference: z.string().nullable(),
+    instructions: z.string().nullable(),
+    arrivedAt: z.string().nullable(),
+    departedAt: z.string().nullable(),
+    facility: facilityPlaceDtoSchema,
+});
+export type StopDto = z.infer<typeof stopDtoSchema>;
+
+export const chargeDtoSchema = z.object({
+    kind: z.enum([
+        "linehaul",
+        "fuel",
+        "accessorial",
+        "fee",
+        "deduction",
+        "quickPayFee",
+    ]),
+    amountCents: z.number(),
+    status: z.enum(["agreed", "pendingApproval", "disputed"]),
+});
+export type ChargeDto = z.infer<typeof chargeDtoSchema>;
+
+export const moneyDtoSchema = z.object({
+    totalCents: z.number(),
+    currency: z.string(),
+    pending: z.boolean(),
+    parts: z.array(chargeDtoSchema),
+});
+export type MoneyDto = z.infer<typeof moneyDtoSchema>;
+
+export const loadDtoSchema = z.object({
+    id: z.string(),
+    status: z.enum([
+        "Draft",
+        "PendingApproval",
+        "Posted",
+        "Booked",
+        "Dispatched",
+        "AtPickup",
+        "InTransit",
+        "AtDelivery",
+        "Delivered",
+        "PodVerified",
+        "Invoiced",
+        "Paid",
+        "Closed",
+        "Cancelled",
+        "Expired",
+        "OnHold",
+        "Disputed",
+    ]),
+    version: z.number(),
+    equipment: z.enum(["dry-van", "reefer", "flatbed"]),
+    commodity: z.string(),
+    weightLb: z.number(),
+    pallets: z.number().nullable(),
+    tempMinF: z.number().nullable(),
+    tempMaxF: z.number().nullable(),
+    hazmat: z.boolean(),
+    poNumber: z.string().nullable(),
+    bolNumber: z.string().nullable(),
+    shipper: partyDtoSchema,
+    carrier: partyDtoSchema.nullable(),
+    eta: etaDtoSchema.nullable(),
+    stops: z.array(stopDtoSchema),
+    shipperPrice: moneyDtoSchema.nullable(),
+    carrierPay: moneyDtoSchema.nullable(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+});
+export type LoadDto = z.infer<typeof loadDtoSchema>;
+
+export const loadTransitionDtoSchema = z.object({
+    reason: z.string().optional(),
+    to: z.enum([
+        "Draft",
+        "PendingApproval",
+        "Posted",
+        "Booked",
+        "Dispatched",
+        "AtPickup",
+        "InTransit",
+        "AtDelivery",
+        "Delivered",
+        "PodVerified",
+        "Invoiced",
+        "Paid",
+        "Closed",
+        "Cancelled",
+        "Expired",
+        "OnHold",
+        "Disputed",
+    ]),
+    version: z.number(),
+    carrierId: z.string().optional(),
+});
+export type LoadTransitionDto = z.infer<typeof loadTransitionDtoSchema>;
+
+export const positionDtoSchema = z.object({
+    latitude: z.number(),
+    longitude: z.number(),
+    heading: z.number().nullable(),
+    speedMph: z.number().nullable(),
+    city: z.string(),
+    source: z.enum(["eld", "driverApp", "mobileWeb", "checkCall"]),
+    recordedAt: z.string(),
+});
+export type PositionDto = z.infer<typeof positionDtoSchema>;
+
+export const loadPositionsDtoSchema = z.object({
+    latest: positionDtoSchema.nullable(),
+    track: z.array(positionDtoSchema),
+    eta: etaDtoSchema.nullable(),
+    health: z.enum(["fresh", "stale", "exception"]).nullable(),
+});
+export type LoadPositionsDto = z.infer<typeof loadPositionsDtoSchema>;
+
+export const checkCallResponseDtoSchema = z.object({ requestedAt: z.string() });
+export type CheckCallResponseDto = z.infer<typeof checkCallResponseDtoSchema>;
+
+export const checkCallDtoSchema = z.object({ note: z.string().optional() });
+export type CheckCallDto = z.infer<typeof checkCallDtoSchema>;
+
+export const mapPositionDtoSchema = z.object({
+    latitude: z.number(),
+    longitude: z.number(),
+    heading: z.number().nullable(),
+    speedMph: z.number().nullable(),
+    city: z.string(),
+    source: z.enum(["eld", "driverApp", "mobileWeb", "checkCall"]),
+    recordedAt: z.string(),
+    loadId: z.string(),
+    status: z.enum([
+        "Draft",
+        "PendingApproval",
+        "Posted",
+        "Booked",
+        "Dispatched",
+        "AtPickup",
+        "InTransit",
+        "AtDelivery",
+        "Delivered",
+        "PodVerified",
+        "Invoiced",
+        "Paid",
+        "Closed",
+        "Cancelled",
+        "Expired",
+        "OnHold",
+        "Disputed",
+    ]),
+});
+export type MapPositionDto = z.infer<typeof mapPositionDtoSchema>;
+
+export const loadEventDtoSchema = z.object({
+    id: z.string(),
+    type: z.enum([
+        "statusChanged",
+        "stopArrived",
+        "stopDeparted",
+        "trackingStale",
+        "checkCallRequested",
+        "documentUploaded",
+        "trackingLinkCreated",
+        "trackingLinkRevoked",
+    ]),
+    category: z.enum(["status", "stop", "tracking", "document"]),
+    fromStatus: z
+        .enum([
+            "Draft",
+            "PendingApproval",
+            "Posted",
+            "Booked",
+            "Dispatched",
+            "AtPickup",
+            "InTransit",
+            "AtDelivery",
+            "Delivered",
+            "PodVerified",
+            "Invoiced",
+            "Paid",
+            "Closed",
+            "Cancelled",
+            "Expired",
+            "OnHold",
+            "Disputed",
+        ])
+        .nullable(),
+    toStatus: z
+        .enum([
+            "Draft",
+            "PendingApproval",
+            "Posted",
+            "Booked",
+            "Dispatched",
+            "AtPickup",
+            "InTransit",
+            "AtDelivery",
+            "Delivered",
+            "PodVerified",
+            "Invoiced",
+            "Paid",
+            "Closed",
+            "Cancelled",
+            "Expired",
+            "OnHold",
+            "Disputed",
+        ])
+        .nullable(),
+    actorType: z.enum(["member", "staff", "apiKey", "system"]),
+    actorName: z.string().nullable(),
+    source: z.enum([
+        "web",
+        "driver",
+        "geofence",
+        "eld",
+        "operations",
+        "system",
+        "api",
+    ]),
+    reason: z.string().nullable(),
+    note: z.string().nullable(),
+    city: z.string().nullable(),
+    occurredAt: z.string(),
+});
+export type LoadEventDto = z.infer<typeof loadEventDtoSchema>;
+
+export const loadEventPageDtoSchema = z.object({
+    items: z.array(loadEventDtoSchema),
+    nextCursor: z.string().nullable(),
+});
+export type LoadEventPageDto = z.infer<typeof loadEventPageDtoSchema>;
+
+export const trackingLinkDtoSchema = z.object({
+    id: z.string(),
+    token: z.string(),
+    active: z.boolean(),
+    createdByName: z.string(),
+    createdAt: z.string(),
+    revokedAt: z.string().nullable(),
+    expiresAt: z.string().nullable(),
+});
+export type TrackingLinkDto = z.infer<typeof trackingLinkDtoSchema>;
+
+export const reasonDtoSchema = z.object({ reason: z.string().optional() });
+export type ReasonDto = z.infer<typeof reasonDtoSchema>;
+
+export const publicStopDtoSchema = z.object({
+    type: z.enum(["pickup", "delivery"]),
+    city: z.string(),
+    region: z.string(),
+    timeZone: z.string(),
+    latitude: z.number(),
+    longitude: z.number(),
+    windowStart: z.string(),
+    windowEnd: z.string(),
+    arrivedAt: z.string().nullable(),
+    departedAt: z.string().nullable(),
+});
+export type PublicStopDto = z.infer<typeof publicStopDtoSchema>;
+
+export const publicPositionDtoSchema = z.object({
+    latitude: z.number(),
+    longitude: z.number(),
+    city: z.string(),
+    source: z.enum(["eld", "driverApp", "mobileWeb", "checkCall"]),
+    recordedAt: z.string(),
+});
+export type PublicPositionDto = z.infer<typeof publicPositionDtoSchema>;
+
+export const publicTrackingDtoSchema = z.object({
+    reference: z.string(),
+    status: z.enum([
+        "Draft",
+        "PendingApproval",
+        "Posted",
+        "Booked",
+        "Dispatched",
+        "AtPickup",
+        "InTransit",
+        "AtDelivery",
+        "Delivered",
+        "PodVerified",
+        "Invoiced",
+        "Paid",
+        "Closed",
+        "Cancelled",
+        "Expired",
+        "OnHold",
+        "Disputed",
+    ]),
+    sharedBy: z.string(),
+    stops: z.array(publicStopDtoSchema),
+    eta: etaDtoSchema.nullable(),
+    position: publicPositionDtoSchema.nullable(),
+    deliveredAt: z.string().nullable(),
+    expiresAt: z.string().nullable(),
+    expired: z.boolean(),
+});
+export type PublicTrackingDto = z.infer<typeof publicTrackingDtoSchema>;
+
+export const documentDtoSchema = z.object({
+    id: z.string(),
+    type: z.enum([
+        "bol",
+        "pod",
+        "rateConfirmation",
+        "lumperReceipt",
+        "damagePhoto",
+        "invoice",
+        "insuranceCertificate",
+        "w9",
+        "carrierAgreement",
+    ]),
+    fileName: z.string(),
+    contentType: z.enum(["application/pdf", "image/jpeg", "image/png"]),
+    sizeBytes: z.number(),
+    scanStatus: z.enum([
+        "awaitingUpload",
+        "pending",
+        "clean",
+        "rejected",
+        "failed",
+    ]),
+    version: z.number(),
+    uploadedByName: z.string(),
+    createdAt: z.string(),
+});
+export type DocumentDto = z.infer<typeof documentDtoSchema>;
+
+export const uploadTicketDtoSchema = z.object({
+    document: documentDtoSchema,
+    uploadUrl: z.string(),
+    expiresAt: z.string(),
+});
+export type UploadTicketDto = z.infer<typeof uploadTicketDtoSchema>;
+
+export const uploadRequestDtoSchema = z.object({
+    type: z.enum([
+        "bol",
+        "pod",
+        "rateConfirmation",
+        "lumperReceipt",
+        "damagePhoto",
+        "invoice",
+        "insuranceCertificate",
+        "w9",
+        "carrierAgreement",
+    ]),
+    fileName: z.string(),
+    contentType: z.enum(["application/pdf", "image/jpeg", "image/png"]),
+    sizeBytes: z.number(),
+});
+export type UploadRequestDto = z.infer<typeof uploadRequestDtoSchema>;
+
+export const downloadLinkDtoSchema = z.object({
+    url: z.string(),
+    expiresAt: z.string(),
+});
+export type DownloadLinkDto = z.infer<typeof downloadLinkDtoSchema>;
+
+export const notificationDtoSchema = z.object({
+    id: z.string(),
+    event: z.enum([
+        "checkCallRequested",
+        "loadPosted",
+        "loadBooked",
+        "bidReceived",
+        "etaChanged",
+        "trackingStale",
+        "podVerified",
+        "invoiceDue",
+        "complianceChanged",
+    ]),
+    loadId: z.string().nullable(),
+    createdAt: z.string(),
+    readAt: z.string().nullable(),
+});
+export type NotificationDto = z.infer<typeof notificationDtoSchema>;
+
+export const notificationPageDtoSchema = z.object({
+    items: z.array(notificationDtoSchema),
+    nextCursor: z.string().nullable(),
+});
+export type NotificationPageDto = z.infer<typeof notificationPageDtoSchema>;
+
+export const unreadCountDtoSchema = z.object({ count: z.number() });
+export type UnreadCountDto = z.infer<typeof unreadCountDtoSchema>;
+
+export const quickFindItemDtoSchema = z.object({
+    type: z.enum(["load", "facility", "member", "organization"]),
+    id: z.string(),
+    label: z.string(),
+    detail: z.string().nullable(),
+});
+export type QuickFindItemDto = z.infer<typeof quickFindItemDtoSchema>;
+
+export const quickFindGroupDtoSchema = z.object({
+    type: z.enum(["load", "facility", "member", "organization"]),
+    total: z.number(),
+    items: z.array(quickFindItemDtoSchema),
+});
+export type QuickFindGroupDto = z.infer<typeof quickFindGroupDtoSchema>;
+
+export const quickFindDtoSchema = z.object({
+    exact: quickFindItemDtoSchema.nullable(),
+    groups: z.array(quickFindGroupDtoSchema),
+});
+export type QuickFindDto = z.infer<typeof quickFindDtoSchema>;

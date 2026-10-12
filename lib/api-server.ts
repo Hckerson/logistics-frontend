@@ -16,15 +16,15 @@ const parseBody = (body: RequestInit["body"]): unknown => {
     }
 };
 
-const mockFetch = async (path: string, init: RequestInit) => {
+const mockFetch = async (path: string, init: RequestInit, token: string | undefined) => {
     const { mockRequest, toResponse } = await import("@/lib/mocks/router");
-    return toResponse(await mockRequest({ method: init.method ?? "GET", path, body: parseBody(init.body) }));
+    return toResponse(await mockRequest({ method: init.method ?? "GET", path, body: parseBody(init.body), token }));
 };
 
 export const backendFetch = async (path: string, init: RequestInit = {}) => {
-    if (API_MOCKS) return mockFetch(path, init);
-
     const token = (await cookies()).get(SESSION_COOKIE)?.value;
+    if (API_MOCKS) return mockFetch(path, init, token);
+
     const requestId = correlationId();
 
     return fetch(`${API_BASE_URL}${path}`, {

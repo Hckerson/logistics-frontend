@@ -36,5 +36,8 @@ const seed = (): MockStore => ({
 export const mockStore = (): MockStore => {
     const store = (holder.haulrMockStore = { ...seed(), ...holder.haulrMockStore });
     MOCK_USERS.filter((user) => !store.users.has(keyOf(user))).forEach((user) => store.users.set(keyOf(user), { ...user }));
+    Object.entries(MOCK_MEMBERSHIPS)
+        .filter(([email]) => !store.memberships.has(email))
+        .forEach(([email, organisation]) => store.memberships.set(email, organisation));
     return store;
 };

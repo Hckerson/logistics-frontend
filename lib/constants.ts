@@ -79,6 +79,8 @@ export const API_MOCKS = process.env.NEXT_PUBLIC_API_MOCKS !== "off";
 
 export const MOCK_LATENCY_MS = { min: 300, max: 800 } as const;
 
+export const TIME_MS = { second: 1_000, minute: 60_000, hour: 3_600_000, day: 86_400_000 } as const;
+
 export const INVALID_CREDENTIALS = "Email or password is incorrect";
 
 export const INVALID_REQUEST = "The request body is invalid";
@@ -106,6 +108,8 @@ export const MFA_BACKUP_CODE_LENGTH = 8;
 export const MFA_METHODS = ["totp", "backup"] as const satisfies readonly MfaMethod[];
 
 export const HTTP_STATUS = {
+    ok: 200,
+    created: 201,
     accepted: 202,
     badRequest: 400,
     unauthorized: 401,

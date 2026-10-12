@@ -30,7 +30,10 @@ export interface MockRequest {
     method: string;
     path: string;
     body: unknown;
+    token?: string;
 }
+
+export type MockParams = Record<string, string>;
 
 export interface MockResponse {
     status: number;
@@ -38,7 +41,7 @@ export interface MockResponse {
     headers?: Record<string, string>;
 }
 
-export type MockHandler = (request: MockRequest) => MockResponse | Promise<MockResponse>;
+export type MockHandler = (request: MockRequest, params: MockParams) => MockResponse | Promise<MockResponse>;
 
 export interface MockTicket {
     reference: string;
