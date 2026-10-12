@@ -1,6 +1,6 @@
 # Start Here — Haulr Design OS
 
-`Version 1.3.4` · `2026-10-10` · Next: [README](./README.md)
+`Version 1.3.6` · `2026-10-12` · Next: [README](./README.md)
 
 Welcome. This folder is the complete specification for **Haulr**, a road freight marketplace where shippers post loads, carriers bid on and book them, drivers run each trip and everyone gets paid. It tells you what the product does and how the code is organised. How each page looks is decided when that page is built, with the owner.
 

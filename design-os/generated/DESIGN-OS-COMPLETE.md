@@ -1,6 +1,6 @@
 # Haulr Design OS — Complete
 
-`Version 1.3.4` · `2026-10-10` · Status: **Complete, ready for engineering handoff** · Start: [START_HERE](./START_HERE.md) · Overview: [README](./README.md)
+`Version 1.3.6` · `2026-10-12` · Status: **Complete, ready for engineering handoff** · Start: [START_HERE](./START_HERE.md) · Overview: [README](./README.md)
 
 The master index. If something exists in this design OS, it is listed here.
 
@@ -90,7 +90,7 @@ It deliberately contains **no visual design**. Each page's look is decided when 
 | Page sections | 223 | Phase 5 §13 |
 | Interaction contracts | 68 | Phase 6 |
 | Architectural decisions | 14 (D-1 … D-14) | Phase 7 §1 |
-| Hook files | 59 resource hook files (14 existing) + 20 existing hooks without transport | Phase 7 §8 |
+| Hook files | 62 resource hook files (18 existing) + 21 existing hooks without transport | Phase 7 §8 |
 | Build plan | Solo: 7 stages, about 71 weeks (active). Staffed: 8 sprints, 16 weeks | Phase 8 §16, §3 |
 | Milestones | 5 | Phase 8 §4 |
 | Risks | 17 | Phase 8 §6 |
@@ -218,7 +218,7 @@ Integrity checks run at generation: 66 pages defined in Phases 3, 4, 5 and 8; 23
 | Network statistics (2026-10-10) | A stats mock on a contract route, labelled "Sample figures", until the backend reports them | Phase 8 §16 |
 | Not Found (2026-10-10) | `app/global-not-found.tsx` for unknown URLs, segment `not-found.tsx` for records | Phase 7 §2, Phase 3 §3.5 |
 | R-08, `forbidden()` flag (2026-10-10) | Resolved: `experimental.authInterrupts` and `globalNotFound` are enabled | Phase 8 §6 |
-| D-2, reads and live data (2026-10-10) | Server Actions for mutations only; reads through Server Components or Route Handlers; positions and ETAs over Server-Sent Events | Phase 7 §1, §13 |
+| D-2, reads and live data (2026-10-10) | Server Actions for mutations only; reads through Server Components or Route Handlers; positions and ETAs over Server-Sent Events. The host rule in `.claude/CLAUDE.md` now says the same (2026-10-12; also next-setup, cinematic-lab and fintech) | Phase 7 §1, §13 |
 | Assumptions A1–A10 (2026-10-10) | Confirmed; A6 amended to two providers; A9 and A10 hold for the full product, not the slice | Phase 1 §1 |
 | Maps and routing (2026-10-10) | MapLibre base map with Protomaps tiles under deck.gl; HERE truck routing and ETAs on the backend | Phase 7 §15 |
 | Payments (2026-10-10) | Stripe for shipper payments; Triumph for carrier payments, QuickPay and factoring-company payouts | Phase 1 A6, Phase 7 §15 |
@@ -233,9 +233,9 @@ Integrity checks run at generation: 66 pages defined in Phases 3, 4, 5 and 8; 23
 
 | Field | Value |
 | --- | --- |
-| Version | 1.3.4 (merit-based library and service decisions, help and support pages; 1.3.3 recorded the stage 1 decisions and system and legal pages; 1.3.2 synced statuses after the MFA step; 1.3.1 caught statuses up, relabelled unblocked items Specified and fixed code drift; 1.3.0 recorded the maintainer decisions, solo build order and mocked backend; 1.2.0 added the dispatch board and quote desk, 1.1.1 was the audit, 1.1.0 enterprise hardening, 1.0.0 the initial generation) |
+| Version | 1.3.6 (lane rate estimator recorded; 1.3.5 aligned the host async rule with D-2; 1.3.4 recorded the merit-based library and service decisions and help and support pages; 1.3.3 recorded the stage 1 decisions and system and legal pages; 1.3.2 synced statuses after the MFA step; 1.3.1 caught statuses up, relabelled unblocked items Specified and fixed code drift; 1.3.0 recorded the maintainer decisions, solo build order and mocked backend; 1.2.0 added the dispatch board and quote desk, 1.1.1 was the audit, 1.1.0 enterprise hardening, 1.0.0 the initial generation) |
 | Generated | 2026-09-30 |
-| Revised | 2026-10-10 |
+| Revised | 2026-10-12 |
 | Seed prompt | `docs/MASTER_PROMPT_COMPLETE.md` |
 | Output directory | `design-os/generated/` |
 | Generation mode | 1.1.0 is a merge over 1.0.0: nothing removed; thin fields raised to the Phase 4 §2 taxonomy; enterprise scope added |
@@ -254,6 +254,8 @@ Integrity checks run at generation: 66 pages defined in Phases 3, 4, 5 and 8; 23
 | 1.3.2 | Status sync with commits up to `bfbe4cc`: the MFA challenge (SC-14.2) now has its code step on `/auth/verify`; register's side selection (SC-11.1), the one-time code input (IC-04) and the consent checkbox (IC-38) are In progress. Phase 7 lists the new access files (`code-challenge.tsx`, `code-step.tsx`, `expired-panel.tsx`, `side-picker.tsx`, `consent-check.tsx`). No spec change. |
 | 1.3.3 | Stage 1 decisions recorded: form library declined in favour of the native pattern, Playwright and axe approved, Testing Library later, field limits confirmed with the values in code, no headless component library, D-3 confirmed by `lib/data/legal/`. Statuses synced with the working tree: system pages (PG-53 … PG-55) and Legal (PG-09, ahead of the slice) In progress; `/dashboard` recorded as an interim holding page; network statistics to use a labelled stats mock; Not Found through `global-not-found.tsx`; R-08 resolved. Phase 7 lists `components/legal/`, the system components, `root-document.tsx` and `use-active-section.ts`. No spec change. |
 | 1.3.4 | Decisions remade on merit rather than on what the repo already had: D-2 widened (Server Actions for mutations only; reads through Route Handlers or Server Components; positions and ETAs over Server-Sent Events); TanStack Form; Vitest Browser Mode with Playwright and axe; React Aria Components; MapLibre with Protomaps under deck.gl and HERE truck routing; Stripe for shippers and Triumph for carriers (A6 amended); visx; WorkOS; OpenTelemetry and Sentry; PostHog with flags. Assumptions confirmed. Payment method entry unblocked, so nothing is Deferred. Help Center, Help Article and Contact Support (PG-06 … PG-08) recorded as built ahead of the slice, with IC-09 and IC-19 In progress; the ticket list still reads through a Server Action, which D-2 moves to a Route Handler. No feature removed. |
+| 1.3.5 | The host `.claude/CLAUDE.md` async rule now matches D-2: a hook for an authenticated mutation wraps a Server Action; an authenticated read goes through a Server Component or a GET route handler, never a Server Action. Changed in the same words in next-setup, cinematic-lab and the fintech frontend, and in their `docs/rules-review.html` snapshots. Phase 7 D-2 no longer records an extension. No spec change. |
+| 1.3.6 | Recorded the Lane Rate Estimator, built ahead of stage 5: PG-05, XS-10 and SC-05.1 … SC-05.4 are In progress with IC-05, IC-08, IC-32 and IC-45. Phase 7 gains `components/estimator/`, `lib/quotes/`, `lib/data/quotes/`, the places, estimate and trend route handlers, the estimator hooks (one file per hook) and `public-page.tsx`; its route tree now marks every built page, and `lib/actions/` reads as mutations only (D-2). SC-05.1 records the equipment choice group (IC-09) it was built with. |
 
 ---
 

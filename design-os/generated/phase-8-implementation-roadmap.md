@@ -1,6 +1,6 @@
 # Phase 8 — Implementation Roadmap
 
-`Haulr Design OS` · `Version 1.3.4` · `2026-10-10` · Previous: [Phase 7 — Frontend Architecture](./phase-7-frontend-architecture.md) · Next: [Phase 9 — QA Checklist](./phase-9-qa-checklist.md)
+`Haulr Design OS` · `Version 1.3.6` · `2026-10-12` · Previous: [Phase 7 — Frontend Architecture](./phase-7-frontend-architecture.md) · Next: [Phase 9 — QA Checklist](./phase-9-qa-checklist.md)
 
 The plan for building Phases 1–7 in 16 weeks (8 two-week sprints), plus the single record of build status for every page, section, interaction contract and flow. Status lives here and nowhere else; the blueprints in Phases 1–7 record intent and are never edited to reflect progress (Critical Rules › Scope Preservation).
 
@@ -246,6 +246,11 @@ A feature with no implementation is **Specified**, not absent. Status is never r
 - **Help and support built ahead of the slice:** Help Center and Help Article (PG-06, PG-07) and Contact Support (PG-08), with ticket and feedback mocks; content in `lib/data/help/` and `lib/data/support/` (D-3).
 - Built pages need Phase 9 verification and the owner's recorded review (Definition of Done, §11) before they count as Verified. SC-10.2 is **In progress** (`components/auth/auth-links.tsx`). Forgot Password, Reset Password and Verify (PG-12, PG-13, PG-14) are **In progress** with their mock handlers; the MFA challenge (SC-14.2) asks two-step accounts for a code before the session starts (`components/auth/code-challenge.tsx`, `code-step.tsx`). Register's side selection (SC-11.1) and consent (IC-38) are built (`side-picker.tsx`, `consent-check.tsx`). IC-01, IC-02 and IC-03 are **In progress**: `components/ui/input.tsx`, `components/common/board-field.tsx` (label, error wiring with `field-error.tsx`, and reveal), `components/common/error-summary.tsx` and `lib/hooks/use-caps-lock.ts`.
 
+**Update 2026-10-12:**
+
+- **Lane Rate Estimator built ahead of stage 5** (PG-05, XS-10) at `(public)/tools/rate-estimator`: lane query, estimate and basis, lane trend and continue to quote (SC-05.1 … SC-05.4). Anonymous GET route handlers serve places, estimates and the trend (`app/api/places`, `app/api/rate-estimate`, `app/api/rate-estimate/trend`); saving an estimate is a Server Action (D-2). Mocks in `lib/mocks/pricing.ts` and `lib/mocks/geo.ts`, fixtures in `lib/data/mocks/pricing.ts`, copy in `lib/data/quotes/` (D-3).
+- **Still open on PG-05:** the location combobox (IC-05) and date entry (IC-08) are built inside `components/estimator/`, not as `components/ui/` primitives over React Aria Components (Phase 7 §15); the trend chart loads with the page rather than after the text direction (SC-05.3); `useSavedEstimates` is not built; the home page's lane form (SC-01.2) picks equipment from a select while the estimator uses a choice group (IC-09).
+
 ### 9.2 Flows
 
 | ID | Status | Stage or sprint | ID | Status | Stage or sprint |
@@ -267,7 +272,7 @@ A feature with no implementation is **Specified**, not absent. Status is never r
 | XF-15 | Specified | S5 (team plan) | XS-07 | Specified | S7 (team plan) |
 | XF-16 | Specified | S4 (team plan) | XS-08 | Specified | S6 (team plan) |
 | XF-17 | Scheduled | Solo 3 | XS-09 | Specified | S4 (team plan) |
-| | | | XS-10 | Scheduled | Solo 5 |
+| | | | XS-10 | In progress | Built ahead (Solo 5) |
 | | | | XS-11 | Specified | S3 (team plan) |
 | | | | XS-12 | Specified | S6 (team plan) |
 | | | | XS-13 | Specified | S2 (team plan) |
@@ -287,7 +292,7 @@ Size: **S** ≈ 2 engineer-days, **M** ≈ 5, **L** ≈ 10, **XL** ≈ 15, exclu
 | PG-02 | Public Tracking | M | Scheduled | Solo 2 | PG-34 | Book Load | M | Scheduled | Solo 6 |
 | PG-03 | Carrier Public Profile | S | Specified | S4 (team plan) | PG-35 | My Loads (carrier) | M | Specified | S4–S5 (team plan) |
 | PG-04 | Shipper Public Profile | S | Specified | S4 (team plan) | PG-36 | Saved Loads and Searches | S | Specified | S4 (team plan) |
-| PG-05 | Lane Rate Estimator | M | Scheduled | Solo 5 | PG-37 | Fleet | M | Specified | S5 (team plan) |
+| PG-05 | Lane Rate Estimator | M | In progress | Built ahead (Solo 5) | PG-37 | Fleet | M | Specified | S5 (team plan) |
 | PG-06 | Help Center | S | In progress | Built ahead (S7 team plan) | PG-38 | Settlements | M | Specified | S6 (team plan) |
 | PG-07 | Help Article | S | In progress | Built ahead (S7 team plan) | PG-39 | Driver Trip | XL | Scheduled | Solo 4 |
 | PG-08 | Contact Support | S | In progress | Built ahead (S7 team plan) | PG-40 | Load Details | XL | Scheduled | Solo 2 |
@@ -325,18 +330,19 @@ Each section appears once. Where a group of sections shares one status and stage
 | --- | --- | --- |
 | SC-01.1, SC-01.4, SC-10.1, SC-10.2, SC-11.1, SC-11.2, SC-12.1, SC-13.1, SC-14.1, SC-14.2, SC-53.1, SC-54.1, SC-55.1 | In progress | Solo 1 |
 | SC-01.2 | In progress | Solo 5 |
+| SC-05.1 … SC-05.4 | In progress | Built ahead (Solo 5; the lane trend was S3 team plan) |
 | SC-09.1 | In progress | Built ahead (S2 team plan) |
 | SC-06.1 … SC-06.3, SC-07.1 … SC-07.3, SC-08.1, SC-08.2 | In progress | Built ahead (S7 team plan) |
 | SC-01.3 | Scheduled | Solo 1 |
 | SC-02.1 … SC-02.3, SC-26.1, SC-26.2, SC-40.1 … SC-40.4, SC-40.6 … SC-40.8, SC-40.10, SC-40.15, SH-01, SH-02, SH-03, SH-05, SH-14 | Scheduled | Solo 2 |
 | SC-40.5, SC-65.1 … SC-65.4, SH-06, SH-15 | Scheduled | Solo 3 |
 | SC-20.1 … SC-20.3, SC-39.1 … SC-39.3, SC-39.5 … SC-39.7 | Scheduled | Solo 4 |
-| SC-05.1, SC-05.2, SC-05.4, SC-27.1 … SC-27.6, SH-13 | Scheduled | Solo 5 |
+| SC-27.1 … SC-27.6, SH-13 | Scheduled | Solo 5 |
 | SC-33.1 … SC-33.3, SC-33.5, SC-34.1 … SC-34.4 | Scheduled | Solo 6 |
 | SC-31.1 … SC-31.3 | Scheduled | Solo 7 |
 | SC-15.1, SC-15.2 | Specified | S1 (team plan) |
 | SC-10.3, SC-16.1 … SC-16.4, SC-17.1 … SC-17.6, SC-46.1, SC-46.2, SC-47.1, SC-47.2, SC-48.1 … SC-48.3, SC-60.1 … SC-60.5 | Specified | S2 (team plan) |
-| SC-05.3, SC-27.7, SC-32.1, SC-32.2, SC-57.1 … SC-57.3, SC-66.1 … SC-66.3 | Specified | S3 (team plan) |
+| SC-27.7, SC-32.1, SC-32.2, SC-57.1 … SC-57.3, SC-66.1 … SC-66.3 | Specified | S3 (team plan) |
 | SC-03.1 … SC-03.3, SC-04.1, SC-04.2, SC-22.1 … SC-22.3, SC-28.1 … SC-28.4, SC-29.1, SC-29.2, SC-33.4, SC-35.1, SC-36.1, SC-36.2, SC-40.17, SC-48.4, SC-51.1 … SC-51.5, SC-56.1 … SC-56.4, SC-58.1 … SC-58.4, SH-09 | Specified | S4 (team plan) |
 | SC-26.3, SC-35.2, SC-37.1, SC-37.2, SC-39.4, SC-40.12, SC-40.16, SC-64.1 … SC-64.4 | Specified | S5 (team plan) |
 | SC-23.1, SC-30.1 … SC-30.3, SC-31.4, SC-38.1 … SC-38.4, SC-40.9, SC-40.13, SC-43.1, SC-43.2, SC-44.1, SC-44.2, SC-45.1 … SC-45.4, SC-49.1 … SC-49.3, SC-62.1, SC-62.2, SC-63.1, SC-63.2, SH-11 | Specified | S6 (team plan) |
@@ -350,8 +356,10 @@ Check: 15 shared + 223 page sections = 238, matching [Phase 5 §13](./phase-5-se
 | Contracts | Status | Stage or sprint |
 | --- | --- | --- |
 | IC-01, IC-02, IC-03, IC-04, IC-09, IC-11, IC-19, IC-38, IC-46 | In progress | Solo 1 |
+| IC-05, IC-08, IC-32 | In progress | Built ahead (Solo 2) |
+| IC-45 | In progress | Built ahead (S7 team plan) |
 | IC-12, IC-14, IC-41, IC-44, IC-51, IC-52, IC-55, IC-59, IC-60, IC-67 | Scheduled | Solo 1 |
-| IC-05, IC-07, IC-08, IC-10, IC-18, IC-20, IC-21, IC-22, IC-24, IC-25, IC-30, IC-32, IC-56, IC-58 | Scheduled | Solo 2 |
+| IC-07, IC-10, IC-18, IC-20, IC-21, IC-22, IC-24, IC-25, IC-30, IC-56, IC-58 | Scheduled | Solo 2 |
 | IC-06, IC-39, IC-68 | Scheduled | Solo 3 |
 | IC-29, IC-31 | Scheduled | Solo 4 |
 | IC-15, IC-40 | Scheduled | Solo 5 |
@@ -362,10 +370,10 @@ Check: 15 shared + 223 page sections = 238, matching [Phase 5 §13](./phase-5-se
 | IC-28, IC-33, IC-34, IC-61, IC-62 | Specified | S4 (team plan) |
 | IC-66 | Specified | S5 (team plan) |
 | IC-42, IC-65 | Specified | S6 (team plan) |
-| IC-16, IC-17, IC-35, IC-36, IC-37, IC-45, IC-50, IC-53, IC-54 | Specified | S7 (team plan) |
+| IC-16, IC-17, IC-35, IC-36, IC-37, IC-50, IC-53, IC-54 | Specified | S7 (team plan) |
 | IC-47, IC-48, IC-49, IC-64 | Specified | S8 (team plan) |
 
-In progress contracts build on existing files: IC-01 `input.tsx` with `board-field.tsx` and `field-error.tsx`, IC-02 `error-summary.tsx`, IC-03 `board-field.tsx` (reveal) and `use-caps-lock.ts`, IC-11 `button.tsx`, IC-46 `link-countdown.tsx` with `use-countdown.ts`, IC-04 `code-step.tsx` over a fixed-cell `board-field.tsx`, IC-38 `consent-check.tsx`, IC-09 `choice-grid.tsx`, IC-19 `help-search-field.tsx`.
+In progress contracts build on existing files: IC-01 `input.tsx` with `board-field.tsx` and `field-error.tsx`, IC-02 `error-summary.tsx`, IC-03 `board-field.tsx` (reveal) and `use-caps-lock.ts`, IC-11 `button.tsx`, IC-46 `link-countdown.tsx` with `use-countdown.ts`, IC-04 `code-step.tsx` over a fixed-cell `board-field.tsx`, IC-38 `consent-check.tsx`, IC-09 `choice-grid.tsx`, IC-19 `help-search-field.tsx`, IC-05 `location-field.tsx` over `use-location-suggestions.ts`, IC-08 the pickup date in `lane-query-form.tsx` (a single date; windows and time zones remain), IC-32 the native disclosure in `estimate-figures.tsx`, IC-45 `trend-chart.tsx` with `trend-table.tsx`.
 
 Check: 68 contracts, matching [Phase 6 §13](./phase-6-interaction-contracts.md#13-contract-usage-index).
 

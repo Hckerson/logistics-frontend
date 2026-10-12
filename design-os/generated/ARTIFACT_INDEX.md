@@ -1,6 +1,6 @@
 # Artifact Index — Haulr Design OS
 
-`Version 1.3.4` · `2026-10-10` · Start: [START_HERE](./START_HERE.md) · Master index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
+`Version 1.3.6` · `2026-10-12` · Start: [START_HERE](./START_HERE.md) · Master index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
 
 A detailed guide to each phase: what it is, who needs it, when to open it, what it contains and how it feeds the phases after it.
 
@@ -175,18 +175,18 @@ The [IMPLEMENTATION_PROMPT](./IMPLEMENTATION_PROMPT.md) packages all three, plus
 
 ## Build Status Roll-up
 
-A view over [Phase 8 §9](./phase-8-implementation-roadmap.md#9-per-feature-build-status) as of 2026-10-10. It summarises statuses and never substitutes for the phases: a feature missing here still exists if its phase defines it (Critical Rules › Scope Preservation).
+A view over [Phase 8 §9](./phase-8-implementation-roadmap.md#9-per-feature-build-status) as of 2026-10-12. It summarises statuses and never substitutes for the phases: a feature missing here still exists if its phase defines it (Critical Rules › Scope Preservation).
 
 | Artifact type | Total | Specified | Scheduled | In progress | Built | Verified | Deferred |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Flows (XF, XD, XS) | 43 | 33 | 9 | 1 | 0 | 0 | 0 |
-| Pages | 66 | 42 | 11 | 13 | 0 | 0 | 0 |
-| Sections | 238 | 158 | 57 | 23 | 0 | 0 | 0 |
-| Interaction contracts | 68 | 25 | 34 | 9 | 0 | 0 | 0 |
+| Flows (XF, XD, XS) | 43 | 33 | 8 | 2 | 0 | 0 | 0 |
+| Pages | 66 | 42 | 10 | 14 | 0 | 0 | 0 |
+| Sections | 238 | 157 | 54 | 27 | 0 | 0 | 0 |
+| Interaction contracts | 68 | 24 | 31 | 13 | 0 | 0 | 0 |
 
-**In progress items:** XS-01; PG-01, PG-06, PG-07, PG-08, PG-09, PG-10, PG-11, PG-12, PG-13, PG-14, PG-53, PG-54, PG-55; SC-01.1, SC-01.2, SC-01.4, SC-10.1, SC-10.2, SC-11.1, SC-11.2, SC-12.1, SC-13.1, SC-14.1, SC-14.2, SC-06.1 … SC-06.3, SC-07.1 … SC-07.3, SC-08.1, SC-08.2, SC-09.1, SC-53.1, SC-54.1, SC-55.1; IC-01, IC-02, IC-03, IC-04, IC-09, IC-11, IC-19, IC-38, IC-46. The starter supplied the sign-in page, register route and hook, session route and button primitive; the home page, the identity-first sign-in, password recovery, email verification and the start of MFA followed against the mocked backend. All need the remaining Haulr behaviour and Phase 9 verification.
+**In progress items:** XS-01, XS-10; PG-01, PG-05, PG-06, PG-07, PG-08, PG-09, PG-10, PG-11, PG-12, PG-13, PG-14, PG-53, PG-54, PG-55; SC-01.1, SC-01.2, SC-01.4, SC-10.1, SC-10.2, SC-11.1, SC-11.2, SC-12.1, SC-13.1, SC-14.1, SC-14.2, SC-05.1 … SC-05.4, SC-06.1 … SC-06.3, SC-07.1 … SC-07.3, SC-08.1, SC-08.2, SC-09.1, SC-53.1, SC-54.1, SC-55.1; IC-01, IC-02, IC-03, IC-04, IC-05, IC-08, IC-09, IC-11, IC-19, IC-32, IC-38, IC-45, IC-46. The starter supplied the sign-in page, register route and hook, session route and button primitive; the home page, the identity-first sign-in, password recovery, email verification and the start of MFA followed against the mocked backend, then the lane rate estimator ahead of stage 5. All need the remaining Haulr behaviour and Phase 9 verification.
 
-**By solo stage (pages, counted in the stage where they start):** 1: 9 (system pages and access pages built) · 2: 3 · 3: 1 · 4: 2 · 5: 2 · 6: 2 · 7: 1 — 20 in the slice. Of the other 46, PG-06, PG-07, PG-08 and PG-09 are built ahead of the order; the rest are Specified and queued after stage 7.
+**By solo stage (pages, counted in the stage where they start):** 1: 9 (system pages and access pages built) · 2: 3 · 3: 1 · 4: 2 · 5: 2 (PG-05 built ahead) · 6: 2 · 7: 1 — 20 in the slice. Of the other 46, PG-06, PG-07, PG-08 and PG-09 are built ahead of the order; the rest are Specified and queued after stage 7.
 
 **Staffed plan, by sprint (reference):** S1: 9 · S2: 7 · S3: 8 · S4: 12 · S5: 5 · S6: 10 · S7: 10 · S8: 5 — 66 in total.
 
