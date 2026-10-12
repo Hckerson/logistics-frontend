@@ -12,7 +12,13 @@ const enumExpression = (values: (string | number)[]): string =>
         ? `z.enum([${values.map((value) => JSON.stringify(value)).join(", ")}])`
         : `z.union([${values.map((value) => `z.literal(${JSON.stringify(value)})`).join(", ")}])`;
 
+const soleMember = (schema: JsonSchema): JsonSchema | undefined =>
+    schema.allOf?.length === 1 ? schema.allOf[0] : undefined;
+
 export const zodExpression = (schema: JsonSchema): string => {
+    const wrapped = soleMember(schema);
+
+    if (wrapped) return zodExpression(wrapped);
     if (schema.$ref) return schemaConstName(refName(schema.$ref));
     if (schema.enum) return enumExpression(schema.enum);
 
@@ -55,6 +61,9 @@ const PRIMITIVE_TYPES: Record<string, string> = {
 };
 
 export const typeExpression = (schema: JsonSchema): string => {
+    const wrapped = soleMember(schema);
+
+    if (wrapped) return typeExpression(wrapped);
     if (schema.$ref) return refName(schema.$ref);
 
     if (schema.enum) {
@@ -62,7 +71,10 @@ export const typeExpression = (schema: JsonSchema): string => {
     }
 
     if (schema.type === "array") {
-        return schema.items ? `${typeExpression(schema.items)}[]` : "unknown[]";
+        if (!schema.items) return "unknown[]";
+
+        const item = typeExpression(schema.items);
+        return schema.items.enum ? `(${item})[]` : `${item}[]`;
     }
 
     return PRIMITIVE_TYPES[schema.type ?? ""] ?? "unknown";
