@@ -3,6 +3,7 @@ import ArticleFeedback from "@/components/help/article-feedback";
 import ArticleSteps from "@/components/help/article-steps";
 import HelpEscalation from "@/components/help/help-escalation";
 import HelpLink from "@/components/help/help-link";
+import PublicPage from "@/components/common/public-page";
 import { HELP_ROUTE } from "@/lib/constants";
 import { HELP_COPY } from "@/lib/data/help/copy";
 import { articleStructuredData } from "@/lib/help/structured";
@@ -20,7 +21,7 @@ const TRAIL = "text-text-muted hover:text-text transition-colors";
 
 export default function HelpArticle({ article, category, related }: Props) {
     return (
-        <div className="haulr-shell flex flex-col gap-10 pt-[calc(var(--haulr-header)+3rem)] pb-20 lg:gap-14 lg:pt-[calc(var(--haulr-header)+5rem)]">
+        <PublicPage>
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: articleStructuredData(article, category) }} />
             <header className="flex max-w-3xl flex-col gap-4">
                 <nav aria-label={copy.trail} className="haulr-label flex flex-wrap items-center gap-2">
@@ -65,6 +66,6 @@ export default function HelpArticle({ article, category, related }: Props) {
                     <HelpEscalation context={{ article: article.slug }} />
                 </aside>
             </div>
-        </div>
+        </PublicPage>
     );
 }
