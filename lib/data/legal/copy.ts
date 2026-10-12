@@ -20,6 +20,7 @@ export const LEGAL_COPY = {
     supersededBody: "You're reading an earlier version. Version {version} replaced it on {date}.",
     readCurrent: "Read the current version",
     changes: "What changed in version {version}",
+    revision: { new: "New in {version}", changed: "Changed in {version}" },
     clauseLink: "Link to section {number}, {title}",
     providers: {
         title: "Service providers",

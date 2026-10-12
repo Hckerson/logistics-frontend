@@ -7,6 +7,7 @@ import LegalNav from "@/components/legal/legal-nav";
 import LegalRecord from "@/components/legal/legal-record";
 import SubProcessors from "@/components/legal/sub-processors";
 import PublicPage from "@/components/common/public-page";
+import { LEGAL_COPY } from "@/lib/data/legal/copy";
 import { PROVIDERS_CLAUSE } from "@/lib/legal/constants";
 import type { LegalEdition } from "@/lib/types";
 
@@ -17,6 +18,10 @@ interface Props {
 export default function LegalDocument({ found }: Props) {
     const { document, edition, replacedBy } = found;
     const providers = replacedBy ? null : document.subProcessors;
+    const revisionOf = (id: string) => {
+        const kind = found.revised[id];
+        return kind ? LEGAL_COPY.revision[kind].replace("{version}", edition.version) : undefined;
+    };
 
     return (
         <PublicPage className="print:pt-0">
@@ -30,7 +35,12 @@ export default function LegalDocument({ found }: Props) {
                     <LegalRecord found={found} />
                     <LegalChanges edition={edition} />
                     {edition.clauses.map((clause, index) => (
-                        <LegalClause key={clause.id} clause={clause} number={index + 1}>
+                        <LegalClause
+                            key={clause.id}
+                            clause={clause}
+                            number={index + 1}
+                            revision={revisionOf(clause.id)}
+                        >
                             {clause.id === PROVIDERS_CLAUSE && providers ? <SubProcessors providers={providers} /> : null}
                         </LegalClause>
                     ))}

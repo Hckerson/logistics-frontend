@@ -1,10 +1,22 @@
-import type { LegalDocumentKey, LegalEdition } from "@/lib/types";
+import type { ClauseRevision, LegalDocumentKey, LegalEdition, LegalVersion } from "@/lib/types";
 import { LEGAL_LIBRARY } from "@/lib/data/legal/library";
 import { LEGAL_DATE, LEGAL_DOCUMENTS, LEGAL_LOCALE } from "@/lib/legal/constants";
 
 const dates = new Intl.DateTimeFormat(LEGAL_LOCALE, LEGAL_DATE);
 
 export const legalDate = (iso: string) => dates.format(new Date(iso));
+
+const revisions = (edition: LegalVersion, previous: LegalVersion | undefined): Record<string, ClauseRevision> => {
+    if (!previous) return {};
+    const before = new Map(previous.clauses.map((clause): [string, string] => [clause.id, clause.body.join(" ")]));
+    return Object.fromEntries(
+        edition.clauses.flatMap((clause): [string, ClauseRevision][] => {
+            const earlier = before.get(clause.id);
+            if (earlier === undefined) return [[clause.id, "new"]];
+            return earlier === clause.body.join(" ") ? [] : [[clause.id, "changed"]];
+        }),
+    );
+};
 
 const isDocument = (key: string): key is LegalDocumentKey => LEGAL_DOCUMENTS.some((document) => document === key);
 
@@ -18,6 +30,7 @@ export function findEdition(key: string, version?: readonly string[]): LegalEdit
         edition: document.versions[index],
         current: document.versions[0],
         replacedBy: index > 0 ? document.versions[index - 1] : null,
+        revised: revisions(document.versions[index], document.versions[index + 1]),
     };
 }
 
