@@ -1,5 +1,7 @@
+import type { AccountSide } from "@/lib/types/auth";
 import type { RoleKey } from "@/lib/types/enums";
 import type { LaneQuery } from "@/lib/types/quote";
+import type { InvitationStatus, TeamRole } from "@/lib/types/team";
 import type { TicketCategory, TicketStatus, TicketUrgency } from "@/lib/types/support";
 
 export interface MockUser {
@@ -47,6 +49,20 @@ export interface MockTicket {
     urgency: TicketUrgency;
     status: TicketStatus;
     updated: string;
+}
+
+export interface MockOrganisation {
+    name: string;
+    side: AccountSide;
+    sso: boolean;
+}
+
+export interface MockInvitation {
+    email: string;
+    organisation: string;
+    inviter: string;
+    role: TeamRole;
+    status: InvitationStatus;
 }
 
 export interface MockSavedEstimate {

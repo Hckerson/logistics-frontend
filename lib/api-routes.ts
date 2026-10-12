@@ -29,4 +29,7 @@ export const unpublishedRoutes = {
         `/api/pricing/trend${queryString(lane)}`,
     pricingSaved: () => "/api/pricing/estimates",
     places: (query?: string) => `/api/geo/places${queryString({ q: query })}`,
+    invitationCheck: () => "/api/team/invitations/check",
+    invitationAccept: () => "/api/team/invitations/accept",
+    locationConsent: () => "/api/drivers/location-consent",
 } as const;
