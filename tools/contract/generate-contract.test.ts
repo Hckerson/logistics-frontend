@@ -68,6 +68,21 @@ describe("schema-to-zod", () => {
         ).toBe("createUserDtoSchema");
     });
 
+    it("unwraps the single-member allOf Nest emits for a nullable reference", () => {
+        expect(
+            zodExpression({
+                type: "object",
+                properties: {
+                    eta: {
+                        nullable: true,
+                        allOf: [{ $ref: "#/components/schemas/EtaDto" }],
+                    },
+                },
+                required: ["eta"],
+            }),
+        ).toBe('z.object({"eta": etaDtoSchema.nullable(),})');
+    });
+
     it("orders schemas so references are declared first", () => {
         expect(
             orderByDependency({
@@ -269,6 +284,24 @@ describe("typeExpression", () => {
         expect(
             typeExpression({ type: "string", enum: ["day", "month", "year"] }),
         ).toBe('"day" | "month" | "year"');
+    });
+
+    it("parenthesises an enum union before suffixing it as an array", () => {
+        expect(
+            typeExpression({
+                type: "array",
+                items: { type: "string", enum: ["day", "month"] },
+            }),
+        ).toBe('("day" | "month")[]');
+    });
+
+    it("names the reference inside a nullable allOf wrapper", () => {
+        expect(
+            typeExpression({
+                nullable: true,
+                allOf: [{ $ref: "#/components/schemas/EtaDto" }],
+            }),
+        ).toBe("EtaDto");
     });
 });
 
