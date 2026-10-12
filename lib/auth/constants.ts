@@ -43,7 +43,7 @@ export const ASSEMBLY = {
     note: 16,
 } as const;
 
-export const BOARD = { cells: 22, mask: "•", more: "…" } as const;
+export const BOARD = { cells: 22, mask: "•", more: "…", readoutRem: 2.6 } as const;
 
 export const TRUCK_RUN = {
     delay: ENTRY.ignite + ENTRY.draw * 0.45,

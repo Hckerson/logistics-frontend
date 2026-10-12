@@ -66,3 +66,16 @@ export type GlowOptions = GlowProfile & { hot: Rgb };
 export type GlowName = "line" | "trail" | "lane" | "arc" | "travelled" | "dot" | "hub" | "beam";
 
 export type Glows = Record<GlowName, LayerExtension<GlowOptions>>;
+
+export type MapPrecision = "city" | "street";
+
+export interface MapStop {
+    position: LonLat;
+    type: "pickup" | "delivery";
+    done: boolean;
+}
+
+export interface MapVehicle {
+    position: LonLat;
+    stale: boolean;
+}
