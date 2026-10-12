@@ -1,6 +1,6 @@
 # Phase 6 — Interaction Contracts
 
-`Haulr Design OS` · `Version 1.3.4` · `2026-10-10` · Previous: [Phase 5 — Section Blueprints](./phase-5-section-blueprints.md) · Next: [Phase 7 — Frontend Architecture](./phase-7-frontend-architecture.md)
+`Haulr Design OS` · `Version 1.3.6` · `2026-10-12` · Previous: [Phase 5 — Section Blueprints](./phase-5-section-blueprints.md) · Next: [Phase 7 — Frontend Architecture](./phase-7-frontend-architecture.md)
 
 How every interactive element behaves. Sections in [Phase 5](./phase-5-section-blueprints.md) cite these contracts by ID (`IC-nn`). A contract defines behaviour only: inputs, states, keyboard and assistive-technology behaviour, validation, loading, errors and content rules. Which components exist, how they are grouped and how they look is decided when pages are built.
 
@@ -1274,9 +1274,9 @@ Added in version 1.1.0 for the enterprise flows XF-14 … XF-16 and XS-13 … XS
 | IC-04 | SC-14.2, SC-47.1 |
 | IC-05 | SC-01.2, SC-05.1, SC-16.2, SC-17.3, SC-27.2, SC-32.2, SC-33.1, SC-56.2 |
 | IC-06 | SH-07, SH-15, SC-65.3 |
-| IC-07 | SC-01.2, SC-05.1, SC-16.2, SC-17.3, SC-24.4, SC-27.3, SC-32.2, SC-33.1, SC-48.2, SC-50.3, SC-51.4, SC-56.1, SC-57.3, SC-58.4, SC-59.3, SC-60.3, SC-61.1, SC-61.2, SC-61.3, SC-65.4 |
+| IC-07 | SC-01.2, SC-16.2, SC-17.3, SC-24.4, SC-27.3, SC-32.2, SC-33.1, SC-48.2, SC-50.3, SC-51.4, SC-56.1, SC-57.3, SC-58.4, SC-59.3, SC-60.3, SC-61.1, SC-61.2, SC-61.3, SC-65.4 |
 | IC-08 | SC-05.1, SC-27.2, SC-33.1, SC-39.4, SC-47.3, SC-56.2, SC-57.3, SC-58.4, SC-59.3, SC-61.1, SC-65.4 |
-| IC-09 | SC-07.2, SC-11.1, SC-16.3, SC-27.5, SC-29.2, SC-39.4, SC-51.4, SC-56.3, SC-57.3, SC-59.3, SC-60.2, SC-62.2, SC-66.3 |
+| IC-09 | SC-05.1, SC-07.2, SC-11.1, SC-16.3, SC-27.5, SC-29.2, SC-39.4, SC-51.4, SC-56.3, SC-57.3, SC-59.3, SC-60.2, SC-62.2, SC-66.3 |
 | IC-10 | SH-02, SC-40.6 |
 | IC-11 | All actions |
 | IC-12 | SH-05 bulk, SH-07, SC-03.3, SC-21.2, SC-23.1, SC-23.4, SC-25.1, SC-25.2, SC-27.6, SC-28.3, SC-28.4, SC-29.1, SC-29.2, SC-34.3, SC-36.2, SC-37.2, SC-40.2, SC-40.9, SC-40.15, SC-40.16, SC-40.17, SC-45.4, SC-47.2, SC-48.2, SC-48.3, SC-48.4, SC-49.1, SC-50.3, SC-51.4, SC-52.2, SC-56.3, SC-57.1, SC-57.3, SC-59.3, SC-60.1, SC-60.4, SC-61.1, SC-61.2, SC-62.2, SC-64.3, SC-27.7, SC-66.3 |

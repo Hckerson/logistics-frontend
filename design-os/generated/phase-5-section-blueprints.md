@@ -1,6 +1,6 @@
 # Phase 5 — Section Blueprints
 
-`Haulr Design OS` · `Version 1.3.4` · `2026-10-10` · Previous: [Phase 4 — Page Blueprints](./phase-4-page-blueprints.md) · Next: [Phase 6 — Interaction Contracts](./phase-6-interaction-contracts.md)
+`Haulr Design OS` · `Version 1.3.6` · `2026-10-12` · Previous: [Phase 4 — Page Blueprints](./phase-4-page-blueprints.md) · Next: [Phase 6 — Interaction Contracts](./phase-6-interaction-contracts.md)
 
 Every page from [Phase 4](./phase-4-page-blueprints.md) is broken into sections, one per job. A section is a unit of behaviour: what it is responsible for, the data it needs, how the user interacts with it, and what happens when it is loading, empty or failing. Sections never say what they show, which components or controls they use, how they are arranged, their order on screen, their size, imagery or animation.
 
@@ -383,7 +383,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Purpose:** Capture the lane to estimate.
 - **Responsibilities:** Accept origin, destination, equipment and date; validate; write them to the URL so the estimate is shareable.
 - **Data requirements:** `use-location-suggestions`; equipment enum; lane schema from `lib/validations/lane.ts`.
-- **Interaction model:** IC-05 for locations, IC-07 for equipment, IC-08 for date; estimating runs on submit and when a shared URL is opened; changing an entry after an estimate keeps the previous estimate until the next submit.
+- **Interaction model:** IC-05 for locations, IC-09 for equipment (three types, all visible), IC-08 for date; estimating runs on submit and when a shared URL is opened; changing an entry after an estimate keeps the previous estimate until the next submit.
 - **Device needs:** DV-PHONE: a quick check in a meeting. DV-DESK: users run many lanes in a row with the keyboard. DV-AT: full parity with DV-DESK.
 - **Accessibility requirements:** Labelled inputs; errors per IC-02 with focus moved to the summary; date entry per IC-08 with the expected format stated.
 - **Loading states:** LS-2 for suggestions only (IC-05); the section itself never waits, because it holds entry state and fetches no data of its own.
@@ -416,7 +416,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Error states:** E-SERVER or E-UNAVAILABLE → withheld with a one-line reason; SC-05.2 unaffected. E-RATE-LIMIT → withheld with the wait.
 - **Empty states:** EM-4: not enough history → say so and name the minimum number of days required.
 - **Reuse potential:** SH-08 metric rendering.
-- **Technical notes:** Chart library pending approval, loaded with `next/dynamic` after the text direction; query key `quoteKeys.trend(lane)`, stale time 1 h. Analytics `pricing.trend.explored`.
+- **Technical notes:** Chart in native SVG with keyboard and pointer exploration (visx, approved in Phase 7 §15, is not needed for it), loaded with `next/dynamic` after the text direction; query key `quoteKeys.trend(lane)`, stale time 1 h. Analytics `pricing.trend.explored`.
 
 #### SC-05.4 — Continue to quote
 - **Purpose:** Convert the estimate into a real quote (XS-10 → XF-01).
