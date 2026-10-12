@@ -8,6 +8,7 @@ import { recordFeedback } from "@/lib/mocks/help";
 import { createTicket, listTickets } from "@/lib/mocks/support";
 import { places } from "@/lib/mocks/geo";
 import { estimate, saveEstimate, trend } from "@/lib/mocks/pricing";
+import { acceptInvitation, checkInvitation, recordLocationConsent } from "@/lib/mocks/team";
 import type { MockHandler, MockRequest, MockResponse } from "@/lib/types";
 
 const NO_MOCK = "No mock handler for";
@@ -29,6 +30,9 @@ const HANDLERS: Record<string, MockHandler> = {
     [`GET ${unpublishedRoutes.pricingTrend()}`]: trend,
     [`POST ${unpublishedRoutes.pricingSaved()}`]: saveEstimate,
     [`GET ${unpublishedRoutes.places()}`]: places,
+    [`POST ${unpublishedRoutes.invitationCheck()}`]: checkInvitation,
+    [`POST ${unpublishedRoutes.invitationAccept()}`]: acceptInvitation,
+    [`POST ${unpublishedRoutes.locationConsent()}`]: recordLocationConsent,
 };
 
 const randomLatency = () => MOCK_LATENCY_MS.min + Math.random() * (MOCK_LATENCY_MS.max - MOCK_LATENCY_MS.min);

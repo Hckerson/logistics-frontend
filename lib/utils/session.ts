@@ -57,12 +57,17 @@ export const endChallenge = async () => {
     (await cookies()).delete(MFA_COOKIE);
 };
 
-export const completeChallenge = async (body: unknown): Promise<boolean> => {
+export const openSession = async (body: unknown): Promise<boolean> => {
     const envelope = authEnvelopeSchema.safeParse(body);
     if (!envelope.success) return false;
 
-    const jar = await cookies();
-    jar.set(SESSION_COOKIE, envelope.data.data.accessToken, cookieOptions(SESSION_MAX_AGE));
-    jar.delete(MFA_COOKIE);
+    (await cookies()).set(SESSION_COOKIE, envelope.data.data.accessToken, cookieOptions(SESSION_MAX_AGE));
+    return true;
+};
+
+export const completeChallenge = async (body: unknown): Promise<boolean> => {
+    if (!(await openSession(body))) return false;
+
+    (await cookies()).delete(MFA_COOKIE);
     return true;
 };

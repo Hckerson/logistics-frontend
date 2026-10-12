@@ -1,6 +1,7 @@
+import { MOCK_INVITATIONS, MOCK_MEMBERSHIPS } from "@/lib/data/mocks/team";
 import { MOCK_TICKETS } from "@/lib/data/mocks/tickets";
 import { MOCK_RESET_TOKENS, MOCK_USERS } from "@/lib/data/mocks/users";
-import type { MockChallenge, MockSavedEstimate, MockTicket, MockUser } from "@/lib/types";
+import type { LocationDecision, MockChallenge, MockInvitation, MockSavedEstimate, MockTicket, MockUser } from "@/lib/types";
 
 interface MockStore {
     users: Map<string, MockUser>;
@@ -10,6 +11,9 @@ interface MockStore {
     usedBackupCodes: Set<string>;
     tickets: Map<string, MockTicket>;
     savedEstimates: Map<string, MockSavedEstimate>;
+    invitations: Map<string, MockInvitation>;
+    memberships: Map<string, string>;
+    locationConsents: Map<string, LocationDecision>;
 }
 
 const holder = globalThis as typeof globalThis & { haulrMockStore?: Partial<MockStore> };
@@ -24,6 +28,9 @@ const seed = (): MockStore => ({
     usedBackupCodes: new Set(),
     tickets: new Map(MOCK_TICKETS.map((ticket) => [ticket.reference, { ...ticket }])),
     savedEstimates: new Map(),
+    invitations: new Map(Object.entries(MOCK_INVITATIONS).map(([token, invitation]) => [token, { ...invitation }])),
+    memberships: new Map(Object.entries(MOCK_MEMBERSHIPS)),
+    locationConsents: new Map(),
 });
 
 export const mockStore = (): MockStore => {

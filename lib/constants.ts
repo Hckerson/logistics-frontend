@@ -23,6 +23,12 @@ export const RESET_PASSWORD_ROUTE = appRoutes.resetPassword();
 
 export const VERIFY_ROUTE = appRoutes.verify();
 
+export const INVITE_ROUTE = `${AUTH_ROUTE_PREFIX}/invite`;
+
+export const inviteRoute = appRoutes.invite;
+
+export const DRIVER_HOME_ROUTE = appRoutes.driverHome();
+
 export const RATE_ESTIMATOR_ROUTE = appRoutes.rateEstimator();
 
 export const HELP_ROUTE = appRoutes.help();
@@ -62,7 +68,7 @@ export const MAIN_CONTENT_ID = "main";
 
 export const PROTECTED_ROUTE_PREFIXES: readonly string[] = [...WORKSPACE_ROUTE_PREFIXES, ...INTERNAL_ROUTE_PREFIXES];
 
-export const SIGNED_IN_ACCESS_ROUTES = [VERIFY_ROUTE];
+export const SIGNED_IN_ACCESS_ROUTES = [VERIFY_ROUTE, INVITE_ROUTE];
 
 export const API_BASE_URL =
     process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5100";
