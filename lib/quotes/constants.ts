@@ -6,6 +6,8 @@ export const ESTIMATE_TIMING = { slowMs: 5_000, timeoutMs: 15_000, staleMs: 5 * 
 
 export const TREND = { days: 30, minimumDays: 14, width: 320, height: 72, pad: 4 } as const;
 
+export const RATE_CELL_REM = 2.6;
+
 export const UNRESOLVED_LOCATION = {
     origin: "Origin could not be resolved",
     destination: "Destination could not be resolved",

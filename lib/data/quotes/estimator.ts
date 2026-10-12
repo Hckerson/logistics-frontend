@@ -46,10 +46,10 @@ export const ESTIMATOR_COPY = {
     result: {
         label: "Estimate",
         idle: "Waiting",
-        emptyTitle: "No lane yet",
-        emptyBody: "Enter a pickup city, a delivery city, the equipment and a pickup date, then estimate.",
+        empty: "Two cities, a trailer and a pickup day. The rate comes back with how sure we are about it.",
         confidence: { high: "High confidence", medium: "Medium confidence", low: "Low confidence" },
         range: "Likely range",
+        lane: "{origin} to {destination}",
         announce: "Estimate ready: between {low} and {high}.",
         perMile: "{rate} per mile",
         miles: "{miles} mi",
