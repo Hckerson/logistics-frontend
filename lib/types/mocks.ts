@@ -1,3 +1,4 @@
+import type { LaneQuery } from "@/lib/types/quote";
 import type { TicketCategory, TicketStatus, TicketUrgency } from "@/lib/types/support";
 
 export interface MockUser {
@@ -44,4 +45,12 @@ export interface MockTicket {
     urgency: TicketUrgency;
     status: TicketStatus;
     updated: string;
+}
+
+export interface MockSavedEstimate {
+    id: string;
+    owner: string;
+    lane: LaneQuery;
+    rate: number;
+    saved: string;
 }

@@ -5,4 +5,5 @@ export * from "./home";
 export * from "./legal";
 export * from "./map";
 export * from "./mocks";
+export * from "./quote";
 export * from "./support";

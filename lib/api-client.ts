@@ -21,6 +21,8 @@ const sameOriginClient: AxiosInstance = axios.create({
 });
 
 export const local = {
+    get: async (url: string, config?: Pick<AxiosRequestConfig, "signal" | "timeout">): Promise<unknown> =>
+        (await sameOriginClient.get<unknown>(url, config)).data,
     post: async <T>(url: string, body: unknown) =>
         (await sameOriginClient.post<T>(url, body)).data,
     delete: async <T>(url: string) =>
