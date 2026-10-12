@@ -6,6 +6,7 @@ import LegalHistory from "@/components/legal/legal-history";
 import LegalNav from "@/components/legal/legal-nav";
 import LegalRecord from "@/components/legal/legal-record";
 import SubProcessors from "@/components/legal/sub-processors";
+import PublicPage from "@/components/common/public-page";
 import { PROVIDERS_CLAUSE } from "@/lib/legal/constants";
 import type { LegalEdition } from "@/lib/types";
 
@@ -18,7 +19,7 @@ export default function LegalDocument({ found }: Props) {
     const providers = replacedBy ? null : document.subProcessors;
 
     return (
-        <div className="haulr-shell flex flex-col gap-10 pt-[calc(var(--haulr-header)+3rem)] pb-20 lg:gap-14 lg:pt-[calc(var(--haulr-header)+5rem)] print:pt-0">
+        <PublicPage className="print:pt-0">
             <LegalHeader document={document} />
             <div className="grid gap-10 lg:grid-cols-[14rem_minmax(0,44rem)] lg:gap-16 xl:gap-24">
                 <aside className="flex flex-col gap-8 lg:sticky lg:top-[calc(var(--haulr-header)+2rem)] lg:self-start print:hidden">
@@ -36,6 +37,6 @@ export default function LegalDocument({ found }: Props) {
                     <LegalHistory found={found} />
                 </article>
             </div>
-        </div>
+        </PublicPage>
     );
 }

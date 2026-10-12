@@ -23,6 +23,7 @@ const CINEMATIC = [
     "components/support/**/*.tsx",
     "components/common/login-form.tsx",
     "components/common/hud-panel.tsx",
+    "components/common/public-page.tsx",
 ];
 
 type RestrictedPath = { name: string; message: string };

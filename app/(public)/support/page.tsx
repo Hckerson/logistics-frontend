@@ -3,6 +3,7 @@ import PageIntro from "@/components/common/page-intro";
 import SupportDesk from "@/components/support/support-desk";
 import SupportHours from "@/components/support/support-hours";
 import TicketHistory from "@/components/support/ticket-history";
+import PublicPage from "@/components/common/public-page";
 import { SUPPORT_COPY } from "@/lib/data/support/copy";
 import { findArticle } from "@/lib/help/library";
 import { contextLines, supportContextFrom, ticketPrefill } from "@/lib/support/context";
@@ -20,7 +21,7 @@ export default async function SupportPage({ searchParams }: Props) {
     const article = context.article ? findArticle(context.article) : null;
 
     return (
-        <div className="haulr-shell flex flex-col gap-10 pt-[calc(var(--haulr-header)+3rem)] pb-20 lg:gap-14 lg:pt-[calc(var(--haulr-header)+5rem)]">
+        <PublicPage>
             <PageIntro eyebrow={SUPPORT_COPY.eyebrow} title={SUPPORT_COPY.title} lead={SUPPORT_COPY.lead} />
             <div className="grid gap-10 lg:grid-cols-[minmax(0,42rem)_17rem] lg:gap-16 xl:gap-24">
                 <SupportDesk
@@ -34,6 +35,6 @@ export default async function SupportPage({ searchParams }: Props) {
                     <TicketHistory signedIn={session !== null} />
                 </aside>
             </div>
-        </div>
+        </PublicPage>
     );
 }
