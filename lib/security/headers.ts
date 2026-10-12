@@ -4,7 +4,9 @@ export const NONCE_HEADER = "x-nonce";
 
 export const CSP_HEADER = "Content-Security-Policy";
 
-export const DRIVER_PATHS = "/driver/:path*";
+export const LOCATION_PATHS = ["/driver/:path*", "/auth/invite/:path*"] as const;
+
+export const MAP_ORIGINS = { tiles: "https://api.protomaps.com", assets: "https://protomaps.github.io" } as const;
 
 export const SECURITY_HEADERS = [
     { key: "Strict-Transport-Security", value: `max-age=${TWO_YEARS_SECONDS}; includeSubDomains; preload` },
@@ -13,7 +15,7 @@ export const SECURITY_HEADERS = [
     { key: "Permissions-Policy", value: "camera=(), geolocation=(), microphone=()" },
 ];
 
-export const DRIVER_HEADERS = [{ key: "Permissions-Policy", value: "camera=(self), geolocation=(self), microphone=()" }];
+export const LOCATION_HEADERS = [{ key: "Permissions-Policy", value: "camera=(self), geolocation=(self), microphone=()" }];
 
 export const contentSecurityPolicy = (nonce: string, development: boolean) =>
     [
@@ -22,7 +24,8 @@ export const contentSecurityPolicy = (nonce: string, development: boolean) =>
         "style-src 'self' 'unsafe-inline'",
         "img-src 'self' blob: data:",
         "font-src 'self' data:",
-        "connect-src 'self'",
+        `connect-src 'self' ${MAP_ORIGINS.tiles} ${MAP_ORIGINS.assets}`,
+        "worker-src 'self' blob:",
         "object-src 'none'",
         "base-uri 'self'",
         "form-action 'self'",

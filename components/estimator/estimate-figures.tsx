@@ -1,5 +1,5 @@
+import BoardReadout from "@/components/common/board-readout";
 import EstimateLane from "@/components/estimator/estimate-lane";
-import RateBoard from "@/components/estimator/rate-board";
 import RateRange from "@/components/estimator/rate-range";
 import { ESTIMATOR_COPY } from "@/lib/data/quotes/estimator";
 import { count, money, perMileRate, pickupDay } from "@/lib/quotes/format";
@@ -30,7 +30,7 @@ export default function EstimateFigures({ lane, estimate }: Props) {
             <EstimateLane estimate={estimate} sweep={queryString(lane)} />
             <div className="flex flex-col gap-3">
                 <p className="sr-only">{fill(result.lane)}</p>
-                <RateBoard key={rate} value={rate} />
+                <BoardReadout key={rate} value={rate} />
                 <p className="haulr-label text-text-muted flex flex-wrap gap-x-3 gap-y-1">
                     <span className="text-text font-mono">{result.perMile.replace("{rate}", perMileRate(estimate.perMile))}</span>
                     <span>{kind}</span>

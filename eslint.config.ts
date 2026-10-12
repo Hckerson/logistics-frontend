@@ -22,6 +22,7 @@ const CINEMATIC = [
     "components/help/**/*.tsx",
     "components/support/**/*.tsx",
     "components/estimator/**/*.tsx",
+    "components/tracking/**/*.tsx",
     "components/common/login-form.tsx",
     "components/common/hud-panel.tsx",
     "components/common/public-page.tsx",
