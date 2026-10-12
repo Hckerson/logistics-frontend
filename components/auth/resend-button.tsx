@@ -1,7 +1,7 @@
 "use client";
 import clsx from "clsx";
 import { Send } from "@carbon/icons-react";
-import ProgressLine from "@/components/auth/progress-line";
+import ProgressLine from "@/components/common/progress-line";
 import { CONSOLE_ACTION } from "@/lib/auth/constants";
 import { VERIFICATION_RESEND_COOLDOWN_S } from "@/lib/constants";
 import { VERIFY_COPY } from "@/lib/data/auth/verify";

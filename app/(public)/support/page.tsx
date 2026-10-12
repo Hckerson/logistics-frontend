@@ -3,6 +3,7 @@ import PageIntro from "@/components/common/page-intro";
 import SupportDesk from "@/components/support/support-desk";
 import SupportHours from "@/components/support/support-hours";
 import TicketHistory from "@/components/support/ticket-history";
+import SectionBoundary from "@/components/wrappers/section-boundary";
 import PublicPage from "@/components/common/public-page";
 import { SUPPORT_COPY } from "@/lib/data/support/copy";
 import { findArticle } from "@/lib/help/library";
@@ -32,7 +33,9 @@ export default async function SupportPage({ searchParams }: Props) {
                 />
                 <aside className="flex flex-col gap-10 lg:sticky lg:top-[calc(var(--haulr-header)+2rem)] lg:self-start">
                     <SupportHours />
-                    <TicketHistory signedIn={session !== null} />
+                    <SectionBoundary label={SUPPORT_COPY.history.part}>
+                        <TicketHistory signedIn={session !== null} />
+                    </SectionBoundary>
                 </aside>
             </div>
         </PublicPage>

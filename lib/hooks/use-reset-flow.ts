@@ -2,7 +2,7 @@ import { useState, type ChangeEvent, type FormEvent } from "react";
 import { newPasswordProblems, saveFailure } from "@/lib/auth/reset";
 import { flowSignal } from "@/lib/auth/signal";
 import { HTTP_STATUS } from "@/lib/constants";
-import { AUTH_COPY } from "@/lib/data/auth/shared";
+import { ERROR_COPY } from "@/lib/errors/constants";
 import { useFormProblems } from "@/lib/hooks/use-form-problems";
 import { useResetPassword } from "@/lib/hooks/use-reset-password";
 import type { ResetField } from "@/lib/types";
@@ -34,7 +34,7 @@ export function useResetFlow(token: string) {
                     if (result.status === HTTP_STATUS.tooManyRequests) setValues(EMPTY);
                     checks.fail([saveFailure(result)]);
                 },
-                onError: () => checks.fail([{ message: AUTH_COPY.errors.network }]),
+                onError: () => checks.fail([{ message: ERROR_COPY.offline }]),
             },
         );
     };

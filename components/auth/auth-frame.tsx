@@ -4,6 +4,7 @@ import EntryBeam from "@/components/auth/entry-beam";
 import HaulrWordmark from "@/components/home/haulr-wordmark";
 import AuthSignalProvider from "@/components/providers/auth-signal-provider";
 import { AUTH_COLUMNS } from "@/lib/auth/constants";
+import { MAIN_CONTENT_ID } from "@/lib/constants";
 import { ENTRY_TIMELINE } from "@/lib/auth/entry";
 import { HAULR_BRAND } from "@/lib/data/home/brand";
 
@@ -23,8 +24,10 @@ export default function AuthFrame({ scene, children }: Props) {
                         <p className="haulr-label text-text-muted hidden lg:block">{HAULR_BRAND.tag}</p>
                     </header>
                     <main
+                        id={MAIN_CONTENT_ID}
+                        tabIndex={-1}
                         className={clsx(
-                            "haulr-shell grid flex-1 content-start gap-y-8 pt-[calc(var(--haulr-auth-band)-var(--haulr-header))] pb-10 lg:content-center lg:items-center lg:pt-0",
+                            "haulr-shell grid flex-1 content-start outline-none gap-y-8 pt-[calc(var(--haulr-auth-band)-var(--haulr-header))] pb-10 lg:content-center lg:items-center lg:pt-0",
                             AUTH_COLUMNS,
                         )}
                     >

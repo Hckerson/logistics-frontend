@@ -18,6 +18,7 @@ export const HOLDING_COPY = {
     },
     signOut: "Sign out",
     pending: "Signing out…",
+    signedOut: "Signed out.",
     footer: {
         label: "Other options",
         links: [AUTH_COPY.links.home, AUTH_COPY.links.help] satisfies AuthLink[],

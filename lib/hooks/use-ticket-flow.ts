@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { useAnnounce } from "@/components/providers/announcer-provider";
 import { SUPPORT_COPY } from "@/lib/data/support/copy";
 import { useCreateTicket } from "@/lib/hooks/use-create-ticket";
 import { useFormProblems } from "@/lib/hooks/use-form-problems";
@@ -17,6 +18,7 @@ export function useTicketFlow({ replyTo, context, prefill }: Options) {
     const draft = useTicketDraft();
     const checks = useFormProblems<TicketField>();
     const create = useCreateTicket();
+    const announce = useAnnounce();
     const [receipt, setReceipt] = useState<(TicketReceipt & { email: string }) | null>(null);
     const values: TicketDraft = {
         ...draft,
@@ -43,6 +45,7 @@ export function useTicketFlow({ replyTo, context, prefill }: Options) {
                     if (!result.ok) return checks.fail([ticketFailure(result)]);
                     setReceipt({ ...result.data, email: replyTo ?? email });
                     draftStore.clear();
+                    announce({ message: SUPPORT_COPY.receipt.announced.replace("{reference}", result.data.reference) });
                 },
                 onError: () => checks.fail([{ message: SUPPORT_COPY.errors.failed }]),
             },

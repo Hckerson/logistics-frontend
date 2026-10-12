@@ -9,7 +9,7 @@ import HudPanel from "@/components/common/hud-panel";
 import LocationField from "@/components/estimator/location-field";
 import { problemCount } from "@/lib/auth/problems";
 import { ESTIMATOR_COPY } from "@/lib/data/quotes/estimator";
-import { EQUIPMENT_TYPES } from "@/lib/quotes/constants";
+import { EQUIPMENT_TYPES } from "@/lib/enums/equipment-type";
 import type { FormProblem, LaneEntry, LaneField } from "@/lib/types";
 import { todayValue } from "@/lib/utils/date-formatter";
 

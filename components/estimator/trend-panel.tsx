@@ -1,6 +1,6 @@
 "use client";
 import clsx from "clsx";
-import ProgressLine from "@/components/auth/progress-line";
+import ProgressLine from "@/components/common/progress-line";
 import HudPanel from "@/components/common/hud-panel";
 import TrendChart from "@/components/estimator/trend-chart";
 import TrendTable from "@/components/estimator/trend-table";

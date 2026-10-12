@@ -1,3 +1,4 @@
+import { appRoutes, INTERNAL_ROUTE_PREFIXES, ROUTE_PREFIXES, WORKSPACE_ROUTE_PREFIXES } from "@/lib/app-routes";
 import type { AccountSide, MfaMethod, SupportContext } from "@/lib/types";
 
 export const DATE_VALUE_FORMAT = "yyyy-MM-dd";
@@ -6,29 +7,29 @@ export const SESSION_COOKIE = "session";
 
 export const MFA_COOKIE = "mfa_challenge";
 
-export const AUTH_ROUTE_PREFIX = "/auth";
+export const AUTH_ROUTE_PREFIX = ROUTE_PREFIXES.auth;
 
-export const LOGIN_ROUTE = `${AUTH_ROUTE_PREFIX}/login`;
+export const LOGIN_ROUTE = appRoutes.login();
 
-export const HOME_ROUTE = "/";
+export const HOME_ROUTE = appRoutes.home();
 
-export const DASHBOARD_ROUTE = "/dashboard";
+export const DASHBOARD_ROUTE = appRoutes.dashboard();
 
-export const REGISTER_ROUTE = `${AUTH_ROUTE_PREFIX}/register`;
+export const REGISTER_ROUTE = appRoutes.register();
 
-export const FORGOT_PASSWORD_ROUTE = `${AUTH_ROUTE_PREFIX}/forgot-password`;
+export const FORGOT_PASSWORD_ROUTE = appRoutes.forgotPassword();
 
-export const RESET_PASSWORD_ROUTE = `${AUTH_ROUTE_PREFIX}/reset-password`;
+export const RESET_PASSWORD_ROUTE = appRoutes.resetPassword();
 
-export const VERIFY_ROUTE = `${AUTH_ROUTE_PREFIX}/verify`;
+export const VERIFY_ROUTE = appRoutes.verify();
 
-export const RATE_ESTIMATOR_ROUTE = "/tools/rate-estimator";
+export const RATE_ESTIMATOR_ROUTE = appRoutes.rateEstimator();
 
-export const HELP_ROUTE = "/help";
+export const HELP_ROUTE = appRoutes.help();
 
-export const SUPPORT_ROUTE = "/support";
+export const SUPPORT_ROUTE = appRoutes.support();
 
-export const legalRoute = (document: string, version?: string) => `/legal/${document}${version ? `/${version}` : ""}`;
+export const legalRoute = appRoutes.legal;
 
 export const ACCOUNT_SIDES = ["shipper", "carrier"] as const satisfies readonly AccountSide[];
 
@@ -40,9 +41,9 @@ export const MFA_STEP = "code";
 
 export const mfaRoute = (next: string) => `${VERIFY_ROUTE}?step=${MFA_STEP}&next=${encodeURIComponent(next)}`;
 
-export const helpArticleRoute = (slug: string) => `${HELP_ROUTE}/${slug}`;
+export const helpArticleRoute = appRoutes.helpArticle;
 
-export const POST_LOAD_ROUTE = "/shipper/loads/new";
+export const POST_LOAD_ROUTE = appRoutes.postLoad();
 
 export const postLoadRoute = (lane: string, quote?: "custom") =>
     `${POST_LOAD_ROUTE}?lane=${encodeURIComponent(lane)}${quote ? `&quote=${quote}` : ""}`;
@@ -57,7 +58,9 @@ export const ACCOUNT_RECOVERY_ROUTE = supportRoute({ topic: "account" });
 
 export const ERROR_RETRY_LIMIT = 3;
 
-export const PROTECTED_ROUTE_PREFIXES = [DASHBOARD_ROUTE];
+export const MAIN_CONTENT_ID = "main";
+
+export const PROTECTED_ROUTE_PREFIXES: readonly string[] = [...WORKSPACE_ROUTE_PREFIXES, ...INTERNAL_ROUTE_PREFIXES];
 
 export const SIGNED_IN_ACCESS_ROUTES = [VERIFY_ROUTE];
 
@@ -100,13 +103,17 @@ export const HTTP_STATUS = {
     accepted: 202,
     badRequest: 400,
     unauthorized: 401,
+    forbidden: 403,
     notFound: 404,
+    requestTimeout: 408,
     conflict: 409,
+    preconditionFailed: 412,
     unprocessable: 422,
     tooManyRequests: 429,
     serverError: 500,
     badGateway: 502,
     serviceUnavailable: 503,
+    gatewayTimeout: 504,
 } as const;
 
 export const MOTION_DURATION = {

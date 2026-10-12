@@ -1,23 +1,18 @@
 "use server";
 import { actionFailure, backendPost, readJson } from "@/lib/api-server";
 import { unpublishedRoutes } from "@/lib/api-routes";
-import { HTTP_STATUS, INVALID_REQUEST, REQUEST_FAILED, SESSION_REQUIRED } from "@/lib/constants";
 import type { ActionResult, LaneQuery } from "@/lib/types";
-import { getSession } from "@/lib/utils/session";
+import { contractFailure, invalidInput } from "@/lib/utils/action-result";
+import { withSessionAction } from "@/lib/utils/with-action";
 import { saveEstimateSchema, savedEnvelopeSchema } from "@/lib/validations/lane";
 
-export const saveEstimate = async (lane: LaneQuery, rate: number): Promise<ActionResult<string>> => {
-    const session = await getSession();
-    if (!session) return { ok: false, status: HTTP_STATUS.unauthorized, message: SESSION_REQUIRED };
-
-    const input = saveEstimateSchema.safeParse({ email: session.email, lane, rate });
-    if (!input.success) return { ok: false, status: HTTP_STATUS.badRequest, message: INVALID_REQUEST };
+export const saveEstimate = withSessionAction(async ({ user }, lane: LaneQuery, rate: number): Promise<ActionResult<string>> => {
+    const input = saveEstimateSchema.safeParse({ email: user.email, lane, rate });
+    if (!input.success) return invalidInput();
 
     const upstream = await backendPost(unpublishedRoutes.pricingSaved(), input.data);
     if (!upstream.ok) return actionFailure(upstream);
 
     const saved = savedEnvelopeSchema.safeParse(await readJson(upstream));
-    return saved.success
-        ? { ok: true, data: saved.data.data.id }
-        : { ok: false, status: HTTP_STATUS.badGateway, message: REQUEST_FAILED };
-};
+    return saved.success ? { ok: true, data: saved.data.data.id } : contractFailure();
+});

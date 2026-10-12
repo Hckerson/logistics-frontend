@@ -42,6 +42,7 @@ export const HELP_COPY = {
         send: "Send",
         sending: "Sending…",
         thanks: "Thanks, noted.",
+        announced: "Feedback sent.",
         thanksNo: "Thanks. A person can help with the rest.",
         failed: "That didn't go through. Reading isn't affected.",
     },

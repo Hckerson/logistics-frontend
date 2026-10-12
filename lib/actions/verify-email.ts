@@ -1,28 +1,23 @@
 "use server";
 import { actionFailure, backendPost, readJson } from "@/lib/api-server";
 import { unpublishedRoutes } from "@/lib/api-routes";
-import { HTTP_STATUS, INVALID_REQUEST, REQUEST_FAILED, SESSION_REQUIRED } from "@/lib/constants";
 import type { ActionResult } from "@/lib/types/api";
-import { getSession } from "@/lib/utils/session";
+import { contractFailure, invalidInput } from "@/lib/utils/action-result";
+import { withAction, withSessionAction } from "@/lib/utils/with-action";
 import { emailEnvelopeSchema, linkTokenSchema } from "@/lib/validations/auth";
 
-export const verifyEmail = async (token: string): Promise<ActionResult<string>> => {
+export const verifyEmail = withAction(async (_context, token: string): Promise<ActionResult<string>> => {
     const parsed = linkTokenSchema.safeParse({ token });
-    if (!parsed.success) return { ok: false, status: HTTP_STATUS.badRequest, message: INVALID_REQUEST };
+    if (!parsed.success) return invalidInput();
 
     const upstream = await backendPost(unpublishedRoutes.verifyEmail(), parsed.data);
     if (!upstream.ok) return actionFailure(upstream);
 
     const verified = emailEnvelopeSchema.safeParse(await readJson(upstream));
-    return verified.success
-        ? { ok: true, data: verified.data.data.email }
-        : { ok: false, status: HTTP_STATUS.badGateway, message: REQUEST_FAILED };
-};
+    return verified.success ? { ok: true, data: verified.data.data.email } : contractFailure();
+});
 
-export const resendVerification = async (): Promise<ActionResult<null>> => {
-    const session = await getSession();
-    if (!session) return { ok: false, status: HTTP_STATUS.unauthorized, message: SESSION_REQUIRED };
-
-    const upstream = await backendPost(unpublishedRoutes.verifyEmailResend(), { email: session.email });
+export const resendVerification = withSessionAction(async ({ user }): Promise<ActionResult<null>> => {
+    const upstream = await backendPost(unpublishedRoutes.verifyEmailResend(), { email: user.email });
     return upstream.ok ? { ok: true, data: null } : actionFailure(upstream);
-};
+});

@@ -5,7 +5,7 @@ import { Renew } from "@carbon/icons-react";
 import AuthIntro from "@/components/auth/auth-intro";
 import AuthLinks from "@/components/auth/auth-links";
 import ConsoleLink from "@/components/auth/console-link";
-import ProgressLine from "@/components/auth/progress-line";
+import ProgressLine from "@/components/common/progress-line";
 import SystemPanel from "@/components/auth/system-panel";
 import { CONSOLE_ACTION } from "@/lib/auth/constants";
 import { ERROR_RETRY_LIMIT, SUPPORT_ROUTE, supportRoute } from "@/lib/constants";

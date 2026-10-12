@@ -129,8 +129,8 @@ describe("creating a session", () => {
 });
 
 describe("destroying a session", () => {
-    it("clears the cookie", () => {
-        const response = DELETE();
+    it("clears the cookie", async () => {
+        const response = await DELETE(new NextRequest(new URL("https://app.test/api/session"), { method: "DELETE" }));
 
         expect(response.status).toBe(204);
         expect(response.headers.get("set-cookie")).toContain(

@@ -42,7 +42,7 @@ export const register: MockHandler = async ({ body, path }) => {
     const key = input.data.email.toLowerCase();
     const { users } = mockStore();
     if (users.has(key)) return fail(409, EMAIL_TAKEN, path);
-    const user: MockUser = { id: nanoid(), name: input.data.fullName, email: key, password: input.data.password, role: "USER", verified: false, mfa: false };
+    const user: MockUser = { id: nanoid(), name: input.data.fullName, email: key, password: input.data.password, role: "USER", roles: [], verified: false, mfa: false };
     users.set(key, user);
     return issueSession(201, user);
 };

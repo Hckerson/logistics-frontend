@@ -1,7 +1,7 @@
 "use client";
 import { Renew } from "@carbon/icons-react";
 import ConsoleLink from "@/components/auth/console-link";
-import ProgressLine from "@/components/auth/progress-line";
+import ProgressLine from "@/components/common/progress-line";
 import ResendButton from "@/components/auth/resend-button";
 import { CONSOLE_ACTION } from "@/lib/auth/constants";
 import { DASHBOARD_ROUTE } from "@/lib/constants";

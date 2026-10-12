@@ -1,5 +1,5 @@
 import type { z } from "zod";
-import type { EQUIPMENT_TYPES } from "@/lib/quotes/constants";
+import type { EQUIPMENT_TYPES } from "@/lib/enums/equipment-type";
 import type { laneQuerySchema, placeSchema, rateEstimateSchema, trendPointSchema } from "@/lib/validations/lane";
 
 export type Equipment = (typeof EQUIPMENT_TYPES)[number];

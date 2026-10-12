@@ -3,7 +3,7 @@ import { useState, type ChangeEvent, type FormEvent } from "react";
 import { mfaFailure, mfaProblems } from "@/lib/auth/mfa";
 import { flowSignal } from "@/lib/auth/signal";
 import { HTTP_STATUS, MFA_CODE_LENGTH } from "@/lib/constants";
-import { AUTH_COPY } from "@/lib/data/auth/shared";
+import { ERROR_COPY } from "@/lib/errors/constants";
 import { useFormProblems } from "@/lib/hooks/use-form-problems";
 import { useMfaChallenge } from "@/lib/hooks/use-mfa-challenge";
 import type { MfaMethod } from "@/lib/types";
@@ -41,7 +41,7 @@ export function useMfaFlow(next: string, open: boolean) {
                     setValues(EMPTY);
                     checks.fail([mfaFailure(result)]);
                 },
-                onError: () => checks.fail([{ message: AUTH_COPY.errors.network }]),
+                onError: () => checks.fail([{ message: ERROR_COPY.offline }]),
             },
         );
     };

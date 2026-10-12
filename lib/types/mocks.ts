@@ -1,3 +1,4 @@
+import type { RoleKey } from "@/lib/types/enums";
 import type { LaneQuery } from "@/lib/types/quote";
 import type { TicketCategory, TicketStatus, TicketUrgency } from "@/lib/types/support";
 
@@ -7,6 +8,7 @@ export interface MockUser {
     email: string;
     password: string;
     role: "ADMIN" | "USER";
+    roles: RoleKey[];
     verified: boolean;
     mfa: boolean;
 }

@@ -1,12 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { completeChallenge, endChallenge, readChallenge } from "@/lib/utils/session";
-import { answerMfaChallenge, checkMfaChallenge } from "./mfa-challenge";
+import { checkMfaChallenge } from "@/lib/auth/server-checks";
+import { answerMfaChallenge } from "./mfa-challenge";
 
 vi.mock("next/headers", () => ({
     cookies: () => Promise.resolve({ get: () => undefined }),
 }));
 
 vi.mock("@/lib/utils/session", () => ({
+    getSession: () => Promise.resolve(null),
     readChallenge: vi.fn(),
     endChallenge: vi.fn(),
     completeChallenge: vi.fn(),

@@ -5,22 +5,25 @@ import AuthIntro from "@/components/auth/auth-intro";
 import AuthSubmit from "@/components/auth/auth-submit";
 import FlowPanel from "@/components/auth/flow-panel";
 import OutcomeStep from "@/components/auth/outcome-step";
+import { useAnnounce } from "@/components/providers/announcer-provider";
+import { useSession } from "@/components/providers/session-provider";
 import { LOGIN_ROUTE } from "@/lib/constants";
 import { HOLDING_COPY } from "@/lib/data/auth/dashboard";
-import { AUTH_COPY } from "@/lib/data/auth/shared";
+import { ERROR_COPY } from "@/lib/errors/constants";
 import { useFormProblems } from "@/lib/hooks/use-form-problems";
 import { useLogout } from "@/lib/hooks/use-logout";
 
 interface Props {
-    email: string;
     footer: ReactNode;
 }
 
 const { outcome } = HOLDING_COPY;
 
-export default function SignedIn({ email, footer }: Props) {
+export default function SignedIn({ footer }: Props) {
+    const user = useSession();
     const router = useRouter();
     const logout = useLogout();
+    const announce = useAnnounce();
     const checks = useFormProblems();
 
     const signOut = (event: FormEvent) => {
@@ -29,10 +32,11 @@ export default function SignedIn({ email, footer }: Props) {
         checks.reset();
         logout.mutate(undefined, {
             onSuccess: () => {
+                announce({ message: HOLDING_COPY.signedOut });
                 router.push(LOGIN_ROUTE);
                 router.refresh();
             },
-            onError: () => checks.fail([{ message: AUTH_COPY.errors.network }]),
+            onError: () => checks.fail([{ message: ERROR_COPY.offline }]),
         });
     };
 
@@ -49,7 +53,7 @@ export default function SignedIn({ email, footer }: Props) {
                 step="signed-in"
                 footer={footer}
             >
-                <OutcomeStep label={outcome.label} detail={email} body={outcome.body}>
+                <OutcomeStep label={outcome.label} detail={user?.email} body={outcome.body}>
                     <form onSubmit={signOut}>
                         <AuthSubmit label={HOLDING_COPY.signOut} pendingLabel={HOLDING_COPY.pending} pending={logout.isPending} />
                     </form>
