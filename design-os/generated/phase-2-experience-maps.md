@@ -1,6 +1,6 @@
 # Phase 2 — Experience Maps
 
-`Haulr Design OS` · `Version 1.3.3` · `2026-10-10` · Previous: [Phase 1 — Product Vision](./phase-1-product-vision.md) · Next: [Phase 3 — Information Architecture](./phase-3-information-architecture.md)
+`Haulr Design OS` · `Version 1.3.4` · `2026-10-10` · Previous: [Phase 1 — Product Vision](./phase-1-product-vision.md) · Next: [Phase 3 — Information Architecture](./phase-3-information-architecture.md)
 
 Experiences come before pages. Each map below describes one journey end to end: what the user wants, what the system does, how the journey fails and how it recovers. Pages in [Phase 4](./phase-4-page-blueprints.md) exist to serve these journeys, and every page cites the experiences it serves.
 
@@ -165,7 +165,7 @@ Every map has the same twelve fields: **Personas**, **User intent**, **Trigger**
 - **Recovery paths:** show the last known position with its age and request a check call; give an equivalent text description of position and progress; say that the link has expired and who to contact.
 - **System behavior:** subscribes to location updates for the loads in view only; recomputes ETA on each update; emits `eta.changed` when the ETA moves by more than 30 minutes; raises a tracking exception at 90 minutes of silence (BR-10).
 - **Completion criteria:** the user knows position, freshness and ETA, or knows why they cannot.
-- **Dependencies:** XF-06, XS-03, XF-08, map base layer (pending approval; deck.gl installed, Phase 7 §15).
+- **Dependencies:** XF-06, XS-03, XF-08, map base layer (MapLibre with Protomaps tiles; Phase 7 §15).
 
 ### XF-08 — Exception management
 

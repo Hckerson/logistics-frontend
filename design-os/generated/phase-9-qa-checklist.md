@@ -1,10 +1,10 @@
 # Phase 9 — Quality Assurance Checklist
 
-`Haulr Design OS` · `Version 1.3.3` · `2026-10-10` · Previous: [Phase 8 — Implementation Roadmap](./phase-8-implementation-roadmap.md) · Next: [START_HERE](./START_HERE.md)
+`Haulr Design OS` · `Version 1.3.4` · `2026-10-10` · Previous: [Phase 8 — Implementation Roadmap](./phase-8-implementation-roadmap.md) · Next: [START_HERE](./START_HERE.md)
 
 A review of the whole system. Each item is a check that must pass before a feature moves from **Built** to **Verified** in [Phase 8 §9](./phase-8-implementation-roadmap.md#9-per-feature-build-status). QA here is functional. Visual quality is judged when each page is built, with the owner.
 
-**Columns.** `Ref` cites the design OS source. `Method`: **Auto** (automated test; Vitest and fast-check are installed, the component and end-to-end runners are proposed in [Phase 7 §15](./phase-7-frontend-architecture.md#15-shared-libraries)), **Manual** (tester), **AT** (assistive technology pass), **Review** (code review), **Tool** (Lighthouse; ESLint; `pnpm contract:check`; axe, proposed in Phase 7 §15). `Block` = blocks Verified status when failing.
+**Columns.** `Ref` cites the design OS source. `Method`: **Auto** (automated test; Vitest and fast-check are installed, Vitest Browser Mode for components and Playwright with axe end to end are approved but not yet installed, per [Phase 7 §15](./phase-7-frontend-architecture.md#15-shared-libraries)), **Manual** (tester), **AT** (assistive technology pass), **Review** (code review), **Tool** (Lighthouse; ESLint; `pnpm contract:check`; axe, proposed in Phase 7 §15). `Block` = blocks Verified status when failing.
 
 ## Table of Contents
 
@@ -52,7 +52,7 @@ A review of the whole system. Each item is a check that must pass before a featu
 | QA-018 | Industry terms have an accessible explanation available | IC-56, PP-07 | Review | No |
 | QA-019 | Driver workflow targets meet 44 × 44 CSS px | G-2 | Tool | Yes |
 | QA-020 | Camera capture relies on native file input with capture | IC-25 | Review | Yes |
-| QA-021 | Payment processor entry passes an axe scan (proposed, Phase 7 §15) and a keyboard pass | IC-42 | Tool | Yes |
+| QA-021 | Payment processor entry passes an axe scan (approved, Phase 7 §15) and a keyboard pass | IC-42 | Tool | Yes |
 | QA-022 | Keyboard shortcuts can be turned off or are scoped to focus | IC-49 | Manual | Yes |
 | QA-023 | Skip link present on every page and moves focus to the main landmark | IC-52 | Auto | Yes |
 | QA-024 | Session timeout warns 2 minutes ahead and allows extension | IC-54 | Auto | Yes |

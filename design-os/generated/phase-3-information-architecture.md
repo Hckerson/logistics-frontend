@@ -1,6 +1,6 @@
 # Phase 3 — Information Architecture
 
-`Haulr Design OS` · `Version 1.3.3` · `2026-10-10` · Previous: [Phase 2 — Experience Maps](./phase-2-experience-maps.md) · Next: [Phase 4 — Page Blueprints](./phase-4-page-blueprints.md)
+`Haulr Design OS` · `Version 1.3.4` · `2026-10-10` · Previous: [Phase 2 — Experience Maps](./phase-2-experience-maps.md) · Next: [Phase 4 — Page Blueprints](./phase-4-page-blueprints.md)
 
 This phase fixes which pages exist, how they relate, which route group each belongs to and who can reach each one. It describes structure and reachability only. What any layout shows, and how, is decided when each page is built.
 

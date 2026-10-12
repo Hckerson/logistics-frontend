@@ -1,6 +1,6 @@
 # Artifact Index — Haulr Design OS
 
-`Version 1.3.3` · `2026-10-10` · Start: [START_HERE](./START_HERE.md) · Master index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
+`Version 1.3.4` · `2026-10-10` · Start: [START_HERE](./START_HERE.md) · Master index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
 
 A detailed guide to each phase: what it is, who needs it, when to open it, what it contains and how it feeds the phases after it.
 
@@ -92,7 +92,7 @@ A detailed guide to each phase: what it is, who needs it, when to open it, what 
 
 [phase-7-frontend-architecture.md](./phase-7-frontend-architecture.md)
 
-**Description.** Phase 7 translates the specification into code organisation for this repository, reconciled with `.claude/CLAUDE.md`. It records fourteen architectural decisions (D-1 … D-14) where the plan extends a host convention, and gives the full folder and route tree for all 66 pages. It also defines layouts and guards, providers, feature folders under `lib/<feature>/`, 57 resource hook files mapped to the hooks named in Phase 5, API layering (contract, Server Actions, Route Handlers, hooks), real-time polling and offline strategy, library recommendations under the approval policy, naming, code splitting, performance budgets, security and lint enforcement.
+**Description.** Phase 7 translates the specification into code organisation for this repository, reconciled with `.claude/CLAUDE.md`. It records fourteen architectural decisions (D-1 … D-14) where the plan extends a host convention, and gives the full folder and route tree for all 66 pages. It also defines layouts and guards, providers, feature folders under `lib/<feature>/`, 59 resource hook files mapped to the hooks named in Phase 5, API layering (contract, Server Actions, Route Handlers, hooks), real-time polling and offline strategy, library recommendations under the approval policy, naming, code splitting, performance budgets, security and lint enforcement.
 
 - **Who needs it:** engineers; tech leads for approvals.
 - **When to reference it:** creating any file; choosing a transport; adding a dependency.
@@ -103,7 +103,7 @@ A detailed guide to each phase: what it is, who needs it, when to open it, what 
 
 [phase-8-implementation-roadmap.md](./phase-8-implementation-roadmap.md)
 
-**Description.** Phase 8 holds the active solo build order (§16): seven pattern-first stages for one engineer against the mocked backend, with everything outside the slice Specified and queued; only payment method entry is Deferred. It also keeps the staffed plan, which sequences the build into eight development phases and eight dated two-week sprints, prioritised by the North Star, with five milestones and explicit exit criteria. It lists backend, library and design-approval dependencies with fallbacks, seventeen risks with mitigations, technical debt controls and a layered testing strategy. It is also the only place build status lives: every flow, page, section and contract carries exactly one status from the fixed vocabulary.
+**Description.** Phase 8 holds the active solo build order (§16): seven pattern-first stages for one engineer against the mocked backend, with everything outside the slice Specified and queued; nothing is Deferred. It also keeps the staffed plan, which sequences the build into eight development phases and eight dated two-week sprints, prioritised by the North Star, with five milestones and explicit exit criteria. It lists backend, library and design-approval dependencies with fallbacks, seventeen risks with mitigations, technical debt controls and a layered testing strategy. It is also the only place build status lives: every flow, page, section and contract carries exactly one status from the fixed vocabulary.
 
 - **Who needs it:** everyone planning or reporting progress.
 - **When to reference it:** sprint planning; standups; deciding a deferral; release readiness.
@@ -179,14 +179,14 @@ A view over [Phase 8 §9](./phase-8-implementation-roadmap.md#9-per-feature-buil
 
 | Artifact type | Total | Specified | Scheduled | In progress | Built | Verified | Deferred |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Flows (XF, XD, XS) | 43 | 32 | 9 | 1 | 0 | 0 | 1 |
-| Pages | 66 | 44 | 11 | 10 | 0 | 0 | 1 |
-| Sections | 238 | 161 | 57 | 15 | 0 | 0 | 5 |
-| Interaction contracts | 68 | 24 | 36 | 7 | 0 | 0 | 1 |
+| Flows (XF, XD, XS) | 43 | 33 | 9 | 1 | 0 | 0 | 0 |
+| Pages | 66 | 42 | 11 | 13 | 0 | 0 | 0 |
+| Sections | 238 | 158 | 57 | 23 | 0 | 0 | 0 |
+| Interaction contracts | 68 | 25 | 34 | 9 | 0 | 0 | 0 |
 
-**In progress items:** XS-01; PG-01, PG-09, PG-10, PG-11, PG-12, PG-13, PG-14, PG-53, PG-54, PG-55; SC-01.1, SC-01.2, SC-01.4, SC-10.1, SC-10.2, SC-11.1, SC-11.2, SC-12.1, SC-13.1, SC-14.1, SC-14.2, SC-09.1, SC-53.1, SC-54.1, SC-55.1; IC-01, IC-02, IC-03, IC-04, IC-11, IC-38, IC-46. The starter supplied the sign-in page, register route and hook, session route and button primitive; the home page, the identity-first sign-in, password recovery, email verification and the start of MFA followed against the mocked backend. All need the remaining Haulr behaviour and Phase 9 verification.
+**In progress items:** XS-01; PG-01, PG-06, PG-07, PG-08, PG-09, PG-10, PG-11, PG-12, PG-13, PG-14, PG-53, PG-54, PG-55; SC-01.1, SC-01.2, SC-01.4, SC-10.1, SC-10.2, SC-11.1, SC-11.2, SC-12.1, SC-13.1, SC-14.1, SC-14.2, SC-06.1 … SC-06.3, SC-07.1 … SC-07.3, SC-08.1, SC-08.2, SC-09.1, SC-53.1, SC-54.1, SC-55.1; IC-01, IC-02, IC-03, IC-04, IC-09, IC-11, IC-19, IC-38, IC-46. The starter supplied the sign-in page, register route and hook, session route and button primitive; the home page, the identity-first sign-in, password recovery, email verification and the start of MFA followed against the mocked backend. All need the remaining Haulr behaviour and Phase 9 verification.
 
-**By solo stage (pages, counted in the stage where they start):** 1: 9 (system pages and access pages built) · 2: 3 · 3: 1 · 4: 2 · 5: 2 · 6: 2 · 7: 1 — 20 in the slice. The other 46 are Specified and queued after stage 7, except PG-09 (built ahead) and PG-49, which is Deferred until a payments processor is chosen (Phase 8 §9.6).
+**By solo stage (pages, counted in the stage where they start):** 1: 9 (system pages and access pages built) · 2: 3 · 3: 1 · 4: 2 · 5: 2 · 6: 2 · 7: 1 — 20 in the slice. Of the other 46, PG-06, PG-07, PG-08 and PG-09 are built ahead of the order; the rest are Specified and queued after stage 7.
 
 **Staffed plan, by sprint (reference):** S1: 9 · S2: 7 · S3: 8 · S4: 12 · S5: 5 · S6: 10 · S7: 10 · S8: 5 — 66 in total.
 

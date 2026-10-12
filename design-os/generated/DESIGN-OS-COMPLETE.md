@@ -1,6 +1,6 @@
 # Haulr Design OS — Complete
 
-`Version 1.3.3` · `2026-10-10` · Status: **Complete, ready for engineering handoff** · Start: [START_HERE](./START_HERE.md) · Overview: [README](./README.md)
+`Version 1.3.4` · `2026-10-10` · Status: **Complete, ready for engineering handoff** · Start: [START_HERE](./START_HERE.md) · Overview: [README](./README.md)
 
 The master index. If something exists in this design OS, it is listed here.
 
@@ -90,7 +90,7 @@ It deliberately contains **no visual design**. Each page's look is decided when 
 | Page sections | 223 | Phase 5 §13 |
 | Interaction contracts | 68 | Phase 6 |
 | Architectural decisions | 14 (D-1 … D-14) | Phase 7 §1 |
-| Hook files | 57 resource hook files (10 existing) + 16 existing hooks without transport | Phase 7 §8 |
+| Hook files | 59 resource hook files (14 existing) + 20 existing hooks without transport | Phase 7 §8 |
 | Build plan | Solo: 7 stages, about 71 weeks (active). Staffed: 8 sprints, 16 weeks | Phase 8 §16, §3 |
 | Milestones | 5 | Phase 8 §4 |
 | Risks | 17 | Phase 8 §6 |
@@ -185,14 +185,6 @@ Integrity checks run at generation: 66 pages defined in Phases 3, 4, 5 and 8; 23
 
 | Item | Where | Needed by |
 | --- | --- | --- |
-| Confirm D-2 (Route Handlers for polled authenticated reads) | Phase 7 §1 | Stage 0 |
-| Confirm assumptions A1–A8, A9 (enterprise launch segment) and A10 (hosting, SOC 2 target) | Phase 1 §1 | Stage 0 |
-| Approve the map base layer (deck.gl is installed and reused) | Phase 7 §15 | Stage 2 |
-| Choose the payments processor with the backend, and approve its SDK | Phase 8 R-06, Phase 7 §15 | Stage 7 |
-| Approve the chart library | Phase 7 §15 | When SC-05.3 or reports are scheduled |
-| Provision identity-provider test tenants (Okta, Entra ID, Google Workspace, OneLogin) | Phase 8 §5 | When SSO (XS-13) is scheduled |
-| Approve observability and error-reporting libraries (D-10) | Phase 7 §15 | Before launch |
-| Approve the product analytics vendor after privacy review | Phase 7 §15 | Before launch |
 | Counsel confirms the dispatch board's hours design | Phase 8 §5 | Before launch |
 | Book the penetration test vendor | Phase 8 §5 | Before launch |
 
@@ -204,7 +196,7 @@ Integrity checks run at generation: 66 pages defined in Phases 3, 4, 5 and 8; 23
 | BR-31 custom quote values | 2-business-hour response; validity set per quote, default 4 hours, cap 24 hours; margin floor 8% of the shipper price, refused below it, changed only by `internal.admin` | Phase 1 §9 |
 | Driver hours on the dispatch board | Shown only to the carrier's own users, as the ELD reports them; never evaluated, warned on or stored. Based on *Montgomery v. Caribe Transport II* (2026), 49 CFR 390.6 and *Sperl v. C.H. Robinson*; safety rating and out-of-service checks added to BR-03 and BR-18; CMP-12 and CMP-13 added | Phase 1 §9, §19; Phase 2 XF-17 |
 | Capacity | Solo build order: seven pattern-first stages against the mocked backend; everything else Specified and queued after stage 7 (1.3.1; 1.3.0 had marked it Deferred) | Phase 8 §16, §9.6 |
-| Payment and payout method entry | Deferred until a payments processor is chosen: its hosted entry fields are the blocker | Phase 8 §9.6 |
+| Payment and payout method entry | Unblocked by the payments decision; Specified again | Phase 8 §9.6 |
 | Analytics event names | Phase 4 names canonical; `<domain>.<object>.<verb>`, snake_case, past tense; one catalogue | Phase 7 §27 |
 | View-as reach | Payout and payment methods, API keys and data export never shown; security settings read-only | Phase 3 §5.2 |
 | Support read on Integrations (PG-61) | Allowed with a ticket; keys never shown | Phase 3 §5.1a |
@@ -217,15 +209,23 @@ Integrity checks run at generation: 66 pages defined in Phases 3, 4, 5 and 8; 23
 | Suspended carriers | Reinstated through a new compliance review | Phase 2 XF-12, SC-51.4 |
 | Carrier pay timing | "3 business days" everywhere | BG-03, BR-15 |
 | Contact Support (PG-08) | Indexed for search | Phase 3 §11 |
-| Form library (2026-10-10) | Declined; the native pattern (Zod, `use-form-problems`, `board-field`) is the house standard | Phase 7 §15 |
-| Testing libraries (2026-10-10) | Playwright and axe approved, not yet installed; Testing Library later | Phase 7 §15 |
+| Form library (2026-10-10) | TanStack Form approved (type-safe field arrays, multi-step validation); the access forms move over when next changed | Phase 7 §15 |
+| Testing libraries (2026-10-10) | Vitest Browser Mode for component tests; Playwright and axe end to end; none installed yet | Phase 7 §15 |
 | Field and collection limits (2026-10-10) | Phase 7 §10 confirmed, with the values already in code recorded; the 128-character password maximum is not yet enforced | Phase 7 §10 |
-| Accessible component library (2026-10-10) | None; native `<dialog>` for IC-41; revisit at the location combobox (IC-05) | Phase 7 §15 |
+| Accessible component library (2026-10-10) | React Aria Components under `components/ui/` | Phase 7 §15 |
 | D-3, help and legal content (2026-10-10) | Typed modules in `lib/data/`; confirmed in practice by `lib/data/legal/` | Phase 7 §1 |
 | Signed-in landing (2026-10-10) | `/dashboard` is an interim holding page until the workspace roots exist | Phase 8 §16, Phase 3 §4 |
 | Network statistics (2026-10-10) | A stats mock on a contract route, labelled "Sample figures", until the backend reports them | Phase 8 §16 |
 | Not Found (2026-10-10) | `app/global-not-found.tsx` for unknown URLs, segment `not-found.tsx` for records | Phase 7 §2, Phase 3 §3.5 |
 | R-08, `forbidden()` flag (2026-10-10) | Resolved: `experimental.authInterrupts` and `globalNotFound` are enabled | Phase 8 §6 |
+| D-2, reads and live data (2026-10-10) | Server Actions for mutations only; reads through Server Components or Route Handlers; positions and ETAs over Server-Sent Events | Phase 7 §1, §13 |
+| Assumptions A1–A10 (2026-10-10) | Confirmed; A6 amended to two providers; A9 and A10 hold for the full product, not the slice | Phase 1 §1 |
+| Maps and routing (2026-10-10) | MapLibre base map with Protomaps tiles under deck.gl; HERE truck routing and ETAs on the backend | Phase 7 §15 |
+| Payments (2026-10-10) | Stripe for shipper payments; Triumph for carrier payments, QuickPay and factoring-company payouts | Phase 1 A6, Phase 7 §15 |
+| Charts (2026-10-10) | visx | Phase 7 §15 |
+| Enterprise SSO (2026-10-10) | WorkOS on the backend; its test provider replaces per-provider tenants | Phase 7 §15, Phase 8 §5 |
+| Observability (2026-10-10) | OpenTelemetry and Sentry, before a public deployment | Phase 7 §15 |
+| Product analytics and flags (2026-10-10) | PostHog after the privacy review; its flags back `lib/flags.ts` | Phase 7 §15 |
 
 ---
 
@@ -233,7 +233,7 @@ Integrity checks run at generation: 66 pages defined in Phases 3, 4, 5 and 8; 23
 
 | Field | Value |
 | --- | --- |
-| Version | 1.3.3 (stage 1 decisions and system and legal pages; 1.3.2 synced statuses after the MFA step; 1.3.1 caught statuses up, relabelled unblocked items Specified and fixed code drift; 1.3.0 recorded the maintainer decisions, solo build order and mocked backend; 1.2.0 added the dispatch board and quote desk, 1.1.1 was the audit, 1.1.0 enterprise hardening, 1.0.0 the initial generation) |
+| Version | 1.3.4 (merit-based library and service decisions, help and support pages; 1.3.3 recorded the stage 1 decisions and system and legal pages; 1.3.2 synced statuses after the MFA step; 1.3.1 caught statuses up, relabelled unblocked items Specified and fixed code drift; 1.3.0 recorded the maintainer decisions, solo build order and mocked backend; 1.2.0 added the dispatch board and quote desk, 1.1.1 was the audit, 1.1.0 enterprise hardening, 1.0.0 the initial generation) |
 | Generated | 2026-09-30 |
 | Revised | 2026-10-10 |
 | Seed prompt | `docs/MASTER_PROMPT_COMPLETE.md` |
@@ -253,6 +253,7 @@ Integrity checks run at generation: 66 pages defined in Phases 3, 4, 5 and 8; 23
 | 1.3.1 | Statuses caught up with the code: Forgot Password, Reset Password and Verify (PG-12, PG-13, PG-14) and their sections are In progress in solo stage 1, with the MFA challenge (SC-14.2) started; the countdown (IC-46) is In progress and the one-time code input (IC-04) Scheduled. Items outside the slice relabelled from Deferred to Specified, because capacity alone is not a blocker (maintainer's fix-before-drop rule); only payment and payout method entry stays Deferred, blocked on the payments processor choice. Phase 7 brought up to date with the code: `board-field.tsx`, `field-error.tsx`, `board-cells.tsx`, `auth-links.tsx`, `assembly-provider.tsx`, one hook file per access action, the step-flow hooks and the access presentation hooks. Capacity options reordered so both fixes come before any deferral. Nothing removed. |
 | 1.3.2 | Status sync with commits up to `bfbe4cc`: the MFA challenge (SC-14.2) now has its code step on `/auth/verify`; register's side selection (SC-11.1), the one-time code input (IC-04) and the consent checkbox (IC-38) are In progress. Phase 7 lists the new access files (`code-challenge.tsx`, `code-step.tsx`, `expired-panel.tsx`, `side-picker.tsx`, `consent-check.tsx`). No spec change. |
 | 1.3.3 | Stage 1 decisions recorded: form library declined in favour of the native pattern, Playwright and axe approved, Testing Library later, field limits confirmed with the values in code, no headless component library, D-3 confirmed by `lib/data/legal/`. Statuses synced with the working tree: system pages (PG-53 … PG-55) and Legal (PG-09, ahead of the slice) In progress; `/dashboard` recorded as an interim holding page; network statistics to use a labelled stats mock; Not Found through `global-not-found.tsx`; R-08 resolved. Phase 7 lists `components/legal/`, the system components, `root-document.tsx` and `use-active-section.ts`. No spec change. |
+| 1.3.4 | Decisions remade on merit rather than on what the repo already had: D-2 widened (Server Actions for mutations only; reads through Route Handlers or Server Components; positions and ETAs over Server-Sent Events); TanStack Form; Vitest Browser Mode with Playwright and axe; React Aria Components; MapLibre with Protomaps under deck.gl and HERE truck routing; Stripe for shippers and Triumph for carriers (A6 amended); visx; WorkOS; OpenTelemetry and Sentry; PostHog with flags. Assumptions confirmed. Payment method entry unblocked, so nothing is Deferred. Help Center, Help Article and Contact Support (PG-06 … PG-08) recorded as built ahead of the slice, with IC-09 and IC-19 In progress; the ticket list still reads through a Server Action, which D-2 moves to a Route Handler. No feature removed. |
 
 ---
 

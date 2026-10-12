@@ -1,6 +1,6 @@
 # Phase 4 — Page Blueprints
 
-`Haulr Design OS` · `Version 1.3.3` · `2026-10-10` · Previous: [Phase 3 — Information Architecture](./phase-3-information-architecture.md) · Next: [Phase 5 — Section Blueprints](./phase-5-section-blueprints.md)
+`Haulr Design OS` · `Version 1.3.4` · `2026-10-10` · Previous: [Phase 3 — Information Architecture](./phase-3-information-architecture.md) · Next: [Phase 5 — Section Blueprints](./phase-5-section-blueprints.md)
 
 A functional blueprint for each of the 66 pages in the [Phase 3 sitemap](./phase-3-information-architecture.md#3-sitemap). Each blueprint says what the page is for, what users come to get done, what data and permissions it needs, and what happens in every state. It never says what the page contains or how it looks; that is decided when the page is built, with the owner.
 
@@ -174,7 +174,7 @@ Every task a page supports on DV-DESK must also be possible on DV-AT. DV-PHONE a
 - **Empty states:** EM-4: no position yet (not yet picked up) → tracking starts at pickup, with the scheduled pickup window in the facility's time zone.
 - **Error states:** E-NOT-FOUND: invalid, tampered or revoked token → a not-found message that never reveals whether a load exists. Expired token (7 days after delivery, BR-21) → state that tracking ended and when the load was delivered. Position stale beyond 60 min (§2.6) → the last known position and its age (PP-03), not an error. E-RATE-LIMIT (SEC-10) → the wait from `Retry-After`; polling resumes after it. E-UNAVAILABLE from the ETA service → status and stops remain; the ETA is withheld with a statement that it is temporarily unavailable. E-SERVER on refresh → values kept with their age; reads retried per §2.2.
 - **Success states:** SU-1 (passive): on `Delivered`, the delivery time is confirmed and announced politely once if it arrives during the visit; polling stops.
-- **Dependencies:** Tracking token service, ETA service, map base layer (pending approval; deck.gl installed, Phase 7 §15).
+- **Dependencies:** Tracking token service, ETA service, map base layer (MapLibre with Protomaps tiles; Phase 7 §15).
 - **Implementation notes:** `noindex, nofollow`; no rates, contacts or documents in the payload (BR-21); polling through TanStack Query `refetchInterval`, paused when the tab is hidden; a text equivalent of the map is always present (PP-08). Acceptance: given a token 8 days past delivery, when it is opened, then the expired state is shown and the response carries no position; given the tab is hidden for 10 minutes, then no tracking request is made; given a position older than 60 min, then its age is stated in words. Analytics: `tracking.page.viewed`, `tracking.token.expired`, `tracking.token.rejected` (token ID only). No audit events here (read-only); link issuance and revocation are audited on PG-40. Query key `trackingKeys.public(token)` through `useTracking`; responses `Cache-Control: private, no-store`; built for 100,000 views per hour (NFR-CAP-1) at 99.95% availability (NFR-AV-2).
 
 ### PG-03 — Carrier Public Profile
@@ -606,7 +606,7 @@ All dashboards follow XD rules in [Phase 2 §3](./phase-2-experience-maps.md#3-r
 - **Empty states:** EM-1: no loads → start a quote (PG-27) or import a file (PG-56). EM-2: filters match nothing → active filter count and a way to clear them.
 - **Error states:** Per part E-SERVER, E-TIMEOUT → retry (IC-60); the other part stays usable. Map failure (E-UNAVAILABLE) → list remains fully usable (PP-08). E-VALIDATION: malformed URL parameters → defaults applied and stated. Bulk partial failure → per-record outcome reported; failed rows never block the successful ones (BR-28).
 - **Success states:** SU-1: bulk share tracking confirmed with the count of links created and any failures per load. SU-3: export accepted, reference returned, notification when ready (LS-7).
-- **Dependencies:** PG-40, PG-27, PG-56, XF-07, XF-14, map base layer (pending approval; deck.gl installed, Phase 7 §15).
+- **Dependencies:** PG-40, PG-27, PG-56, XF-07, XF-14, map base layer (MapLibre with Protomaps tiles; Phase 7 §15).
 - **Implementation notes:** Filters, view and cursor in the URL (Phase 3 §10); positions subscribed only for loads in view; export generated server-side. Acceptance: given 150 selected loads, when the user exports, then scope and total are stated before running (IC-23) and the export runs as a background job; given 3 of 20 share-tracking requests fail, then each failure is named with its reason and the 17 links are kept; the page of 50 loads returns within 800 ms at p95 (NFR-PERF-3). Analytics: `load.list.viewed` (view, filter count), `load.list.filtered`, `load.export.requested` (count), `tracking.link.bulk_created` (count). Audit: `export.requested` (scope, count), `tracking_link.created` per load. `useLoads` keyed `loadKeys.list(params)` with page size 50 (maximum 200); `useLoadPositions` 60 s; `useExportLoads`.
 
 ### PG-27 — Post a Load
