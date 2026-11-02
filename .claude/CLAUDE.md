@@ -4,7 +4,7 @@ This is a reusable **Next.js App Router starter**. It ships architecture, conven
 
 ## Non-negotiable rules
 
-1. **No hardcoding.** API routes, durations, enums, and copy that appears twice live in `lib/constants.ts` or feature-scoped `lib/<feature>/constants.ts`. Endpoints come from `lib/api-routes.ts`, shapes from Zod schemas. Seed and sample data lives in `lib/data/`, never inline in a page.
+1. **No hardcoding.** API routes, durations, enums, and copy that appears twice live in `lib/constants.ts` or feature-scoped `lib/<feature>/constants.ts`. Endpoints come from `@/lib/contract` (the app's own route handlers from `lib/api-routes.ts`), shapes from Zod schemas. Seed and sample data lives in `lib/data/`, never inline in a page.
 2. **Match the existing architecture.** Do not invent patterns, and do not invent locations — when you are unsure where something goes, re-read this file. State the reason before deviating.
 3. **Single source of truth.** Name a recurring decision once as a semantic token and reference it everywhere. Define once, change in one place.
 4. **Minimize LOC.** Ship the shortest solution that stays maintainable.
@@ -22,7 +22,7 @@ This is a reusable **Next.js App Router starter**. It ships architecture, conven
 | State management   | TanStack Query for server state. `useState` / `useReducer` / URL params for local state. `useSyncExternalStore` + `localStorage` for persistence. A global store requires a stated reason.                                                                            |
 | Validation         | Zod schemas in `lib/validations/`. Types derive with `z.infer`. API responses are never loosely typed.                                                                                                                                                                |
 | IDs                | `nanoid`. Never `uuid` or `Date.now()`.                                                                                                                                                                                                                               |
-| Async flows        | Endpoints in `lib/api-routes.ts`, transport in `lib/api-client.ts`, wrapped in hooks in `lib/hooks/use-<resource>.ts`. Components consume hooks — never call the client directly. A hook for an authenticated mutation wraps a Server Action from `lib/actions/`; an authenticated read goes through a Server Component or a GET route handler in `app/api/`, never a Server Action, because Next.js runs Server Actions one at a time per client and never caches them. Every endpoint ships with a mock handler (see _The mocked backend_). |
+| Async flows        | Endpoints from `@/lib/contract` (app route handlers in `lib/api-routes.ts`), transport in `lib/api-client.ts`, wrapped in hooks in `lib/hooks/use-<resource>.ts`. Components consume hooks — never call the client directly. A hook for an authenticated mutation wraps a Server Action from `lib/actions/`; an authenticated read goes through a Server Component or a GET route handler in `app/api/`, never a Server Action, because Next.js runs Server Actions one at a time per client and never caches them. Every endpoint ships with a mock handler (see _The mocked backend_). |
 
 ## Folder Structure
 
@@ -40,7 +40,7 @@ This is a reusable **Next.js App Router starter**. It ships architecture, conven
 | `/styles`               | _(flat)_                                                                                | Global styles and token exports.                                                                                                                                         |
 | `/tools/eslint`         | `rules`                                                                                 | Custom ESLint rules that enforce the conventions in this file. Not app code.                                                                                             |
 | `/tools/codemods`       | _(flat)_                                                                                | ts-morph codemods that rewrite violations the rules report. Not app code.                                                                                                |
-| `/tools/contract`       | _(flat)_                                                                                | Generator that turns the backend's OpenAPI document into `lib/contract/`.                                                                                                |
+| `/tools/contract`       | _(flat)_                                                                                | Generator that turns the backend's OpenAPI document, merged with `pending-openapi.json`, into `lib/contract/`.                                                                                                |
 
 Add `lib/data/` (seed data) and `lib/constants.ts` on first use — the rules above assume those homes.
 
@@ -65,11 +65,13 @@ A feature is not done until its endpoint has a mock handler returning contract-s
 
 `lib/contract/` is **generated — never edit it**. The backend's class-validator DTOs are the origin; `pnpm openapi` in `nest-setup` emits `openapi.json`, and `pnpm contract` here turns that into Zod schemas, `z.infer` types, and typed route builders. Change a field on a DTO, regenerate, and `pnpm type-check` fails here at every consumer — that break is the point of the layer.
 
+The backend is not built during this phase. An endpoint, DTO or field it does not publish yet is specified in `tools/contract/pending-openapi.json`, an OpenAPI document `pnpm contract` merges over the backend's: pending paths and schemas are added, and a pending schema under a backend name amends it. Never edit the backend repo to get a shape into the contract. Once the backend publishes a pending entry unchanged, `pnpm contract` and `pnpm contract:check` fail until the entry is deleted from the pending file.
+
 Regeneration is not left to memory: `pnpm contract:check` regenerates in place, diffs against `lib/contract/`, and fails when the two disagree.
 
 Every route builder returns an `Endpoint<TResponse>` — a branded string carrying the response type the backend documents for that operation. `query.get(routes.usersFindOne(id))` therefore resolves to `ApiResponse<UserResponseDto>` with no type argument at the call site. A response type reaches the contract only when its controller method is annotated with `@ApiEnvelope(Dto)` in `nest-setup`; without that annotation the endpoint degrades to `Endpoint<unknown>`.
 
-Import request shapes and endpoints from `@/lib/contract`, not by hand. `lib/api-routes.ts` remains for endpoints the backend does not publish. Hand-written Zod in `lib/validations/` composes over the generated schemas (`.extend`, `.pick`) rather than restating them.
+Import request shapes and endpoints from `@/lib/contract`, not by hand. `lib/api-routes.ts` holds only the URLs of the app's own route handlers in `app/api/`. Hand-written Zod in `lib/validations/` composes over the generated schemas (`.extend`, `.pick`) rather than restating them.
 
 ## File rules
 
