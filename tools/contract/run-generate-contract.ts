@@ -2,9 +2,14 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { format, resolveConfig } from "prettier";
 import { openApiDocument } from "./openapi-document";
 import { routesFile, schemasFile } from "./generate-contract";
+import { mergePending } from "./merge-pending";
 
 const SOURCE = process.env.CONTRACT_SOURCE ?? "../backend/openapi.json";
+const PENDING = "tools/contract/pending-openapi.json";
 const OUTPUT_DIR = "lib/contract";
+
+const readDocument = (path: string) =>
+    openApiDocument.parse(JSON.parse(readFileSync(path, "utf8")));
 const CHECK = process.argv.includes("--check");
 
 const formatted = async (path: string, source: string): Promise<string> => {
@@ -23,9 +28,18 @@ const main = async (): Promise<void> => {
         process.exit(CHECK ? 0 : 1);
     }
 
-    const document = openApiDocument.parse(
-        JSON.parse(readFileSync(SOURCE, "utf8")),
+    const { document, published } = mergePending(
+        readDocument(SOURCE),
+        readDocument(PENDING),
     );
+
+    if (published.length > 0) {
+        process.stderr.write(
+            `the backend now publishes these - delete them from ${PENDING}:\n${published.join("\n")}\n`,
+        );
+        process.exit(1);
+    }
+
     const schemas = document.components?.schemas ?? {};
 
     const files: Record<string, string> = {
@@ -57,13 +71,13 @@ const main = async (): Promise<void> => {
         }
 
         process.stderr.write(
-            `contract is stale: ${stale.join(", ")}\nrun pnpm contract after changing a Nest DTO\n`,
+            `contract is stale: ${stale.join(", ")}\nrun pnpm contract after changing a Nest DTO or ${PENDING}\n`,
         );
         process.exit(1);
     }
 
     process.stdout.write(
-        `${OUTPUT_DIR}: ${Object.keys(schemas).length} schemas, ${Object.keys(document.paths).length} routes from ${SOURCE}\n`,
+        `${OUTPUT_DIR}: ${Object.keys(schemas).length} schemas, ${Object.keys(document.paths).length} routes from ${SOURCE} and ${PENDING}\n`,
     );
 };
 
