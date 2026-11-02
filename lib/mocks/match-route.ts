@@ -4,6 +4,8 @@ const PARAM_PREFIX = ":";
 
 const segmentsOf = (path: string) => path.split("/").filter(Boolean);
 
+export const pathOf = (endpoint: string) => endpoint.split("?")[0];
+
 const paramsOf = (pattern: string, path: string): MockParams | null => {
     const expected = segmentsOf(pattern);
     const actual = segmentsOf(path);

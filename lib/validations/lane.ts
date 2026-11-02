@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { apiEnvelopeDtoSchema } from "@/lib/contract/schemas";
+import { apiEnvelopeDtoSchema, placeDtoSchema, rateEstimateDtoSchema, savedEstimateDtoSchema, trendPointDtoSchema } from "@/lib/contract/schemas";
 import { EQUIPMENT_TYPES } from "@/lib/enums/equipment-type";
 import { PLACE_QUERY } from "@/lib/quotes/constants";
 import { todayValue } from "@/lib/utils/date-formatter";
@@ -20,28 +20,12 @@ export const laneQuerySchema = z
 
 export const placeQuerySchema = z.string().trim().min(PLACE_QUERY.min).max(PLACE_QUERY.max);
 
-export const placeSchema = z.object({ code: z.string(), name: z.string() });
-
-export const rateEstimateSchema = z.object({
-    origin: placeSchema,
-    destination: placeSchema,
-    miles: z.number(),
-    rate: z.number(),
-    low: z.number(),
-    high: z.number(),
-    perMile: z.number(),
-    confidence: z.enum(["high", "medium", "low"]),
-    samples: z.number(),
-});
-
-export const trendPointSchema = z.object({ date: z.string(), perMile: z.number(), samples: z.number() });
-
 export const saveEstimateSchema = z.object({ email: z.email(), lane: laneQuerySchema, rate: z.number() });
 
-export const placesEnvelopeSchema = apiEnvelopeDtoSchema.extend({ data: z.array(placeSchema) });
+export const placesEnvelopeSchema = apiEnvelopeDtoSchema.extend({ data: z.array(placeDtoSchema) });
 
-export const estimateEnvelopeSchema = apiEnvelopeDtoSchema.extend({ data: rateEstimateSchema });
+export const estimateEnvelopeSchema = apiEnvelopeDtoSchema.extend({ data: rateEstimateDtoSchema });
 
-export const trendEnvelopeSchema = apiEnvelopeDtoSchema.extend({ data: z.array(trendPointSchema) });
+export const trendEnvelopeSchema = apiEnvelopeDtoSchema.extend({ data: z.array(trendPointDtoSchema) });
 
-export const savedEnvelopeSchema = apiEnvelopeDtoSchema.extend({ data: z.object({ id: z.string() }) });
+export const savedEnvelopeSchema = apiEnvelopeDtoSchema.extend({ data: savedEstimateDtoSchema });

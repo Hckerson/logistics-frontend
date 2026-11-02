@@ -16,6 +16,7 @@ const upstreamPayload = {
             name: "Ada",
             email: CREDENTIALS.email,
             role: "USER",
+            roles: [],
         },
         accessToken: "signed.jwt.value",
     },
@@ -114,7 +115,7 @@ describe("creating a session", () => {
                 statusCode: 200,
                 message: "Success",
                 timestamp: "2026-10-09T00:00:00Z",
-                data: { mfaRequired: true, challenge: "mfa_pending" },
+                data: { mfaRequired: true, challenge: "mfa_pending", method: "totp" },
             }),
         );
 

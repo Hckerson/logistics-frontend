@@ -1,6 +1,6 @@
 "use server";
 import { actionFailure, backendPost } from "@/lib/api-server";
-import { unpublishedRoutes } from "@/lib/api-routes";
+import { routes } from "@/lib/contract/routes";
 import type { ActionResult } from "@/lib/types/api";
 import { invalidInput } from "@/lib/utils/action-result";
 import { withAction } from "@/lib/utils/with-action";
@@ -10,6 +10,6 @@ export const requestPasswordReset = withAction(async (_context, email: string): 
     const parsed = resetRequestSchema.safeParse({ email });
     if (!parsed.success) return invalidInput();
 
-    const upstream = await backendPost(unpublishedRoutes.passwordReset(), parsed.data);
+    const upstream = await backendPost(routes.authRequestPasswordReset(), parsed.data);
     return upstream.ok ? { ok: true, data: null } : actionFailure(upstream);
 });

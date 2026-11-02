@@ -1,6 +1,6 @@
 "use server";
 import { actionFailure, backendPost, readJson } from "@/lib/api-server";
-import { unpublishedRoutes } from "@/lib/api-routes";
+import { routes } from "@/lib/contract/routes";
 import type { ActionResult, TicketReceipt, TicketRequest } from "@/lib/types";
 import { contractFailure, invalidInput } from "@/lib/utils/action-result";
 import { withAction } from "@/lib/utils/with-action";
@@ -10,7 +10,7 @@ export const createTicket = withAction(async ({ user }, input: TicketRequest): P
     const parsed = ticketRequestSchema.safeParse({ ...input, email: user?.email ?? input.email });
     if (!parsed.success) return invalidInput();
 
-    const upstream = await backendPost(unpublishedRoutes.supportTickets(), parsed.data);
+    const upstream = await backendPost(routes.supportCreateTicket(), parsed.data);
     if (!upstream.ok) return actionFailure(upstream);
 
     const receipt = ticketReceiptSchema.safeParse(await readJson(upstream));

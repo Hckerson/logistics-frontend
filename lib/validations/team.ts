@@ -1,21 +1,9 @@
 import { z } from "zod";
-import { ACCOUNT_SIDES } from "@/lib/constants";
-import { apiEnvelopeDtoSchema } from "@/lib/contract/schemas";
-import { INVITATION_STATUSES, INVITED_ACCOUNTS, LOCATION_DECISIONS, TEAM_ROLES } from "@/lib/team/constants";
+import { apiEnvelopeDtoSchema, invitationDtoSchema } from "@/lib/contract/schemas";
+import { LOCATION_DECISIONS } from "@/lib/team/constants";
 import { accountSchema, linkTokenSchema } from "@/lib/validations/auth";
 
-export const invitationSchema = z.object({
-    email: z.email(),
-    organisation: z.string(),
-    side: z.enum(ACCOUNT_SIDES),
-    sso: z.boolean(),
-    inviter: z.string(),
-    role: z.enum(TEAM_ROLES),
-    status: z.enum(INVITATION_STATUSES),
-    account: z.enum(INVITED_ACCOUNTS),
-});
-
-export const invitationEnvelopeSchema = apiEnvelopeDtoSchema.extend({ data: invitationSchema });
+export const invitationEnvelopeSchema = apiEnvelopeDtoSchema.extend({ data: invitationDtoSchema });
 
 export const joinSchema = accountSchema.pick({ fullName: true, password: true, consent: true });
 

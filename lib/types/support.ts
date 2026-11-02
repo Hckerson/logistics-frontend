@@ -1,4 +1,5 @@
 import type { z } from "zod";
+import type { TicketReceiptDto, TicketSummaryDto } from "@/lib/contract/schemas";
 import type { TICKET_STATUSES } from "@/lib/enums/ticket-status";
 import type { TICKET_URGENCIES } from "@/lib/enums/ticket-urgency";
 import type { TICKET_CATEGORIES } from "@/lib/support/constants";
@@ -7,7 +8,6 @@ import type {
     ticketDraftSchema,
     ticketFormSchema,
     ticketRequestSchema,
-    ticketSummarySchema,
 } from "@/lib/validations/support";
 
 export type TicketCategory = (typeof TICKET_CATEGORIES)[number];
@@ -20,7 +20,7 @@ export type SupportContext = z.infer<typeof ticketContextSchema>;
 
 export type TicketRequest = z.infer<typeof ticketRequestSchema>;
 
-export type TicketSummary = z.infer<typeof ticketSummarySchema>;
+export type TicketSummary = TicketSummaryDto;
 
 export type TicketDraft = z.infer<typeof ticketDraftSchema>;
 
@@ -34,10 +34,7 @@ export interface ContextLine {
     value: string;
 }
 
-export interface TicketReceipt {
-    reference: string;
-    urgency: TicketUrgency;
-}
+export type TicketReceipt = TicketReceiptDto;
 
 export interface ChoiceOption<T extends string> {
     value: T;

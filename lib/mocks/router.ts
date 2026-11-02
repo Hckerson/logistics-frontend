@@ -1,6 +1,5 @@
 import { MOCK_LATENCY_MS } from "@/lib/constants";
 import { routes } from "@/lib/contract/routes";
-import { unpublishedRoutes } from "@/lib/api-routes";
 import { checkReset, confirmReset, login, register, requestReset, resendVerification, verifyEmail } from "@/lib/mocks/auth";
 import { fail } from "@/lib/mocks/http";
 import { answerChallenge, challengeStatus } from "@/lib/mocks/mfa";
@@ -10,31 +9,33 @@ import { places } from "@/lib/mocks/geo";
 import { estimate, saveEstimate, trend } from "@/lib/mocks/pricing";
 import { acceptInvitation, checkInvitation, recordLocationConsent } from "@/lib/mocks/team";
 import { FREIGHT_HANDLERS } from "@/lib/mocks/freight-routes";
-import { resolveRoute } from "@/lib/mocks/match-route";
-import type { MockHandler, MockRequest, MockResponse } from "@/lib/types";
+import { pathOf, resolveRoute } from "@/lib/mocks/match-route";
+import { EQUIPMENT_TYPES } from "@/lib/enums/equipment-type";
+import type { LaneQuery, MockHandler, MockRequest, MockResponse } from "@/lib/types";
 
 const NO_MOCK = "No mock handler for";
+const ANY_LANE: LaneQuery = { origin: "", destination: "", equipment: EQUIPMENT_TYPES[0], date: "" };
 
 const HANDLERS: Record<string, MockHandler> = {
     [`POST ${routes.authLogin()}`]: login,
     [`POST ${routes.authRegister()}`]: register,
-    [`POST ${unpublishedRoutes.passwordReset()}`]: requestReset,
-    [`POST ${unpublishedRoutes.passwordResetCheck()}`]: checkReset,
-    [`POST ${unpublishedRoutes.passwordResetConfirm()}`]: confirmReset,
-    [`POST ${unpublishedRoutes.verifyEmail()}`]: verifyEmail,
-    [`POST ${unpublishedRoutes.verifyEmailResend()}`]: resendVerification,
-    [`POST ${unpublishedRoutes.mfaChallenge()}`]: challengeStatus,
-    [`POST ${unpublishedRoutes.mfaVerify()}`]: answerChallenge,
-    [`POST ${unpublishedRoutes.helpFeedback()}`]: recordFeedback,
-    [`POST ${unpublishedRoutes.supportTickets()}`]: createTicket,
-    [`POST ${unpublishedRoutes.supportTicketsMine()}`]: listTickets,
-    [`GET ${unpublishedRoutes.pricingEstimate()}`]: estimate,
-    [`GET ${unpublishedRoutes.pricingTrend()}`]: trend,
-    [`POST ${unpublishedRoutes.pricingSaved()}`]: saveEstimate,
-    [`GET ${unpublishedRoutes.places()}`]: places,
-    [`POST ${unpublishedRoutes.invitationCheck()}`]: checkInvitation,
-    [`POST ${unpublishedRoutes.invitationAccept()}`]: acceptInvitation,
-    [`POST ${unpublishedRoutes.locationConsent()}`]: recordLocationConsent,
+    [`POST ${routes.authRequestPasswordReset()}`]: requestReset,
+    [`POST ${routes.authCheckPasswordReset()}`]: checkReset,
+    [`POST ${routes.authConfirmPasswordReset()}`]: confirmReset,
+    [`POST ${routes.authVerifyEmail()}`]: verifyEmail,
+    [`POST ${routes.authResendVerification()}`]: resendVerification,
+    [`POST ${routes.authMfaChallenge()}`]: challengeStatus,
+    [`POST ${routes.authMfaVerify()}`]: answerChallenge,
+    [`POST ${routes.helpRecordFeedback()}`]: recordFeedback,
+    [`POST ${routes.supportCreateTicket()}`]: createTicket,
+    [`POST ${routes.supportListMine()}`]: listTickets,
+    [`GET ${pathOf(routes.pricingEstimate(ANY_LANE))}`]: estimate,
+    [`GET ${pathOf(routes.pricingTrend(ANY_LANE))}`]: trend,
+    [`POST ${routes.pricingSaveEstimate()}`]: saveEstimate,
+    [`GET ${pathOf(routes.geoPlaces({ q: "" }))}`]: places,
+    [`POST ${routes.teamCheckInvitation()}`]: checkInvitation,
+    [`POST ${routes.teamAcceptInvitation()}`]: acceptInvitation,
+    [`POST ${routes.driversRecordLocationConsent()}`]: recordLocationConsent,
     ...FREIGHT_HANDLERS,
 };
 

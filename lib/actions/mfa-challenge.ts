@@ -1,6 +1,6 @@
 "use server";
 import { actionFailure, backendPost, readJson } from "@/lib/api-server";
-import { unpublishedRoutes } from "@/lib/api-routes";
+import { routes } from "@/lib/contract/routes";
 import { HTTP_STATUS, SESSION_REQUIRED } from "@/lib/constants";
 import type { MfaAnswer, MfaResult } from "@/lib/types";
 import { contractFailure, failureOf, invalidInput } from "@/lib/utils/action-result";
@@ -17,7 +17,7 @@ export const answerMfaChallenge = withAction(async (_context, answer: MfaAnswer)
     const challenge = await readChallenge();
     if (!challenge) return failureOf(HTTP_STATUS.notFound, { message: SESSION_REQUIRED });
 
-    const upstream = await backendPost(unpublishedRoutes.mfaVerify(), { challenge, ...parsed.data });
+    const upstream = await backendPost(routes.authMfaVerify(), { challenge, ...parsed.data });
     const body = await readJson(upstream);
     if (upstream.ok) return (await completeChallenge(body)) ? { ok: true, data: null } : contractFailure();
 

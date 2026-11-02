@@ -1,4 +1,3 @@
-import { unpublishedRoutes } from "@/lib/api-routes";
 import { routes } from "@/lib/contract/routes";
 import { completeUpload, downloadDocument, listDocuments, requestUpload } from "@/lib/mocks/documents";
 import { transitionLoad } from "@/lib/mocks/load-transitions";
@@ -6,6 +5,7 @@ import { countLoads, findLoad, listLoads } from "@/lib/mocks/loads";
 import { listNotifications, markAllRead, markRead, unreadCount } from "@/lib/mocks/notifications";
 import { loadPositions, mapPositions, requestCheckCall } from "@/lib/mocks/positions";
 import { quickFind } from "@/lib/mocks/search";
+import { pathOf } from "@/lib/mocks/match-route";
 import { loadTimeline } from "@/lib/mocks/timeline";
 import { createLink, listLinks, publicTracking, revokeLink, sendLink } from "@/lib/mocks/tracking";
 import type { MockHandler } from "@/lib/types";
@@ -23,7 +23,7 @@ export const FREIGHT_HANDLERS: Record<string, MockHandler> = {
     [`GET ${routes.timelineList(LOAD)}`]: loadTimeline,
     [`GET ${routes.trackingLinksList(LOAD)}`]: listLinks,
     [`POST ${routes.trackingLinksCreate(LOAD)}`]: createLink,
-    [`POST ${unpublishedRoutes.trackingLinkSend(LOAD)}`]: sendLink,
+    [`POST ${routes.trackingLinksSend(LOAD)}`]: sendLink,
     [`POST ${routes.trackingLinksRevoke(":linkId")}`]: revokeLink,
     [`GET ${routes.publicTrackingFind(":token")}`]: publicTracking,
     [`GET ${routes.documentsList(LOAD)}`]: listDocuments,
@@ -34,5 +34,5 @@ export const FREIGHT_HANDLERS: Record<string, MockHandler> = {
     [`GET ${routes.notificationsUnreadCount()}`]: unreadCount,
     [`POST ${routes.notificationsMarkAllRead()}`]: markAllRead,
     [`POST ${routes.notificationsMarkRead(":notificationId")}`]: markRead,
-    [`GET ${routes.searchFind({ q: "" })}`.split("?")[0]]: quickFind,
+    [`GET ${pathOf(routes.searchFind({ q: "" }))}`]: quickFind,
 };

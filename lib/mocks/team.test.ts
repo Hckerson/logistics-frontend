@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { unpublishedRoutes } from "@/lib/api-routes";
+import { routes } from "@/lib/contract/routes";
 import { mockRequest } from "@/lib/mocks/router";
 import { ACCEPT_REFUSAL } from "@/lib/team/constants";
 import { invitationEnvelopeSchema } from "@/lib/validations/team";
 
 const post = (path: string, body: unknown) => mockRequest({ method: "POST", path, body }, 0);
-const check = async (token: string) => invitationEnvelopeSchema.parse((await post(unpublishedRoutes.invitationCheck(), { token })).body).data;
-const accept = (body: unknown) => post(unpublishedRoutes.invitationAccept(), body);
+const check = async (token: string) => invitationEnvelopeSchema.parse((await post(routes.teamCheckInvitation(), { token })).body).data;
+const accept = (body: unknown) => post(routes.teamAcceptInvitation(), body);
 
 describe("mock invitations", () => {
     it("describes an open invitation for a new account", async () => {
@@ -20,7 +20,7 @@ describe("mock invitations", () => {
     });
 
     it("answers an unknown token with 404", async () => {
-        expect((await post(unpublishedRoutes.invitationCheck(), { token: "inv_nope" })).status).toBe(404);
+        expect((await post(routes.teamCheckInvitation(), { token: "inv_nope" })).status).toBe(404);
     });
 
     it("accepts once, creating the account, then refuses the same link", async () => {

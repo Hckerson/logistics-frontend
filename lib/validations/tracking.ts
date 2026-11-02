@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { apiEnvelopeDtoSchema, publicTrackingDtoSchema, trackingLinkDtoSchema } from "@/lib/contract/schemas";
+import { apiEnvelopeDtoSchema, publicTrackingDtoSchema } from "@/lib/contract/schemas";
 import { TRACKING_SHARE } from "@/lib/loads/constants";
 
 const PHONE = /^\+?[0-9 ()-]{7,20}$/;
@@ -13,9 +13,4 @@ export const trackingEnvelopeSchema = apiEnvelopeDtoSchema.extend({ data: public
 
 export const trackingSendSchema = z.object({
     recipients: z.array(recipient).min(1).max(TRACKING_SHARE.maxRecipients),
-});
-
-export const trackingSendReceiptSchema = z.object({
-    link: trackingLinkDtoSchema,
-    sent: z.number(),
 });
