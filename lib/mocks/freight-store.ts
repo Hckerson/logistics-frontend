@@ -75,7 +75,7 @@ const loadFrom = (spec: MockLoadSpec, now: number): MockLoad => ({
 });
 
 const seedFreight = (): FreightStore => {
-    const now = Date.now();
+    const now = new Date().getTime();
     const loads = MOCK_LOADS.map((spec) => loadFrom(spec, now));
     const events = loads.flatMap((load) => timelineOf(load, now));
 

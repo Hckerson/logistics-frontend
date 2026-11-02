@@ -1,6 +1,6 @@
 import { nanoid } from "nanoid";
 import { HTTP_STATUS } from "@/lib/constants";
-import { reasonDtoSchema } from "@/lib/contract/schemas";
+import { reasonDtoSchema, type TrackingLinkDto } from "@/lib/contract/schemas";
 import { MOCK_FACILITIES } from "@/lib/data/mocks/facilities";
 import { MOCK_TRACKING_SCENARIOS } from "@/lib/data/mocks/freight";
 import { MOCK_ORGANISATIONS } from "@/lib/data/mocks/team";
@@ -10,7 +10,7 @@ import { etaOf, latestPosition } from "@/lib/mocks/fleet";
 import { FREIGHT_MESSAGES, loadMissing, reasonMissing, recordEvent, visibleLoad, withCaller, type MockCaller } from "@/lib/mocks/freight-access";
 import { freightStore } from "@/lib/mocks/freight-store";
 import { fail, ok, playScenario } from "@/lib/mocks/http";
-import type { MockHandler, MockLoad, MockTrackingLink } from "@/lib/types";
+import type { MockHandler, MockLoad, MockResponse, MockTrackingLink } from "@/lib/types";
 import { trackingSendSchema } from "@/lib/validations/tracking";
 
 const LINK_MISSING = "Tracking link not found";
@@ -28,11 +28,11 @@ const toLink = (link: MockTrackingLink, expiresAt: string | null, now: number) =
     expiresAt,
 });
 
-const shareable = (load: MockLoad, caller: MockCaller, reason: string | undefined, path: string) => {
+const shareable = (load: MockLoad, caller: MockCaller, reason: string | undefined, path: string): { failure: MockResponse } | { link: TrackingLinkDto } => {
     const missing = reasonMissing(caller, reason, path);
     if (missing) return { failure: missing };
 
-    const now = Date.now();
+    const now = new Date().getTime();
     const expiresAt = linkExpiry(deliveredAt(load.stops));
     if (closed(expiresAt, now)) return { failure: fail(HTTP_STATUS.conflict, LINK_CLOSED, path) };
 
@@ -55,7 +55,7 @@ export const publicTracking: MockHandler = ({ path }, { token }) => {
     const load = link && !link.revokedAt ? loads.get(link.loadId) : undefined;
     if (!load) return fail(HTTP_STATUS.notFound, LINK_MISSING, path);
 
-    const now = Date.now();
+    const now = new Date().getTime();
     const delivered = deliveredAt(load.stops);
     const expiresAt = linkExpiry(delivered);
     const expired = closed(expiresAt, now);
@@ -88,7 +88,7 @@ export const listLinks = withCaller(({ path }, { loadId }, caller) => {
     const load = visibleLoad(caller, loadId, "shareTrackingLink");
     if (!load) return loadMissing(path);
 
-    const now = Date.now();
+    const now = new Date().getTime();
     const expiresAt = linkExpiry(deliveredAt(load.stops));
     const links = [...freightStore().links.values()]
         .filter((link) => link.loadId === load.id)
@@ -127,7 +127,7 @@ export const revokeLink = withCaller(({ path, body }, { linkId }, caller) => {
     const missing = reasonMissing(caller, input.data.reason, path);
     if (missing) return missing;
 
-    const now = Date.now();
+    const now = new Date().getTime();
     link.revokedAt = new Date(now).toISOString();
     recordEvent(load.id, caller, { type: "trackingLinkRevoked", category: "tracking", reason: input.data.reason ?? null });
     return ok(HTTP_STATUS.ok, toLink(link, linkExpiry(deliveredAt(load.stops)), now));

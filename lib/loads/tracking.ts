@@ -9,9 +9,9 @@ export const deliveredAt = (stops: readonly StopClock[]) =>
 export const linkExpiry = (delivered: string | null) =>
     delivered ? new Date(Date.parse(delivered) + TRACKING.linkExpiryDays * TIME_MS.day).toISOString() : null;
 
-export const minutesSince = (iso: string, now = Date.now()) => (now - Date.parse(iso)) / TIME_MS.minute;
+export const minutesSince = (iso: string, now = new Date().getTime()) => (now - Date.parse(iso)) / TIME_MS.minute;
 
-export const healthOf = (recordedAt: string, now = Date.now()): TrackingHealth => {
+export const healthOf = (recordedAt: string, now = new Date().getTime()): TrackingHealth => {
     const age = minutesSince(recordedAt, now);
     if (age >= TRACKING.exceptionMinutes) return "exception";
     return age >= TRACKING.staleMinutes ? "stale" : "fresh";

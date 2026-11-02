@@ -44,7 +44,7 @@ export const transitionLoad = withCaller(({ path, body }, { loadId }, caller) =>
     const { to, version, reason, carrierId } = input.data;
     if (version !== load.version) return fail(HTTP_STATUS.preconditionFailed, TRANSITION_MESSAGES.stale, path);
 
-    const now = Date.now();
+    const now = new Date().getTime();
     const actors = actorsOf(caller.user.roles);
     const isMove = stopFits(to, load.stops) && LOAD_MOVES.some((move) => move.to === to && allows(move, load.status, actors));
     const undo = !isMove && isReturn(load, to, actors, now);

@@ -31,7 +31,7 @@ export const listLoads = withCaller(({ path }, _params, caller) => {
     if (!query.success) return fail(HTTP_STATUS.badRequest, FREIGHT_MESSAGES.invalid, path);
 
     const { status, equipment, q, late, cursor, limit = LOAD_PAGE_SIZE.default } = query.data;
-    const now = Date.now();
+    const now = new Date().getTime();
     const found = [...freightStore().loads.values()]
         .filter(sees(caller))
         .filter((load) => !status?.length || status.includes(load.status))
@@ -56,5 +56,5 @@ export const countLoads = withCaller((_request, _params, caller) => {
 
 export const findLoad = withCaller(({ path }, { loadId }, caller) => {
     const load = visibleLoad(caller, loadId);
-    return load ? ok(HTTP_STATUS.ok, toLoadDetail(load, caller, Date.now())) : loadMissing(path);
+    return load ? ok(HTTP_STATUS.ok, toLoadDetail(load, caller, new Date().getTime())) : loadMissing(path);
 });
