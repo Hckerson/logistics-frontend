@@ -1,6 +1,7 @@
 import type { z } from "zod";
+import type { PlaceDto, RateEstimateDto, TrendPointDto } from "@/lib/contract/schemas";
 import type { EQUIPMENT_TYPES } from "@/lib/enums/equipment-type";
-import type { laneQuerySchema, placeSchema, rateEstimateSchema, trendPointSchema } from "@/lib/validations/lane";
+import type { laneQuerySchema } from "@/lib/validations/lane";
 
 export type Equipment = (typeof EQUIPMENT_TYPES)[number];
 
@@ -10,13 +11,13 @@ export type LaneField = keyof LaneQuery;
 
 export type LaneEntry = Record<LaneField, string>;
 
-export type Place = z.infer<typeof placeSchema>;
+export type Place = PlaceDto;
 
-export type RateEstimate = z.infer<typeof rateEstimateSchema>;
+export type RateEstimate = RateEstimateDto;
 
 export type Confidence = RateEstimate["confidence"];
 
-export type TrendPoint = z.infer<typeof trendPointSchema>;
+export type TrendPoint = TrendPointDto;
 
 export type EstimateFailure =
     | { kind: "unresolved"; field: "origin" | "destination" }

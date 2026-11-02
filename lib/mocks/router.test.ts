@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { unpublishedRoutes } from "@/lib/api-routes";
 import { routes } from "@/lib/contract/routes";
 import { MOCK_BREACHED_PASSWORDS, MOCK_RESET_TOKENS, MOCK_USERS, MOCK_VERIFY_TOKENS } from "@/lib/data/mocks/users";
 import { MOCK_MFA } from "@/lib/data/mocks/mfa";
@@ -36,8 +35,8 @@ describe("mock backend", () => {
     });
 
     it("accepts a reset request the same way whether or not the account exists", async () => {
-        const known = await send("POST", unpublishedRoutes.passwordReset(), { email: user.email });
-        const unknown = await send("POST", unpublishedRoutes.passwordReset(), { email: "nobody@haulr.test" });
+        const known = await send("POST", routes.authRequestPasswordReset(), { email: user.email });
+        const unknown = await send("POST", routes.authRequestPasswordReset(), { email: "nobody@haulr.test" });
         expect(known.status).toBe(202);
         expect(unknown.status).toBe(202);
         expect((known.body as { data: unknown }).data).toEqual((unknown.body as { data: unknown }).data);
@@ -51,23 +50,23 @@ describe("mock backend", () => {
 
     it("spends a reset token once, refusing breached passwords before it is spent", async () => {
         const token = Object.keys(MOCK_RESET_TOKENS).find((key) => MOCK_RESET_TOKENS[key] === user.email);
-        const check = () => send("POST", unpublishedRoutes.passwordResetCheck(), { token });
-        const confirm = (password: string) => send("POST", unpublishedRoutes.passwordResetConfirm(), { token, password });
+        const check = () => send("POST", routes.authCheckPasswordReset(), { token });
+        const confirm = (password: string) => send("POST", routes.authConfirmPasswordReset(), { token, password });
 
         expect((await check()).body).toMatchObject({ data: { email: user.email } });
         expect((await confirm(MOCK_BREACHED_PASSWORDS[0])).status).toBe(422);
         expect((await confirm("fresh-lane-42")).status).toBe(200);
         expect((await check()).status).toBe(404);
         expect((await send("POST", routes.authLogin(), { email: user.email, password: "fresh-lane-42" })).status).toBe(200);
-        await send("POST", unpublishedRoutes.passwordReset(), { email: user.email });
+        await send("POST", routes.authRequestPasswordReset(), { email: user.email });
         expect((await check()).status).toBe(200);
     });
 
     it("verifies an email once, then reports it as already verified", async () => {
         const unverified = MOCK_USERS.find((account) => !account.verified);
         const token = Object.keys(MOCK_VERIFY_TOKENS).find((key) => MOCK_VERIFY_TOKENS[key] === unverified?.email);
-        const verify = (value?: string) => send("POST", unpublishedRoutes.verifyEmail(), { token: value });
-        const resend = () => send("POST", unpublishedRoutes.verifyEmailResend(), { email: unverified?.email });
+        const verify = (value?: string) => send("POST", routes.authVerifyEmail(), { token: value });
+        const resend = () => send("POST", routes.authResendVerification(), { email: unverified?.email });
 
         expect((await resend()).status).toBe(202);
         expect((await verify(token)).body).toMatchObject({ data: { email: unverified?.email } });
@@ -82,11 +81,11 @@ describe("mock backend", () => {
             const reply = await send("POST", routes.authLogin(), { email: account?.email, password: account?.password });
             return mfaChallengeSchema.parse(reply.body).data.challenge;
         };
-        const answer = (id: string, method: string, code: string) => send("POST", unpublishedRoutes.mfaVerify(), { challenge: id, method, code });
+        const answer = (id: string, method: string, code: string) => send("POST", routes.authMfaVerify(), { challenge: id, method, code });
         const [backup] = MOCK_MFA.backupCodes;
 
         const first = await challenge();
-        expect((await send("POST", unpublishedRoutes.mfaChallenge(), { challenge: first })).body).toMatchObject({ data: { email: account?.email } });
+        expect((await send("POST", routes.authMfaChallenge(), { challenge: first })).body).toMatchObject({ data: { email: account?.email } });
         expect((await answer(first, "totp", "000000")).body).toMatchObject({ statusCode: 401, attemptsRemaining: MOCK_MFA.attempts - 1 });
         expect((await answer(first, "backup", backup)).body).toMatchObject({ data: { user: { email: account?.email } } });
 
@@ -112,9 +111,9 @@ describe("mock backend", () => {
             load: "",
             context: {},
         };
-        const first = ticketReceiptSchema.parse((await send("POST", unpublishedRoutes.supportTickets(), ticket)).body);
-        const retry = ticketReceiptSchema.parse((await send("POST", unpublishedRoutes.supportTickets(), ticket)).body);
-        const mine = ticketListSchema.parse((await send("POST", unpublishedRoutes.supportTicketsMine(), { email: user.email })).body);
+        const first = ticketReceiptSchema.parse((await send("POST", routes.supportCreateTicket(), ticket)).body);
+        const retry = ticketReceiptSchema.parse((await send("POST", routes.supportCreateTicket(), ticket)).body);
+        const mine = ticketListSchema.parse((await send("POST", routes.supportListMine(), { email: user.email })).body);
 
         expect(retry.data.reference).toBe(first.data.reference);
         expect(mine.data[0]).toMatchObject({ reference: first.data.reference, status: "open" });
@@ -122,7 +121,7 @@ describe("mock backend", () => {
     });
 
     it("rate limits anonymous tickets from the busy scenario", async () => {
-        const response = await send("POST", unpublishedRoutes.supportTickets(), {
+        const response = await send("POST", routes.supportCreateTicket(), {
             key: "key-busy",
             email: "busy@haulr.test",
             category: "other",

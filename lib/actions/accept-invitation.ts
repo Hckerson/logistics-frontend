@@ -1,7 +1,7 @@
 "use server";
 import { z } from "zod";
 import { actionFailure, backendPost, readJson } from "@/lib/api-server";
-import { unpublishedRoutes } from "@/lib/api-routes";
+import { routes } from "@/lib/contract/routes";
 import { LEGAL_VERSIONS } from "@/lib/data/legal/library";
 import type { ActionResult } from "@/lib/types";
 import { contractFailure, invalidInput } from "@/lib/utils/action-result";
@@ -22,7 +22,7 @@ export const acceptInvitation = withAction(async ({ user }, token: string, newco
         : acceptAsNewcomerSchema.safeParse({ token, ...newcomer, termsVersion: LEGAL_VERSIONS.terms });
     if (!request.success) return invalidInput();
 
-    const upstream = await backendPost(unpublishedRoutes.invitationAccept(), request.data);
+    const upstream = await backendPost(routes.teamAcceptInvitation(), request.data);
     const reply = await readJson(upstream);
     if (!upstream.ok) {
         const refusal = refusalSchema.safeParse(reply);

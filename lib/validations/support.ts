@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { apiEnvelopeDtoSchema } from "@/lib/contract/schemas";
+import { apiEnvelopeDtoSchema, ticketReceiptDtoSchema, ticketSummaryDtoSchema } from "@/lib/contract/schemas";
 import { TICKET_STATUSES } from "@/lib/enums/ticket-status";
 import { TICKET_URGENCIES } from "@/lib/enums/ticket-urgency";
 import { TICKET_CATEGORIES, TICKET_LIMITS } from "@/lib/support/constants";
@@ -49,17 +49,7 @@ export const ticketRequestSchema = ticketFormSchema.extend({
     context: ticketContextSchema,
 });
 
-export const ticketReceiptSchema = apiEnvelopeDtoSchema.extend({
-    data: z.object({ reference: z.string().min(1), urgency: z.enum(TICKET_URGENCIES) }),
-});
-
-export const ticketSummarySchema = z.object({
-    reference: z.string().min(1),
-    subject: z.string(),
-    category: z.enum(TICKET_CATEGORIES),
-    status: z.enum(TICKET_STATUSES),
-    updated: z.string(),
-});
+export const ticketReceiptSchema = apiEnvelopeDtoSchema.extend({ data: ticketReceiptDtoSchema });
 
 export const ticketStatusQuerySchema = z.enum(TICKET_STATUSES).optional();
 
@@ -68,4 +58,4 @@ export const ticketListRequestSchema = z.object({
     status: z.enum(TICKET_STATUSES).optional(),
 });
 
-export const ticketListSchema = apiEnvelopeDtoSchema.extend({ data: z.array(ticketSummarySchema) });
+export const ticketListSchema = apiEnvelopeDtoSchema.extend({ data: z.array(ticketSummaryDtoSchema) });

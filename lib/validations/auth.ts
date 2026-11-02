@@ -1,6 +1,13 @@
 import { z } from "zod";
-import { ACCOUNT_SIDES, MFA_BACKUP_CODE_LENGTH, MFA_CODE_LENGTH, MFA_METHODS, PASSWORD_MIN_LENGTH } from "@/lib/constants";
-import { apiEnvelopeDtoSchema, loginDtoSchema, registerDtoSchema } from "@/lib/contract/schemas";
+import { ACCOUNT_SIDES, MFA_BACKUP_CODE_LENGTH, MFA_CODE_LENGTH, PASSWORD_MIN_LENGTH } from "@/lib/constants";
+import {
+    apiEnvelopeDtoSchema,
+    emailDtoSchema,
+    loginDtoSchema,
+    mfaChallengeDtoSchema,
+    mfaStatusDtoSchema,
+    registerDtoSchema,
+} from "@/lib/contract/schemas";
 
 const credentials = {
     email: z.string().email(),
@@ -32,7 +39,7 @@ export const linkTokenSchema = z.object({ token: z.string().trim().min(1) });
 
 export const resetPasswordSchema = linkTokenSchema.extend({ password: credentials.password });
 
-export const emailEnvelopeSchema = apiEnvelopeDtoSchema.extend({ data: resetRequestSchema });
+export const emailEnvelopeSchema = apiEnvelopeDtoSchema.extend({ data: emailDtoSchema });
 
 export const newPasswordSchema = z
     .object({
@@ -62,16 +69,8 @@ export const mfaChallengeRequestSchema = z.object({ challenge: z.string().min(1)
 
 export const mfaVerifySchema = mfaChallengeRequestSchema.and(mfaAnswerSchema);
 
-export const mfaChallengeSchema = apiEnvelopeDtoSchema.extend({
-    data: z.object({ mfaRequired: z.literal(true), challenge: z.string().min(1) }),
-});
+export const mfaChallengeSchema = apiEnvelopeDtoSchema.extend({ data: mfaChallengeDtoSchema });
 
-export const mfaStatusSchema = apiEnvelopeDtoSchema.extend({
-    data: z.object({
-        email: z.string().email(),
-        method: z.enum(MFA_METHODS),
-        attemptsRemaining: z.number().int().nonnegative(),
-    }),
-});
+export const mfaStatusSchema = apiEnvelopeDtoSchema.extend({ data: mfaStatusDtoSchema });
 
 export const mfaRefusalSchema = z.object({ attemptsRemaining: z.number().int().nonnegative() });

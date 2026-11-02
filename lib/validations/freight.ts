@@ -13,6 +13,7 @@ import {
     notificationPageDtoSchema,
     quickFindDtoSchema,
     trackingLinkDtoSchema,
+    trackingSendReceiptDtoSchema,
     unreadCountDtoSchema,
     uploadRequestDtoSchema,
     uploadTicketDtoSchema,
@@ -20,11 +21,10 @@ import {
 import { EQUIPMENT_TYPES } from "@/lib/enums/equipment-type";
 import { LOAD_STATUSES } from "@/lib/enums/load-status";
 import { DOCUMENT_RULES, LOAD_PAGE_SIZE, LOAD_SEARCH_MAX, QUERY_BASE, QUICK_FIND, TIMELINE_CATEGORIES } from "@/lib/loads/constants";
-import { trackingSendReceiptSchema } from "@/lib/validations/tracking";
 
 const enveloped = <T extends z.ZodType>(data: T) => apiEnvelopeDtoSchema.extend({ data });
 
-const commaList = <T extends z.ZodType>(item: T) =>
+const commaList = <T extends z.ZodType<unknown, string>>(item: T) =>
     z
         .string()
         .transform((value) => value.split(",").filter(Boolean))
@@ -65,7 +65,7 @@ export const checkCallEnvelopeSchema = enveloped(checkCallResponseDtoSchema);
 export const loadEventsEnvelopeSchema = enveloped(loadEventPageDtoSchema);
 export const trackingLinksEnvelopeSchema = enveloped(z.array(trackingLinkDtoSchema));
 export const trackingLinkEnvelopeSchema = enveloped(trackingLinkDtoSchema);
-export const trackingSendEnvelopeSchema = enveloped(trackingSendReceiptSchema);
+export const trackingSendEnvelopeSchema = enveloped(trackingSendReceiptDtoSchema);
 export const documentsEnvelopeSchema = enveloped(z.array(documentDtoSchema));
 export const documentEnvelopeSchema = enveloped(documentDtoSchema);
 export const uploadTicketEnvelopeSchema = enveloped(uploadTicketDtoSchema);
