@@ -2,7 +2,7 @@ import { useRouter } from "next/navigation";
 import { useState, type ChangeEvent, type FormEvent } from "react";
 import { failureProblem, signInProblems } from "@/lib/auth/sign-in";
 import { flowSignal } from "@/lib/auth/signal";
-import { HTTP_STATUS, mfaRoute } from "@/lib/constants";
+import { mfaRoute } from "@/lib/constants";
 import { useFormProblems } from "@/lib/hooks/use-form-problems";
 import { useLogin } from "@/lib/hooks/use-login";
 import type { Credentials, SignInField, SignInStep } from "@/lib/types";
@@ -48,7 +48,7 @@ export function useSignInFlow(next: string) {
         checks.reset();
         login.mutate(values, {
             onSuccess: (response) => {
-                if (response.status === HTTP_STATUS.accepted) {
+                if ("challenge" in response) {
                     setHandedOff(true);
                     return router.push(mfaRoute(next));
                 }

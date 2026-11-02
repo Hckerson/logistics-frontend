@@ -17,7 +17,7 @@ export const loadPositions = withCaller(({ path }, { loadId }, caller) => {
     const load = visibleLoad(caller, loadId, "viewLiveLocation");
     if (!load) return loadMissing(path);
 
-    const now = Date.now();
+    const now = new Date().getTime();
     const latest = TRACE_STATUSES.includes(load.status) ? latestPosition(load, now) : null;
     return ok(HTTP_STATUS.ok, {
         latest,
@@ -30,7 +30,7 @@ export const loadPositions = withCaller(({ path }, { loadId }, caller) => {
 export const mapPositions = withCaller((_request, _params, caller) => {
     if (!can(caller.user.roles, "viewLiveLocation")) return ok(HTTP_STATUS.ok, []);
 
-    const now = Date.now();
+    const now = new Date().getTime();
     const positions = [...freightStore().loads.values()]
         .filter(sees(caller))
         .filter((load) => TRACKED_STATUSES.includes(load.status))
@@ -48,7 +48,7 @@ export const requestCheckCall = withCaller(({ path, body }, { loadId }, caller) 
     const input = checkCallDtoSchema.safeParse(body ?? {});
     if (!input.success) return fail(HTTP_STATUS.badRequest, FREIGHT_MESSAGES.invalid, path);
 
-    const now = Date.now();
+    const now = new Date().getTime();
     const latest = latestPosition(load, now);
     const quiet = !latest || minutesSince(latest.recordedAt, now) >= TRACKING.staleMinutes;
     if (!TRACKED_STATUSES.includes(load.status) || !quiet) return fail(HTTP_STATUS.conflict, CHECK_CALL_MESSAGES.closed, path);

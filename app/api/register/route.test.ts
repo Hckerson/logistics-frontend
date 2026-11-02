@@ -15,7 +15,7 @@ const VISITOR = {
 
 const registered = {
     data: {
-        user: { id: "usr_1", name: "Ada", email: VISITOR.email, role: "USER" },
+        user: { id: "usr_1", name: "Ada", email: VISITOR.email, role: "USER", roles: [] },
         accessToken: "signed.jwt.value",
     },
 };

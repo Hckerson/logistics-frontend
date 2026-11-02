@@ -35,7 +35,7 @@ export const listDocuments = withCaller(({ path }, { loadId }, caller) => {
     const load = visibleLoad(caller, loadId);
     if (!load) return loadMissing(path);
 
-    const now = Date.now();
+    const now = new Date().getTime();
     const documents = [...freightStore().documents.values()]
         .filter((document) => document.loadId === load.id && document.scanStatus !== "awaitingUpload")
         .map((document) => settled(document, now))
@@ -53,7 +53,7 @@ export const requestUpload = withCaller(({ path, body }, { loadId }, caller) => 
     const earlier = [...store.documents.values()].filter(
         (document) => document.loadId === load.id && document.type === input.data.type && document.scanStatus !== "awaitingUpload",
     ).length;
-    const now = Date.now();
+    const now = new Date().getTime();
     const document: MockDocument = {
         ...input.data,
         id: nanoid(),
@@ -81,13 +81,13 @@ export const completeUpload = withCaller(({ path }, { documentId }, caller) => {
     }
 
     document.scanStatus = "pending";
-    store.scans.set(documentId, Date.now() + MOCK_FREIGHT.scanSeconds * TIME_MS.second);
+    store.scans.set(documentId, new Date().getTime() + MOCK_FREIGHT.scanSeconds * TIME_MS.second);
     recordEvent(load.id, caller, { type: "documentUploaded", category: "document" });
     return ok(HTTP_STATUS.ok, documentDtoSchema.parse(document));
 });
 
 export const downloadDocument = withCaller(({ path }, { documentId }, caller) => {
-    const now = Date.now();
+    const now = new Date().getTime();
     const found = freightStore().documents.get(documentId);
     const document = found && visibleLoad(caller, found.loadId) ? settled(found, now) : null;
     if (!document) return fail(HTTP_STATUS.notFound, DOCUMENT_MESSAGES.missing, path);
