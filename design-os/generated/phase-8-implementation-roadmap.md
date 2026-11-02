@@ -1,6 +1,6 @@
 # Phase 8 — Implementation Roadmap
 
-`Haulr Design OS` · `Version 1.3.6` · `2026-10-12` · Previous: [Phase 7 — Frontend Architecture](./phase-7-frontend-architecture.md) · Next: [Phase 9 — QA Checklist](./phase-9-qa-checklist.md)
+`Haulr Design OS` · `Version 1.3.7` · `2026-11-02` · Previous: [Phase 7 — Frontend Architecture](./phase-7-frontend-architecture.md) · Next: [Phase 9 — QA Checklist](./phase-9-qa-checklist.md)
 
 The plan for building Phases 1–7 in 16 weeks (8 two-week sprints), plus the single record of build status for every page, section, interaction contract and flow. Status lives here and nowhere else; the blueprints in Phases 1–7 record intent and are never edited to reflect progress (Critical Rules › Scope Preservation).
 
@@ -145,7 +145,7 @@ This breakdown is the staffed plan; the active order is §16. Every page is buil
 
 | Dependency | Needed by | Owner | Fallback |
 | --- | --- | --- | --- |
-| Backend modules with `@ApiEnvelope` DTOs: auth extensions (MFA, reset, invites), organisations | S1–S2 | Backend | Mock handlers on the contract routes in `lib/mocks/`, fixtures in `lib/data/mocks/` (Phase 7 §11) |
+| Backend modules with `@ApiEnvelope` DTOs: auth extensions (MFA, reset, invites), organisations | S1–S2 | Backend | Endpoints and DTOs in `tools/contract/pending-openapi.json`, mock handlers on their contract routes in `lib/mocks/`, fixtures in `lib/data/mocks/` (Phase 7 §11) |
 | Identity service: SAML/OIDC, SCIM, domain verification, session policy | S2 | Backend, security | WorkOS test identity provider; Okta and Entra ID developer tenants for spot checks |
 | Loads, quotes, custom quote requests, facilities, stats, templates | S3 | Backend | Same mock fallback |
 | Bids, tenders, load board search index, compliance, e-signature, approvals, import jobs | S4 | Backend | Same mock fallback; e-signature stubbed with a recorded acceptance |

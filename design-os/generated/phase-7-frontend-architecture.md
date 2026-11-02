@@ -1,6 +1,6 @@
 # Phase 7 — Frontend Architecture
 
-`Haulr Design OS` · `Version 1.3.6` · `2026-10-12` · Previous: [Phase 6 — Interaction Contracts](./phase-6-interaction-contracts.md) · Next: [Phase 8 — Implementation Roadmap](./phase-8-implementation-roadmap.md)
+`Haulr Design OS` · `Version 1.3.7` · `2026-11-02` · Previous: [Phase 6 — Interaction Contracts](./phase-6-interaction-contracts.md) · Next: [Phase 8 — Implementation Roadmap](./phase-8-implementation-roadmap.md)
 
 How the code is organised to deliver Phases 1–6. This phase names files and folders because its job is code organisation. It says nothing about how anything looks; styling organisation follows the host repo's conventions (`styles/tokens.css`, `styles/globals.css`) and is not specified here.
 
@@ -426,6 +426,7 @@ Pure, framework-free helpers in `lib/utils/` (existing files kept):
 | --- | --- | --- |
 | Contract | `lib/contract/` (generated) | Never edited; regenerate with `pnpm contract`; `pnpm contract:check` in the gate |
 | Endpoints not in the contract | `lib/api-routes.ts` (exists) | Only for same-origin route handlers (`session`, `register`, new polled reads) |
+| Pending contract | `tools/contract/pending-openapi.json` (exists) | Endpoints and DTOs the backend has not built; `pnpm contract` merges them over the backend document; an entry is deleted once the backend publishes it unchanged |
 | Browser transport | `lib/api-client.ts` (exists) | `local` gains `get` for same-origin Route Handlers (D-2); `query` remains for unauthenticated backend calls |
 | Server transport | `lib/api-server.ts` (exists) | `backendFetch` attaches the session token; `relay` passes responses through |
 | Server Actions | `lib/actions/<verb>-<noun>.ts` | One action per file, following `create-user.ts`: parse input with the contract schema, call `backendFetch(routes.x())`, parse the envelope, return `ActionResult<T>` |
@@ -433,7 +434,7 @@ Pure, framework-free helpers in `lib/utils/` (existing files kept):
 | Hooks | `lib/hooks/use-<resource>.ts` | Wrap actions or `local` calls in TanStack Query |
 | Mocks | `lib/mocks/` (exists), fixtures in `lib/data/mocks/` | One handler per backend module, registered in `router.ts` under its contract route; answers at the `backendFetch` and `apiClient` seams while `NEXT_PUBLIC_API_MOCKS` is not `off`; responses use the backend envelopes with simulated latency; scenario accounts trigger error states |
 
-**Backend dependency.** Every Haulr resource above requires a NestJS module in the backend with `@ApiEnvelope(Dto)` annotations so its response types reach the contract. Until then, the whole call path is built for real and answered by a mock handler in `lib/mocks/` with contract-shaped fixtures in `lib/data/mocks/` (host `.claude/CLAUDE.md`, "The mocked backend"); switching mocks off is the only change when the backend arrives. Handlers register under contract routes, never hand-typed paths, so each resource's DTO is published in the contract before its mock is written, even while the backend has not implemented it. A feature is not done until its endpoint has a mock handler returning contract-shaped data (host rule).
+**Backend dependency.** Every Haulr resource above eventually needs a NestJS module in the backend with `@ApiEnvelope(Dto)` annotations so its response types reach the contract. The backend is not built during the solo build: until it is, the resource's endpoints and DTOs are specified in `tools/contract/pending-openapi.json`, which `pnpm contract` merges with the backend document, so handlers still register under contract routes, never hand-typed paths. The whole call path is built for real and answered by a mock handler in `lib/mocks/` with contract-shaped fixtures in `lib/data/mocks/` (host `.claude/CLAUDE.md`, "The mocked backend"); switching mocks off is the only change when the backend arrives, and each pending entry is deleted once the backend publishes the same shape (`pnpm contract` fails until it is). A feature is not done until its endpoint has a mock handler returning contract-shaped data (host rule).
 
 **Error mapping.** `ActionResult` failures map to constants by status: 400 → field errors (IC-02), 401 → sign-in redirect, 403/404 → not found (Phase 3 §5.2), 409 → state conflict (IC-27, SC-40.2), 422 → validation, 429 → rate limit, 5xx → retry (IC-60).
 
