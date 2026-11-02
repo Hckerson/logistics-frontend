@@ -1,6 +1,6 @@
 # Artifact Index — Haulr Design OS
 
-`Version 1.3.6` · `2026-10-12` · Start: [START_HERE](./START_HERE.md) · Master index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
+`Version 1.3.7` · `2026-11-02` · Start: [START_HERE](./START_HERE.md) · Master index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
 
 A detailed guide to each phase: what it is, who needs it, when to open it, what it contains and how it feeds the phases after it.
 
