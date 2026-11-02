@@ -1,0 +1,3916 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Pending API",
+        "description": "Endpoints and schemas the frontend builds against before the backend publishes them",
+        "version": "1.0"
+    },
+    "paths": {
+        "/api/loads": {
+            "get": {
+                "operationId": "LoadsController_findAll",
+                "parameters": [
+                    {
+                        "name": "cursor",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "minimum": 1,
+                            "maximum": 200,
+                            "default": 50,
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "example": "Posted,InTransit",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "equipment",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "example": "dry-van,reefer",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "q",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "maxLength": 200,
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "late",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/LoadPageDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Loads the caller may see, newest first",
+                "tags": ["loads"]
+            }
+        },
+        "/api/loads/counts": {
+            "get": {
+                "operationId": "LoadsController_counts",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/LoadCountDto"
+                                                    }
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Load counts per status for the caller",
+                "tags": ["loads"]
+            }
+        },
+        "/api/loads/{loadId}": {
+            "get": {
+                "operationId": "LoadsController_findOne",
+                "parameters": [
+                    {
+                        "name": "loadId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/LoadDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Load not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "One load, shaped for the caller role",
+                "tags": ["loads"]
+            }
+        },
+        "/api/loads/{loadId}/transitions": {
+            "post": {
+                "operationId": "LoadsController_transition",
+                "parameters": [
+                    {
+                        "name": "loadId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoadTransitionDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/LoadDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Move not open"
+                    },
+                    "412": {
+                        "description": "Load changed since read"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Move a load to its next status",
+                "tags": ["loads"]
+            }
+        },
+        "/api/loads/{loadId}/positions": {
+            "get": {
+                "operationId": "PositionsController_forLoad",
+                "parameters": [
+                    {
+                        "name": "loadId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/LoadPositionsDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Latest position, 24 h track, ETA and health",
+                "tags": ["positions"]
+            }
+        },
+        "/api/loads/{loadId}/check-calls": {
+            "post": {
+                "operationId": "PositionsController_checkCall",
+                "parameters": [
+                    {
+                        "name": "loadId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CheckCallDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/CheckCallResponseDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Check call not open"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Ask the carrier for a position update",
+                "tags": ["positions"]
+            }
+        },
+        "/api/positions/latest": {
+            "get": {
+                "operationId": "PositionsController_latest",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/MapPositionDto"
+                                                    }
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Latest position of every tracked load in scope",
+                "tags": ["positions"]
+            }
+        },
+        "/api/loads/{loadId}/events": {
+            "get": {
+                "operationId": "TimelineController_list",
+                "parameters": [
+                    {
+                        "name": "loadId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "cursor",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "minimum": 1,
+                            "maximum": 200,
+                            "default": 50,
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "category",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": ["status", "stop", "tracking", "document"]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/LoadEventPageDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Load timeline, newest first",
+                "tags": ["timeline"]
+            }
+        },
+        "/api/loads/{loadId}/tracking-links": {
+            "get": {
+                "operationId": "TrackingLinksController_list",
+                "parameters": [
+                    {
+                        "name": "loadId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/TrackingLinkDto"
+                                                    }
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Tracking links shared for a load",
+                "tags": ["tracking-links"]
+            },
+            "post": {
+                "operationId": "TrackingLinksController_create",
+                "parameters": [
+                    {
+                        "name": "loadId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReasonDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/TrackingLinkDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Links closed after delivery"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Share a tracking link, reusing the active one",
+                "tags": ["tracking-links"]
+            }
+        },
+        "/api/tracking-links/{linkId}/revoke": {
+            "post": {
+                "operationId": "TrackingLinksController_revoke",
+                "parameters": [
+                    {
+                        "name": "linkId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReasonDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/TrackingLinkDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Revoke a tracking link at once",
+                "tags": ["tracking-links"]
+            }
+        },
+        "/api/tracking/{token}": {
+            "get": {
+                "operationId": "PublicTrackingController_find",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/PublicTrackingDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown, tampered or revoked token"
+                    }
+                },
+                "summary": "Public, city-level tracking for a signed token",
+                "tags": ["tracking"]
+            }
+        },
+        "/api/loads/{loadId}/documents": {
+            "get": {
+                "operationId": "DocumentsController_list",
+                "parameters": [
+                    {
+                        "name": "loadId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/DocumentDto"
+                                                    }
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Documents attached to a load",
+                "tags": ["documents"]
+            },
+            "post": {
+                "operationId": "DocumentsController_requestUpload",
+                "parameters": [
+                    {
+                        "name": "loadId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UploadRequestDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/UploadTicketDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "Storage not configured"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Reserve a document and get a presigned upload URL",
+                "tags": ["documents"]
+            }
+        },
+        "/api/documents/{documentId}/complete": {
+            "post": {
+                "operationId": "DocumentsController_complete",
+                "parameters": [
+                    {
+                        "name": "documentId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/DocumentDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Stored file does not match"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Confirm the upload reached storage; queues the scan",
+                "tags": ["documents"]
+            }
+        },
+        "/api/documents/{documentId}/download": {
+            "get": {
+                "operationId": "DocumentsController_download",
+                "parameters": [
+                    {
+                        "name": "documentId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/DownloadLinkDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Still being checked"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Signed download URL, valid five minutes",
+                "tags": ["documents"]
+            }
+        },
+        "/api/notifications": {
+            "get": {
+                "operationId": "NotificationsController_list",
+                "parameters": [
+                    {
+                        "name": "cursor",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "minimum": 1,
+                            "maximum": 200,
+                            "default": 50,
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/NotificationPageDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "The caller notifications, newest first",
+                "tags": ["notifications"]
+            }
+        },
+        "/api/notifications/unread-count": {
+            "get": {
+                "operationId": "NotificationsController_unreadCount",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/UnreadCountDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Unread notification count for the badge",
+                "tags": ["notifications"]
+            }
+        },
+        "/api/notifications/read-all": {
+            "post": {
+                "operationId": "NotificationsController_markAllRead",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/UnreadCountDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Mark every notification read",
+                "tags": ["notifications"]
+            }
+        },
+        "/api/notifications/{notificationId}/read": {
+            "post": {
+                "operationId": "NotificationsController_markRead",
+                "parameters": [
+                    {
+                        "name": "notificationId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/UnreadCountDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Mark one notification read",
+                "tags": ["notifications"]
+            }
+        },
+        "/api/search": {
+            "get": {
+                "operationId": "SearchController_find",
+                "parameters": [
+                    {
+                        "name": "q",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "minLength": 2,
+                            "maxLength": 200,
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/QuickFindDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Quick find across loads, facilities and members",
+                "tags": ["search"]
+            }
+        },
+        "/api/loads/{loadId}/tracking-links/send": {
+            "post": {
+                "operationId": "TrackingLinksController_send",
+                "parameters": [
+                    {
+                        "name": "loadId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TrackingSendDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/TrackingSendReceiptDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Links closed after delivery"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Send the active tracking link to recipients",
+                "tags": ["tracking-links"]
+            }
+        },
+        "/api/auth/password-reset": {
+            "post": {
+                "operationId": "AuthController_requestPasswordReset",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EmailDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/AcceptedDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Too many requests"
+                    }
+                },
+                "summary": "Email a password reset link",
+                "tags": ["auth"]
+            }
+        },
+        "/api/auth/password-reset/check": {
+            "post": {
+                "operationId": "AuthController_checkPasswordReset",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LinkTokenDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/EmailDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Reset link is invalid or expired"
+                    }
+                },
+                "summary": "Check a password reset link",
+                "tags": ["auth"]
+            }
+        },
+        "/api/auth/password-reset/confirm": {
+            "post": {
+                "operationId": "AuthController_confirmPasswordReset",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PasswordResetConfirmDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/PasswordResetDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Reset link is invalid or expired"
+                    },
+                    "422": {
+                        "description": "Password found in a data breach"
+                    }
+                },
+                "summary": "Set a new password and spend the reset link",
+                "tags": ["auth"]
+            }
+        },
+        "/api/auth/verify-email": {
+            "post": {
+                "operationId": "AuthController_verifyEmail",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LinkTokenDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/EmailDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Verification link is invalid or expired"
+                    },
+                    "409": {
+                        "description": "Email already verified"
+                    }
+                },
+                "summary": "Verify an email address",
+                "tags": ["auth"]
+            }
+        },
+        "/api/auth/verify-email/resend": {
+            "post": {
+                "operationId": "AuthController_resendVerification",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EmailDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/AcceptedDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Email already verified"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Send a new verification link",
+                "tags": ["auth"]
+            }
+        },
+        "/api/auth/mfa/challenge": {
+            "post": {
+                "operationId": "AuthController_mfaChallenge",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MfaChallengeRequestDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/MfaStatusDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Challenge expired"
+                    }
+                },
+                "summary": "Read an open two-step challenge",
+                "tags": ["auth"]
+            }
+        },
+        "/api/auth/mfa/verify": {
+            "post": {
+                "operationId": "AuthController_mfaVerify",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MfaVerifyDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/AuthResponseDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid code; the body carries attemptsRemaining"
+                    },
+                    "404": {
+                        "description": "Challenge expired"
+                    },
+                    "429": {
+                        "description": "Too many attempts"
+                    }
+                },
+                "summary": "Answer a two-step challenge and get JWT token",
+                "tags": ["auth"]
+            }
+        },
+        "/api/help/feedback": {
+            "post": {
+                "operationId": "HelpController_recordFeedback",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ArticleFeedbackDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/AcceptedDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "Record whether a help article helped",
+                "tags": ["help"]
+            }
+        },
+        "/api/support/tickets": {
+            "post": {
+                "operationId": "SupportController_createTicket",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TicketRequestDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/TicketReceiptDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Too many requests"
+                    }
+                },
+                "summary": "Open a support ticket, idempotent on key",
+                "tags": ["support"]
+            }
+        },
+        "/api/support/tickets/mine": {
+            "post": {
+                "operationId": "SupportController_listMine",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TicketListRequestDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/TicketSummaryDto"
+                                                    }
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Support tickets opened by an account",
+                "tags": ["support"]
+            }
+        },
+        "/api/pricing/estimate": {
+            "get": {
+                "operationId": "PricingController_estimate",
+                "parameters": [
+                    {
+                        "name": "origin",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "destination",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "equipment",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": ["dry-van", "reefer", "flatbed"]
+                        }
+                    },
+                    {
+                        "name": "date",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/RateEstimateDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Origin and destination are the same place"
+                    },
+                    "422": {
+                        "description": "Origin or destination could not be resolved"
+                    },
+                    "429": {
+                        "description": "Too many requests"
+                    },
+                    "503": {
+                        "description": "Pricing unavailable"
+                    }
+                },
+                "summary": "Estimate a lane rate",
+                "tags": ["pricing"]
+            }
+        },
+        "/api/pricing/trend": {
+            "get": {
+                "operationId": "PricingController_trend",
+                "parameters": [
+                    {
+                        "name": "origin",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "destination",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "equipment",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": ["dry-van", "reefer", "flatbed"]
+                        }
+                    },
+                    {
+                        "name": "date",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/TrendPointDto"
+                                                    }
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Origin and destination are the same place"
+                    },
+                    "422": {
+                        "description": "Origin or destination could not be resolved"
+                    },
+                    "429": {
+                        "description": "Too many requests"
+                    },
+                    "503": {
+                        "description": "Pricing unavailable"
+                    }
+                },
+                "summary": "Daily per-mile trend for a lane",
+                "tags": ["pricing"]
+            }
+        },
+        "/api/pricing/estimates": {
+            "post": {
+                "operationId": "PricingController_saveEstimate",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SaveEstimateDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/SavedEstimateDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Save an estimate to an account",
+                "tags": ["pricing"]
+            }
+        },
+        "/api/geo/places": {
+            "get": {
+                "operationId": "GeoController_places",
+                "parameters": [
+                    {
+                        "name": "q",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/PlaceDto"
+                                                    }
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "Places matching a name or hub code",
+                "tags": ["geo"]
+            }
+        },
+        "/api/team/invitations/check": {
+            "post": {
+                "operationId": "TeamController_checkInvitation",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LinkTokenDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/InvitationDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Invitation not found"
+                    }
+                },
+                "summary": "Read an invitation link",
+                "tags": ["team"]
+            }
+        },
+        "/api/team/invitations/accept": {
+            "post": {
+                "operationId": "TeamController_acceptInvitation",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AcceptInvitationDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/AuthResponseDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Single sign-on organisation, or the invitation is for another account"
+                    },
+                    "404": {
+                        "description": "Invitation expired or revoked"
+                    },
+                    "409": {
+                        "description": "Already accepted, or the account belongs to another organisation"
+                    }
+                },
+                "summary": "Accept an invitation and get JWT token",
+                "tags": ["team"]
+            }
+        },
+        "/api/drivers/location-consent": {
+            "post": {
+                "operationId": "DriversController_recordLocationConsent",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LocationConsentDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/LocationConsentReceiptDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Record a driver location-sharing decision",
+                "tags": ["drivers"]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "AuthResponseUserDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "role": {
+                        "type": "string"
+                    },
+                    "roles": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "shipper.member",
+                                "shipper.admin",
+                                "shipper.finance",
+                                "shipper.approver",
+                                "carrier.dispatcher",
+                                "carrier.admin",
+                                "carrier.driver",
+                                "public.tracking",
+                                "internal.ops",
+                                "internal.compliance",
+                                "internal.finance",
+                                "internal.support",
+                                "internal.admin",
+                                "org.security"
+                            ]
+                        }
+                    }
+                },
+                "required": ["id", "name", "email", "role", "roles"]
+            },
+            "PartyDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "required": ["id", "name"]
+            },
+            "StopPlaceDto": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": ["pickup", "delivery"]
+                    },
+                    "city": {
+                        "type": "string"
+                    },
+                    "region": {
+                        "type": "string"
+                    },
+                    "windowStart": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "windowEnd": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "timeZone": {
+                        "type": "string",
+                        "example": "America/Chicago"
+                    }
+                },
+                "required": [
+                    "type",
+                    "city",
+                    "region",
+                    "windowStart",
+                    "windowEnd",
+                    "timeZone"
+                ]
+            },
+            "EtaDto": {
+                "type": "object",
+                "properties": {
+                    "at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "confidence": {
+                        "type": "string",
+                        "enum": ["high", "medium", "low"]
+                    },
+                    "late": {
+                        "type": "boolean"
+                    },
+                    "milesRemaining": {
+                        "type": "number",
+                        "nullable": true
+                    }
+                },
+                "required": ["at", "confidence", "late", "milesRemaining"]
+            },
+            "LoadSummaryDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "example": "HL-7K2M9QXA"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "Draft",
+                            "PendingApproval",
+                            "Posted",
+                            "Booked",
+                            "Dispatched",
+                            "AtPickup",
+                            "InTransit",
+                            "AtDelivery",
+                            "Delivered",
+                            "PodVerified",
+                            "Invoiced",
+                            "Paid",
+                            "Closed",
+                            "Cancelled",
+                            "Expired",
+                            "OnHold",
+                            "Disputed"
+                        ]
+                    },
+                    "equipment": {
+                        "type": "string",
+                        "enum": ["dry-van", "reefer", "flatbed"]
+                    },
+                    "shipper": {
+                        "$ref": "#/components/schemas/PartyDto"
+                    },
+                    "carrier": {
+                        "nullable": true,
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/PartyDto"
+                            }
+                        ]
+                    },
+                    "origin": {
+                        "$ref": "#/components/schemas/StopPlaceDto"
+                    },
+                    "destination": {
+                        "$ref": "#/components/schemas/StopPlaceDto"
+                    },
+                    "eta": {
+                        "nullable": true,
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/EtaDto"
+                            }
+                        ]
+                    },
+                    "lastPositionAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "lastPositionCity": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "status",
+                    "equipment",
+                    "shipper",
+                    "carrier",
+                    "origin",
+                    "destination",
+                    "eta",
+                    "lastPositionAt",
+                    "lastPositionCity",
+                    "updatedAt"
+                ]
+            },
+            "LoadPageDto": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/LoadSummaryDto"
+                        }
+                    },
+                    "nextCursor": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "required": ["items", "nextCursor"]
+            },
+            "LoadCountDto": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "Draft",
+                            "PendingApproval",
+                            "Posted",
+                            "Booked",
+                            "Dispatched",
+                            "AtPickup",
+                            "InTransit",
+                            "AtDelivery",
+                            "Delivered",
+                            "PodVerified",
+                            "Invoiced",
+                            "Paid",
+                            "Closed",
+                            "Cancelled",
+                            "Expired",
+                            "OnHold",
+                            "Disputed"
+                        ]
+                    },
+                    "count": {
+                        "type": "number"
+                    }
+                },
+                "required": ["status", "count"]
+            },
+            "FacilityPlaceDto": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "line1": {
+                        "type": "string"
+                    },
+                    "city": {
+                        "type": "string"
+                    },
+                    "region": {
+                        "type": "string"
+                    },
+                    "postalCode": {
+                        "type": "string"
+                    },
+                    "latitude": {
+                        "type": "number"
+                    },
+                    "longitude": {
+                        "type": "number"
+                    },
+                    "timeZone": {
+                        "type": "string",
+                        "example": "America/Chicago"
+                    }
+                },
+                "required": [
+                    "name",
+                    "line1",
+                    "city",
+                    "region",
+                    "postalCode",
+                    "latitude",
+                    "longitude",
+                    "timeZone"
+                ]
+            },
+            "StopDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "sequence": {
+                        "type": "number"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": ["pickup", "delivery"]
+                    },
+                    "windowStart": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "windowEnd": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "reference": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "instructions": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "arrivedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "departedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "facility": {
+                        "$ref": "#/components/schemas/FacilityPlaceDto"
+                    }
+                },
+                "required": [
+                    "id",
+                    "sequence",
+                    "type",
+                    "windowStart",
+                    "windowEnd",
+                    "reference",
+                    "instructions",
+                    "arrivedAt",
+                    "departedAt",
+                    "facility"
+                ]
+            },
+            "ChargeDto": {
+                "type": "object",
+                "properties": {
+                    "kind": {
+                        "type": "string",
+                        "enum": [
+                            "linehaul",
+                            "fuel",
+                            "accessorial",
+                            "fee",
+                            "deduction",
+                            "quickPayFee"
+                        ]
+                    },
+                    "amountCents": {
+                        "type": "number"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": ["agreed", "pendingApproval", "disputed"]
+                    }
+                },
+                "required": ["kind", "amountCents", "status"]
+            },
+            "MoneyDto": {
+                "type": "object",
+                "properties": {
+                    "totalCents": {
+                        "type": "number"
+                    },
+                    "currency": {
+                        "type": "string",
+                        "example": "USD"
+                    },
+                    "pending": {
+                        "type": "boolean"
+                    },
+                    "parts": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ChargeDto"
+                        }
+                    }
+                },
+                "required": ["totalCents", "currency", "pending", "parts"]
+            },
+            "LoadDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "example": "HL-7K2M9QXA"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "Draft",
+                            "PendingApproval",
+                            "Posted",
+                            "Booked",
+                            "Dispatched",
+                            "AtPickup",
+                            "InTransit",
+                            "AtDelivery",
+                            "Delivered",
+                            "PodVerified",
+                            "Invoiced",
+                            "Paid",
+                            "Closed",
+                            "Cancelled",
+                            "Expired",
+                            "OnHold",
+                            "Disputed"
+                        ]
+                    },
+                    "version": {
+                        "type": "number"
+                    },
+                    "equipment": {
+                        "type": "string",
+                        "enum": ["dry-van", "reefer", "flatbed"]
+                    },
+                    "commodity": {
+                        "type": "string"
+                    },
+                    "weightLb": {
+                        "type": "number"
+                    },
+                    "pallets": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "tempMinF": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "tempMaxF": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "hazmat": {
+                        "type": "boolean"
+                    },
+                    "poNumber": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "bolNumber": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "shipper": {
+                        "$ref": "#/components/schemas/PartyDto"
+                    },
+                    "carrier": {
+                        "nullable": true,
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/PartyDto"
+                            }
+                        ]
+                    },
+                    "eta": {
+                        "nullable": true,
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/EtaDto"
+                            }
+                        ]
+                    },
+                    "stops": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/StopDto"
+                        }
+                    },
+                    "shipperPrice": {
+                        "nullable": true,
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyDto"
+                            }
+                        ]
+                    },
+                    "carrierPay": {
+                        "nullable": true,
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyDto"
+                            }
+                        ]
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "status",
+                    "version",
+                    "equipment",
+                    "commodity",
+                    "weightLb",
+                    "pallets",
+                    "tempMinF",
+                    "tempMaxF",
+                    "hazmat",
+                    "poNumber",
+                    "bolNumber",
+                    "shipper",
+                    "carrier",
+                    "eta",
+                    "stops",
+                    "shipperPrice",
+                    "carrierPay",
+                    "createdAt",
+                    "updatedAt"
+                ]
+            },
+            "LoadTransitionDto": {
+                "type": "object",
+                "properties": {
+                    "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1000
+                    },
+                    "to": {
+                        "type": "string",
+                        "enum": [
+                            "Draft",
+                            "PendingApproval",
+                            "Posted",
+                            "Booked",
+                            "Dispatched",
+                            "AtPickup",
+                            "InTransit",
+                            "AtDelivery",
+                            "Delivered",
+                            "PodVerified",
+                            "Invoiced",
+                            "Paid",
+                            "Closed",
+                            "Cancelled",
+                            "Expired",
+                            "OnHold",
+                            "Disputed"
+                        ]
+                    },
+                    "version": {
+                        "type": "number",
+                        "minimum": 1
+                    },
+                    "carrierId": {
+                        "type": "string",
+                        "format": "uuid"
+                    }
+                },
+                "required": ["to", "version"]
+            },
+            "PositionDto": {
+                "type": "object",
+                "properties": {
+                    "latitude": {
+                        "type": "number"
+                    },
+                    "longitude": {
+                        "type": "number"
+                    },
+                    "heading": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "speedMph": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "city": {
+                        "type": "string"
+                    },
+                    "source": {
+                        "type": "string",
+                        "enum": ["eld", "driverApp", "mobileWeb", "checkCall"]
+                    },
+                    "recordedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "latitude",
+                    "longitude",
+                    "heading",
+                    "speedMph",
+                    "city",
+                    "source",
+                    "recordedAt"
+                ]
+            },
+            "LoadPositionsDto": {
+                "type": "object",
+                "properties": {
+                    "latest": {
+                        "nullable": true,
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/PositionDto"
+                            }
+                        ]
+                    },
+                    "track": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PositionDto"
+                        }
+                    },
+                    "eta": {
+                        "nullable": true,
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/EtaDto"
+                            }
+                        ]
+                    },
+                    "health": {
+                        "type": "string",
+                        "enum": ["fresh", "stale", "exception"],
+                        "nullable": true
+                    }
+                },
+                "required": ["latest", "track", "eta", "health"]
+            },
+            "CheckCallResponseDto": {
+                "type": "object",
+                "properties": {
+                    "requestedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": ["requestedAt"]
+            },
+            "CheckCallDto": {
+                "type": "object",
+                "properties": {
+                    "note": {
+                        "type": "string",
+                        "maxLength": 500
+                    }
+                }
+            },
+            "MapPositionDto": {
+                "type": "object",
+                "properties": {
+                    "latitude": {
+                        "type": "number"
+                    },
+                    "longitude": {
+                        "type": "number"
+                    },
+                    "heading": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "speedMph": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "city": {
+                        "type": "string"
+                    },
+                    "source": {
+                        "type": "string",
+                        "enum": ["eld", "driverApp", "mobileWeb", "checkCall"]
+                    },
+                    "recordedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "loadId": {
+                        "type": "string",
+                        "example": "HL-7K2M9QXA"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "Draft",
+                            "PendingApproval",
+                            "Posted",
+                            "Booked",
+                            "Dispatched",
+                            "AtPickup",
+                            "InTransit",
+                            "AtDelivery",
+                            "Delivered",
+                            "PodVerified",
+                            "Invoiced",
+                            "Paid",
+                            "Closed",
+                            "Cancelled",
+                            "Expired",
+                            "OnHold",
+                            "Disputed"
+                        ]
+                    }
+                },
+                "required": [
+                    "latitude",
+                    "longitude",
+                    "heading",
+                    "speedMph",
+                    "city",
+                    "source",
+                    "recordedAt",
+                    "loadId",
+                    "status"
+                ]
+            },
+            "LoadEventDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "statusChanged",
+                            "stopArrived",
+                            "stopDeparted",
+                            "trackingStale",
+                            "checkCallRequested",
+                            "documentUploaded",
+                            "trackingLinkCreated",
+                            "trackingLinkRevoked"
+                        ]
+                    },
+                    "category": {
+                        "type": "string",
+                        "enum": ["status", "stop", "tracking", "document"]
+                    },
+                    "fromStatus": {
+                        "type": "string",
+                        "enum": [
+                            "Draft",
+                            "PendingApproval",
+                            "Posted",
+                            "Booked",
+                            "Dispatched",
+                            "AtPickup",
+                            "InTransit",
+                            "AtDelivery",
+                            "Delivered",
+                            "PodVerified",
+                            "Invoiced",
+                            "Paid",
+                            "Closed",
+                            "Cancelled",
+                            "Expired",
+                            "OnHold",
+                            "Disputed"
+                        ],
+                        "nullable": true
+                    },
+                    "toStatus": {
+                        "type": "string",
+                        "enum": [
+                            "Draft",
+                            "PendingApproval",
+                            "Posted",
+                            "Booked",
+                            "Dispatched",
+                            "AtPickup",
+                            "InTransit",
+                            "AtDelivery",
+                            "Delivered",
+                            "PodVerified",
+                            "Invoiced",
+                            "Paid",
+                            "Closed",
+                            "Cancelled",
+                            "Expired",
+                            "OnHold",
+                            "Disputed"
+                        ],
+                        "nullable": true
+                    },
+                    "actorType": {
+                        "type": "string",
+                        "enum": ["member", "staff", "apiKey", "system"]
+                    },
+                    "actorName": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "source": {
+                        "type": "string",
+                        "enum": [
+                            "web",
+                            "driver",
+                            "geofence",
+                            "eld",
+                            "operations",
+                            "system",
+                            "api"
+                        ]
+                    },
+                    "reason": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "note": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "city": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "occurredAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "type",
+                    "category",
+                    "fromStatus",
+                    "toStatus",
+                    "actorType",
+                    "actorName",
+                    "source",
+                    "reason",
+                    "note",
+                    "city",
+                    "occurredAt"
+                ]
+            },
+            "LoadEventPageDto": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/LoadEventDto"
+                        }
+                    },
+                    "nextCursor": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "required": ["items", "nextCursor"]
+            },
+            "TrackingLinkDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "token": {
+                        "type": "string",
+                        "description": "Signed token for /track/{token}"
+                    },
+                    "active": {
+                        "type": "boolean"
+                    },
+                    "createdByName": {
+                        "type": "string"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "revokedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "expiresAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    }
+                },
+                "required": [
+                    "id",
+                    "token",
+                    "active",
+                    "createdByName",
+                    "createdAt",
+                    "revokedAt",
+                    "expiresAt"
+                ]
+            },
+            "ReasonDto": {
+                "type": "object",
+                "properties": {
+                    "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1000
+                    }
+                }
+            },
+            "PublicStopDto": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": ["pickup", "delivery"]
+                    },
+                    "city": {
+                        "type": "string"
+                    },
+                    "region": {
+                        "type": "string"
+                    },
+                    "timeZone": {
+                        "type": "string",
+                        "example": "America/Chicago"
+                    },
+                    "latitude": {
+                        "type": "number",
+                        "description": "Rounded to city level"
+                    },
+                    "longitude": {
+                        "type": "number",
+                        "description": "Rounded to city level"
+                    },
+                    "windowStart": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "windowEnd": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "arrivedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "departedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    }
+                },
+                "required": [
+                    "type",
+                    "city",
+                    "region",
+                    "timeZone",
+                    "latitude",
+                    "longitude",
+                    "windowStart",
+                    "windowEnd",
+                    "arrivedAt",
+                    "departedAt"
+                ]
+            },
+            "PublicPositionDto": {
+                "type": "object",
+                "properties": {
+                    "latitude": {
+                        "type": "number",
+                        "description": "Rounded to city level"
+                    },
+                    "longitude": {
+                        "type": "number",
+                        "description": "Rounded to city level"
+                    },
+                    "city": {
+                        "type": "string"
+                    },
+                    "source": {
+                        "type": "string",
+                        "enum": ["eld", "driverApp", "mobileWeb", "checkCall"]
+                    },
+                    "recordedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "latitude",
+                    "longitude",
+                    "city",
+                    "source",
+                    "recordedAt"
+                ]
+            },
+            "PublicTrackingDto": {
+                "type": "object",
+                "properties": {
+                    "reference": {
+                        "type": "string",
+                        "example": "HL-7K2M9QXA"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "Draft",
+                            "PendingApproval",
+                            "Posted",
+                            "Booked",
+                            "Dispatched",
+                            "AtPickup",
+                            "InTransit",
+                            "AtDelivery",
+                            "Delivered",
+                            "PodVerified",
+                            "Invoiced",
+                            "Paid",
+                            "Closed",
+                            "Cancelled",
+                            "Expired",
+                            "OnHold",
+                            "Disputed"
+                        ]
+                    },
+                    "sharedBy": {
+                        "type": "string"
+                    },
+                    "stops": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PublicStopDto"
+                        }
+                    },
+                    "eta": {
+                        "nullable": true,
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/EtaDto"
+                            }
+                        ]
+                    },
+                    "position": {
+                        "nullable": true,
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/PublicPositionDto"
+                            }
+                        ]
+                    },
+                    "deliveredAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "expiresAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "expired": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "reference",
+                    "status",
+                    "sharedBy",
+                    "stops",
+                    "eta",
+                    "position",
+                    "deliveredAt",
+                    "expiresAt",
+                    "expired"
+                ]
+            },
+            "DocumentDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "bol",
+                            "pod",
+                            "rateConfirmation",
+                            "lumperReceipt",
+                            "damagePhoto",
+                            "invoice",
+                            "insuranceCertificate",
+                            "w9",
+                            "carrierAgreement"
+                        ]
+                    },
+                    "fileName": {
+                        "type": "string"
+                    },
+                    "contentType": {
+                        "type": "string",
+                        "enum": ["application/pdf", "image/jpeg", "image/png"]
+                    },
+                    "sizeBytes": {
+                        "type": "number"
+                    },
+                    "scanStatus": {
+                        "type": "string",
+                        "enum": [
+                            "awaitingUpload",
+                            "pending",
+                            "clean",
+                            "rejected",
+                            "failed"
+                        ]
+                    },
+                    "version": {
+                        "type": "number"
+                    },
+                    "uploadedByName": {
+                        "type": "string"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "type",
+                    "fileName",
+                    "contentType",
+                    "sizeBytes",
+                    "scanStatus",
+                    "version",
+                    "uploadedByName",
+                    "createdAt"
+                ]
+            },
+            "UploadTicketDto": {
+                "type": "object",
+                "properties": {
+                    "document": {
+                        "$ref": "#/components/schemas/DocumentDto"
+                    },
+                    "uploadUrl": {
+                        "type": "string",
+                        "description": "Presigned PUT URL"
+                    },
+                    "expiresAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": ["document", "uploadUrl", "expiresAt"]
+            },
+            "UploadRequestDto": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "bol",
+                            "pod",
+                            "rateConfirmation",
+                            "lumperReceipt",
+                            "damagePhoto",
+                            "invoice",
+                            "insuranceCertificate",
+                            "w9",
+                            "carrierAgreement"
+                        ]
+                    },
+                    "fileName": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "contentType": {
+                        "type": "string",
+                        "enum": ["application/pdf", "image/jpeg", "image/png"]
+                    },
+                    "sizeBytes": {
+                        "type": "number",
+                        "minimum": 1,
+                        "maximum": 20971520
+                    }
+                },
+                "required": ["type", "fileName", "contentType", "sizeBytes"]
+            },
+            "DownloadLinkDto": {
+                "type": "object",
+                "properties": {
+                    "url": {
+                        "type": "string"
+                    },
+                    "expiresAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": ["url", "expiresAt"]
+            },
+            "NotificationDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "event": {
+                        "type": "string",
+                        "enum": [
+                            "checkCallRequested",
+                            "loadPosted",
+                            "loadBooked",
+                            "bidReceived",
+                            "etaChanged",
+                            "trackingStale",
+                            "podVerified",
+                            "invoiceDue",
+                            "complianceChanged"
+                        ]
+                    },
+                    "loadId": {
+                        "type": "string",
+                        "nullable": true,
+                        "example": "HL-7K2M9QXA"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "readAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    }
+                },
+                "required": ["id", "event", "loadId", "createdAt", "readAt"]
+            },
+            "NotificationPageDto": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/NotificationDto"
+                        }
+                    },
+                    "nextCursor": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "required": ["items", "nextCursor"]
+            },
+            "UnreadCountDto": {
+                "type": "object",
+                "properties": {
+                    "count": {
+                        "type": "number"
+                    }
+                },
+                "required": ["count"]
+            },
+            "QuickFindItemDto": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": ["load", "facility", "member", "organization"]
+                    },
+                    "id": {
+                        "type": "string"
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "detail": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "required": ["type", "id", "label", "detail"]
+            },
+            "QuickFindGroupDto": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": ["load", "facility", "member", "organization"]
+                    },
+                    "total": {
+                        "type": "number"
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/QuickFindItemDto"
+                        }
+                    }
+                },
+                "required": ["type", "total", "items"]
+            },
+            "QuickFindDto": {
+                "type": "object",
+                "properties": {
+                    "exact": {
+                        "nullable": true,
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/QuickFindItemDto"
+                            }
+                        ]
+                    },
+                    "groups": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/QuickFindGroupDto"
+                        }
+                    }
+                },
+                "required": ["exact", "groups"]
+            },
+            "AcceptedDto": {
+                "type": "object",
+                "properties": {
+                    "accepted": {
+                        "type": "boolean"
+                    }
+                },
+                "required": ["accepted"]
+            },
+            "EmailDto": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    }
+                },
+                "required": ["email"]
+            },
+            "LinkTokenDto": {
+                "type": "object",
+                "properties": {
+                    "token": {
+                        "type": "string"
+                    }
+                },
+                "required": ["token"]
+            },
+            "PasswordResetConfirmDto": {
+                "type": "object",
+                "properties": {
+                    "token": {
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string"
+                    }
+                },
+                "required": ["token", "password"]
+            },
+            "PasswordResetDto": {
+                "type": "object",
+                "properties": {
+                    "reset": {
+                        "type": "boolean"
+                    }
+                },
+                "required": ["reset"]
+            },
+            "MfaChallengeDto": {
+                "type": "object",
+                "properties": {
+                    "mfaRequired": {
+                        "type": "boolean"
+                    },
+                    "challenge": {
+                        "type": "string"
+                    },
+                    "method": {
+                        "type": "string",
+                        "enum": ["totp", "backup"]
+                    }
+                },
+                "required": ["mfaRequired", "challenge", "method"]
+            },
+            "MfaChallengeRequestDto": {
+                "type": "object",
+                "properties": {
+                    "challenge": {
+                        "type": "string"
+                    }
+                },
+                "required": ["challenge"]
+            },
+            "MfaStatusDto": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "method": {
+                        "type": "string",
+                        "enum": ["totp", "backup"]
+                    },
+                    "attemptsRemaining": {
+                        "type": "integer"
+                    }
+                },
+                "required": ["email", "method", "attemptsRemaining"]
+            },
+            "MfaVerifyDto": {
+                "type": "object",
+                "properties": {
+                    "challenge": {
+                        "type": "string"
+                    },
+                    "method": {
+                        "type": "string",
+                        "enum": ["totp", "backup"]
+                    },
+                    "code": {
+                        "type": "string"
+                    }
+                },
+                "required": ["challenge", "method", "code"]
+            },
+            "ArticleFeedbackDto": {
+                "type": "object",
+                "properties": {
+                    "slug": {
+                        "type": "string"
+                    },
+                    "helpful": {
+                        "type": "boolean"
+                    },
+                    "reason": {
+                        "type": "string",
+                        "enum": [
+                            "steps-differ",
+                            "missing-detail",
+                            "hard-to-follow",
+                            "other"
+                        ]
+                    }
+                },
+                "required": ["slug", "helpful"]
+            },
+            "TicketContextDto": {
+                "type": "object",
+                "properties": {
+                    "topic": {
+                        "type": "string",
+                        "enum": [
+                            "account",
+                            "loads",
+                            "billing",
+                            "claims",
+                            "technical",
+                            "other"
+                        ]
+                    },
+                    "reference": {
+                        "type": "string"
+                    },
+                    "q": {
+                        "type": "string"
+                    },
+                    "article": {
+                        "type": "string"
+                    }
+                },
+                "required": []
+            },
+            "TicketRequestDto": {
+                "type": "object",
+                "properties": {
+                    "key": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "category": {
+                        "type": "string",
+                        "enum": [
+                            "account",
+                            "loads",
+                            "billing",
+                            "claims",
+                            "technical",
+                            "other"
+                        ]
+                    },
+                    "urgency": {
+                        "type": "string",
+                        "enum": ["urgent", "high", "normal"]
+                    },
+                    "subject": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "load": {
+                        "type": "string"
+                    },
+                    "context": {
+                        "$ref": "#/components/schemas/TicketContextDto"
+                    }
+                },
+                "required": [
+                    "key",
+                    "email",
+                    "category",
+                    "urgency",
+                    "subject",
+                    "description",
+                    "load",
+                    "context"
+                ]
+            },
+            "TicketReceiptDto": {
+                "type": "object",
+                "properties": {
+                    "reference": {
+                        "type": "string"
+                    },
+                    "urgency": {
+                        "type": "string",
+                        "enum": ["urgent", "high", "normal"]
+                    }
+                },
+                "required": ["reference", "urgency"]
+            },
+            "TicketListRequestDto": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": ["open", "waiting", "resolved"]
+                    }
+                },
+                "required": ["email"]
+            },
+            "TicketSummaryDto": {
+                "type": "object",
+                "properties": {
+                    "reference": {
+                        "type": "string"
+                    },
+                    "subject": {
+                        "type": "string"
+                    },
+                    "category": {
+                        "type": "string",
+                        "enum": [
+                            "account",
+                            "loads",
+                            "billing",
+                            "claims",
+                            "technical",
+                            "other"
+                        ]
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": ["open", "waiting", "resolved"]
+                    },
+                    "updated": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "reference",
+                    "subject",
+                    "category",
+                    "status",
+                    "updated"
+                ]
+            },
+            "PlaceDto": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "required": ["code", "name"]
+            },
+            "RateEstimateDto": {
+                "type": "object",
+                "properties": {
+                    "origin": {
+                        "$ref": "#/components/schemas/PlaceDto"
+                    },
+                    "destination": {
+                        "$ref": "#/components/schemas/PlaceDto"
+                    },
+                    "miles": {
+                        "type": "number"
+                    },
+                    "rate": {
+                        "type": "number"
+                    },
+                    "low": {
+                        "type": "number"
+                    },
+                    "high": {
+                        "type": "number"
+                    },
+                    "perMile": {
+                        "type": "number"
+                    },
+                    "confidence": {
+                        "type": "string",
+                        "enum": ["high", "medium", "low"]
+                    },
+                    "samples": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "origin",
+                    "destination",
+                    "miles",
+                    "rate",
+                    "low",
+                    "high",
+                    "perMile",
+                    "confidence",
+                    "samples"
+                ]
+            },
+            "TrendPointDto": {
+                "type": "object",
+                "properties": {
+                    "date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "perMile": {
+                        "type": "number"
+                    },
+                    "samples": {
+                        "type": "integer"
+                    }
+                },
+                "required": ["date", "perMile", "samples"]
+            },
+            "LaneQueryDto": {
+                "type": "object",
+                "properties": {
+                    "origin": {
+                        "type": "string"
+                    },
+                    "destination": {
+                        "type": "string"
+                    },
+                    "equipment": {
+                        "type": "string",
+                        "enum": ["dry-van", "reefer", "flatbed"]
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date"
+                    }
+                },
+                "required": ["origin", "destination", "equipment", "date"]
+            },
+            "SaveEstimateDto": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "lane": {
+                        "$ref": "#/components/schemas/LaneQueryDto"
+                    },
+                    "rate": {
+                        "type": "number"
+                    }
+                },
+                "required": ["email", "lane", "rate"]
+            },
+            "SavedEstimateDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    }
+                },
+                "required": ["id"]
+            },
+            "InvitationDto": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "organisation": {
+                        "type": "string"
+                    },
+                    "side": {
+                        "type": "string",
+                        "enum": ["shipper", "carrier"]
+                    },
+                    "sso": {
+                        "type": "boolean"
+                    },
+                    "inviter": {
+                        "type": "string"
+                    },
+                    "role": {
+                        "type": "string",
+                        "enum": [
+                            "shipper.admin",
+                            "shipper.member",
+                            "carrier.admin",
+                            "carrier.dispatcher",
+                            "carrier.driver"
+                        ]
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": ["open", "accepted", "expired", "revoked"]
+                    },
+                    "account": {
+                        "type": "string",
+                        "enum": ["new", "existing", "elsewhere"]
+                    }
+                },
+                "required": [
+                    "email",
+                    "organisation",
+                    "side",
+                    "sso",
+                    "inviter",
+                    "role",
+                    "status",
+                    "account"
+                ]
+            },
+            "AcceptInvitationDto": {
+                "type": "object",
+                "properties": {
+                    "token": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "fullName": {
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string"
+                    },
+                    "termsVersion": {
+                        "type": "string"
+                    }
+                },
+                "required": ["token"],
+                "description": "A signed-in member sends email; a newcomer sends fullName, password and termsVersion."
+            },
+            "LocationConsentDto": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "decision": {
+                        "type": "string",
+                        "enum": ["granted", "declined"]
+                    },
+                    "version": {
+                        "type": "string"
+                    }
+                },
+                "required": ["email", "decision", "version"]
+            },
+            "LocationConsentReceiptDto": {
+                "type": "object",
+                "properties": {
+                    "decision": {
+                        "type": "string",
+                        "enum": ["granted", "declined"]
+                    }
+                },
+                "required": ["decision"]
+            },
+            "TrackingSendDto": {
+                "type": "object",
+                "properties": {
+                    "recipients": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": ["recipients"]
+            },
+            "TrackingSendReceiptDto": {
+                "type": "object",
+                "properties": {
+                    "link": {
+                        "$ref": "#/components/schemas/TrackingLinkDto"
+                    },
+                    "sent": {
+                        "type": "integer"
+                    }
+                },
+                "required": ["link", "sent"]
+            }
+        }
+    }
+}
