@@ -1,7 +1,7 @@
 "use client";
 import type { MotionValue } from "motion/react";
 import { ArrowRight } from "@carbon/icons-react";
-import HaulrButton from "@/components/home/haulr-button";
+import ButtonLink from "@/components/ui/button-link";
 import HeroHeadline from "@/components/home/hero-headline";
 import SceneBlock from "@/components/home/scene-block";
 import { useSide } from "@/lib/hooks/use-side";
@@ -31,13 +31,12 @@ export default function HeroScene({ progress, reduced }: Props) {
                 <HeroHeadline id={side} lines={copy.headline} />
                 <p className="text-text-secondary max-w-md text-(length:--haulr-lead)">{copy.lead}</p>
                 <div className="flex flex-wrap items-center gap-5">
-                    <HaulrButton href={copy.primary.href}>
+                    <ButtonLink href={copy.primary.href} tone="accent" size="lg" trailing={ArrowRight}>
                         {copy.primary.label}
-                        <ArrowRight aria-hidden className="size-4 transition-transform group-hover:translate-x-0.5" />
-                    </HaulrButton>
-                    <HaulrButton href={copy.secondary.href} tone="ghost">
+                    </ButtonLink>
+                    <ButtonLink href={copy.secondary.href} tone="outline" size="lg">
                         {copy.secondary.label}
-                    </HaulrButton>
+                    </ButtonLink>
                 </div>
             </div>
             <HeroPulse />

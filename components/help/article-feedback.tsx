@@ -59,18 +59,18 @@ export default function ArticleFeedback({ slug }: Props) {
         <div className="flex flex-col gap-4">
             <div className="flex flex-wrap items-center gap-3">
                 <p className="text-text text-sm font-medium">{feedback.question}</p>
-                <Button tone="quiet" size="sm" aria-pressed={helpful === true} disabled={send.isPending} onClick={answerYes}>
+                <Button tone="quiet" size="sm" aria-pressed={helpful === true} isDisabled={send.isPending} onPress={answerYes}>
                     {feedback.yes}
                 </Button>
-                <Button tone="quiet" size="sm" aria-pressed={helpful === false} disabled={send.isPending} onClick={() => setHelpful(false)}>
+                <Button tone="quiet" size="sm" aria-pressed={helpful === false} isDisabled={send.isPending} onPress={() => setHelpful(false)}>
                     {feedback.no}
                 </Button>
             </div>
             {helpful === false ? (
                 <div className="flex max-w-md flex-col gap-3">
                     <ChoiceGrid id={`${slug}-reason`} name="reason" legend={feedback.reasonLabel} options={REASONS} value={reason} onChange={setReason} />
-                    <Button size="sm" isLoading={send.isPending} onClick={() => submit({ slug, helpful: false, reason: reason ?? undefined })} className="self-start">
-                        {send.isPending ? feedback.sending : feedback.send}
+                    <Button size="sm" pending={send.isPending} pendingLabel={feedback.sending} onPress={() => submit({ slug, helpful: false, reason: reason ?? undefined })} className="self-start">
+                        {feedback.send}
                     </Button>
                 </div>
             ) : null}

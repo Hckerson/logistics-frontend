@@ -1,6 +1,6 @@
 import Link from "next/link";
-import HaulrButton from "@/components/home/haulr-button";
 import HaulrWordmark from "@/components/home/haulr-wordmark";
+import ButtonLink from "@/components/ui/button-link";
 import SideSwitch from "@/components/home/side-switch";
 import { HAULR_BRAND } from "@/lib/data/home/brand";
 import { accessLink } from "@/lib/home/access";
@@ -26,9 +26,9 @@ export default function HaulrNav({ signedIn }: Props) {
                         {access.label}
                     </Link>
                     <span className="hidden sm:block">
-                        <HaulrButton href={HAULR_BRAND.price.href} size="sm">
+                        <ButtonLink href={HAULR_BRAND.price.href} tone="accent">
                             {HAULR_BRAND.price.label}
-                        </HaulrButton>
+                        </ButtonLink>
                     </span>
                 </nav>
             </div>

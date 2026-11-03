@@ -19,6 +19,7 @@ export default function LaneField({ id, name, label, placeholder, list, value, o
             </label>
             <Input
                 id={id}
+                size="xl"
                 name={name}
                 type="text"
                 list={list}

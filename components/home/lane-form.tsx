@@ -1,9 +1,11 @@
 "use client";
-import { useId, type ChangeEvent } from "react";
+import { useId, useState, type ChangeEvent } from "react";
 import { ArrowRight } from "@carbon/icons-react";
 import FormLane from "@/components/home/form-lane";
-import { haulrButtonClass } from "@/components/home/haulr-button";
 import LaneField from "@/components/home/lane-field";
+import Button from "@/components/ui/button";
+import Field from "@/components/ui/field";
+import Select from "@/components/ui/select";
 import { CLOSE_COPY } from "@/lib/data/home/close";
 import { HUBS } from "@/lib/data/home/hubs";
 import { RATE_ESTIMATOR_ROUTE } from "@/lib/constants";
@@ -16,8 +18,11 @@ interface Props {
 
 const { fields, equipment, listId } = CLOSE_COPY;
 
+type Equipment = (typeof equipment)[number]["value"];
+
 export default function LaneForm({ lane, onChange }: Props) {
     const baseId = useId();
+    const [kind, setKind] = useState<Equipment>(equipment[0].value);
 
     const update = (end: keyof LaneDraft) => (event: ChangeEvent<HTMLInputElement>) =>
         onChange({ ...lane, [end]: event.target.value });
@@ -39,26 +44,12 @@ export default function LaneForm({ lane, onChange }: Props) {
                 onChange={update("destination")}
             />
             <FormLane origin={lane.origin.trim() !== ""} destination={lane.destination.trim() !== ""} />
-            <div className="flex flex-col gap-2">
-                <label htmlFor={`${baseId}-equipment`} className="haulr-label text-text-muted">
-                    {fields.equipment.label}
-                </label>
-                <select
-                    id={`${baseId}-equipment`}
-                    name={fields.equipment.name}
-                    className="border-border-dark bg-background text-text focus:border-text h-14 rounded-sm border px-4 text-lg focus:outline-none"
-                >
-                    {equipment.map((option) => (
-                        <option key={option.value} value={option.value}>
-                            {option.label}
-                        </option>
-                    ))}
-                </select>
-            </div>
-            <button type="submit" className={haulrButtonClass("accent", "lg", "cursor-pointer")}>
+            <Field id={`${baseId}-equipment`} label={fields.equipment.label}>
+                {(control) => <Select {...control} size="xl" name={fields.equipment.name} options={equipment} value={kind} onChange={setKind} />}
+            </Field>
+            <Button type="submit" tone="accent" size="lg" trailing={ArrowRight}>
                 {CLOSE_COPY.submit}
-                <ArrowRight aria-hidden className="size-4 transition-transform group-hover:translate-x-0.5" />
-            </button>
+            </Button>
             <datalist id={listId}>
                 {HUBS.map((hub) => (
                     <option key={hub.code} value={hub.name} />

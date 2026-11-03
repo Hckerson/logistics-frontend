@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import FieldError, { fieldErrorId } from "@/components/common/field-error";
+import FieldError, { fieldErrorId } from "@/components/ui/field-error";
 import type { ChoiceOption } from "@/lib/types";
 
 interface Props<T extends string> {

@@ -35,9 +35,3 @@ export interface ContextLine {
 }
 
 export type TicketReceipt = TicketReceiptDto;
-
-export interface ChoiceOption<T extends string> {
-    value: T;
-    label: string;
-    detail?: string;
-}

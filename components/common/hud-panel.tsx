@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import type { ReactNode } from "react";
 import AssemblyFrame from "@/components/common/assembly-frame";
-import HudCorners from "@/components/common/hud-corners";
+import HudCorners from "@/components/ui/hud-corners";
 import ScrambleText from "@/components/common/scramble-text";
 import { ASSEMBLY } from "@/lib/auth/constants";
 import { bootBase, partAt } from "@/lib/auth/entry";

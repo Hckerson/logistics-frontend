@@ -1,6 +1,6 @@
 "use client";
 import clsx from "clsx";
-import ProgressLine from "@/components/common/progress-line";
+import ProgressLine from "@/components/ui/progress-line";
 import HudPanel from "@/components/common/hud-panel";
 import EstimateActions from "@/components/estimator/estimate-actions";
 import EstimateFigures from "@/components/estimator/estimate-figures";

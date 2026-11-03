@@ -19,21 +19,19 @@ export default function HelpSearchField({ id, value, unavailable, onChange, onFo
             <label htmlFor={id} className="haulr-label text-text-muted">
                 {search.label}
             </label>
-            <div className="relative">
-                <Search aria-hidden className="text-text-muted pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2" />
-                <Input
-                    id={id}
-                    type="search"
-                    name={HELP_QUERY}
-                    autoComplete="off"
-                    spellCheck={false}
-                    value={value}
-                    placeholder={search.placeholder}
-                    onChange={(event) => onChange(event.target.value)}
-                    onFocus={onFocus}
-                    className="pl-12"
-                />
-            </div>
+            <Input
+                id={id}
+                type="search"
+                size="xl"
+                icon={Search}
+                name={HELP_QUERY}
+                autoComplete="off"
+                spellCheck={false}
+                value={value}
+                placeholder={search.placeholder}
+                onChange={(event) => onChange(event.target.value)}
+                onFocus={onFocus}
+            />
             {unavailable ? <p className="text-text-muted text-xs">{search.unavailable}</p> : null}
         </div>
     );

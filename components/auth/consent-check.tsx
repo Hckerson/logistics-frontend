@@ -2,7 +2,7 @@ import clsx from "clsx";
 import Link from "next/link";
 import type { ChangeEvent } from "react";
 import { Checkmark } from "@carbon/icons-react";
-import FieldError, { fieldErrorId } from "@/components/common/field-error";
+import FieldError, { fieldErrorId } from "@/components/ui/field-error";
 import { REGISTER_COPY } from "@/lib/data/auth/register";
 import type { AccountSide } from "@/lib/types";
 

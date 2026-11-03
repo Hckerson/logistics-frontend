@@ -18,7 +18,7 @@ export default function SectionFailure({ label, failure, onRetry }: Props) {
             {failure?.correlationId ? (
                 <p className="text-text-muted font-mono text-xs">{`${SECTION_COPY.reference} ${failure.correlationId}`}</p>
             ) : null}
-            <Button tone="quiet" size="sm" onClick={onRetry} className="self-start">
+            <Button tone="quiet" size="sm" onPress={onRetry} className="self-start">
                 {SECTION_COPY.retry}
             </Button>
         </div>

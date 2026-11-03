@@ -1,8 +1,8 @@
 import clsx from "clsx";
 import type { ReactNode, TextareaHTMLAttributes } from "react";
-import FieldError, { fieldErrorId } from "@/components/common/field-error";
-import FieldLabel from "@/components/common/field-label";
-import HudCorners from "@/components/common/hud-corners";
+import FieldError, { fieldErrorId } from "@/components/ui/field-error";
+import FieldLabel from "@/components/ui/field-label";
+import FocusCorners from "@/components/ui/focus-corners";
 
 interface Props extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, "id" | "value"> {
     id: string;
@@ -17,7 +17,7 @@ export default function AreaField({ id, label, value, index, error, aside, ...re
     return (
         <div className="group/field flex flex-col">
             <FieldLabel htmlFor={id} label={label} index={index} error={Boolean(error)} aside={aside} />
-            <div className="relative">
+            <div className="group/control relative">
                 <textarea
                     {...rest}
                     id={id}
@@ -29,13 +29,7 @@ export default function AreaField({ id, label, value, index, error, aside, ...re
                         error ? "bg-error-light" : "bg-background-muted",
                     )}
                 />
-                <HudCorners
-                    tone={error ? "error" : "accent"}
-                    className={clsx(
-                        "transition-[opacity,scale] duration-300 ease-out group-focus-within/field:scale-100 group-focus-within/field:opacity-100",
-                        error ? "scale-100 opacity-100" : "scale-150 opacity-0",
-                    )}
-                />
+                <FocusCorners invalid={Boolean(error)} />
             </div>
             {error ? (
                 <div className="mt-2">

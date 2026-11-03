@@ -3,9 +3,9 @@ import clsx from "clsx";
 import { forwardRef, useState, type InputHTMLAttributes, type ReactNode, type SyntheticEvent } from "react";
 import { View, ViewOff } from "@carbon/icons-react";
 import BoardCells from "@/components/common/board-cells";
-import FieldError, { fieldErrorId } from "@/components/common/field-error";
-import FieldLabel from "@/components/common/field-label";
-import HudCorners from "@/components/common/hud-corners";
+import FieldError, { fieldErrorId } from "@/components/ui/field-error";
+import FieldLabel from "@/components/ui/field-label";
+import FocusCorners from "@/components/ui/focus-corners";
 import { useAssembly } from "@/components/providers/assembly-provider";
 import { boardWindow } from "@/lib/auth/board";
 import { BOARD } from "@/lib/auth/constants";
@@ -43,7 +43,7 @@ const BoardField = forwardRef<HTMLInputElement, Props>(function BoardField(props
     return (
         <div className="group/field flex flex-col">
             <FieldLabel htmlFor={id} label={label} index={index} error={Boolean(error)} aside={aside} />
-            <div className="relative flex items-stretch gap-1">
+            <div className="group/control relative flex items-stretch gap-1">
                 <div className="relative min-w-0 flex-1">
                     <BoardCells glyphs={board.glyphs} caret={board.caret} ghost={ghost} noise={noise} error={Boolean(error)} tall={tall} />
                     <input
@@ -85,13 +85,7 @@ const BoardField = forwardRef<HTMLInputElement, Props>(function BoardField(props
                         <Icon aria-hidden className="size-4" />
                     </button>
                 ) : null}
-                <HudCorners
-                    tone={error ? "error" : "accent"}
-                    className={clsx(
-                        "transition-[opacity,scale] duration-300 ease-out group-focus-within/field:scale-100 group-focus-within/field:opacity-100",
-                        error ? "scale-100 opacity-100" : "scale-150 opacity-0",
-                    )}
-                />
+                <FocusCorners invalid={Boolean(error)} />
             </div>
             <span aria-live="polite" className="haulr-label text-accent mt-2 empty:mt-0">
                 {hint}

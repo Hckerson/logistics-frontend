@@ -1,17 +1,11 @@
 import clsx from "clsx";
-
-type Tone = "muted" | "accent" | "error";
+import { CORNER_TONES } from "@/lib/ui/constants";
+import type { CornerTone } from "@/lib/types";
 
 interface Props {
-    tone?: Tone;
+    tone?: CornerTone;
     className?: string;
 }
-
-const TONES: Record<Tone, string> = {
-    muted: "border-text-muted",
-    accent: "border-accent",
-    error: "border-error",
-};
 
 const CORNERS = [
     "-top-px -left-px border-t border-l [--haulr-snap-x:-2.5rem] [--haulr-snap-y:-2.5rem]",
@@ -24,7 +18,7 @@ export default function HudCorners({ tone = "muted", className }: Props) {
     return (
         <span aria-hidden>
             {CORNERS.map((corner) => (
-                <span key={corner} className={clsx("absolute block size-3", TONES[tone], corner, className)} />
+                <span key={corner} className={clsx("pointer-events-none absolute block size-3", CORNER_TONES[tone], corner, className)} />
             ))}
         </span>
     );
