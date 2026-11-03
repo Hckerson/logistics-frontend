@@ -256,6 +256,10 @@
     --colors-success-light: #12261b;
     --colors-error: #ff4d4f;
     --colors-error-light: #2a1112;
+    --colors-warning: #f2b544;
+    --colors-warning-light: #2a2111;
+    --colors-info: #8fb3d9;
+    --colors-info-light: #121b25;
 
     --colors-border: #23262b;
     --colors-border-light: #1a1d21;
