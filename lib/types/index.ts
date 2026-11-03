@@ -9,6 +9,7 @@ export * from "./home";
 export * from "./legal";
 export * from "./loads";
 export * from "./map";
+export * from "./primitives";
 export * from "./mocks";
 export * from "./quote";
 export * from "./team";
