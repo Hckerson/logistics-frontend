@@ -391,6 +391,38 @@
     animation: haulr-panel-in 0.7s var(--haulr-ease) both;
 }
 
+@keyframes haulr-drop {
+    from {
+        clip-path: inset(0 0 100% 0);
+        opacity: 0.4;
+    }
+    to {
+        clip-path: inset(-1rem);
+    }
+}
+
+@utility haulr-drop {
+    animation: haulr-drop var(--durations-fast) var(--haulr-ease) backwards;
+}
+
+@keyframes haulr-fade {
+    from {
+        opacity: 0;
+    }
+}
+
+@utility haulr-fade-in {
+    animation: haulr-fade var(--durations-fast) var(--haulr-ease) backwards;
+}
+
+@utility haulr-fade-out {
+    animation: haulr-fade 120ms var(--timing-functions-in) reverse forwards;
+}
+
+@utility haulr-open {
+    animation: haulr-panel-in var(--durations-normal) var(--haulr-ease) backwards;
+}
+
 @utility haulr-auth-mask {
     mask-image: radial-gradient(ellipse 80% 24% at 55% 12%, #000 50%, transparent);
 
