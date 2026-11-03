@@ -3,7 +3,7 @@ import clsx from "clsx";
 import Link from "next/link";
 import type { KeyboardEvent } from "react";
 import { Close } from "@carbon/icons-react";
-import HudCorners from "@/components/common/hud-corners";
+import HudCorners from "@/components/ui/hud-corners";
 import { ANNOUNCER_COPY } from "@/lib/announcer/constants";
 import type { Announcement } from "@/lib/types";
 

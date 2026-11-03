@@ -1,5 +1,7 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { RouterProvider } from "react-aria-components";
 import { MotionConfig } from "motion/react";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -7,6 +9,7 @@ import AnnouncerProvider from "@/components/providers/announcer-provider";
 import { readRetryDelays } from "@/lib/utils/action-result";
 
 export default function Provider({ children }: { children: React.ReactNode }) {
+    const router = useRouter();
     const [queryClient] = useState(
         () =>
             new QueryClient({
@@ -23,11 +26,13 @@ export default function Provider({ children }: { children: React.ReactNode }) {
     );
 
     return (
-        <MotionConfig reducedMotion="user">
-            <QueryClientProvider client={queryClient}>
-                <AnnouncerProvider>{children}</AnnouncerProvider>
-                <ReactQueryDevtools initialIsOpen={false} />
-            </QueryClientProvider>
-        </MotionConfig>
+        <RouterProvider navigate={router.push}>
+            <MotionConfig reducedMotion="user">
+                <QueryClientProvider client={queryClient}>
+                    <AnnouncerProvider>{children}</AnnouncerProvider>
+                    <ReactQueryDevtools initialIsOpen={false} />
+                </QueryClientProvider>
+            </MotionConfig>
+        </RouterProvider>
     );
 }

@@ -2,7 +2,7 @@
 import clsx from "clsx";
 import { motion } from "motion/react";
 import { ArrowRight } from "@carbon/icons-react";
-import HaulrButton from "@/components/home/haulr-button";
+import ButtonLink from "@/components/ui/button-link";
 import { LANE_DRAW_SECONDS, REVEAL_EASE } from "@/lib/home/constants";
 import type { Door } from "@/lib/types";
 
@@ -55,10 +55,9 @@ export default function DoorCard({ door, active, order, shown }: Props) {
                     </li>
                 ))}
             </ul>
-            <HaulrButton href={door.cta.href} tone={active ? "accent" : "ghost"} className="mt-auto self-start">
+            <ButtonLink href={door.cta.href} tone={active ? "accent" : "outline"} size="lg" trailing={ArrowRight} className="mt-auto self-start">
                 {door.cta.label}
-                <ArrowRight aria-hidden className="size-4 transition-transform group-hover:translate-x-0.5" />
-            </HaulrButton>
+            </ButtonLink>
         </motion.article>
     );
 }

@@ -1,7 +1,7 @@
 "use client";
 import type { ReactNode } from "react";
 import type { UseQueryResult } from "@tanstack/react-query";
-import ProgressLine from "@/components/common/progress-line";
+import ProgressLine from "@/components/ui/progress-line";
 import SectionFailure from "@/components/common/section-failure";
 import { LOADING_ANNOUNCE_MS, LOADING_SLOW_MS, SECTION_COPY } from "@/lib/errors/constants";
 import { useSlow } from "@/lib/hooks/use-slow";

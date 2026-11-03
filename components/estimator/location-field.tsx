@@ -6,6 +6,7 @@ import { ESTIMATOR_COPY } from "@/lib/data/quotes/estimator";
 import { useDebouncedSearch } from "@/lib/hooks/use-debounced-search";
 import { useLocationSuggestions } from "@/lib/hooks/use-location-suggestions";
 import { PLACE_QUERY } from "@/lib/quotes/constants";
+import { ITEM_RULE } from "@/lib/ui/constants";
 
 interface Props {
     id: string;
@@ -78,7 +79,7 @@ export default function LocationField({ id, index, label, placeholder, value, er
                     id={listId}
                     role="listbox"
                     aria-label={places.list.replace("{field}", label)}
-                    className="border-border-dark bg-background absolute inset-x-0 top-full z-30 mt-1 flex flex-col border py-1 shadow-[0_16px_40px_-16px_rgb(0_0_0/0.9)]"
+                    className="border-border/70 bg-background/95 haulr-drop absolute inset-x-0 top-full z-30 mt-1 flex flex-col border py-1 shadow-xl backdrop-blur-sm"
                 >
                     {options.length === 0 ? (
                         <li role="option" aria-selected={false} aria-disabled className="text-text-muted px-3 py-2 text-xs">
@@ -94,10 +95,11 @@ export default function LocationField({ id, index, label, placeholder, value, er
                             onMouseDown={(event) => event.preventDefault()}
                             onClick={() => write(place.name, false)}
                             className={clsx(
-                                "flex cursor-pointer items-baseline justify-between gap-4 px-3 py-2 text-sm transition-colors",
+                                "relative flex cursor-pointer items-baseline justify-between gap-4 px-3 py-2 text-sm transition-colors",
                                 position === active ? "bg-background-muted text-text" : "text-text-secondary hover:bg-background-muted/60 hover:text-text",
                             )}
                         >
+                            {position === active ? <span aria-hidden className={ITEM_RULE} /> : null}
                             <span>{place.name}</span>
                             <span className="haulr-label text-text-muted">{place.code}</span>
                         </li>

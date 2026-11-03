@@ -1,5 +1,5 @@
 import ConsoleLink from "@/components/auth/console-link";
-import HudCorners from "@/components/common/hud-corners";
+import HudCorners from "@/components/ui/hud-corners";
 import SupportHours from "@/components/support/support-hours";
 import { supportRoute } from "@/lib/constants";
 import { HELP_COPY } from "@/lib/data/help/copy";

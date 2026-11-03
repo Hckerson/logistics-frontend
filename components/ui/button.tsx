@@ -1,64 +1,56 @@
 "use client";
 import clsx from "clsx";
-import { forwardRef } from "react";
-import { CircleDash } from "@carbon/icons-react";
-import type { ButtonHTMLAttributes } from "react";
+import { useId, type ReactNode } from "react";
+import { Button as AriaButton, type ButtonProps as AriaButtonProps } from "react-aria-components";
+import ProgressLine from "@/components/ui/progress-line";
+import { buttonClass, describedBy } from "@/lib/ui/classes";
+import { ICON_SIZES } from "@/lib/ui/constants";
+import type { ButtonTone, ControlSize, IconGlyph } from "@/lib/types";
 
-type ButtonSize = "sm" | "md" | "lg" | "xl";
-type ButtonTone = "accent" | "quiet" | "ghost";
-
-interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
-    isLoading?: boolean;
-    size?: ButtonSize;
+interface Props extends Omit<AriaButtonProps, "className" | "children" | "isPending" | "style"> {
     tone?: ButtonTone;
+    size?: ControlSize;
+    icon?: IconGlyph;
+    trailing?: IconGlyph;
+    pending?: boolean;
+    pendingLabel?: string;
+    disabledReason?: string;
+    className?: string;
+    children: ReactNode;
 }
 
-const sizes: Record<ButtonSize, string> = {
-    sm: "h-8 gap-1.5 rounded-md px-3 text-xs",
-    md: "h-9 gap-2 rounded-md px-4 text-xs",
-    lg: "h-10 gap-2 rounded-lg px-5 text-sm",
-    xl: "h-11 gap-2 rounded-lg px-6 text-sm",
-};
+export default function Button(props: Props) {
+    const { tone, size = "md", icon: Icon, trailing: Trailing, pending = false, pendingLabel, disabledReason, className, children, ...rest } = props;
+    const { onPress, type = "button", "aria-describedby": described, ...native } = rest;
+    const reasonId = useId();
+    const explained = disabledReason !== undefined;
 
-const tones: Record<ButtonTone, string> = {
-    accent: "border-accent bg-accent text-text-inverse hover:bg-accent-dark",
-    quiet: "border-border bg-background-muted text-text hover:border-border-dark",
-    ghost: "border-transparent text-text-secondary hover:bg-background-muted hover:text-text",
-};
-
-const Button = forwardRef<HTMLButtonElement, Props>(function Button(
-    {
-        children,
-        isLoading = false,
-        size = "md",
-        tone = "accent",
-        className,
-        disabled,
-        type = "button",
-        ...rest
-    },
-    ref,
-) {
     return (
-        <button
-            {...rest}
-            ref={ref}
-            type={type}
-            disabled={disabled ?? isLoading}
-            aria-busy={isLoading}
-            className={clsx(
-                "smooth font-body inline-flex cursor-pointer items-center justify-center border font-medium select-none",
-                "focus-visible:ring-accent focus-visible:ring-2 focus-visible:outline-none",
-                "disabled:cursor-not-allowed disabled:opacity-50",
-                sizes[size],
-                tones[tone],
-                className,
-            )}
-        >
-            {isLoading && <CircleDash className="size-3 animate-spin" />}
-            {children}
-        </button>
+        <>
+            <AriaButton
+                {...native}
+                type={explained ? "button" : type}
+                isPending={pending}
+                onPress={explained ? undefined : onPress}
+                aria-disabled={explained || undefined}
+                aria-describedby={describedBy(described, explained && reasonId)}
+                className={buttonClass(tone, size, className)}
+            >
+                {Icon ? <Icon aria-hidden className={clsx(ICON_SIZES[size], "shrink-0")} /> : null}
+                <span>{pending && pendingLabel ? pendingLabel : children}</span>
+                {Trailing ? (
+                    <Trailing
+                        aria-hidden
+                        className={clsx(ICON_SIZES[size], "shrink-0 transition-transform duration-300 group-hover:translate-x-0.5")}
+                    />
+                ) : null}
+                {pending ? <ProgressLine className="bg-current/15 absolute inset-x-0 bottom-0" /> : null}
+            </AriaButton>
+            {explained ? (
+                <span id={reasonId} hidden>
+                    {disabledReason}
+                </span>
+            ) : null}
+        </>
     );
-});
-
-export default Button;
+}

@@ -3,7 +3,7 @@ import clsx from "clsx";
 import { useEffect, useRef, type FormEvent } from "react";
 import AuthSubmit from "@/components/auth/auth-submit";
 import SidePicker from "@/components/auth/side-picker";
-import FieldError, { fieldErrorId } from "@/components/common/field-error";
+import FieldError, { fieldErrorId } from "@/components/ui/field-error";
 import { REGISTER_COPY } from "@/lib/data/auth/register";
 import type { AccountSide } from "@/lib/types";
 
