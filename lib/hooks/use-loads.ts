@@ -7,13 +7,19 @@ import { timelineKeys } from "@/lib/hooks/use-load-timeline";
 import { REFRESH_MS } from "@/lib/loads/constants";
 import type { LoadListParams } from "@/lib/types";
 import { READ_RETRY, unwrap } from "@/lib/utils/action-result";
-import { loadCountsEnvelopeSchema, loadEnvelopeSchema, loadPageEnvelopeSchema } from "@/lib/validations/freight";
+import {
+    loadCancellationEnvelopeSchema,
+    loadCountsEnvelopeSchema,
+    loadEnvelopeSchema,
+    loadPageEnvelopeSchema,
+} from "@/lib/validations/freight";
 
 export const loadKeys = {
     all: ["loads"] as const,
     lists: () => ["loads", "list"] as const,
     list: (params: LoadListParams) => ["loads", "list", params] as const,
     detail: (loadId: string) => ["loads", "detail", loadId] as const,
+    cancellation: (loadId: string) => ["loads", "cancellation", loadId] as const,
     counts: () => ["loads", "counts"] as const,
 };
 
@@ -32,6 +38,15 @@ export const useLoad = (loadId: string, initial?: LoadDto) =>
         queryFn: async ({ signal }) => loadEnvelopeSchema.parse(await local.get(apiRoutes.load(loadId), { signal })).data,
         initialData: initial,
         staleTime: REFRESH_MS.tracking,
+        ...READ_RETRY,
+    });
+
+export const useLoadCancellation = (loadId: string, enabled: boolean) =>
+    useQuery({
+        queryKey: loadKeys.cancellation(loadId),
+        queryFn: async ({ signal }) => loadCancellationEnvelopeSchema.parse(await local.get(apiRoutes.loadCancellation(loadId), { signal })).data,
+        enabled,
+        staleTime: 0,
         ...READ_RETRY,
     });
 

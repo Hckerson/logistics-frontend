@@ -26,6 +26,14 @@ export const TRACE_STATUSES: readonly LoadStatus[] = [...TRACKED_STATUSES, "Deli
 
 export const STOP_EVENT_UNDO_MINUTES = 5;
 
+export const LOAD_REASON_MAX = 500;
+
+export const CANCELLATION = { tonuHours: 24, tonuStatuses: ["Dispatched", "AtPickup"], penaltyDays: 90 } as const satisfies {
+    tonuHours: number;
+    tonuStatuses: readonly LoadStatus[];
+    penaltyDays: number;
+};
+
 export const LOAD_PAGE_SIZE = { default: 50, max: 200 } as const;
 
 export const LOAD_SEARCH_MAX = 200;

@@ -14,6 +14,8 @@ export const apiRoutes = {
     loads: (query?: LoadListParams) => `/api/loads${queryString(query)}`,
     loadCounts: () => "/api/loads/counts",
     load: (loadId: string) => `/api/loads/${encodeURIComponent(loadId)}`,
+    loadCancellation: (loadId: string) =>
+        `/api/loads/${encodeURIComponent(loadId)}/cancellation`,
     loadPositions: (loadId: string) =>
         `/api/loads/${encodeURIComponent(loadId)}/positions`,
     loadEvents: (loadId: string, query?: TimelineParams) =>

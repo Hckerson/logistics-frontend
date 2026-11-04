@@ -345,6 +345,12 @@ export const loadPositionsDtoSchema = z.object({
 });
 export type LoadPositionsDto = z.infer<typeof loadPositionsDtoSchema>;
 
+export const loadCancellationDtoSchema = z.object({
+    tonu: moneyDtoSchema.nullable(),
+    freeUntil: z.string().nullable(),
+});
+export type LoadCancellationDto = z.infer<typeof loadCancellationDtoSchema>;
+
 export const checkCallResponseDtoSchema = z.object({ requestedAt: z.string() });
 export type CheckCallResponseDto = z.infer<typeof checkCallResponseDtoSchema>;
 

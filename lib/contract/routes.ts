@@ -10,6 +10,7 @@ import type {
     EmailDto,
     HealthResponseDto,
     InvitationDto,
+    LoadCancellationDto,
     LoadCountDto,
     LoadDto,
     LoadEventPageDto,
@@ -70,6 +71,8 @@ export const routes = {
         `/api/loads/${loadId}` as Endpoint<LoadDto>,
     loadsTransition: (loadId: string) =>
         `/api/loads/${loadId}/transitions` as Endpoint<LoadDto>,
+    loadsCancellation: (loadId: string) =>
+        `/api/loads/${loadId}/cancellation` as Endpoint<LoadCancellationDto>,
     positionsForLoad: (loadId: string) =>
         `/api/loads/${loadId}/positions` as Endpoint<LoadPositionsDto>,
     positionsCheckCall: (loadId: string) =>
