@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
-import AuthShell from "@/components/auth/auth-shell";
+import SystemColumn from "@/components/auth/system-column";
+import { SYSTEM_PLACEMENT } from "@/lib/auth/constants";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
-    return <AuthShell>{children}</AuthShell>;
+    return <SystemColumn className={SYSTEM_PLACEMENT.workspace}>{children}</SystemColumn>;
 }
