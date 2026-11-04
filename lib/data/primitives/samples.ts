@@ -1,5 +1,5 @@
 import { Copy, Download, Edit, Location, Share, TrashCan, UserFollow, View } from "@carbon/icons-react";
-import type { ButtonTone, ChoiceOption, ControlSize, MenuEntry, SpecimenFile, SpecimenLoad, SpecimenSignal, TabItem } from "@/lib/types";
+import type { ButtonTone, ChoiceOption, ControlSize, MenuEntry, SpecimenFile, SpecimenLoad, SpecimenSignal, SpecimenSwatch, TabItem } from "@/lib/types";
 
 export const SPECIMEN_TONES: readonly ButtonTone[] = ["ink", "accent", "outline", "quiet", "ghost", "danger"];
 
@@ -60,22 +60,32 @@ export const SPECIMEN_TAB_BODY: Readonly<Record<string, string>> = {
 };
 
 export const SPECIMEN_SIGNALS: readonly SpecimenSignal[] = [
-    { label: "In transit", tone: "live", pulse: true },
-    { label: "Running late", tone: "warning" },
-    { label: "Exception", tone: "danger" },
-    { label: "Delivered", tone: "success" },
-    { label: "Booked", tone: "info" },
-    { label: "Posted", tone: "neutral" },
-    { label: "Draft", tone: "muted" },
+    { status: "InTransit" },
+    { status: "InTransit", qualifier: "late" },
+    { status: "Disputed" },
+    { status: "PendingApproval" },
+    { status: "Booked" },
+    { status: "Delivered" },
+    { status: "Cancelled" },
+];
+
+export const SPECIMEN_SWATCHES: readonly SpecimenSwatch[] = [
+    { tone: "live", word: "bg-signal-live", edge: "bg-signal-live-edge", wash: "bg-signal-live-wash" },
+    { tone: "success", word: "bg-signal-success", edge: "bg-signal-success-edge", wash: "bg-signal-success-wash" },
+    { tone: "warning", word: "bg-signal-warning", edge: "bg-signal-warning-edge", wash: "bg-signal-warning-wash" },
+    { tone: "danger", word: "bg-signal-danger", edge: "bg-signal-danger-edge", wash: "bg-signal-danger-wash" },
+    { tone: "info", word: "bg-signal-info", edge: "bg-signal-info-edge", wash: "bg-signal-info-wash" },
+    { tone: "neutral", word: "bg-signal-neutral", edge: "bg-signal-neutral-edge", wash: "bg-signal-neutral-wash" },
+    { tone: "muted", word: "bg-signal-muted", edge: "bg-signal-muted-edge", wash: "bg-signal-muted-wash" },
 ];
 
 export const SPECIMEN_LOADS: readonly SpecimenLoad[] = [
-    { reference: "HL-7K2M9QXA", lane: "Chicago, IL → Dallas, TX", status: "In transit", tone: "live", pickup: "Nov 3, 06:00 CT", miles: 967, rate: 2140 },
-    { reference: "HL-9DQ4ZB2M", lane: "Atlanta, GA → Memphis, TN", status: "Running late", tone: "warning", pickup: "Nov 3, 08:30 ET", miles: 392, rate: 1180 },
-    { reference: "HL-3RW8TNPE", lane: "Denver, CO → Phoenix, AZ", status: "Exception", tone: "danger", pickup: "Nov 2, 14:00 MT", miles: 822, rate: 2475 },
-    { reference: "HL-4MC9RD7K", lane: "Dallas, TX → Atlanta, GA", status: "Booked", tone: "info", pickup: "Nov 4, 07:00 CT", miles: 781, rate: 1890 },
-    { reference: "HL-2GL4YN7S", lane: "Memphis, TN → Chicago, IL", status: "Delivered", tone: "success", pickup: "Nov 1, 10:00 CT", miles: 531, rate: 1320 },
-    { reference: "HL-5RT8VK3M", lane: "Phoenix, AZ → Denver, CO", status: "Posted", tone: "neutral", pickup: "Nov 5, 09:00 MT", miles: 822, rate: 2210 },
+    { reference: "HL-7K2M9QXA", origin: "Chicago, IL", destination: "Dallas, TX", originCode: "CHI", destinationCode: "DAL", carrier: "Ridgeway Freight", progress: 0.62, status: "InTransit", pickup: "Nov 3, 06:00 CT", miles: 967, rate: 2140 },
+    { reference: "HL-9DQ4ZB2M", origin: "Atlanta, GA", destination: "Memphis, TN", originCode: "ATL", destinationCode: "MEM", carrier: "Blue Mesa Logistics", progress: 0.41, status: "InTransit", qualifier: "late", pickup: "Nov 3, 08:30 ET", miles: 392, rate: 1180 },
+    { reference: "HL-3RW8TNPE", origin: "Denver, CO", destination: "Phoenix, AZ", originCode: "DEN", destinationCode: "PHX", carrier: "Granite Haulage", progress: 0.28, status: "Disputed", pickup: "Nov 2, 14:00 MT", miles: 822, rate: 2475 },
+    { reference: "HL-4MC9RD7K", origin: "Dallas, TX", destination: "Atlanta, GA", originCode: "DAL", destinationCode: "ATL", carrier: "Ridgeway Freight", progress: 0, status: "Booked", pickup: "Nov 4, 07:00 CT", miles: 781, rate: 1890 },
+    { reference: "HL-2GL4YN7S", origin: "Memphis, TN", destination: "Chicago, IL", originCode: "MEM", destinationCode: "CHI", carrier: "Blue Mesa Logistics", progress: 1, status: "Delivered", pickup: "Nov 1, 10:00 CT", miles: 531, rate: 1320 },
+    { reference: "HL-5RT8VK3M", origin: "Phoenix, AZ", destination: "Denver, CO", originCode: "PHX", destinationCode: "DEN", carrier: "Not booked yet", progress: 0, status: "Cancelled", pickup: "Nov 5, 09:00 MT", miles: 822, rate: 2210 },
 ];
 
 export const SPECIMEN_GLOSSARY = {

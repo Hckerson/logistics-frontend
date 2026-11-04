@@ -1,19 +1,32 @@
-import type { FileUploadState, SignalTone } from "@/lib/types/ui";
+import type { LoadStatus } from "./enums";
+import type { LoadQualifier } from "./loads";
+import type { FileUploadState, SignalTone } from "./ui";
 
 export interface SpecimenLoad {
     reference: string;
-    lane: string;
-    status: string;
-    tone: SignalTone;
+    origin: string;
+    destination: string;
+    originCode: string;
+    destinationCode: string;
+    carrier: string;
+    progress: number;
+    status: LoadStatus;
+    qualifier?: LoadQualifier;
     pickup: string;
     miles: number;
     rate: number;
 }
 
 export interface SpecimenSignal {
-    label: string;
+    status: LoadStatus;
+    qualifier?: LoadQualifier;
+}
+
+export interface SpecimenSwatch {
     tone: SignalTone;
-    pulse?: boolean;
+    word: string;
+    edge: string;
+    wash: string;
 }
 
 export interface SpecimenFile {

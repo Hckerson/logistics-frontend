@@ -7,10 +7,12 @@ import ConfirmDialog from "@/components/ui/confirm-dialog";
 import Dialog from "@/components/ui/dialog";
 import Disclosure from "@/components/ui/disclosure";
 import Drawer from "@/components/ui/drawer";
+import LaneLabel from "@/components/common/lane-label";
 import StatusLabel from "@/components/ui/status-label";
 import Toggletip from "@/components/ui/toggletip";
 import Tooltip from "@/components/ui/tooltip";
 import { PRIMITIVES_COPY } from "@/lib/data/primitives/copy";
+import { loadStatusDisplay } from "@/lib/loads/status";
 import { SPECIMEN_GLOSSARY, SPECIMEN_LOADS, SPECIMEN_PENDING_MS } from "@/lib/data/primitives/samples";
 
 const { sections, specimens, demo } = PRIMITIVES_COPY;
@@ -74,8 +76,8 @@ export default function PrimitivesOverlays() {
                 </Button>
                 <Drawer isOpen={drawer} onOpenChange={setDrawer} side="right" kicker={demo.drawerKicker} title={demo.drawerTitle}>
                     <div className="flex flex-col gap-3 text-xs">
-                        <StatusLabel label={preview.status} tone={preview.tone} pulse />
-                        <p className="text-text">{preview.lane}</p>
+                        <StatusLabel {...loadStatusDisplay(preview.status, preview.qualifier)} />
+                        <LaneLabel origin={preview.origin} destination={preview.destination} />
                         <p className="text-text-secondary">{preview.pickup}</p>
                     </div>
                 </Drawer>

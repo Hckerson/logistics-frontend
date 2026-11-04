@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Notification } from "@carbon/icons-react";
 import PrimitivesSection from "@/components/common/primitives-section";
+import PrimitivesSignals from "@/components/common/primitives-signals";
 import PrimitivesSpecimen from "@/components/common/primitives-specimen";
 import CountBadge from "@/components/ui/count-badge";
 import Countdown from "@/components/ui/countdown";
@@ -12,6 +13,7 @@ import Skeleton from "@/components/ui/skeleton";
 import StatusLabel from "@/components/ui/status-label";
 import { TIME_MS } from "@/lib/constants";
 import { PRIMITIVES_COPY } from "@/lib/data/primitives/copy";
+import { loadStatusDisplay } from "@/lib/loads/status";
 import { SPECIMEN_HOLD_MINUTES, SPECIMEN_SHORTCUT, SPECIMEN_SIGNALS } from "@/lib/data/primitives/samples";
 
 const { sections, specimens, demo } = PRIMITIVES_COPY;
@@ -23,10 +25,22 @@ export default function PrimitivesStatus() {
 
     return (
         <PrimitivesSection {...sections.status}>
+            <PrimitivesSpecimen label={specimens.swatches} wide>
+                <PrimitivesSignals />
+            </PrimitivesSpecimen>
             <PrimitivesSpecimen label={specimens.signals} contract="IC-59" wide>
-                {SPECIMEN_SIGNALS.map((signal) => (
-                    <StatusLabel key={signal.label} {...signal} className="mr-4" />
-                ))}
+                <div className="flex w-full flex-col gap-3">
+                    <div className="flex flex-wrap gap-2">
+                        {SPECIMEN_SIGNALS.map((signal) => (
+                            <StatusLabel key={`${signal.status}-${signal.qualifier}`} {...loadStatusDisplay(signal.status, signal.qualifier)} tag />
+                        ))}
+                    </div>
+                    <div className="flex flex-wrap gap-x-5 gap-y-2">
+                        {SPECIMEN_SIGNALS.map((signal) => (
+                            <StatusLabel key={`${signal.status}-${signal.qualifier}`} {...loadStatusDisplay(signal.status, signal.qualifier)} />
+                        ))}
+                    </div>
+                </div>
             </PrimitivesSpecimen>
             <PrimitivesSpecimen label={specimens.counts} contract="IC-53 · IC-49">
                 <span className="relative inline-flex">
