@@ -10,6 +10,7 @@ import { etaOf, latestPosition } from "@/lib/mocks/fleet";
 import { FREIGHT_MESSAGES, loadMissing, reasonMissing, recordEvent, visibleLoad, withCaller, type MockCaller } from "@/lib/mocks/freight-access";
 import { freightStore } from "@/lib/mocks/freight-store";
 import { fail, ok, playScenario } from "@/lib/mocks/http";
+import { publicRoute } from "@/lib/mocks/public-route";
 import type { MockHandler, MockLoad, MockResponse, MockTrackingLink } from "@/lib/types";
 import { trackingSendSchema } from "@/lib/validations/tracking";
 
@@ -78,6 +79,7 @@ export const publicTracking: MockHandler = ({ path }, { token }) => {
             source: position.source,
             recordedAt: position.recordedAt,
         },
+        route: expired ? null : publicRoute(load),
         deliveredAt: delivered,
         expiresAt,
         expired,

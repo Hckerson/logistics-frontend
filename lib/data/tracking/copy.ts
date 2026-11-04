@@ -42,7 +42,9 @@ export const TRACKING_COPY = {
         none: "No position yet",
         text: "Near {city} · {source} · {age}",
         stale: "This position is more than an hour old. The truck may be out of signal.",
-        map: "Map of the load's stops, with the truck near {city}",
+        map: "Map of the load's route by road, with the truck near {city}",
+        remaining: "{miles} mi to {city} by road",
+        recentre: "Recentre map",
         sources: { eld: "ELD", driverApp: "Driver app", mobileWeb: "Driver's phone", checkCall: "Check call" },
     },
     stops: {

@@ -21,13 +21,27 @@ export const MAP_VIEW = {
     ease: 900,
 } as const;
 
+export const ROUTE_MARKS = {
+    lane: 14,
+    travelled: 7,
+    pulse: 6,
+    terminal: 13,
+    upcoming: 9,
+    truck: 26,
+    core: 3,
+    alpha: { lane: 170, upcoming: 150, stale: 160 },
+} as const;
+
+export const ROUTE_MOTION = {
+    drawMs: 1400,
+    pulseMs: 3600,
+    trail: 0.35,
+    still: { drawn: 1, pulse: 0 },
+} as const;
+
 export const MAP_MARKS = {
     trackGlow: 10,
     track: 2.5,
-    stop: 6,
-    ring: 2,
-    vehicle: 6,
-    halo: 18,
     cityRadiusM: 22_000,
-    alpha: { glow: 70, halo: 70, area: 26, areaLine: 110 },
+    alpha: { glow: 70, area: 26, areaLine: 110 },
 } as const;

@@ -330,11 +330,18 @@ export const positionDtoSchema = z.object({
 });
 export type PositionDto = z.infer<typeof positionDtoSchema>;
 
+export const publicRouteDtoSchema = z.object({
+    polyline: z.string(),
+    miles: z.number(),
+});
+export type PublicRouteDto = z.infer<typeof publicRouteDtoSchema>;
+
 export const loadPositionsDtoSchema = z.object({
     latest: positionDtoSchema.nullable(),
     track: z.array(positionDtoSchema),
     eta: etaDtoSchema.nullable(),
     health: z.enum(["fresh", "stale", "exception"]).nullable(),
+    route: publicRouteDtoSchema.nullable(),
 });
 export type LoadPositionsDto = z.infer<typeof loadPositionsDtoSchema>;
 
@@ -516,6 +523,7 @@ export const publicTrackingDtoSchema = z.object({
     stops: z.array(publicStopDtoSchema),
     eta: etaDtoSchema.nullable(),
     position: publicPositionDtoSchema.nullable(),
+    route: publicRouteDtoSchema.nullable(),
     deliveredAt: z.string().nullable(),
     expiresAt: z.string().nullable(),
     expired: z.boolean(),
