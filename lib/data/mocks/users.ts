@@ -61,6 +61,26 @@ export const MOCK_USERS: readonly MockUser[] = [
         verified: true,
         mfa: false,
     },
+    {
+        id: "usr_finance",
+        name: "Priya Shah",
+        email: "finance@haulr.test",
+        password: "hunter22",
+        role: "ADMIN",
+        roles: ["internal.finance"],
+        verified: true,
+        mfa: false,
+    },
+    {
+        id: "usr_support",
+        name: "Sam Ortiz",
+        email: "support@haulr.test",
+        password: "hunter22",
+        role: "ADMIN",
+        roles: ["internal.support"],
+        verified: true,
+        mfa: false,
+    },
 ];
 
 export const MOCK_SCENARIOS: Record<string, MockScenario> = {
