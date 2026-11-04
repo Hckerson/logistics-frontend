@@ -253,6 +253,56 @@
                 "tags": ["loads"]
             }
         },
+        "/api/loads/{loadId}/cancellation": {
+            "get": {
+                "operationId": "LoadsController_cancellation",
+                "parameters": [
+                    {
+                        "name": "loadId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/LoadCancellationDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Load not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "What cancelling the load now would cost (BR-12)",
+                "tags": ["loads"]
+            }
+        },
         "/api/loads/{loadId}/positions": {
             "get": {
                 "operationId": "PositionsController_forLoad",
@@ -2719,6 +2769,26 @@
                     }
                 },
                 "required": ["latest", "track", "eta", "health", "route"]
+            },
+            "LoadCancellationDto": {
+                "type": "object",
+                "properties": {
+                    "tonu": {
+                        "nullable": true,
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyDto"
+                            }
+                        ]
+                    },
+                    "freeUntil": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    }
+                },
+                "required": ["tonu", "freeUntil"]
             },
             "CheckCallResponseDto": {
                 "type": "object",

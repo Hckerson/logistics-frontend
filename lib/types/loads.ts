@@ -2,6 +2,8 @@ import type { z } from "zod";
 import type { routes } from "@/lib/contract/routes";
 import type { LoadPositionsDto, PublicTrackingDto } from "@/lib/contract/schemas";
 import type { trackingSendSchema } from "@/lib/validations/tracking";
+import type { LoadStatus } from "./enums";
+import type { SignalTone } from "./ui";
 
 export type TrackingHealth = NonNullable<LoadPositionsDto["health"]>;
 
@@ -23,3 +25,24 @@ export type TimelineCategory = NonNullable<TimelineParams["category"]>;
 export interface StopClock {
     departedAt: string | null;
 }
+
+export type LoadQualifier = "late" | "stale";
+
+export interface StatusDisplay {
+    label: string;
+    tone: SignalTone;
+    pulse: boolean;
+}
+
+export interface LoadAction {
+    to: LoadStatus;
+    label: string;
+    kind: "move" | "return";
+    consequence: string;
+    reason: boolean;
+    confirm: boolean;
+    penalty: boolean;
+    destructive: boolean;
+}
+
+export type TrackingView = "map" | "text";

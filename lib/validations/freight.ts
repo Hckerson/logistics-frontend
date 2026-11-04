@@ -4,6 +4,7 @@ import {
     checkCallResponseDtoSchema,
     documentDtoSchema,
     downloadLinkDtoSchema,
+    loadCancellationDtoSchema,
     loadCountDtoSchema,
     loadDtoSchema,
     loadEventPageDtoSchema,
@@ -58,6 +59,7 @@ export const queryOf = (path: string) => Object.fromEntries(new URL(path, QUERY_
 
 export const loadPageEnvelopeSchema = enveloped(loadPageDtoSchema);
 export const loadEnvelopeSchema = enveloped(loadDtoSchema);
+export const loadCancellationEnvelopeSchema = enveloped(loadCancellationDtoSchema);
 export const loadCountsEnvelopeSchema = enveloped(z.array(loadCountDtoSchema));
 export const loadPositionsEnvelopeSchema = enveloped(loadPositionsDtoSchema);
 export const mapPositionsEnvelopeSchema = enveloped(z.array(mapPositionDtoSchema));

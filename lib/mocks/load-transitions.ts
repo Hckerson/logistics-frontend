@@ -8,6 +8,7 @@ import { FREIGHT_MESSAGES, loadMissing, recordEvent, visibleLoad, withCaller, ty
 import { freightStore } from "@/lib/mocks/freight-store";
 import { fail, ok } from "@/lib/mocks/http";
 import { toLoadDetail } from "@/lib/mocks/load-views";
+import { tonuCharges } from "@/lib/mocks/loads";
 import { stopFits } from "@/lib/loads/stops";
 import { applyStopTimes } from "@/lib/mocks/stop-times";
 import type { LoadActor, LoadStatus, MockLoad } from "@/lib/types";
@@ -58,6 +59,7 @@ export const transitionLoad = withCaller(({ path, body }, { loadId }, caller) =>
 
     const from = load.status;
     const at = new Date(now).toISOString();
+    if (to === "Cancelled") load.charges.push(...tonuCharges(load, now));
     applyStopTimes(load.stops, from, to, undo, at);
     if (booking) load.carrier = booking;
     if (to === "Posted" && from !== "Draft") Object.assign(load, { carrier: null, driver: null });

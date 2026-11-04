@@ -14,12 +14,13 @@ export const timelineKeys = {
     list: (loadId: string, category?: TimelineCategory) => ["timeline", loadId, category ?? "all"] as const,
 };
 
-export const useLoadTimeline = (loadId: string, category?: TimelineCategory) =>
+export const useLoadTimeline = (loadId: string, category?: TimelineCategory, enabled = true) =>
     useInfiniteQuery({
         queryKey: timelineKeys.list(loadId, category),
         queryFn: async ({ pageParam, signal }) =>
             loadEventsEnvelopeSchema.parse(await local.get(apiRoutes.loadEvents(loadId, { category, cursor: pageParam || undefined }), { signal })).data,
         initialPageParam: FIRST_PAGE,
+        enabled,
         getNextPageParam: (page) => page.nextCursor ?? undefined,
         staleTime: REFRESH_MS.tracking,
         refetchInterval: REFRESH_MS.tracking,

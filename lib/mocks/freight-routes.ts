@@ -1,7 +1,7 @@
 import { routes } from "@/lib/contract/routes";
 import { completeUpload, downloadDocument, listDocuments, requestUpload } from "@/lib/mocks/documents";
 import { transitionLoad } from "@/lib/mocks/load-transitions";
-import { countLoads, findLoad, listLoads } from "@/lib/mocks/loads";
+import { cancellationTerms, countLoads, findLoad, listLoads } from "@/lib/mocks/loads";
 import { listNotifications, markAllRead, markRead, unreadCount } from "@/lib/mocks/notifications";
 import { loadPositions, mapPositions, requestCheckCall } from "@/lib/mocks/positions";
 import { quickFind } from "@/lib/mocks/search";
@@ -17,6 +17,7 @@ export const FREIGHT_HANDLERS: Record<string, MockHandler> = {
     [`GET ${routes.loadsCounts()}`]: countLoads,
     [`GET ${routes.loadsFindOne(LOAD)}`]: findLoad,
     [`POST ${routes.loadsTransition(LOAD)}`]: transitionLoad,
+    [`GET ${routes.loadsCancellation(LOAD)}`]: cancellationTerms,
     [`GET ${routes.positionsForLoad(LOAD)}`]: loadPositions,
     [`POST ${routes.positionsCheckCall(LOAD)}`]: requestCheckCall,
     [`GET ${routes.positionsLatest()}`]: mapPositions,
