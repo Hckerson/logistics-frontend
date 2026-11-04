@@ -5,7 +5,8 @@ import { Upload } from "@carbon/icons-react";
 import { Button as AriaButton, DropZone, FileTrigger, isFileDropItem } from "react-aria-components";
 import HudCorners from "@/components/ui/hud-corners";
 import { describedBy } from "@/lib/ui/classes";
-import { FOCUS_CORNERS, FOCUS_RING, LABEL_TEXT, UI_COPY } from "@/lib/ui/constants";
+import { FOCUS_CORNERS, FOCUS_RING, LABEL_TEXT } from "@/lib/ui/constants";
+import { UI_COPY } from "@/lib/ui/copy";
 import { checkFiles } from "@/lib/utils/check-files";
 import { fillTemplate } from "@/lib/utils/fill-template";
 
@@ -49,7 +50,7 @@ export default function FileDrop(props: Props) {
             className={({ isDropTarget }) =>
                 clsx(
                     "group/drop relative flex flex-col items-center gap-2 border px-4 py-6 text-center transition-colors outline-none",
-                    isDropTarget ? "border-accent/40 bg-accent/5" : "border-border bg-background-muted/40",
+                    isDropTarget ? "border-signal-live-edge bg-signal-live-wash" : "border-border bg-background-muted/40",
                     disabled && "opacity-40",
                 )
             }

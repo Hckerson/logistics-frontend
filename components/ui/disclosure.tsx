@@ -29,7 +29,11 @@ export default function Disclosure({ title, kicker, level = 3, defaultExpanded =
                     <span className="min-w-0">{title}</span>
                 </Button>
             </Heading>
-            <DisclosurePanel className="text-text-secondary pb-3 pl-6 text-xs leading-relaxed">{children}</DisclosurePanel>
+            <DisclosurePanel className="h-(--disclosure-panel-height) overflow-clip transition-[height] duration-(--durations-normal) ease-(--haulr-ease)">
+                <div className="text-text-secondary translate-y-1 pb-3 pl-6 text-xs leading-relaxed opacity-0 transition-[opacity,translate] duration-(--durations-normal) ease-(--haulr-ease) group-data-expanded/disclosure:translate-y-0 group-data-expanded/disclosure:opacity-100">
+                    {children}
+                </div>
+            </DisclosurePanel>
         </AriaDisclosure>
     );
 }

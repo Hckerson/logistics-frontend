@@ -11,7 +11,8 @@ import {
     CalendarHeading,
 } from "react-aria-components";
 import { squareButtonClass } from "@/lib/ui/classes";
-import { LABEL_TEXT, UI_COPY } from "@/lib/ui/constants";
+import { LABEL_TEXT } from "@/lib/ui/constants";
+import { UI_COPY } from "@/lib/ui/copy";
 
 const CELL = [
     "text-text-secondary flex size-8 cursor-pointer items-center justify-center text-xs tabular-nums outline-none transition-colors",

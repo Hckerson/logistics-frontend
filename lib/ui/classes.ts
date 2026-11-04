@@ -1,8 +1,8 @@
 import clsx from "clsx";
 import { BUTTON_BASE, BUTTON_SIZES, BUTTON_TONES, CONTROL_SIZES, FIELD_FRAME, FIELD_STATES, SQUARE_SIZES } from "@/lib/ui/constants";
-import type { ButtonTone, ControlSize } from "@/lib/types";
+import type { ButtonSize, ButtonTone, ControlSize } from "@/lib/types";
 
-export const buttonClass = (tone: ButtonTone = "ink", size: ControlSize = "md", className?: string) =>
+export const buttonClass = (tone: ButtonTone = "ink", size: ButtonSize = "md", className?: string) =>
     clsx(BUTTON_BASE, BUTTON_TONES[tone], BUTTON_SIZES[size], className);
 
 export const squareButtonClass = (tone: ButtonTone = "ghost", size: ControlSize = "md", className?: string) =>

@@ -4,7 +4,8 @@ import { useRef, useState } from "react";
 import { Information } from "@carbon/icons-react";
 import { Button as AriaButton } from "react-aria-components";
 import Popover from "@/components/ui/popover";
-import { FOCUS_RING, UI_COPY } from "@/lib/ui/constants";
+import { FOCUS_RING } from "@/lib/ui/constants";
+import { UI_COPY } from "@/lib/ui/copy";
 import { fillTemplate } from "@/lib/utils/fill-template";
 
 interface Props {

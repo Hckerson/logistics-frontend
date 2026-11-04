@@ -46,7 +46,7 @@ export default function Switch({ label, isSelected, onChange, pending = false, l
                         "relative flex shrink-0 items-center border px-0.5 transition-colors duration-200",
                         "group-data-focus-visible/switch:outline-text group-data-focus-visible/switch:outline-2 group-data-focus-visible/switch:outline-offset-2",
                         TRACKS[size],
-                        isSelected ? "border-accent bg-accent/15" : "border-border-dark bg-background-muted group-data-hovered/switch:border-text-muted",
+                        isSelected ? "border-signal-live-edge bg-signal-live-wash" : "border-border-dark bg-background-muted group-data-hovered/switch:border-text-muted",
                         locked && "opacity-40",
                     )}
                 >
@@ -54,7 +54,7 @@ export default function Switch({ label, isSelected, onChange, pending = false, l
                         className={clsx(
                             "block transition-[translate,background-color] duration-300 ease-(--haulr-ease)",
                             THUMBS[size].size,
-                            isSelected ? clsx("bg-accent shadow-[0_0_10px_2px_var(--haulr-glow)]", THUMBS[size].on) : "bg-text-muted",
+                            isSelected ? clsx("bg-signal-live shadow-[0_0_10px_2px_color-mix(in_oklab,var(--signal-live)_35%,transparent)]", THUMBS[size].on) : "bg-text-muted",
                         )}
                     />
                     {pending ? <ProgressLine className="absolute inset-x-0 -bottom-1.5" /> : null}

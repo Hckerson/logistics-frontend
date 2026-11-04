@@ -5,13 +5,14 @@ import { Button as AriaButton, type ButtonProps as AriaButtonProps } from "react
 import ProgressLine from "@/components/ui/progress-line";
 import { buttonClass, describedBy } from "@/lib/ui/classes";
 import { ICON_SIZES } from "@/lib/ui/constants";
-import type { ButtonTone, ControlSize, IconGlyph } from "@/lib/types";
+import type { ButtonSize, ButtonTone, IconGlyph } from "@/lib/types";
 
 interface Props extends Omit<AriaButtonProps, "className" | "children" | "isPending" | "style"> {
     tone?: ButtonTone;
-    size?: ControlSize;
+    size?: ButtonSize;
     icon?: IconGlyph;
     trailing?: IconGlyph;
+    hint?: string;
     pending?: boolean;
     pendingLabel?: string;
     disabledReason?: string;
@@ -20,7 +21,7 @@ interface Props extends Omit<AriaButtonProps, "className" | "children" | "isPend
 }
 
 export default function Button(props: Props) {
-    const { tone, size = "md", icon: Icon, trailing: Trailing, pending = false, pendingLabel, disabledReason, className, children, ...rest } = props;
+    const { tone, size = "md", icon: Icon, trailing: Trailing, hint, pending = false, pendingLabel, disabledReason, className, children, ...rest } = props;
     const { onPress, type = "button", "aria-describedby": described, ...native } = rest;
     const reasonId = useId();
     const explained = disabledReason !== undefined;
@@ -38,6 +39,11 @@ export default function Button(props: Props) {
             >
                 {Icon ? <Icon aria-hidden className={clsx(ICON_SIZES[size], "shrink-0")} /> : null}
                 <span>{pending && pendingLabel ? pendingLabel : children}</span>
+                {hint && !pending ? (
+                    <span aria-hidden className="haulr-label ml-auto opacity-60">
+                        {hint}
+                    </span>
+                ) : null}
                 {Trailing ? (
                     <Trailing
                         aria-hidden

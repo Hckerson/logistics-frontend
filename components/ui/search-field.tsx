@@ -5,7 +5,8 @@ import { Button, Input, SearchField as AriaSearchField } from "react-aria-compon
 import FocusCorners from "@/components/ui/focus-corners";
 import Kbd from "@/components/ui/kbd";
 import { fieldClass } from "@/lib/ui/classes";
-import { FIELD_INPUT, ICON_SIZES, UI_COPY } from "@/lib/ui/constants";
+import { FIELD_INPUT, ICON_SIZES } from "@/lib/ui/constants";
+import { UI_COPY } from "@/lib/ui/copy";
 import type { ControlSize } from "@/lib/types";
 
 interface Props {

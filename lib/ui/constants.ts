@@ -1,11 +1,11 @@
-import type { ButtonTone, ControlSize, CornerTone, SignalTone } from "@/lib/types";
+import type { ButtonSize, ButtonTone, ControlSize, CornerTone, SignalTone } from "@/lib/types";
 
 export const UI_LOCALE = "en-US";
 
 export const FOCUS_RING = "focus-visible:outline-text focus-visible:outline-2 focus-visible:outline-offset-2";
 
 export const BUTTON_BASE = [
-    "group relative inline-flex shrink-0 cursor-pointer items-center justify-center overflow-hidden text-center leading-tight font-medium text-balance select-none",
+    "group relative inline-flex shrink-0 cursor-pointer items-center overflow-hidden leading-tight text-balance select-none",
     "transition-[color,background-color,border-color,translate] duration-200 data-pressed:translate-y-px",
     "disabled:cursor-not-allowed disabled:opacity-40 aria-disabled:cursor-not-allowed aria-disabled:opacity-40 data-pending:cursor-wait",
     FOCUS_RING,
@@ -17,28 +17,35 @@ export const BUTTON_TONES: Record<ButtonTone, string> = {
     outline: "border border-border-dark text-text hover:border-text",
     quiet: "bg-background-muted text-text hover:bg-border",
     ghost: "text-text-secondary hover:bg-background-muted hover:text-text",
-    danger: "border border-error/50 text-error hover:border-error hover:bg-error-light",
+    danger: "border-signal-danger-edge text-signal-danger hover:border-signal-danger hover:bg-signal-danger-wash border",
+    link: "text-text-muted hover:text-text",
 };
 
-export const BUTTON_SIZES: Record<ControlSize, string> = {
-    sm: "min-h-7 gap-1.5 px-2.5 py-1 text-xs",
-    md: "min-h-9 gap-2 px-3.5 py-1.5 text-xs",
-    lg: "min-h-12 gap-2 px-6 py-2 text-base",
-    xl: "min-h-14 gap-2 px-6 py-2 text-lg",
+const CENTERED = "justify-center text-center font-medium";
+
+export const BUTTON_SIZES: Record<ButtonSize, string> = {
+    sm: `${CENTERED} min-h-7 gap-1.5 px-2.5 py-1 text-xs`,
+    md: `${CENTERED} min-h-9 gap-2 px-3.5 py-1.5 text-xs`,
+    lg: `${CENTERED} min-h-12 gap-2 px-6 py-2 text-base`,
+    xl: `${CENTERED} min-h-14 gap-2 px-6 py-2 text-lg`,
+    wide: "min-h-12 w-full justify-between gap-2 px-4 py-2 text-left text-sm font-medium",
+    inline: "gap-1.5 text-xs",
 };
 
 export const SQUARE_SIZES: Record<ControlSize, string> = {
-    sm: "size-7",
-    md: "size-9",
-    lg: "size-12",
-    xl: "size-14",
+    sm: "size-7 justify-center",
+    md: "size-9 justify-center",
+    lg: "size-12 justify-center",
+    xl: "size-14 justify-center",
 };
 
-export const ICON_SIZES: Record<ControlSize, string> = {
+export const ICON_SIZES: Record<ButtonSize, string> = {
     sm: "size-3.5",
     md: "size-4",
     lg: "size-4",
     xl: "size-5",
+    wide: "size-4",
+    inline: "size-3.5",
 };
 
 export const CONTROL_SIZES: Record<ControlSize, string> = {
@@ -92,54 +99,25 @@ export const ITEM_RULE = "bg-accent absolute inset-y-1.5 left-0 w-0.5";
 export const ITEM_SIGNAL = `${ITEM_RULE} scale-y-0 transition-transform duration-200 group-data-focused/item:scale-y-100`;
 
 export const SIGNAL_TONES: Record<SignalTone, string> = {
-    neutral: "text-text-secondary",
-    live: "text-accent",
-    success: "text-success",
-    warning: "text-warning",
-    danger: "text-error",
-    info: "text-info",
-    muted: "text-text-muted",
+    neutral: "text-signal-neutral",
+    live: "text-signal-live",
+    success: "text-signal-success",
+    warning: "text-signal-warning",
+    danger: "text-signal-danger",
+    info: "text-signal-info",
+    muted: "text-signal-muted",
+};
+
+export const SIGNAL_TAGS: Record<SignalTone, string> = {
+    neutral: "border-signal-neutral-edge bg-signal-neutral-wash",
+    live: "border-signal-live-edge bg-signal-live-wash",
+    success: "border-signal-success-edge bg-signal-success-wash",
+    warning: "border-signal-warning-edge bg-signal-warning-wash",
+    danger: "border-signal-danger-edge bg-signal-danger-wash",
+    info: "border-signal-info-edge bg-signal-info-wash",
+    muted: "border-signal-muted-edge bg-signal-muted-wash",
 };
 
 export const LABEL_TEXT = "haulr-label text-text-muted";
 
-export const UI_COPY = {
-    clear: "Clear",
-    close: "Close",
-    cancel: "Cancel",
-    more: "More actions",
-    loading: "Loading",
-    noResults: "No matches. Try a different spelling.",
-    explain: "What does {term} mean?",
-    sortAscending: "Sorted by {column}, ascending",
-    sortDescending: "Sorted by {column}, descending",
-    showing: "Showing {shown} of {total}",
-    showingOpen: "Showing {shown}",
-    previous: "Previous page",
-    next: "Next page",
-    loadMore: "Load more",
-    loadingMore: "Loading more…",
-    pagination: "Pagination",
-    dropFiles: "Drop files here or",
-    chooseFiles: "choose files",
-    fileLimits: "PDF, JPG or PNG, up to {size} MB each, up to {count} files",
-    fileLimitOne: "PDF, JPG or PNG, up to {size} MB",
-    fileProgress: "{percent} percent, {name}",
-    fileStates: { uploading: "Uploading", scanning: "Scanning", uploaded: "Uploaded", rejected: "Rejected", failed: "Upload failed" },
-    fileType: "{name} is not a PDF, JPG or PNG.",
-    fileSize: "{name} is larger than {size} MB.",
-    fileCount: "Choose up to {count} files at a time.",
-    remove: "Remove {name}",
-    retry: "Retry",
-    expired: "Expired",
-    timeLeft: "{time} left",
-    chooseDate: "Choose date",
-    previousMonth: "Previous month",
-    nextMonth: "Next month",
-    tabCount: "{label}, {count}",
-    durations: {
-        hour: { one: "{count} hour", other: "{count} hours" },
-        minute: { one: "{count} minute", other: "{count} minutes" },
-        second: { one: "{count} second", other: "{count} seconds" },
-    },
-} as const;
+export const COPY_RESET_MS = 2000;

@@ -3,11 +3,11 @@ import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
 import { buttonClass } from "@/lib/ui/classes";
 import { ICON_SIZES } from "@/lib/ui/constants";
-import type { ButtonTone, ControlSize, IconGlyph } from "@/lib/types";
+import type { ButtonSize, ButtonTone, IconGlyph } from "@/lib/types";
 
 interface Props extends Omit<ComponentProps<typeof Link>, "className" | "children"> {
     tone?: ButtonTone;
-    size?: ControlSize;
+    size?: ButtonSize;
     icon?: IconGlyph;
     trailing?: IconGlyph;
     className?: string;

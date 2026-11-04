@@ -1,4 +1,4 @@
-import { UI_COPY } from "@/lib/ui/constants";
+import { UI_COPY } from "@/lib/ui/copy";
 import { fillTemplate } from "@/lib/utils/fill-template";
 import { BYTES_PER_MEGABYTE } from "@/lib/utils/format-number";
 

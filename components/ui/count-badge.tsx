@@ -12,7 +12,7 @@ interface Props {
 }
 
 const TONES: Record<BadgeTone, string> = {
-    accent: "bg-accent text-text-inverse",
+    accent: "bg-signal-live text-text-inverse",
     muted: "bg-background-muted text-text-secondary",
 };
 
