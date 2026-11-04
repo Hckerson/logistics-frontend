@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import ConsoleLink from "@/components/auth/console-link";
+import Button from "@/components/ui/button";
 import { QUIET_LINK } from "@/lib/auth/constants";
 import { loginRoute, postLoadRoute } from "@/lib/constants";
 import { ESTIMATOR_COPY } from "@/lib/data/quotes/estimator";
@@ -32,15 +33,21 @@ export default function EstimateActions({ lane, estimate, signedIn }: Props) {
                         {actions.custom}
                     </Link>
                 ) : null}
-                {signedIn ? (
-                    <button
-                        type="button"
-                        disabled={save.isPending || saved}
-                        onClick={() => save.mutate({ lane, rate: estimate.rate })}
-                        className={`${QUIET_LINK} cursor-pointer disabled:cursor-default`}
+                {signedIn && saved ? (
+                    <p role="status" className="text-signal-success text-xs">
+                        {actions.saved}
+                    </p>
+                ) : null}
+                {signedIn && !saved ? (
+                    <Button
+                        tone="link"
+                        size="inline"
+                        pending={save.isPending}
+                        pendingLabel={actions.saving}
+                        onPress={() => save.mutate({ lane, rate: estimate.rate })}
                     >
-                        {save.isPending ? actions.saving : saved ? actions.saved : actions.save}
-                    </button>
+                        {actions.save}
+                    </Button>
                 ) : null}
                 <span aria-live="polite" className="text-error text-xs empty:hidden">
                     {failed ? actions.saveFailed : ""}

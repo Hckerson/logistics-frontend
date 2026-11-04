@@ -1,8 +1,7 @@
 "use client";
-import clsx from "clsx";
 import { Send } from "@carbon/icons-react";
+import Button from "@/components/ui/button";
 import ProgressLine from "@/components/ui/progress-line";
-import { CONSOLE_ACTION } from "@/lib/auth/constants";
 import { VERIFICATION_RESEND_COOLDOWN_S } from "@/lib/constants";
 import { VERIFY_COPY } from "@/lib/data/auth/verify";
 import { useCountdown } from "@/lib/hooks/use-countdown";
@@ -21,25 +20,20 @@ const { resend } = VERIFY_COPY;
 
 export default function ResendButton({ label, sentAt, pending, onResend }: Props) {
     const remaining = useCountdown(sentAt === null ? 0 : sentAt + COOLDOWN);
-    const waiting = remaining > 0;
-    const blocked = waiting || pending;
+    const waiting = remaining > 0 && !pending;
     const wait = resend.wait.replace("{time}", formatClock(Math.ceil(remaining / SECOND)));
 
     return (
-        <button
-            type="button"
-            aria-disabled={blocked}
-            onClick={blocked ? undefined : onResend}
-            className={clsx(
-                CONSOLE_ACTION,
-                "aria-disabled:bg-background-muted aria-disabled:text-text-muted aria-disabled:hover:bg-background-muted aria-disabled:cursor-not-allowed",
-            )}
+        <Button
+            size="wide"
+            trailing={waiting || pending ? undefined : Send}
+            pending={pending}
+            pendingLabel={resend.pending}
+            disabledReason={waiting ? wait : undefined}
+            onPress={onResend}
         >
-            <span className="tabular-nums">{pending ? resend.pending : waiting ? wait : label}</span>
-            {blocked ? null : <Send aria-hidden className="size-4 transition-transform duration-300 group-hover:translate-x-0.5" />}
-            {blocked ? (
-                <ProgressLine value={pending ? undefined : 1 - remaining / COOLDOWN} className="bg-border absolute inset-x-0 bottom-0" />
-            ) : null}
-        </button>
+            <span className="tabular-nums">{waiting ? wait : label}</span>
+            {waiting ? <ProgressLine value={1 - remaining / COOLDOWN} className="bg-border absolute inset-x-0 bottom-0" /> : null}
+        </Button>
     );
 }

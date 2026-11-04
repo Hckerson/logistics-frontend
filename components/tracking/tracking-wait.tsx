@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Renew } from "@carbon/icons-react";
 import HudPanel from "@/components/common/hud-panel";
-import { CONSOLE_ACTION } from "@/lib/auth/constants";
+import Button from "@/components/ui/button";
 import { TIME_MS } from "@/lib/constants";
 import { TRACKING_COPY } from "@/lib/data/tracking/copy";
 import { useCountdown } from "@/lib/hooks/use-countdown";
@@ -30,15 +30,9 @@ export default function TrackingWait({ wait, pending, onRetry }: Props) {
             <p aria-hidden className="text-text-secondary text-sm tabular-nums">
                 {say(remaining)}
             </p>
-            <button
-                type="button"
-                onClick={onRetry}
-                disabled={remaining > 0 || pending}
-                className={`${CONSOLE_ACTION} disabled:bg-background-muted disabled:text-text-muted disabled:cursor-not-allowed`}
-            >
+            <Button size="wide" trailing={Renew} pending={pending} disabledReason={remaining > 0 ? say(remaining) : undefined} onPress={onRetry}>
                 {problems.retry}
-                <Renew aria-hidden className="size-4" />
-            </button>
+            </Button>
         </HudPanel>
     );
 }

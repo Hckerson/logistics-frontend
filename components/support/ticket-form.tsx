@@ -4,7 +4,7 @@ import AuthSubmit from "@/components/auth/auth-submit";
 import TicketContext from "@/components/support/ticket-context";
 import AreaField from "@/components/common/area-field";
 import BoardField from "@/components/common/board-field";
-import ChoiceGrid from "@/components/common/choice-grid";
+import RadioGroup from "@/components/ui/radio-group";
 import { SUPPORT_COPY } from "@/lib/data/support/copy";
 import { TICKET_LIMITS } from "@/lib/support/constants";
 import type { ContextLine, TicketDraft, TicketDraftField, TicketField } from "@/lib/types";
@@ -30,7 +30,7 @@ export default function TicketForm(props: Props) {
 
     return (
         <form onSubmit={onSubmit} noValidate aria-busy={pending} className="flex flex-col gap-6">
-            <ChoiceGrid
+            <RadioGroup
                 id={idOf("category")}
                 name="category"
                 legend={fields.category.label}
@@ -39,10 +39,10 @@ export default function TicketForm(props: Props) {
                 value={values.category}
                 columns={2}
                 error={errorFor("category")}
-                disabled={pending}
+                isDisabled={pending}
                 onChange={(value) => onSet("category", value)}
             />
-            <ChoiceGrid
+            <RadioGroup
                 id={idOf("urgency")}
                 name="urgency"
                 legend={fields.urgency.label}
@@ -50,7 +50,7 @@ export default function TicketForm(props: Props) {
                 options={urgencies}
                 value={values.urgency}
                 error={errorFor("urgency")}
-                disabled={pending}
+                isDisabled={pending}
                 onChange={(value) => onSet("urgency", value)}
             />
             <BoardField

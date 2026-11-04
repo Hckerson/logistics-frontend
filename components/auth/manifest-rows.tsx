@@ -1,6 +1,6 @@
-import clsx from "clsx";
 import { Checkmark } from "@carbon/icons-react";
-import { BOARD, FIELD_FLIP, QUIET_LINK } from "@/lib/auth/constants";
+import Button from "@/components/ui/button";
+import { BOARD, FIELD_FLIP } from "@/lib/auth/constants";
 import { bootBase } from "@/lib/auth/entry";
 import { REGISTER_COPY } from "@/lib/data/auth/register";
 import type { AccountDraft, ManifestField } from "@/lib/types";
@@ -29,15 +29,15 @@ export default function ManifestRows({ fields, values, disabled, onEdit }: Props
                         {field === "password" ? BOARD.mask.repeat(values.password.length) : values[field]}
                     </span>
                     <Checkmark aria-hidden className="text-accent size-3.5 shrink-0" />
-                    <button
-                        type="button"
-                        disabled={disabled}
-                        onClick={() => onEdit(field)}
+                    <Button
+                        tone="link"
+                        size="inline"
+                        isDisabled={disabled}
+                        onPress={() => onEdit(field)}
                         aria-label={manifest.editLabel.replace("{field}", COPY[field].label)}
-                        className={clsx(QUIET_LINK, "shrink-0 cursor-pointer disabled:opacity-40")}
                     >
                         {manifest.edit}
-                    </button>
+                    </Button>
                 </li>
             ))}
         </ol>

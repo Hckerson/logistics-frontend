@@ -2,7 +2,7 @@
 import { useState, useSyncExternalStore } from "react";
 import ConsoleLink from "@/components/auth/console-link";
 import { useAnnounce } from "@/components/providers/announcer-provider";
-import ChoiceGrid from "@/components/common/choice-grid";
+import RadioGroup from "@/components/ui/radio-group";
 import Button from "@/components/ui/button";
 import { supportRoute } from "@/lib/constants";
 import { HELP_COPY } from "@/lib/data/help/copy";
@@ -68,7 +68,7 @@ export default function ArticleFeedback({ slug }: Props) {
             </div>
             {helpful === false ? (
                 <div className="flex max-w-md flex-col gap-3">
-                    <ChoiceGrid id={`${slug}-reason`} name="reason" legend={feedback.reasonLabel} options={REASONS} value={reason} onChange={setReason} />
+                    <RadioGroup id={`${slug}-reason`} name="reason" legend={feedback.reasonLabel} options={REASONS} value={reason} onChange={setReason} />
                     <Button size="sm" pending={send.isPending} pendingLabel={feedback.sending} onPress={() => submit({ slug, helpful: false, reason: reason ?? undefined })} className="self-start">
                         {feedback.send}
                     </Button>

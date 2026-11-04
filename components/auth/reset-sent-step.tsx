@@ -2,7 +2,7 @@
 import ConsoleLink from "@/components/auth/console-link";
 import LinkCountdown from "@/components/auth/link-countdown";
 import OutcomeStep from "@/components/auth/outcome-step";
-import { QUIET_LINK } from "@/lib/auth/constants";
+import Button from "@/components/ui/button";
 import { LOGIN_ROUTE } from "@/lib/constants";
 import { FORGOT_COPY } from "@/lib/data/auth/forgot";
 
@@ -23,9 +23,9 @@ export default function ResetSentStep({ email, sentAt, resent, pending, onResend
             <p className="text-text-muted text-xs">{sent.expiry}</p>
             <ConsoleLink href={LOGIN_ROUTE} label={sent.back} />
             <div className="flex items-center justify-between gap-4">
-                <button type="button" onClick={onResend} disabled={pending} className={QUIET_LINK}>
-                    {pending ? FORGOT_COPY.pending : sent.resend}
-                </button>
+                <Button tone="link" size="inline" pending={pending} pendingLabel={FORGOT_COPY.pending} onPress={onResend}>
+                    {sent.resend}
+                </Button>
                 {resent && !pending ? <span className="haulr-label text-accent">{sent.resent}</span> : null}
             </div>
         </OutcomeStep>

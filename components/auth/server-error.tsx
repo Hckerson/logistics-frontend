@@ -1,13 +1,11 @@
 "use client";
-import clsx from "clsx";
 import { useState, useTransition } from "react";
 import { Renew } from "@carbon/icons-react";
 import AuthIntro from "@/components/auth/auth-intro";
 import AuthLinks from "@/components/auth/auth-links";
 import ConsoleLink from "@/components/auth/console-link";
-import ProgressLine from "@/components/ui/progress-line";
 import SystemPanel from "@/components/auth/system-panel";
-import { CONSOLE_ACTION } from "@/lib/auth/constants";
+import Button from "@/components/ui/button";
 import { ERROR_RETRY_LIMIT, SUPPORT_ROUTE, supportRoute } from "@/lib/constants";
 import { SYSTEM_COPY } from "@/lib/data/system";
 
@@ -45,11 +43,9 @@ export default function ServerError({ digest, retry }: Props) {
                 {exhausted ? (
                     <ConsoleLink href={digest ? supportRoute({ reference: digest }) : SUPPORT_ROUTE} label={SYSTEM_COPY.support} />
                 ) : (
-                    <button type="button" onClick={again} aria-disabled={pending} className={clsx(CONSOLE_ACTION, "aria-disabled:cursor-wait")}>
-                        {pending ? SYSTEM_COPY.retrying : SYSTEM_COPY.retry}
-                        <Renew aria-hidden className="size-4" />
-                        {pending ? <ProgressLine className="bg-text-inverse/15 absolute inset-x-0 bottom-0" /> : null}
-                    </button>
+                    <Button size="wide" trailing={Renew} pending={pending} pendingLabel={SYSTEM_COPY.retrying} onPress={again}>
+                        {SYSTEM_COPY.retry}
+                    </Button>
                 )}
             </SystemPanel>
         </>

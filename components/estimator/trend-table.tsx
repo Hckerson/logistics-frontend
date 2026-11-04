@@ -1,3 +1,4 @@
+import Disclosure from "@/components/ui/disclosure";
 import { ESTIMATOR_COPY } from "@/lib/data/quotes/estimator";
 import { count, perMileRate, shortDay } from "@/lib/quotes/format";
 import type { TrendPoint } from "@/lib/types";
@@ -10,9 +11,8 @@ const { trend } = ESTIMATOR_COPY;
 
 export default function TrendTable({ points }: Props) {
     return (
-        <details className="text-sm">
-            <summary className="text-text-muted hover:text-text cursor-pointer text-xs transition-colors">{trend.table}</summary>
-            <div className="mt-3 max-h-56 overflow-y-auto">
+        <Disclosure title={trend.table} level={2}>
+            <div className="max-h-56 overflow-y-auto">
                 <table className="w-full text-left text-xs">
                     <caption className="sr-only">{trend.caption}</caption>
                     <thead>
@@ -39,6 +39,6 @@ export default function TrendTable({ points }: Props) {
                     </tbody>
                 </table>
             </div>
-        </details>
+        </Disclosure>
     );
 }

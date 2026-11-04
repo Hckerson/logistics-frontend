@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { QUIET_LINK } from "@/lib/auth/constants";
+import Button from "@/components/ui/button";
 
 interface Props {
     label: string;
@@ -19,15 +19,9 @@ export default function IdentityRow({ label, value, change, changeLabel, disable
                 <p className={clsx("text-text truncate text-sm", mono && "font-mono")}>{value}</p>
             </div>
             {onChange ? (
-                <button
-                    type="button"
-                    onClick={onChange}
-                    aria-label={changeLabel}
-                    disabled={disabled}
-                    className={clsx(QUIET_LINK, "shrink-0 cursor-pointer disabled:opacity-40")}
-                >
+                <Button tone="link" size="inline" isDisabled={disabled} onPress={onChange} aria-label={changeLabel}>
                     {change}
-                </button>
+                </Button>
             ) : null}
         </div>
     );

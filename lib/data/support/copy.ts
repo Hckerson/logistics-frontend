@@ -64,6 +64,7 @@ export const SUPPORT_COPY = {
     history: {
         label: "Your tickets",
         part: "your tickets",
+        filterLabel: "Show tickets",
         filters: { all: "All", open: "Open", waiting: "Waiting on you", resolved: "Resolved" } satisfies Record<TicketStatus | "all", string>,
         empty: "No tickets yet. Anything you send appears here.",
         signedOut: "Sign in to follow the tickets you've opened.",

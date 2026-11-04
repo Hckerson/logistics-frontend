@@ -1,8 +1,7 @@
 "use client";
-import clsx from "clsx";
 import ConsoleLink from "@/components/auth/console-link";
 import OutcomeStep from "@/components/auth/outcome-step";
-import { QUIET_LINK } from "@/lib/auth/constants";
+import Button from "@/components/ui/button";
 import { HELP_ROUTE } from "@/lib/constants";
 import { AUTH_COPY } from "@/lib/data/auth/shared";
 import { SUPPORT_COPY } from "@/lib/data/support/copy";
@@ -21,9 +20,9 @@ export default function TicketReceipt({ receipt, onAgain }: Props) {
     return (
         <OutcomeStep label={copy.label} detail={receipt.reference} body={body}>
             <ConsoleLink href={HELP_ROUTE} label={AUTH_COPY.links.help.label} />
-            <button type="button" onClick={onAgain} className={clsx(QUIET_LINK, "cursor-pointer self-start")}>
+            <Button tone="link" size="inline" onPress={onAgain} className="self-start">
                 {copy.another}
-            </button>
+            </Button>
         </OutcomeStep>
     );
 }
