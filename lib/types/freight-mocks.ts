@@ -23,6 +23,8 @@ export interface MockStopSpec {
     opensIn: number;
     arrived?: number;
     departed?: number;
+    reference?: string;
+    instructions?: string;
 }
 
 export interface MockTrackSpec {
@@ -35,6 +37,7 @@ export interface MockTrackSpec {
 export interface MockLoadSpec {
     id: string;
     status: LoadStatus;
+    heldFrom?: LoadStatus;
     shipper: string;
     carrier?: string;
     driver?: string;
@@ -65,6 +68,7 @@ export interface MockCharge extends ChargeDto {
 export interface MockLoad {
     id: string;
     status: LoadStatus;
+    heldFrom: LoadStatus | null;
     version: number;
     shipper: string;
     carrier: string | null;

@@ -42,6 +42,7 @@ const chargesOf = ({ priceCents, payCents, pendingCents }: MockLoadSpec): MockCh
 const loadFrom = (spec: MockLoadSpec, now: number): MockLoad => ({
     id: spec.id,
     status: spec.status,
+    heldFrom: spec.heldFrom ?? null,
     version: 1,
     shipper: spec.shipper,
     carrier: spec.carrier ?? null,
@@ -62,8 +63,8 @@ const loadFrom = (spec: MockLoadSpec, now: number): MockLoad => ({
         facility: stop.facility,
         windowStart: at(now, stop.opensIn),
         windowEnd: at(now, stop.opensIn + MOCK_FREIGHT.windowHours),
-        reference: null,
-        instructions: null,
+        reference: stop.reference ?? null,
+        instructions: stop.instructions ?? null,
         arrivedAt: stop.arrived === undefined ? null : at(now, -stop.arrived),
         departedAt: stop.departed === undefined ? null : at(now, -stop.departed),
     })),
@@ -74,14 +75,25 @@ const loadFrom = (spec: MockLoadSpec, now: number): MockLoad => ({
     updatedAt: at(now, 0),
 });
 
+const statusChanges = (events: readonly MockLoadEvent[], loadId: string) =>
+    events.filter((event) => event.loadId === loadId && event.type === "statusChanged").length;
+
+const addLoads = (store: Pick<FreightStore, "loads" | "events">, specs: readonly MockLoadSpec[], now: number) => {
+    specs.forEach((spec) => {
+        const load = loadFrom(spec, now);
+        const events = timelineOf(load, now);
+        store.events.push(...events);
+        store.loads.set(load.id, { ...load, version: 1 + statusChanges(events, load.id) });
+    });
+};
+
 const seedFreight = (): FreightStore => {
     const now = new Date().getTime();
-    const loads = MOCK_LOADS.map((spec) => loadFrom(spec, now));
-    const events = loads.flatMap((load) => timelineOf(load, now));
+    const spine: Pick<FreightStore, "loads" | "events"> = { loads: new Map(), events: [] };
+    addLoads(spine, MOCK_LOADS, now);
 
     return {
-        loads: new Map(loads.map((load) => [load.id, { ...load, version: 1 + events.filter((event) => event.loadId === load.id && event.type === "statusChanged").length }])),
-        events,
+        ...spine,
         links: new Map(
             MOCK_TRACKING_LINKS.map((link) => [
                 link.token,
@@ -107,4 +119,9 @@ const seedFreight = (): FreightStore => {
     };
 };
 
-export const freightStore = (): FreightStore => (holder.haulrFreightStore ??= seedFreight());
+export const freightStore = (): FreightStore => {
+    const store = (holder.haulrFreightStore ??= seedFreight());
+    const added = MOCK_LOADS.filter((spec) => !store.loads.has(spec.id));
+    if (added.length > 0) addLoads(store, added, new Date().getTime());
+    return store;
+};

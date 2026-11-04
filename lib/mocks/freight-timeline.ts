@@ -7,8 +7,13 @@ import type { LoadStatus, MockLoad, MockLoadEvent } from "@/lib/types";
 
 type Actor = Pick<LoadEventDto, "actorType" | "actorName" | "source">;
 
-const STEP_HOURS = { posted: 0.5, booked: 2, dispatched: 3, verified: 2, invoiced: 8 } as const;
+const STEP_HOURS = { posted: 0.5, booked: 2, dispatched: 3, verified: 2, invoiced: 8, paid: 168, disputed: 30, held: 3 } as const;
 const CANCEL_REASON = "Customer moved the order to next week";
+const HOLD_REASON = "Carrier insurance certificate lapsed. Waiting on the renewal.";
+const DISPUTE_REASON = "Detention billed twice for the same stop";
+const UNBOOKED: readonly LoadStatus[] = ["Posted", "Cancelled", "Expired"];
+const INVOICED: readonly LoadStatus[] = ["Invoiced", "Paid", "Disputed"];
+const VERIFIED: readonly LoadStatus[] = ["PodVerified", ...INVOICED];
 const CHECK_CALL_LOAD = "HL-3RW8TNPE";
 const CHECK_CALL_MINUTES_AGO = 6;
 
@@ -34,8 +39,9 @@ const event = (load: MockLoad, at: number, actor: Actor, fields: Partial<LoadEve
     ...fields,
 });
 
-const statusEvents = (load: MockLoad): MockLoadEvent[] => {
+const statusEvents = (load: MockLoad, now: number): MockLoadEvent[] => {
     const created = Date.parse(load.createdAt);
+    const target = load.heldFrom ?? load.status;
     const events: MockLoadEvent[] = [];
     let current: LoadStatus = "Draft";
     const step = (to: LoadStatus, at: number, actor: Actor, reason: string | null = null) => {
@@ -44,27 +50,35 @@ const statusEvents = (load: MockLoad): MockLoadEvent[] => {
     };
     const after = (hours: number) => created + hours * TIME_MS.hour;
 
-    if (load.status === "PendingApproval") step("PendingApproval", after(STEP_HOURS.posted), SHIPPER);
-    if (load.status === "Draft" || load.status === "PendingApproval") return events;
+    const walk = () => {
+        if (target === "PendingApproval") step("PendingApproval", after(STEP_HOURS.posted), SHIPPER);
+        if (target === "Draft" || target === "PendingApproval") return;
 
-    step("Posted", after(STEP_HOURS.posted), SHIPPER);
-    if (load.status === "Cancelled") step("Cancelled", after(STEP_HOURS.booked), SHIPPER, CANCEL_REASON);
-    if (load.status === "Cancelled" || load.status === "Posted") return events;
+        step("Posted", after(STEP_HOURS.posted), SHIPPER);
+        if (target === "Cancelled") step("Cancelled", after(STEP_HOURS.booked), SHIPPER, CANCEL_REASON);
+        if (target === "Expired") step("Expired", Date.parse(load.stops[0].windowStart), SYSTEM);
+        if (UNBOOKED.includes(target)) return;
 
-    step("Booked", after(STEP_HOURS.booked), carrierActor(load));
-    if (load.status === "Booked") return events;
-    step("Dispatched", after(STEP_HOURS.dispatched), carrierActor(load));
+        step("Booked", after(STEP_HOURS.booked), carrierActor(load));
+        if (target === "Booked") return;
+        step("Dispatched", after(STEP_HOURS.dispatched), carrierActor(load));
 
-    load.stops.forEach((stop, index) => {
-        if (stop.arrivedAt) step(stop.type === "pickup" ? "AtPickup" : "AtDelivery", Date.parse(stop.arrivedAt), driverActor(load, "geofence"));
-        if (stop.departedAt) step(index === load.stops.length - 1 ? "Delivered" : "InTransit", Date.parse(stop.departedAt), driverActor(load, "driver"));
-    });
+        load.stops.forEach((stop, index) => {
+            if (stop.arrivedAt) step(stop.type === "pickup" ? "AtPickup" : "AtDelivery", Date.parse(stop.arrivedAt), driverActor(load, "geofence"));
+            if (stop.departedAt) step(index === load.stops.length - 1 ? "Delivered" : "InTransit", Date.parse(stop.departedAt), driverActor(load, "driver"));
+        });
 
-    const delivered = load.stops[load.stops.length - 1].departedAt;
-    if (load.status === "Invoiced" && delivered) {
-        step("PodVerified", Date.parse(delivered) + STEP_HOURS.verified * TIME_MS.hour, SYSTEM);
-        step("Invoiced", Date.parse(delivered) + STEP_HOURS.invoiced * TIME_MS.hour, SYSTEM);
-    }
+        const delivered = load.stops[load.stops.length - 1].departedAt;
+        if (!delivered) return;
+        const settled = (hours: number) => Date.parse(delivered) + hours * TIME_MS.hour;
+        if (VERIFIED.includes(target)) step("PodVerified", settled(STEP_HOURS.verified), SYSTEM);
+        if (INVOICED.includes(target)) step("Invoiced", settled(STEP_HOURS.invoiced), SYSTEM);
+        if (target === "Paid") step("Paid", settled(STEP_HOURS.paid), SYSTEM);
+        if (target === "Disputed") step("Disputed", settled(STEP_HOURS.disputed), SHIPPER, DISPUTE_REASON);
+    };
+
+    walk();
+    if (load.heldFrom) step("OnHold", now - STEP_HOURS.held * TIME_MS.hour, OPS, HOLD_REASON);
     return events;
 };
 
@@ -84,4 +98,4 @@ const sideEvents = (load: MockLoad, now: number): MockLoadEvent[] => [
         : []),
 ];
 
-export const timelineOf = (load: MockLoad, now: number) => [...statusEvents(load), ...sideEvents(load, now)];
+export const timelineOf = (load: MockLoad, now: number) => [...statusEvents(load, now), ...sideEvents(load, now)];
