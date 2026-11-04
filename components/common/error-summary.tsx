@@ -11,6 +11,7 @@ interface Props<F extends string> {
     fieldId: (field: F) => string;
 }
 
+const FOCUSABLE = "input:not([type=hidden]), textarea, select, [tabindex]:not([tabindex='-1'])";
 const LINK = "text-text-secondary hover:text-text decoration-error/70 underline underline-offset-4 transition-colors";
 
 export default function ErrorSummary<F extends string = AccountField>({ problems, attempt, heading, count, fieldId }: Props<F>) {
@@ -25,7 +26,8 @@ export default function ErrorSummary<F extends string = AccountField>({ problems
 
     const focusField = (id: string) => (event: MouseEvent<HTMLAnchorElement>) => {
         event.preventDefault();
-        document.getElementById(id)?.focus();
+        const field = document.getElementById(id);
+        (field?.matches(FOCUSABLE) ? field : (field?.querySelector<HTMLElement>(FOCUSABLE) ?? field))?.focus();
     };
 
     return (

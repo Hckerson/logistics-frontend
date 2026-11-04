@@ -2,7 +2,8 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Renew } from "@carbon/icons-react";
-import { CONSOLE_ACTION, QUIET_LINK } from "@/lib/auth/constants";
+import Button from "@/components/ui/button";
+import { QUIET_LINK } from "@/lib/auth/constants";
 import { ESTIMATOR_COPY } from "@/lib/data/quotes/estimator";
 import { useCountdown } from "@/lib/hooks/use-countdown";
 import type { EstimateFailure } from "@/lib/types";
@@ -36,15 +37,9 @@ export default function EstimateNotice({ failure, onRetry }: Props) {
             <p aria-hidden className="text-text-secondary text-sm tabular-nums">
                 {say(remaining)}
             </p>
-            <button
-                type="button"
-                onClick={onRetry}
-                disabled={remaining > 0}
-                className={`${CONSOLE_ACTION} disabled:bg-background-muted disabled:text-text-muted disabled:cursor-not-allowed`}
-            >
+            <Button size="wide" trailing={Renew} disabledReason={remaining > 0 ? say(remaining) : undefined} onPress={onRetry}>
                 {copy.retry}
-                <Renew aria-hidden className="size-4" />
-            </button>
+            </Button>
             {failure.kind === "rate-limited" ? (
                 <Link href={copy.signUp.href} className={QUIET_LINK}>
                     {copy.signUp.label}

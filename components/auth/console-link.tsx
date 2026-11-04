@@ -1,6 +1,5 @@
-import Link from "next/link";
 import { ArrowRight } from "@carbon/icons-react";
-import { CONSOLE_ACTION } from "@/lib/auth/constants";
+import ButtonLink from "@/components/ui/button-link";
 
 interface Props {
     href: string;
@@ -9,9 +8,8 @@ interface Props {
 
 export default function ConsoleLink({ href, label }: Props) {
     return (
-        <Link href={href} className={CONSOLE_ACTION}>
+        <ButtonLink href={href} size="wide" trailing={ArrowRight}>
             {label}
-            <ArrowRight aria-hidden className="size-4 transition-transform duration-300 group-hover:translate-x-0.5" />
-        </Link>
+        </ButtonLink>
     );
 }

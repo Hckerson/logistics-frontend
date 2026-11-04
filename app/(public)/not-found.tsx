@@ -1,8 +1,6 @@
-import clsx from "clsx";
+import SystemColumn from "@/components/auth/system-column";
 import SystemPage from "@/components/auth/system-page";
-import AuthSignalProvider from "@/components/providers/auth-signal-provider";
-import { AUTH_COLUMNS } from "@/lib/auth/constants";
-import { ENTRY_TIMELINE } from "@/lib/auth/entry";
+import { SYSTEM_PLACEMENT } from "@/lib/auth/constants";
 import { SYSTEM_COPY } from "@/lib/data/system";
 import { getSession } from "@/lib/utils/session";
 
@@ -12,13 +10,8 @@ export default async function PublicNotFound() {
     const session = await getSession();
 
     return (
-        <div
-            style={ENTRY_TIMELINE}
-            className={clsx("haulr-shell grid items-center gap-y-8 pt-[calc(var(--haulr-header)+4rem)] pb-20", AUTH_COLUMNS)}
-        >
-            <AuthSignalProvider>
-                <SystemPage view={notFound} back={session ? back.signedIn : back.signedOut} />
-            </AuthSignalProvider>
-        </div>
+        <SystemColumn className={SYSTEM_PLACEMENT.public}>
+            <SystemPage view={notFound} back={session ? back.signedIn : back.signedOut} />
+        </SystemColumn>
     );
 }

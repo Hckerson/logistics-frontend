@@ -1,10 +1,10 @@
 "use client";
-import clsx from "clsx";
 import Link from "next/link";
 import { useEffect, useRef, type ChangeEvent, type FormEvent } from "react";
 import AuthSubmit from "@/components/auth/auth-submit";
 import IdentityRow from "@/components/auth/identity-row";
 import BoardField from "@/components/common/board-field";
+import Button from "@/components/ui/button";
 import { QUIET_LINK } from "@/lib/auth/constants";
 import { MFA_CODE_LENGTH } from "@/lib/constants";
 import { MFA_COPY } from "@/lib/data/auth/mfa";
@@ -50,9 +50,9 @@ export default function CodeStep(props: Props) {
             />
             <AuthSubmit label={MFA_COPY.submit} pendingLabel={MFA_COPY.pending} doneLabel={MFA_COPY.arrived} pending={pending} done={arrived} />
             <div className="flex items-center justify-between gap-4">
-                <button type="button" onClick={onToggle} disabled={busy} className={clsx(QUIET_LINK, "cursor-pointer disabled:opacity-40")}>
+                <Button tone="link" size="inline" isDisabled={busy} onPress={onToggle}>
                     {MFA_COPY.switch[method]}
-                </button>
+                </Button>
                 <Link href={MFA_COPY.help.href} className={QUIET_LINK}>
                     {MFA_COPY.help.label}
                 </Link>

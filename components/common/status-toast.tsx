@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { KeyboardEvent } from "react";
 import { Close } from "@carbon/icons-react";
 import HudCorners from "@/components/ui/hud-corners";
+import IconButton from "@/components/ui/icon-button";
 import { ANNOUNCER_COPY } from "@/lib/announcer/constants";
 import type { Announcement } from "@/lib/types";
 
@@ -37,14 +38,7 @@ export default function StatusToast({ announcement, onDismiss }: Props) {
                     </Link>
                 ) : null}
             </div>
-            <button
-                type="button"
-                onClick={onDismiss}
-                aria-label={ANNOUNCER_COPY.dismiss}
-                className="text-text-muted hover:text-text focus-visible:outline-text -mr-1 cursor-pointer p-0.5 transition-colors focus-visible:outline-2"
-            >
-                <Close aria-hidden className="size-4" />
-            </button>
+            <IconButton label={ANNOUNCER_COPY.dismiss} icon={Close} size="sm" onPress={onDismiss} className="-my-1 -mr-2" />
         </div>
     ) : null;
 

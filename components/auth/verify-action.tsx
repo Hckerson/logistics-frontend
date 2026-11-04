@@ -1,9 +1,9 @@
 "use client";
 import { Renew } from "@carbon/icons-react";
 import ConsoleLink from "@/components/auth/console-link";
-import ProgressLine from "@/components/ui/progress-line";
 import ResendButton from "@/components/auth/resend-button";
-import { CONSOLE_ACTION } from "@/lib/auth/constants";
+import Button from "@/components/ui/button";
+import ProgressLine from "@/components/ui/progress-line";
 import { DASHBOARD_ROUTE } from "@/lib/constants";
 import { VERIFY_COPY } from "@/lib/data/auth/verify";
 import type { VerifyStatus } from "@/lib/types";
@@ -24,10 +24,9 @@ export default function VerifyAction({ status, sentAt, resent, sending, onResend
     if (status === "verified" || status === "already") return <ConsoleLink href={DASHBOARD_ROUTE} label={VERIFY_COPY.proceed} />;
     if (status === "failed") {
         return (
-            <button type="button" onClick={onRetry} className={CONSOLE_ACTION}>
+            <Button size="wide" trailing={Renew} onPress={onRetry}>
                 {VERIFY_COPY.retry}
-                <Renew aria-hidden className="size-4" />
-            </button>
+            </Button>
         );
     }
 

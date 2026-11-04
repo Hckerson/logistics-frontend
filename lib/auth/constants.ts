@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ManifestField } from "@/lib/types";
+import { BUTTON_TONES } from "@/lib/ui/constants";
 
 export const LANE_GEOMETRY = {
     width: 480,
@@ -43,7 +44,7 @@ export const ASSEMBLY = {
     note: 16,
 } as const;
 
-export const BOARD = { cells: 22, mask: "•", more: "…", readoutRem: 2.6 } as const;
+export const BOARD = { cells: 22, mask: "•", more: "…", readoutRem: 2.6, compactRem: 1.75 } as const;
 
 export const TRUCK_RUN = {
     delay: ENTRY.ignite + ENTRY.draw * 0.45,
@@ -66,10 +67,11 @@ export const FIELD_FLIP = 0.04;
 
 export const AUTH_COLUMNS = "lg:grid-cols-[minmax(0,1fr)_minmax(0,var(--haulr-auth-form))] lg:gap-16 xl:gap-24";
 
-export const CONSOLE_ACTION =
-    "group bg-text text-text-inverse hover:bg-text-secondary focus-visible:outline-text relative flex h-12 w-full cursor-pointer items-center justify-between overflow-hidden px-4 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2";
+export const SYSTEM_PLACEMENT = {
+    public: "pt-[calc(var(--haulr-header)+4rem)] pb-20",
+    workspace: "flex-1 py-10 lg:py-16",
+} as const;
 
-export const QUIET_LINK =
-    "text-text-muted hover:text-text focus-visible:outline-text text-xs transition-colors focus-visible:outline-2 focus-visible:outline-offset-4";
+export const QUIET_LINK = `${BUTTON_TONES.link} focus-visible:outline-text text-xs transition-colors focus-visible:outline-2 focus-visible:outline-offset-4`;
 
 export const LINK_PAGE_METADATA: Metadata = { referrer: "no-referrer" };

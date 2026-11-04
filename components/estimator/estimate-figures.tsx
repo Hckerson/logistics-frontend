@@ -1,6 +1,7 @@
 import BoardReadout from "@/components/common/board-readout";
 import EstimateLane from "@/components/estimator/estimate-lane";
 import RateRange from "@/components/estimator/rate-range";
+import Disclosure from "@/components/ui/disclosure";
 import { ESTIMATOR_COPY } from "@/lib/data/quotes/estimator";
 import { count, money, perMileRate, pickupDay } from "@/lib/quotes/format";
 import type { LaneQuery, RateEstimate } from "@/lib/types";
@@ -44,10 +45,9 @@ export default function EstimateFigures({ lane, estimate }: Props) {
             <div className="flex flex-col gap-2">
                 <p className="text-text-secondary text-sm">{fill(result.basis)}</p>
                 {estimate.confidence === "low" ? <p className="text-text-muted text-xs">{result.thin}</p> : null}
-                <details className="text-sm">
-                    <summary className="text-text-muted hover:text-text cursor-pointer text-xs transition-colors">{result.how}</summary>
-                    <p className="text-text-secondary mt-2">{result.howBody}</p>
-                </details>
+                <Disclosure title={result.how} level={2}>
+                    {result.howBody}
+                </Disclosure>
             </div>
         </div>
     );
