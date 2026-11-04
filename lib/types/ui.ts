@@ -3,7 +3,9 @@ import type { CarbonIconType } from "@carbon/icons-react";
 
 export type ControlSize = "sm" | "md" | "lg" | "xl";
 
-export type ButtonTone = "ink" | "accent" | "outline" | "quiet" | "ghost" | "danger";
+export type ButtonSize = ControlSize | "wide" | "inline";
+
+export type ButtonTone = "ink" | "accent" | "outline" | "quiet" | "ghost" | "danger" | "link";
 
 export type SignalTone = "neutral" | "live" | "success" | "warning" | "danger" | "info" | "muted";
 

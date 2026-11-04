@@ -2,7 +2,8 @@
 import { Close } from "@carbon/icons-react";
 import { Heading } from "react-aria-components";
 import IconButton from "@/components/ui/icon-button";
-import { LABEL_TEXT, UI_COPY } from "@/lib/ui/constants";
+import { LABEL_TEXT } from "@/lib/ui/constants";
+import { UI_COPY } from "@/lib/ui/copy";
 
 interface Props {
     title: string;

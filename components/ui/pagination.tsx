@@ -2,7 +2,7 @@
 import clsx from "clsx";
 import { ChevronDown, ChevronLeft, ChevronRight } from "@carbon/icons-react";
 import Button from "@/components/ui/button";
-import { UI_COPY } from "@/lib/ui/constants";
+import { UI_COPY } from "@/lib/ui/copy";
 import { fillTemplate } from "@/lib/utils/fill-template";
 import { grouped } from "@/lib/utils/format-number";
 

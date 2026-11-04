@@ -3,7 +3,7 @@ import clsx from "clsx";
 import { useEffect, useRef } from "react";
 import { TIME_MS } from "@/lib/constants";
 import { useNow } from "@/lib/hooks/use-now";
-import { UI_COPY } from "@/lib/ui/constants";
+import { UI_COPY } from "@/lib/ui/copy";
 import { formatClock } from "@/lib/utils/date-formatter";
 import { fillTemplate } from "@/lib/utils/fill-template";
 import { pluralize } from "@/lib/utils/plural";

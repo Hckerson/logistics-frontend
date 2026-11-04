@@ -6,7 +6,7 @@ import Button from "@/components/ui/button";
 import ProgressLine from "@/components/ui/progress-line";
 import StatusLabel from "@/components/ui/status-label";
 import { squareButtonClass } from "@/lib/ui/classes";
-import { UI_COPY } from "@/lib/ui/constants";
+import { UI_COPY } from "@/lib/ui/copy";
 import { fillTemplate } from "@/lib/utils/fill-template";
 import { fileSize } from "@/lib/utils/format-number";
 import type { FileUploadState, SignalTone } from "@/lib/types";

@@ -5,10 +5,13 @@ export const BYTES_PER_KILOBYTE = 1024;
 export const BYTES_PER_MEGABYTE = BYTES_PER_KILOBYTE * BYTES_PER_KILOBYTE;
 
 const counts = new Intl.NumberFormat(UI_LOCALE);
+const shares = new Intl.NumberFormat(UI_LOCALE, { style: "percent", maximumFractionDigits: 0 });
 const kilobytes = new Intl.NumberFormat(UI_LOCALE, { style: "unit", unit: "kilobyte", maximumFractionDigits: 0 });
 const megabytes = new Intl.NumberFormat(UI_LOCALE, { style: "unit", unit: "megabyte", maximumFractionDigits: 1 });
 
 export const grouped = (value: number) => counts.format(value);
+
+export const share = (fraction: number) => shares.format(fraction);
 
 export const fileSize = (bytes: number) =>
     bytes < BYTES_PER_MEGABYTE

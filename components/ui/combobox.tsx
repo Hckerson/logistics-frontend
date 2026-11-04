@@ -8,7 +8,8 @@ import ListOption from "@/components/ui/list-option";
 import Popover from "@/components/ui/popover";
 import ProgressLine from "@/components/ui/progress-line";
 import { fieldClass } from "@/lib/ui/classes";
-import { FIELD_INPUT, ICON_SIZES, UI_COPY } from "@/lib/ui/constants";
+import { FIELD_INPUT, ICON_SIZES } from "@/lib/ui/constants";
+import { UI_COPY } from "@/lib/ui/copy";
 import type { ChoiceOption, ControlSize, IconGlyph } from "@/lib/types";
 
 interface Props<T extends string> {

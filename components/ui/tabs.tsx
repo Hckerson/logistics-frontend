@@ -3,7 +3,7 @@ import clsx from "clsx";
 import { useId, type ReactNode } from "react";
 import { SelectionIndicator, Tab, TabList, TabPanel, Tabs as AriaTabs, type Key } from "react-aria-components";
 import { grouped } from "@/lib/utils/format-number";
-import { UI_COPY } from "@/lib/ui/constants";
+import { UI_COPY } from "@/lib/ui/copy";
 import { fillTemplate } from "@/lib/utils/fill-template";
 import type { TabItem } from "@/lib/types";
 
