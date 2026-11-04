@@ -2707,9 +2707,18 @@
                         "type": "string",
                         "enum": ["fresh", "stale", "exception"],
                         "nullable": true
+                    },
+                    "route": {
+                        "nullable": true,
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/PublicRouteDto"
+                            }
+                        ]
                     }
                 },
-                "required": ["latest", "track", "eta", "health"]
+                "required": ["latest", "track", "eta", "health", "route"]
             },
             "CheckCallResponseDto": {
                 "type": "object",
@@ -3073,6 +3082,23 @@
                     "recordedAt"
                 ]
             },
+            "PublicRouteDto": {
+                "type": "object",
+                "properties": {
+                    "polyline": {
+                        "type": "string",
+                        "description": "Planned road route through every stop as an encoded polyline (precision 5). It starts and ends at the rounded stop points and never passes closer to a facility than city level."
+                    },
+                    "miles": {
+                        "type": "number",
+                        "description": "Road miles of the whole route"
+                    }
+                },
+                "required": [
+                    "polyline",
+                    "miles"
+                ]
+            },
             "PublicTrackingDto": {
                 "type": "object",
                 "properties": {
@@ -3129,6 +3155,15 @@
                             }
                         ]
                     },
+                    "route": {
+                        "nullable": true,
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/PublicRouteDto"
+                            }
+                        ]
+                    },
                     "deliveredAt": {
                         "type": "string",
                         "format": "date-time",
@@ -3150,6 +3185,7 @@
                     "stops",
                     "eta",
                     "position",
+                    "route",
                     "deliveredAt",
                     "expiresAt",
                     "expired"

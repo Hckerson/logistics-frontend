@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { PublicTrackingDto } from "@/lib/contract/schemas";
 import { trackingLead } from "@/lib/tracking/lead";
-import { ageOf, laneOf, mapStops, nextStop, phaseOf } from "@/lib/tracking/view";
+import { ageOf, mapStops, nextStop, phaseOf } from "@/lib/tracking/view";
 
 const stop = (type: "pickup" | "delivery", departedAt: string | null): PublicTrackingDto["stops"][number] => ({
     type,
@@ -25,6 +25,7 @@ const tracking: PublicTrackingDto = {
     stops: [stop("pickup", "2026-10-13T14:00:00Z"), stop("delivery", null)],
     eta,
     position: null,
+    route: null,
     deliveredAt: null,
     expiresAt: null,
     expired: false,
@@ -40,7 +41,6 @@ describe("public tracking view", () => {
     it("finds the next stop and places stops on the map with lon/lat order", () => {
         expect(nextStop(tracking.stops)).toBe(1);
         expect(mapStops(tracking.stops)[0]).toEqual({ position: [-87.6, 41.9], type: "pickup", done: true });
-        expect(laneOf(tracking.stops)).toEqual([[-87.6, 41.9], [-96.8, 32.8]]);
     });
 
     it("states the arrival in the delivery stop's time zone, and says when it is late", () => {

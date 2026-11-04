@@ -5,8 +5,9 @@ import { MOCK_FACILITIES } from "@/lib/data/mocks/facilities";
 import { MOCK_FREIGHT } from "@/lib/data/mocks/loads";
 import { MOCK_TOWNS } from "@/lib/data/mocks/towns";
 import { TRACE_STATUSES, TRACKING } from "@/lib/loads/constants";
+import { encodePolyline } from "@/lib/maps/polyline";
 import { roadRoute } from "@/lib/mocks/road-route";
-import type { EtaDto, PositionDto } from "@/lib/contract/schemas";
+import type { EtaDto, PositionDto, PublicRouteDto } from "@/lib/contract/schemas";
 import type { LonLat, MockLoad, MockTrackSpec } from "@/lib/types";
 import { cumulativeMiles, headingFrom, milesApart } from "@/lib/utils/geo";
 
@@ -106,4 +107,9 @@ export const etaOf = (load: MockLoad, now: number): EtaDto | null => {
         late: at > Date.parse(load.stops[next].windowEnd),
         milesRemaining: Math.round(course.stopMiles[course.stopMiles.length - 1] - miles),
     };
+};
+
+export const routeOf = (load: MockLoad): PublicRouteDto | null => {
+    const { path, miles } = courseOf(load);
+    return path.length < 2 ? null : { polyline: encodePolyline(path), miles: Math.round(miles[miles.length - 1]) };
 };

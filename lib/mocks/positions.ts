@@ -3,7 +3,7 @@ import { HTTP_STATUS, TIME_MS } from "@/lib/constants";
 import { checkCallDtoSchema } from "@/lib/contract/schemas";
 import { TRACE_STATUSES, TRACKED_STATUSES, TRACKING } from "@/lib/loads/constants";
 import { healthOf, minutesSince } from "@/lib/loads/tracking";
-import { etaOf, latestPosition, trackOf } from "@/lib/mocks/fleet";
+import { etaOf, latestPosition, routeOf, trackOf } from "@/lib/mocks/fleet";
 import { FREIGHT_MESSAGES, loadMissing, recordEvent, sees, visibleLoad, withCaller } from "@/lib/mocks/freight-access";
 import { freightStore } from "@/lib/mocks/freight-store";
 import { fail, ok } from "@/lib/mocks/http";
@@ -24,6 +24,7 @@ export const loadPositions = withCaller(({ path }, { loadId }, caller) => {
         track: trackOf(load, now),
         eta: etaOf(load, now),
         health: latest && TRACKED_STATUSES.includes(load.status) ? healthOf(latest.recordedAt, now) : null,
+        route: routeOf(load),
     });
 });
 

@@ -1,6 +1,6 @@
 import type { PublicTrackingDto } from "@/lib/contract/schemas";
 import { TRACKING_LOCALE } from "@/lib/tracking/constants";
-import type { LoadStatus, LonLat, MapStop, TrackingPhase } from "@/lib/types";
+import type { LoadStatus, MapStop, TrackingPhase } from "@/lib/types";
 
 const PHASES: Partial<Record<LoadStatus, TrackingPhase>> = {
     AtPickup: "pickup",
@@ -24,8 +24,6 @@ export const nextStop = (stops: PublicTrackingDto["stops"]) => stops.findIndex((
 
 export const mapStops = (stops: PublicTrackingDto["stops"]): MapStop[] =>
     stops.map((stop) => ({ position: [stop.longitude, stop.latitude], type: stop.type, done: Boolean(stop.departedAt) }));
-
-export const laneOf = (stops: PublicTrackingDto["stops"]): LonLat[] => stops.map((stop) => [stop.longitude, stop.latitude]);
 
 const formatter = (options: Intl.DateTimeFormatOptions) => (iso: string, timeZone: string) =>
     new Intl.DateTimeFormat(TRACKING_LOCALE, { ...options, timeZone }).format(new Date(iso));

@@ -79,3 +79,18 @@ export interface MapVehicle {
     position: LonLat;
     stale: boolean;
 }
+
+export interface RouteLine {
+    path: LonLat[];
+    timestamps: number[];
+}
+
+export interface MapRoute extends RouteLine {
+    travelled: number;
+    live: boolean;
+}
+
+export interface MapMotion {
+    drawn: number;
+    pulse: number;
+}
