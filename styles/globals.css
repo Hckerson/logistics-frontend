@@ -43,6 +43,27 @@
     --color-metric-activity: var(--colors-metric-activity);
     --color-metric-warning: var(--colors-metric-warning);
     --color-overlay: var(--colors-overlay);
+    --color-signal-live: var(--signal-live);
+    --color-signal-live-edge: var(--signal-live-edge);
+    --color-signal-live-wash: var(--signal-live-wash);
+    --color-signal-success: var(--signal-success);
+    --color-signal-success-edge: var(--signal-success-edge);
+    --color-signal-success-wash: var(--signal-success-wash);
+    --color-signal-warning: var(--signal-warning);
+    --color-signal-warning-edge: var(--signal-warning-edge);
+    --color-signal-warning-wash: var(--signal-warning-wash);
+    --color-signal-danger: var(--signal-danger);
+    --color-signal-danger-edge: var(--signal-danger-edge);
+    --color-signal-danger-wash: var(--signal-danger-wash);
+    --color-signal-info: var(--signal-info);
+    --color-signal-info-edge: var(--signal-info-edge);
+    --color-signal-info-wash: var(--signal-info-wash);
+    --color-signal-neutral: var(--signal-neutral);
+    --color-signal-neutral-edge: var(--signal-neutral-edge);
+    --color-signal-neutral-wash: var(--signal-neutral-wash);
+    --color-signal-muted: var(--signal-muted);
+    --color-signal-muted-edge: var(--signal-muted-edge);
+    --color-signal-muted-wash: var(--signal-muted-wash);
 
     --font-display: var(--fonts-display);
     --font-body: var(--fonts-body);
