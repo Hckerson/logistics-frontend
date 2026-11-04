@@ -239,42 +239,78 @@
 }
 
 .theme-haulr {
-    --colors-background: #0a0b0d;
-    --colors-background-alt: #111316;
-    --colors-background-muted: #191c20;
+    --colors-background: oklch(0.149 0.005 264.5);
+    --colors-background-alt: oklch(0.186 0.007 258.4);
+    --colors-background-muted: oklch(0.225 0.009 255.6);
 
-    --colors-text: #f4f1ea;
-    --colors-text-secondary: #b9b5ab;
-    --colors-text-muted: #7f7b72;
-    --colors-text-inverse: #0a0b0d;
+    --colors-text: oklch(0.959 0.01 87.5);
+    --colors-text-secondary: oklch(0.774 0.015 88.7);
+    --colors-text-muted: oklch(0.584 0.014 86.9);
+    --colors-text-inverse: oklch(0.149 0.005 264.5);
 
-    --colors-accent: #ff5a1f;
-    --colors-accent-dark: #ff7a45;
-    --colors-accent-light: #3a1a0e;
+    --colors-accent: oklch(0.682 0.211 37.7);
+    --colors-accent-dark: oklch(0.727 0.176 41.2);
+    --colors-accent-light: oklch(0.261 0.055 40.8);
 
-    --colors-success: #5fd38d;
-    --colors-success-light: #12261b;
-    --colors-error: #ff4d4f;
-    --colors-error-light: #2a1112;
-    --colors-warning: #f2b544;
-    --colors-warning-light: #2a2111;
-    --colors-info: #8fb3d9;
-    --colors-info-light: #121b25;
+    --colors-success: var(--signal-success);
+    --colors-success-light: var(--signal-success-wash);
+    --colors-error: var(--signal-danger);
+    --colors-error-light: var(--signal-danger-wash);
+    --colors-warning: var(--signal-warning);
+    --colors-warning-light: var(--signal-warning-wash);
+    --colors-info: var(--signal-info);
+    --colors-info-light: var(--signal-info-wash);
 
-    --colors-border: #23262b;
-    --colors-border-light: #1a1d21;
-    --colors-border-dark: #353941;
+    --signal-word-l: 0.78;
+    --signal-word-c: 0.14;
+    --signal-edge-l: 0.48;
+    --signal-edge-c: 0.1;
+    --signal-wash-l: 0.24;
+    --signal-wash-c: 0.045;
+
+    --signal-live-h: 50;
+    --signal-success-h: 155;
+    --signal-warning-h: 88;
+    --signal-danger-h: 20;
+    --signal-info-h: 245;
+    --signal-neutral-h: 87;
+
+    --signal-live: oklch(var(--signal-word-l) var(--signal-word-c) var(--signal-live-h));
+    --signal-live-edge: oklch(var(--signal-edge-l) var(--signal-edge-c) var(--signal-live-h));
+    --signal-live-wash: oklch(var(--signal-wash-l) var(--signal-wash-c) var(--signal-live-h));
+    --signal-success: oklch(var(--signal-word-l) var(--signal-word-c) var(--signal-success-h));
+    --signal-success-edge: oklch(var(--signal-edge-l) var(--signal-edge-c) var(--signal-success-h));
+    --signal-success-wash: oklch(var(--signal-wash-l) var(--signal-wash-c) var(--signal-success-h));
+    --signal-warning: oklch(var(--signal-word-l) var(--signal-word-c) var(--signal-warning-h));
+    --signal-warning-edge: oklch(var(--signal-edge-l) var(--signal-edge-c) var(--signal-warning-h));
+    --signal-warning-wash: oklch(var(--signal-wash-l) var(--signal-wash-c) var(--signal-warning-h));
+    --signal-danger: oklch(var(--signal-word-l) var(--signal-word-c) var(--signal-danger-h));
+    --signal-danger-edge: oklch(var(--signal-edge-l) var(--signal-edge-c) var(--signal-danger-h));
+    --signal-danger-wash: oklch(var(--signal-wash-l) var(--signal-wash-c) var(--signal-danger-h));
+    --signal-info: oklch(var(--signal-word-l) var(--signal-word-c) var(--signal-info-h));
+    --signal-info-edge: oklch(var(--signal-edge-l) var(--signal-edge-c) var(--signal-info-h));
+    --signal-info-wash: oklch(var(--signal-wash-l) var(--signal-wash-c) var(--signal-info-h));
+    --signal-neutral: oklch(var(--signal-word-l) 0.012 var(--signal-neutral-h));
+    --signal-neutral-edge: oklch(0.4 0.01 var(--signal-neutral-h));
+    --signal-neutral-wash: oklch(0.21 0.006 var(--signal-neutral-h));
+    --signal-muted: oklch(0.6 0.01 var(--signal-neutral-h));
+    --signal-muted-edge: oklch(0.32 0.008 var(--signal-neutral-h));
+    --signal-muted-wash: oklch(0.18 0.004 var(--signal-neutral-h));
+
+    --colors-border: oklch(0.268 0.01 260.7);
+    --colors-border-light: oklch(0.229 0.009 255.6);
+    --colors-border-dark: oklch(0.344 0.015 264.4);
 
     --fonts-display: var(--nf-haulr-sans), system-ui, "Segoe UI", sans-serif;
     --fonts-body: var(--nf-haulr-sans), system-ui, "Segoe UI", sans-serif;
     --fonts-mono: var(--nf-haulr-mono), ui-monospace, monospace;
 
-    --haulr-land: #13161a;
-    --haulr-state-line: #2a2e35;
-    --haulr-road: #3a3f48;
-    --haulr-headlight: #ffe9c4;
-    --haulr-hot: #fff8ee;
-    --haulr-glow: rgba(255, 90, 31, 0.22);
+    --haulr-land: oklch(0.199 0.009 255.6);
+    --haulr-state-line: oklch(0.3 0.014 261.7);
+    --haulr-road: oklch(0.367 0.017 262.3);
+    --haulr-headlight: oklch(0.943 0.054 80.7);
+    --haulr-hot: oklch(0.982 0.015 77.1);
+    --haulr-glow: oklch(0.682 0.211 37.7 / 0.22);
 
     --haulr-display: clamp(2.5rem, 5.6vw, 5rem);
     --haulr-title: clamp(2.25rem, 4.6vw, 4.5rem);
@@ -295,15 +331,15 @@
 
 @media print {
     .theme-haulr {
-        --colors-background: #ffffff;
-        --colors-background-muted: #f2f2f2;
-        --colors-text: #111111;
-        --colors-text-secondary: #333333;
-        --colors-text-muted: #666666;
-        --colors-accent: #111111;
-        --colors-accent-dark: #111111;
-        --colors-error: #111111;
-        --colors-border: #cccccc;
-        --colors-border-dark: #999999;
+        --colors-background: oklch(1 0 0);
+        --colors-background-muted: oklch(0.961 0 0);
+        --colors-text: oklch(0.178 0 0);
+        --colors-text-secondary: oklch(0.321 0 0);
+        --colors-text-muted: oklch(0.51 0 0);
+        --colors-accent: oklch(0.178 0 0);
+        --colors-accent-dark: oklch(0.178 0 0);
+        --colors-error: oklch(0.178 0 0);
+        --colors-border: oklch(0.845 0 0);
+        --colors-border-dark: oklch(0.683 0 0);
     }
 }

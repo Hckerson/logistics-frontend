@@ -1,10 +1,14 @@
 import { DARK, layers, type Flavor } from "@protomaps/basemaps";
 import type { StyleSpecification } from "maplibre-gl";
 import { BASEMAP, MAP_KEY } from "@/lib/maps/constants";
+import { rgbOf } from "@/lib/utils/css-color";
 
 export function basemapStyle(element: HTMLElement): StyleSpecification {
     const styles = getComputedStyle(element);
-    const read = (name: string, fallback: string) => styles.getPropertyValue(name).trim() || fallback;
+    const read = (name: string, fallback: string) => {
+        const rgb = rgbOf(styles.getPropertyValue(name));
+        return rgb ? `rgb(${rgb.join(",")})` : fallback;
+    };
     const background = read("--colors-background", DARK.background);
     const land = read("--haulr-land", DARK.earth);
     const line = read("--haulr-state-line", DARK.boundaries);
