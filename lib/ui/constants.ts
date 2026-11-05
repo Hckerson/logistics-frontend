@@ -120,6 +120,8 @@ export const SIGNAL_TAGS: Record<SignalTone, string> = {
 
 export const LABEL_TEXT = "haulr-label text-text-muted";
 
+export const RECORD_LINK = `${FOCUS_RING} text-text hover:text-accent font-mono underline-offset-4 transition-colors hover:underline`;
+
 export const TABLE_HEAD = "haulr-label text-text-muted h-9 px-3 text-left align-middle font-normal first:pl-4 last:pr-4";
 
 export const TABLE_CELL = "h-9 overflow-hidden px-3 align-middle text-ellipsis whitespace-nowrap first:pl-4 last:pr-4";
@@ -127,6 +129,10 @@ export const TABLE_CELL = "h-9 overflow-hidden px-3 align-middle text-ellipsis w
 export const TABLE_ACTIVE = "bg-background-muted shadow-[inset_2px_0_0_var(--colors-accent)]";
 
 export const TABLE_MOTION = { duration: 0.35, ease: [0.16, 1, 0.3, 1] } as const;
+
+export const TABLE_ENTRY = { step: 0.035, rows: 12, rise: 4 } as const;
+
+export const TABLE_FLASH = { ms: 1400, easing: "cubic-bezier(0.16, 1, 0.3, 1)", colour: "--signal-live-wash" } as const;
 
 export const TABLE_SKELETON_ROWS = 5;
 

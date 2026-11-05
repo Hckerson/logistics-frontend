@@ -12,7 +12,7 @@ export interface SpecimenLoad {
     progress: number;
     status: LoadStatus;
     qualifier?: LoadQualifier;
-    pickup: string;
+    pickup: { day: string; time: string };
     miles: number;
     rate: number;
 }

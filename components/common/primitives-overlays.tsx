@@ -78,7 +78,9 @@ export default function PrimitivesOverlays() {
                     <div className="flex flex-col gap-3 text-xs">
                         <StatusLabel {...loadStatusDisplay(preview.status, preview.qualifier)} />
                         <LaneLabel origin={preview.origin} destination={preview.destination} />
-                        <p className="text-text-secondary">{preview.pickup}</p>
+                        <p className="text-text-secondary">
+                            {preview.pickup.day} · {preview.pickup.time}
+                        </p>
                     </div>
                 </Drawer>
             </PrimitivesSpecimen>

@@ -110,6 +110,7 @@ export const PRIMITIVES_COPY = {
         countdownLabel: "Price held for",
         tableCaption: "Recent loads",
         tableNote: "Sample data",
+        tableNoMatch: "No loads match that search. Try a reference, a city or a carrier.",
         columns: { reference: "Load", lane: "Lane", status: "Status", pickup: "Pickup", miles: "Miles", rate: "Rate, USD" },
         tableState: "Table state",
         tableStates: { ready: "Loaded", loading: "First load", refreshing: "Refreshing", empty: "Empty", failed: "Failed" },

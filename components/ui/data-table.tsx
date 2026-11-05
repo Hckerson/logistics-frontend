@@ -5,11 +5,11 @@ import { Renew } from "@carbon/icons-react";
 import Button from "@/components/ui/button";
 import HudCorners from "@/components/ui/hud-corners";
 import ProgressLine from "@/components/ui/progress-line";
-import TableBulkBar from "@/components/ui/table-bulk-bar";
 import TableCards from "@/components/ui/table-cards";
 import TableHead from "@/components/ui/table-head";
 import TableMessage from "@/components/ui/table-message";
 import TableRow from "@/components/ui/table-row";
+import TableToolbar, { TABLE_STRIP } from "@/components/ui/table-toolbar";
 import { useRowSelection } from "@/lib/hooks/use-row-selection";
 import { UI_COPY } from "@/lib/ui/copy";
 import { fillTemplate } from "@/lib/utils/fill-template";
@@ -18,11 +18,14 @@ import type { TableColumn, TablePreview, TableRowMenu, TableSelection, TableSort
 
 interface Props<Item> {
     caption: string;
+    count?: number;
     note?: ReactNode;
+    tools?: ReactNode;
     columns: readonly TableColumn<Item>[];
     rows: readonly Item[];
     rowKey: (row: Item) => string;
     rowLabel?: (row: Item) => string;
+    rowSignature?: (row: Item) => string;
     sort?: TableSort;
     onSortChange?: (sort: TableSort) => void;
     selection?: TableSelection;
@@ -35,8 +38,6 @@ interface Props<Item> {
     footer?: ReactNode;
 }
 
-const STRIP = "border-border flex min-h-10 items-center justify-between gap-4 border-b px-4 py-1.5";
-
 const sortAnnouncement = <Item,>(columns: readonly TableColumn<Item>[], sort: TableSort | undefined) => {
     const column = columns.find((entry) => entry.key === sort?.column);
     if (!sort || !column) return "";
@@ -44,7 +45,7 @@ const sortAnnouncement = <Item,>(columns: readonly TableColumn<Item>[], sort: Ta
 };
 
 export default function DataTable<Item>(props: Props<Item>) {
-    const { caption, note, columns, rows, rowKey, rowLabel = rowKey, sort, onSortChange, selection, menu, preview } = props;
+    const { caption, count, note, tools, columns, rows, rowKey, rowLabel = rowKey, rowSignature, sort, onSortChange, selection, menu, preview } = props;
     const { loading = false, failed = false, onRetry, empty, footer } = props;
     const baseId = useId();
     const picks = useRowSelection(rows.map(rowKey), selection);
@@ -55,22 +56,17 @@ export default function DataTable<Item>(props: Props<Item>) {
     return (
         <div aria-busy={loading || undefined} className="border-border-dark bg-background relative border">
             <HudCorners />
-            <div className={clsx(STRIP, "transition-colors", picks.count > 0 && "bg-background-muted/60")}>
-                {selection && picks.count > 0 ? (
-                    <TableBulkBar count={picks.count} onClear={picks.clear}>
-                        {selection.actions?.(selection.keys)}
-                    </TableBulkBar>
-                ) : (
-                    <>
-                        <p aria-hidden className="haulr-label text-text-muted">
-                            {caption}
-                        </p>
-                        {note ? <div className="haulr-label text-text-muted">{note}</div> : null}
-                    </>
-                )}
-            </div>
+            <TableToolbar
+                caption={caption}
+                count={count}
+                note={note}
+                tools={tools}
+                picked={selection ? picks.count : 0}
+                onClear={picks.clear}
+                actions={selection?.actions?.(selection.keys)}
+            />
             {failed && settled ? (
-                <div role="alert" className={STRIP}>
+                <div role="alert" className={TABLE_STRIP}>
                     <p className="text-signal-warning text-xs">{UI_COPY.tableFailedKept}</p>
                     {onRetry ? (
                         <Button tone="ghost" size="sm" icon={Renew} onPress={onRetry}>
@@ -101,15 +97,17 @@ export default function DataTable<Item>(props: Props<Item>) {
                         expandable={Boolean(preview)}
                         withMenu={Boolean(menu)}
                     />
-                    <tbody>
+                    <tbody className={clsx("transition-opacity duration-300", loading && settled && "opacity-50")}>
                         {settled ? (
-                            rows.map((row) => {
+                            rows.map((row, index) => {
                                 const key = rowKey(row);
                                 const open = preview?.open === key;
                                 return (
                                     <TableRow
                                         key={key}
                                         row={row}
+                                        order={index}
+                                        signature={rowSignature?.(row)}
                                         id={`${baseId}-${key}`}
                                         name={rowLabel(row)}
                                         columns={columns}
