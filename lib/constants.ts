@@ -3,6 +3,8 @@ import type { AccountSide, MfaMethod, SupportContext } from "@/lib/types";
 
 export const DATE_VALUE_FORMAT = "yyyy-MM-dd";
 
+export const REPORT_RANGE_DAYS = 366;
+
 export const SESSION_COOKIE = "session";
 
 export const MFA_COOKIE = "mfa_challenge";

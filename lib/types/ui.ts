@@ -78,3 +78,25 @@ export interface FieldControl {
     "aria-describedby": string | undefined;
     "aria-labelledby": string;
 }
+
+export interface DateRangeValue {
+    start: string;
+    end: string;
+}
+
+export type DateTiming = { granularity?: "day"; timeZone?: undefined; step?: undefined } | { granularity: "minute"; timeZone: string; step?: number };
+
+export interface DateControl {
+    id?: string;
+    min?: string;
+    max?: string;
+    size?: ControlSize;
+    invalid?: boolean;
+    isDisabled?: boolean;
+    isReadOnly?: boolean;
+    isRequired?: boolean;
+    "aria-label"?: string;
+    "aria-labelledby"?: string;
+    "aria-describedby"?: string;
+    "aria-invalid"?: boolean;
+}

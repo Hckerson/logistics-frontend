@@ -1,5 +1,5 @@
 import { Copy, Download, Edit, Location, Share, TrashCan, UserFollow, View } from "@carbon/icons-react";
-import type { ButtonTone, ChoiceOption, ControlSize, LoadStatus, MenuEntry, SpecimenFile, SpecimenLoad, SpecimenSignal, SpecimenSwatch, TabItem } from "@/lib/types";
+import type { ButtonTone, ChoiceOption, ControlSize, DateRangeValue, LoadStatus, MenuEntry, SpecimenFile, SpecimenLoad, SpecimenSignal, SpecimenSwatch, TabItem } from "@/lib/types";
 
 export const SPECIMEN_TONES: readonly ButtonTone[] = ["ink", "accent", "outline", "quiet", "ghost", "danger"];
 
@@ -106,6 +106,10 @@ export const SPECIMEN_PENDING_MS = 2400;
 export const SPECIMEN_SHORTCUT = ["⌘", "K"] as const;
 
 export const SPECIMEN_TIME_ZONE = "America/Chicago";
+
+export const SPECIMEN_PERIOD: DateRangeValue = { start: "2026-10-01", end: "2026-10-31" };
+
+export const SPECIMEN_WINDOW: DateRangeValue = { start: "2026-11-12T20:00:00.000Z", end: "2026-11-12T22:00:00.000Z" };
 
 export const SPECIMEN_FILES: readonly SpecimenFile[] = [
     { name: "rate-confirmation-HL-7K2M9QXA.pdf", sizeBytes: 182_000, state: "uploaded" },

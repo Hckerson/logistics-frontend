@@ -131,3 +131,13 @@ export const TABLE_MOTION = { duration: 0.35, ease: [0.16, 1, 0.3, 1] } as const
 export const TABLE_SKELETON_ROWS = 5;
 
 export const COPY_RESET_MS = 2000;
+
+export const MINUTE_STEP = 15;
+
+export const WINDOW_MINUTES = 120;
+
+export const DATE_SEGMENT = [
+    "text-text px-px tabular-nums outline-none caret-transparent",
+    "data-placeholder:text-text-muted data-[type=literal]:text-text-muted data-[type=literal]:px-0",
+    "data-focused:bg-accent/20 data-focused:text-text data-invalid:text-error",
+].join(" ");
