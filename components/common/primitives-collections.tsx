@@ -17,7 +17,7 @@ export default function PrimitivesCollections() {
 
     return (
         <PrimitivesSection {...sections.collections}>
-            <PrimitivesSpecimen label={specimens.table} contract="IC-22 · IC-21" wide>
+            <PrimitivesSpecimen label={specimens.table} contract="IC-22 · IC-23 · IC-21" wide>
                 <PrimitivesLoadTable />
             </PrimitivesSpecimen>
             <PrimitivesSpecimen label={specimens.upload} contract="IC-24" wide>

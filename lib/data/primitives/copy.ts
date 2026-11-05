@@ -105,6 +105,13 @@ export const PRIMITIVES_COPY = {
         tableCaption: "Recent loads",
         tableNote: "Sample data",
         columns: { reference: "Load", lane: "Lane", status: "Status", pickup: "Pickup", miles: "Miles", rate: "Rate, USD" },
+        tableState: "Table state",
+        tableStates: { ready: "Loaded", loading: "First load", refreshing: "Refreshing", empty: "Empty", failed: "Failed" },
+        tableEmpty: "No loads match these filters. Clear a filter to widen the search.",
+        tableTotal: "{total} in rates",
+        tableExport: "Export",
+        rowMenu: { open: "Open load", copy: "Copy reference", cancel: "Cancel load" },
+        cancelReason: "Only loads not yet picked up can be cancelled here.",
         uploadHint: "Bill of lading, proof of delivery or rate confirmation.",
     },
 } as const;

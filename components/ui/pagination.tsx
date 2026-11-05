@@ -39,7 +39,7 @@ export default function Pagination(props: Props) {
     return (
         <nav
             aria-label={UI_COPY.pagination}
-            className={clsx("border-border-dark flex flex-wrap items-center justify-between gap-2 border-t pt-2", props.className)}
+            className={clsx("flex flex-wrap items-center justify-between gap-2", props.className)}
         >
             <p className="text-text-muted text-xs tabular-nums">{summary(props.shown, props.total)}</p>
             {props.mode === "more" ? (

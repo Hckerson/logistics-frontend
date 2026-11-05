@@ -43,7 +43,25 @@ export interface TableColumn<Row> {
     align?: "start" | "end";
     rowHeader?: boolean;
     width?: string;
+    phone?: "aside" | "hidden";
     cell: (row: Row) => ReactNode;
+}
+
+export interface TableSelection {
+    keys: ReadonlySet<string>;
+    onChange: (keys: ReadonlySet<string>) => void;
+    actions?: (keys: ReadonlySet<string>) => ReactNode;
+}
+
+export interface TableRowMenu<Row> {
+    items: (row: Row) => readonly MenuEntry[];
+    onAction: (row: Row, id: string) => void;
+}
+
+export interface TablePreview<Row> {
+    open: string | null;
+    onOpen: (key: string | null) => void;
+    render: (row: Row) => ReactNode;
 }
 
 export interface TableSort {

@@ -1,13 +1,20 @@
 "use client";
 import clsx from "clsx";
 import { useId, type ReactNode } from "react";
-import { Cell, Column, Row, Table, TableBody, TableHeader, type Selection, type SortDescriptor } from "react-aria-components";
+import { Renew } from "@carbon/icons-react";
+import Button from "@/components/ui/button";
 import HudCorners from "@/components/ui/hud-corners";
 import ProgressLine from "@/components/ui/progress-line";
-import TableHeading from "@/components/ui/table-heading";
+import TableBulkBar from "@/components/ui/table-bulk-bar";
+import TableCards from "@/components/ui/table-cards";
+import TableHead from "@/components/ui/table-head";
+import TableMessage from "@/components/ui/table-message";
+import TableRow from "@/components/ui/table-row";
+import { useRowSelection } from "@/lib/hooks/use-row-selection";
 import { UI_COPY } from "@/lib/ui/copy";
 import { fillTemplate } from "@/lib/utils/fill-template";
-import type { TableColumn, TableSort } from "@/lib/types";
+import { pluralize } from "@/lib/utils/plural";
+import type { TableColumn, TablePreview, TableRowMenu, TableSelection, TableSort } from "@/lib/types";
 
 interface Props<Item> {
     caption: string;
@@ -15,27 +22,20 @@ interface Props<Item> {
     columns: readonly TableColumn<Item>[];
     rows: readonly Item[];
     rowKey: (row: Item) => string;
+    rowLabel?: (row: Item) => string;
     sort?: TableSort;
     onSortChange?: (sort: TableSort) => void;
-    selected?: string | null;
-    onSelect?: (key: string | null) => void;
-    detail?: (row: Item) => ReactNode;
+    selection?: TableSelection;
+    menu?: TableRowMenu<Item>;
+    preview?: TablePreview<Item>;
     loading?: boolean;
+    failed?: boolean;
+    onRetry?: () => void;
     empty?: ReactNode;
     footer?: ReactNode;
-    onRowAction?: (key: string) => void;
 }
 
-const FOCUS = "outline-none data-focus-visible:outline-text data-focus-visible:outline-2 data-focus-visible:-outline-offset-2";
-const HEAD = `haulr-label text-text-muted group/head border-border-dark h-9 border-b px-4 text-left align-middle font-normal ${FOCUS}`;
-const CELL = `h-10 px-4 align-middle ${FOCUS}`;
-const ROW = [
-    "border-border text-text-secondary border-b text-xs transition-colors last:border-b-0",
-    "data-hovered:bg-background-muted/50 data-selected:bg-background-muted data-selected:text-text data-selected:shadow-[inset_2px_0_0_var(--colors-accent)]",
-    FOCUS,
-].join(" ");
-
-const firstKey = (keys: Selection) => (keys === "all" ? null : ([...keys].map(String)[0] ?? null));
+const STRIP = "border-border flex min-h-10 items-center justify-between gap-4 border-b px-4 py-1.5";
 
 const sortAnnouncement = <Item,>(columns: readonly TableColumn<Item>[], sort: TableSort | undefined) => {
     const column = columns.find((entry) => entry.key === sort?.column);
@@ -44,74 +44,106 @@ const sortAnnouncement = <Item,>(columns: readonly TableColumn<Item>[], sort: Ta
 };
 
 export default function DataTable<Item>(props: Props<Item>) {
-    const { caption, note, columns, rows, rowKey, sort, onSortChange, selected = null, onSelect, detail, loading = false, empty, footer, onRowAction } = props;
-    const captionId = useId();
-    const current = selected === null ? undefined : rows.find((row) => rowKey(row) === selected);
-
-    const changeSort = (descriptor: SortDescriptor) => onSortChange?.({ column: String(descriptor.column), direction: descriptor.direction });
+    const { caption, note, columns, rows, rowKey, rowLabel = rowKey, sort, onSortChange, selection, menu, preview } = props;
+    const { loading = false, failed = false, onRetry, empty, footer } = props;
+    const baseId = useId();
+    const picks = useRowSelection(rows.map(rowKey), selection);
+    const span = columns.length + Number(Boolean(selection)) + Number(Boolean(preview)) + Number(Boolean(menu));
+    const settled = rows.length > 0;
+    const message = <TableMessage loading={loading} failed={failed} empty={empty} onRetry={onRetry} />;
 
     return (
         <div aria-busy={loading || undefined} className="border-border-dark bg-background relative border">
             <HudCorners />
-            <div className="border-border flex items-center justify-between gap-4 border-b px-4 py-2.5">
-                <p id={captionId} className="haulr-label text-text-muted">
-                    {caption}
-                </p>
-                {note ? <div className="haulr-label text-text-muted">{note}</div> : null}
+            <div className={clsx(STRIP, "transition-colors", picks.count > 0 && "bg-background-muted/60")}>
+                {selection && picks.count > 0 ? (
+                    <TableBulkBar count={picks.count} onClear={picks.clear}>
+                        {selection.actions?.(selection.keys)}
+                    </TableBulkBar>
+                ) : (
+                    <>
+                        <p aria-hidden className="haulr-label text-text-muted">
+                            {caption}
+                        </p>
+                        {note ? <div className="haulr-label text-text-muted">{note}</div> : null}
+                    </>
+                )}
             </div>
-            <div className="relative overflow-x-auto">
-                <Table
-                    aria-labelledby={captionId}
-                    sortDescriptor={sort}
-                    onSortChange={changeSort}
-                    selectionMode={onSelect ? "single" : "none"}
-                    selectionBehavior="replace"
-                    selectedKeys={selected === null ? [] : [selected]}
-                    onSelectionChange={(keys) => onSelect?.(firstKey(keys))}
-                    onRowAction={onRowAction ? (key) => onRowAction(String(key)) : undefined}
-                    className="w-full border-collapse"
-                >
-                    <TableHeader>
-                        {columns.map((column) => (
-                            <Column
-                                key={column.key}
-                                id={column.key}
-                                isRowHeader={column.rowHeader}
-                                allowsSorting={column.sortable}
-                                style={column.width ? { width: column.width } : undefined}
-                                className={clsx(HEAD, column.align === "end" && "text-right", column.sortable && "cursor-pointer")}
-                            >
-                                {({ sortDirection }) => (
-                                    <TableHeading label={column.label} sortable={Boolean(column.sortable)} direction={sortDirection} end={column.align === "end"} />
-                                )}
-                            </Column>
-                        ))}
-                    </TableHeader>
-                    <TableBody renderEmptyState={empty === undefined ? undefined : () => <div className="text-text-muted px-4 py-6 text-xs">{empty}</div>}>
-                        {rows.map((row) => (
-                            <Row key={rowKey(row)} id={rowKey(row)} className={clsx(ROW, (onSelect || onRowAction) && "cursor-pointer")}>
-                                {columns.map((column) => (
-                                    <Cell
-                                        key={column.key}
-                                        className={clsx(CELL, column.rowHeader && "text-text", column.align === "end" && "text-right font-mono tabular-nums")}
-                                    >
-                                        {column.cell(row)}
-                                    </Cell>
-                                ))}
-                            </Row>
-                        ))}
-                    </TableBody>
-                </Table>
-                {loading ? <ProgressLine className="absolute inset-x-0 top-9" /> : null}
-            </div>
-            {current && detail ? (
-                <div key={selected} className="border-border haulr-fade-in border-t px-4 py-4">
-                    {detail(current)}
+            {failed && settled ? (
+                <div role="alert" className={STRIP}>
+                    <p className="text-signal-warning text-xs">{UI_COPY.tableFailedKept}</p>
+                    {onRetry ? (
+                        <Button tone="ghost" size="sm" icon={Renew} onPress={onRetry}>
+                            {UI_COPY.retry}
+                        </Button>
+                    ) : null}
                 </div>
             ) : null}
-            {footer ? <div className="border-border border-t px-4 py-2.5">{footer}</div> : null}
+            <div className="relative hidden overflow-x-auto sm:block">
+                <table className="w-full min-w-160 table-fixed border-collapse">
+                    <caption className="sr-only">{caption}</caption>
+                    <colgroup>
+                        {selection ? <col className="w-11" /> : null}
+                        {preview ? <col className="w-10" /> : null}
+                        {columns.map((column) => (
+                            <col key={column.key} style={column.width ? { width: column.width } : undefined} />
+                        ))}
+                        {menu ? <col className="w-14" /> : null}
+                    </colgroup>
+                    <TableHead
+                        columns={columns}
+                        sort={sort}
+                        onSortChange={onSortChange}
+                        selectable={Boolean(selection)}
+                        allOnPage={picks.allOnPage}
+                        someOnPage={picks.someOnPage}
+                        onTogglePage={picks.togglePage}
+                        expandable={Boolean(preview)}
+                        withMenu={Boolean(menu)}
+                    />
+                    <tbody>
+                        {settled ? (
+                            rows.map((row) => {
+                                const key = rowKey(row);
+                                const open = preview?.open === key;
+                                return (
+                                    <TableRow
+                                        key={key}
+                                        row={row}
+                                        id={`${baseId}-${key}`}
+                                        name={rowLabel(row)}
+                                        columns={columns}
+                                        span={span}
+                                        picked={picks.isPicked(key)}
+                                        onPick={selection ? (on) => picks.toggle(key, on) : undefined}
+                                        onArm={picks.arm}
+                                        open={open}
+                                        onOpen={preview ? () => preview.onOpen(open ? null : key) : undefined}
+                                        preview={open ? preview?.render(row) : undefined}
+                                        menu={menu}
+                                    />
+                                );
+                            })
+                        ) : (
+                            <tr>
+                                <td colSpan={span} className="p-0">
+                                    {message}
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+                {loading && settled ? <ProgressLine className="absolute inset-x-0 top-9" /> : null}
+            </div>
+            <div className="sm:hidden">
+                {settled ? <TableCards caption={caption} columns={columns} rows={rows} rowKey={rowKey} rowLabel={rowLabel} menu={menu} /> : message}
+            </div>
+            {footer ? <div className="border-border border-t px-4 py-2">{footer}</div> : null}
             <span role="status" className="sr-only">
                 {sortAnnouncement(columns, sort)}
+            </span>
+            <span role="status" className="sr-only">
+                {picks.count > 0 ? pluralize(picks.count, UI_COPY.selectedCount) : ""}
             </span>
         </div>
     );
