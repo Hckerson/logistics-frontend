@@ -120,4 +120,14 @@ export const SIGNAL_TAGS: Record<SignalTone, string> = {
 
 export const LABEL_TEXT = "haulr-label text-text-muted";
 
+export const TABLE_HEAD = "haulr-label text-text-muted h-9 px-3 text-left align-middle font-normal first:pl-4 last:pr-4";
+
+export const TABLE_CELL = "h-9 overflow-hidden px-3 align-middle text-ellipsis whitespace-nowrap first:pl-4 last:pr-4";
+
+export const TABLE_ACTIVE = "bg-background-muted shadow-[inset_2px_0_0_var(--colors-accent)]";
+
+export const TABLE_MOTION = { duration: 0.35, ease: [0.16, 1, 0.3, 1] } as const;
+
+export const TABLE_SKELETON_ROWS = 5;
+
 export const COPY_RESET_MS = 2000;
