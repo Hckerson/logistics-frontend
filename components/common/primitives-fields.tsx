@@ -5,15 +5,30 @@ import PrimitivesSection from "@/components/common/primitives-section";
 import PrimitivesSpecimen from "@/components/common/primitives-specimen";
 import Combobox from "@/components/ui/combobox";
 import DateField from "@/components/ui/date-field";
+import DateRangeField from "@/components/ui/date-range-field";
 import Field from "@/components/ui/field";
 import Input from "@/components/ui/input";
 import Kbd from "@/components/ui/kbd";
 import SearchField from "@/components/ui/search-field";
 import Select from "@/components/ui/select";
+import { REPORT_RANGE_DAYS } from "@/lib/constants";
 import { PRIMITIVES_COPY } from "@/lib/data/primitives/copy";
-import { SPECIMEN_CITIES, SPECIMEN_EQUIPMENT, SPECIMEN_LOADS, SPECIMEN_SHORTCUT, SPECIMEN_TIME_ZONE } from "@/lib/data/primitives/samples";
+import {
+    SPECIMEN_CITIES,
+    SPECIMEN_EQUIPMENT,
+    SPECIMEN_LOADS,
+    SPECIMEN_PERIOD,
+    SPECIMEN_SHORTCUT,
+    SPECIMEN_TIME_ZONE,
+    SPECIMEN_WINDOW,
+} from "@/lib/data/primitives/samples";
+import { MINUTE_STEP } from "@/lib/ui/constants";
+import { fillTemplate } from "@/lib/utils/fill-template";
+import type { DateRangeValue } from "@/lib/types";
 
 const { sections, specimens, demo } = PRIMITIVES_COPY;
+
+const stepHint = fillTemplate(demo.stepHint, { step: String(MINUTE_STEP) });
 
 export default function PrimitivesFields() {
     const [reference, setReference] = useState("");
@@ -22,6 +37,8 @@ export default function PrimitivesFields() {
     const [origin, setOrigin] = useState<string | null>(null);
     const [touched, setTouched] = useState(false);
     const [pickup, setPickup] = useState<string | null>(null);
+    const [period, setPeriod] = useState<DateRangeValue | null>(SPECIMEN_PERIOD);
+    const [appointment, setAppointment] = useState<DateRangeValue | null>(SPECIMEN_WINDOW);
     const error = touched && reference.trim() === "" ? demo.referenceError : undefined;
 
     return (
@@ -80,8 +97,24 @@ export default function PrimitivesFields() {
             </PrimitivesSpecimen>
             <PrimitivesSpecimen label={specimens.date} contract="IC-08">
                 <div className="w-full">
-                    <Field id="specimen-pickup" label={demo.pickupDate}>
+                    <Field id="specimen-pickup" label={demo.pickupDate} hint={stepHint}>
                         {(control) => <DateField {...control} value={pickup} onChange={setPickup} timeZone={SPECIMEN_TIME_ZONE} granularity="minute" />}
+                    </Field>
+                </div>
+            </PrimitivesSpecimen>
+            <PrimitivesSpecimen label={specimens.range} contract="IC-08 · IC-17">
+                <div className="w-full">
+                    <Field id="specimen-period" label={demo.reportRange} hint={fillTemplate(demo.rangeHint, { days: String(REPORT_RANGE_DAYS) })}>
+                        {(control) => <DateRangeField {...control} value={period} onChange={setPeriod} maxDays={REPORT_RANGE_DAYS} />}
+                    </Field>
+                </div>
+            </PrimitivesSpecimen>
+            <PrimitivesSpecimen label={specimens.window} contract="IC-08" wide>
+                <div className="w-full max-w-md">
+                    <Field id="specimen-window" label={demo.deliveryWindow} hint={stepHint}>
+                        {(control) => (
+                            <DateRangeField {...control} value={appointment} onChange={setAppointment} timeZone={SPECIMEN_TIME_ZONE} granularity="minute" />
+                        )}
                     </Field>
                 </div>
             </PrimitivesSpecimen>

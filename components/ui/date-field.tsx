@@ -1,54 +1,45 @@
 "use client";
 import clsx from "clsx";
-import { useId } from "react";
-import { Calendar } from "@carbon/icons-react";
-import { Button as AriaButton, DateInput, DatePicker, DateSegment, Dialog, Group, type DateValue } from "react-aria-components";
+import { useId, useRef } from "react";
+import { DateInput, DatePicker, DateSegment, Dialog, Group, type DateValue } from "react-aria-components";
+import CalendarButton from "@/components/ui/calendar-button";
 import CalendarPanel from "@/components/ui/calendar-panel";
 import FocusCorners from "@/components/ui/focus-corners";
 import Popover from "@/components/ui/popover";
-import { describedBy, fieldClass, squareButtonClass } from "@/lib/ui/classes";
-import { ICON_SIZES, LABEL_TEXT } from "@/lib/ui/constants";
-import { UI_COPY } from "@/lib/ui/copy";
-import { fromDateValue, toDateValue, zoneLabel } from "@/lib/utils/date-value";
-import type { ControlSize } from "@/lib/types";
+import { describedBy, fieldClass } from "@/lib/ui/classes";
+import { DATE_SEGMENT, LABEL_TEXT, MINUTE_STEP } from "@/lib/ui/constants";
+import { fromDateValue, sameDate, snapToStep, toDateValue, zoneLabel } from "@/lib/utils/date-value";
+import type { DateControl, DateTiming } from "@/lib/types";
 
-type Timing = { granularity?: "day"; timeZone?: undefined } | { granularity: "minute"; timeZone: string };
-
-type Props = Timing & {
-    id?: string;
-    name?: string;
-    value: string | null;
-    onChange: (value: string | null) => void;
-    min?: string;
-    max?: string;
-    size?: ControlSize;
-    invalid?: boolean;
-    isDisabled?: boolean;
-    isReadOnly?: boolean;
-    isRequired?: boolean;
-    "aria-label"?: string;
-    "aria-labelledby"?: string;
-    "aria-describedby"?: string;
-    "aria-invalid"?: boolean;
-};
-
-const SEGMENT = [
-    "text-text px-px tabular-nums outline-none caret-transparent",
-    "data-placeholder:text-text-muted data-[type=literal]:text-text-muted data-[type=literal]:px-0",
-    "data-focused:bg-accent/20 data-focused:text-text data-invalid:text-error",
-].join(" ");
+type Props = DateTiming &
+    DateControl & {
+        name?: string;
+        value: string | null;
+        onChange: (value: string | null) => void;
+    };
 
 export default function DateField(props: Props) {
-    const { id, name, value, onChange, min, max, size = "md", invalid = false } = props;
+    const { id, name, value, onChange, min, max, size = "md", invalid = false, step = MINUTE_STEP } = props;
     const zoneId = useId();
+    const picking = useRef(false);
     const zone = props.granularity === "minute" ? props.timeZone : null;
+    const snap = (date: DateValue) => (zone && !props.isReadOnly ? snapToStep(date, zone, step) : date);
+
+    const commit = () => {
+        const current = toDateValue(value, zone);
+        if (current && !sameDate(current, snap(current))) onChange(fromDateValue(snap(current), zone));
+    };
 
     return (
         <DatePicker<DateValue>
             id={id}
             name={name}
             value={toDateValue(value, zone)}
-            onChange={(next) => onChange(fromDateValue(next, zone))}
+            onChange={(next) => onChange(fromDateValue(next && picking.current ? snap(next) : next, zone))}
+            onOpenChange={(open) => {
+                picking.current = open;
+            }}
+            onBlur={commit}
             minValue={toDateValue(min, zone)}
             maxValue={toDateValue(max, zone)}
             granularity={zone ? "minute" : "day"}
@@ -65,11 +56,9 @@ export default function DateField(props: Props) {
         >
             <Group className={fieldClass(size, invalid, "pr-0.5 data-disabled:opacity-40")}>
                 <DateInput className="flex flex-1 items-center font-mono">
-                    {(segment) => <DateSegment segment={segment} className={SEGMENT} />}
+                    {(segment) => <DateSegment segment={segment} className={DATE_SEGMENT} />}
                 </DateInput>
-                <AriaButton aria-label={UI_COPY.chooseDate} className={squareButtonClass("ghost", size === "lg" || size === "xl" ? "md" : "sm")}>
-                    <Calendar aria-hidden className={clsx(ICON_SIZES[size], "text-text-muted")} />
-                </AriaButton>
+                <CalendarButton size={size} />
                 <FocusCorners invalid={invalid} />
             </Group>
             {zone ? (
