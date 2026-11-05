@@ -18,7 +18,9 @@ export default function PrimitivesLoadDetail({ load }: Props) {
                 <StatusLabel {...loadStatusDisplay(load.status, load.qualifier)} />
             </div>
             <LaneProgress from={load.originCode} to={load.destinationCode} progress={load.progress} />
-            <p className="text-text-muted font-mono text-xs">{load.pickup}</p>
+            <p className="text-text-muted font-mono text-xs">
+                {load.pickup.day} · {load.pickup.time}
+            </p>
         </div>
     );
 }

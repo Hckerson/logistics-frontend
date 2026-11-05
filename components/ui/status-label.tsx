@@ -24,7 +24,9 @@ export default function StatusLabel({ label, tone = "neutral", pulse = false, ta
                 {pulse ? <span className="absolute inset-0 animate-ping rounded-full bg-current opacity-60" /> : null}
                 <span className="relative size-1.5 rounded-full bg-current" />
             </span>
-            {label}
+            <span key={label} className="haulr-flip inline-block">
+                {label}
+            </span>
         </span>
     );
 }

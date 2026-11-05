@@ -1,18 +1,21 @@
 "use client";
 import clsx from "clsx";
 import { AnimatePresence, motion } from "motion/react";
-import type { KeyboardEvent, MouseEvent, PointerEvent, ReactNode } from "react";
+import { useEffect, useRef, type KeyboardEvent, type MouseEvent, type PointerEvent, type ReactNode } from "react";
 import { ChevronRight } from "@carbon/icons-react";
 import Checkbox from "@/components/ui/checkbox";
 import Menu from "@/components/ui/menu";
 import { squareButtonClass } from "@/lib/ui/classes";
-import { TABLE_ACTIVE, TABLE_CELL, TABLE_MOTION } from "@/lib/ui/constants";
+import { useReduced } from "@/lib/hooks/use-reduced";
+import { TABLE_ACTIVE, TABLE_CELL, TABLE_ENTRY, TABLE_FLASH, TABLE_MOTION } from "@/lib/ui/constants";
 import { UI_COPY } from "@/lib/ui/copy";
 import { fillTemplate } from "@/lib/utils/fill-template";
 import type { TableColumn, TableRowMenu } from "@/lib/types";
 
 interface Props<Item> {
     row: Item;
+    order: number;
+    signature?: string;
     id: string;
     name: string;
     columns: readonly TableColumn<Item>[];
@@ -30,9 +33,22 @@ const INTERACTIVE = "a, button, input, label";
 const EXPAND = { initial: { height: 0, opacity: 0 }, animate: { height: "auto", opacity: 1 }, exit: { height: 0, opacity: 0 } } as const;
 
 export default function TableRow<Item>(props: Props<Item>) {
-    const { row, id, name, columns, span, picked, onPick, onArm, open = false, onOpen, preview, menu } = props;
+    const { row, order, signature, id, name, columns, span, picked, onPick, onArm, open = false, onOpen, preview, menu } = props;
     const panelId = `${id}-preview`;
     const lead = Number(Boolean(onPick)) + Number(Boolean(onOpen));
+    const element = useRef<HTMLTableRowElement>(null);
+    const seen = useRef(signature);
+    const reduced = useReduced();
+    const entry = { ...TABLE_MOTION, delay: Math.min(order, TABLE_ENTRY.rows) * TABLE_ENTRY.step };
+
+    useEffect(() => {
+        const node = element.current;
+        if (!node || seen.current === signature) return;
+        seen.current = signature;
+        if (reduced) return;
+        const wash = getComputedStyle(node).getPropertyValue(TABLE_FLASH.colour).trim();
+        node.animate([{ backgroundColor: wash }, { backgroundColor: "transparent" }], { duration: TABLE_FLASH.ms, easing: TABLE_FLASH.easing });
+    }, [signature, reduced]);
 
     const openFromRow = (event: MouseEvent<HTMLTableRowElement>) => {
         if (!onOpen || window.getSelection()?.toString()) return;
@@ -43,13 +59,19 @@ export default function TableRow<Item>(props: Props<Item>) {
     return (
         <>
             <motion.tr
+                ref={element}
                 layout="position"
-                transition={TABLE_MOTION}
+                initial={{ opacity: 0, y: TABLE_ENTRY.rise }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ ...TABLE_MOTION, opacity: entry, y: entry }}
                 onClick={openFromRow}
                 className={clsx(
-                    "text-text-secondary border-b text-xs transition-colors",
-                    open ? clsx(TABLE_ACTIVE, "text-text border-transparent") : "border-border-light hover:bg-background-muted/40",
-                    picked && !open && "bg-background-muted/70",
+                    "text-text-secondary border-b text-xs transition-[background-color,box-shadow,color] duration-300",
+                    open
+                        ? clsx(TABLE_ACTIVE, "text-text border-transparent")
+                        : picked
+                          ? "border-border-light bg-background-muted/70 shadow-[inset_2px_0_0_var(--colors-accent)]"
+                          : "border-border-light hover:bg-background-muted/40 shadow-[inset_0_0_0_var(--colors-accent)]",
                     onOpen && "cursor-pointer",
                 )}
             >

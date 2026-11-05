@@ -80,12 +80,12 @@ export const SPECIMEN_SWATCHES: readonly SpecimenSwatch[] = [
 ];
 
 export const SPECIMEN_LOADS: readonly SpecimenLoad[] = [
-    { reference: "HL-7K2M9QXA", origin: "Chicago, IL", destination: "Dallas, TX", originCode: "CHI", destinationCode: "DAL", carrier: "Ridgeway Freight", progress: 0.62, status: "InTransit", pickup: "Nov 3, 06:00 CT", miles: 967, rate: 2140 },
-    { reference: "HL-9DQ4ZB2M", origin: "Atlanta, GA", destination: "Memphis, TN", originCode: "ATL", destinationCode: "MEM", carrier: "Blue Mesa Logistics", progress: 0.41, status: "InTransit", qualifier: "late", pickup: "Nov 3, 08:30 ET", miles: 392, rate: 1180 },
-    { reference: "HL-3RW8TNPE", origin: "Denver, CO", destination: "Phoenix, AZ", originCode: "DEN", destinationCode: "PHX", carrier: "Granite Haulage", progress: 0.28, status: "Disputed", pickup: "Nov 2, 14:00 MT", miles: 822, rate: 2475 },
-    { reference: "HL-4MC9RD7K", origin: "Dallas, TX", destination: "Atlanta, GA", originCode: "DAL", destinationCode: "ATL", carrier: "Ridgeway Freight", progress: 0, status: "Booked", pickup: "Nov 4, 07:00 CT", miles: 781, rate: 1890 },
-    { reference: "HL-2GL4YN7S", origin: "Memphis, TN", destination: "Chicago, IL", originCode: "MEM", destinationCode: "CHI", carrier: "Blue Mesa Logistics", progress: 1, status: "Delivered", pickup: "Nov 1, 10:00 CT", miles: 531, rate: 1320 },
-    { reference: "HL-5RT8VK3M", origin: "Phoenix, AZ", destination: "Denver, CO", originCode: "PHX", destinationCode: "DEN", carrier: "Not booked yet", progress: 0, status: "Cancelled", pickup: "Nov 5, 09:00 MT", miles: 822, rate: 2210 },
+    { reference: "HL-7K2M9QXA", origin: "Chicago, IL", destination: "Dallas, TX", originCode: "CHI", destinationCode: "DAL", carrier: "Ridgeway Freight", progress: 0.62, status: "InTransit", pickup: { day: "Nov 3", time: "06:00 CT" }, miles: 967, rate: 2140 },
+    { reference: "HL-9DQ4ZB2M", origin: "Atlanta, GA", destination: "Memphis, TN", originCode: "ATL", destinationCode: "MEM", carrier: "Blue Mesa Logistics", progress: 0.41, status: "InTransit", qualifier: "late", pickup: { day: "Nov 3", time: "08:30 ET" }, miles: 392, rate: 1180 },
+    { reference: "HL-3RW8TNPE", origin: "Denver, CO", destination: "Phoenix, AZ", originCode: "DEN", destinationCode: "PHX", carrier: "Granite Haulage", progress: 0.28, status: "Disputed", pickup: { day: "Nov 2", time: "14:00 MT" }, miles: 822, rate: 2475 },
+    { reference: "HL-4MC9RD7K", origin: "Dallas, TX", destination: "Atlanta, GA", originCode: "DAL", destinationCode: "ATL", carrier: "Ridgeway Freight", progress: 0, status: "Booked", pickup: { day: "Nov 4", time: "07:00 CT" }, miles: 781, rate: 1890 },
+    { reference: "HL-2GL4YN7S", origin: "Memphis, TN", destination: "Chicago, IL", originCode: "MEM", destinationCode: "CHI", carrier: "Blue Mesa Logistics", progress: 1, status: "Delivered", pickup: { day: "Nov 1", time: "10:00 CT" }, miles: 531, rate: 1320 },
+    { reference: "HL-5RT8VK3M", origin: "Phoenix, AZ", destination: "Denver, CO", originCode: "PHX", destinationCode: "DEN", carrier: "Not booked yet", progress: 0, status: "Cancelled", pickup: { day: "Nov 5", time: "09:00 MT" }, miles: 822, rate: 2210 },
 ];
 
 export const SPECIMEN_GLOSSARY = {
