@@ -41,9 +41,6 @@ export const LOAD_COPY = {
     actions: {
         label: "Next actions",
         none: "Nothing is open to you right now.",
-        reason: "Reason",
-        reasonHint: "Saved to the load's history with your name.",
-        reasonMissing: "Give a reason for this action.",
         back: "Keep load",
         done: "{action}: done. The load is now {status}.",
         pending: "Saving…",
