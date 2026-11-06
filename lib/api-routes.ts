@@ -13,6 +13,9 @@ export const apiRoutes = {
     tracking: (token: string) => `/api/tracking/${encodeURIComponent(token)}`,
     loads: (query?: LoadListParams) => `/api/loads${queryString(query)}`,
     loadCounts: () => "/api/loads/counts",
+    loadFacets: () => "/api/loads/facets",
+    exportJob: (exportId: string) => `/api/exports/${encodeURIComponent(exportId)}`,
+    exportDownload: (exportId: string) => `/api/exports/${encodeURIComponent(exportId)}/download`,
     load: (loadId: string) => `/api/loads/${encodeURIComponent(loadId)}`,
     loadCancellation: (loadId: string) =>
         `/api/loads/${encodeURIComponent(loadId)}/cancellation`,
@@ -26,7 +29,7 @@ export const apiRoutes = {
         `/api/loads/${encodeURIComponent(loadId)}/documents`,
     documentDownload: (documentId: string) =>
         `/api/documents/${encodeURIComponent(documentId)}/download`,
-    mapPositions: () => "/api/positions/latest",
+    mapPositions: (loadIds?: readonly string[]) => `/api/positions/latest${queryString({ loadIds: loadIds?.join(",") })}`,
     notifications: (query?: PageParams) =>
         `/api/notifications${queryString(query)}`,
     unreadCount: () => "/api/notifications/unread-count",

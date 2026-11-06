@@ -63,6 +63,90 @@
                         "schema": {
                             "type": "boolean"
                         }
+                    },
+                    {
+                        "name": "sort",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "pickup",
+                                "-pickup",
+                                "delivery",
+                                "-delivery",
+                                "updated",
+                                "-updated"
+                            ],
+                            "description": "Field, descending when prefixed with a minus"
+                        }
+                    },
+                    {
+                        "name": "from",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2026-11-01"
+                        }
+                    },
+                    {
+                        "name": "to",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2026-11-30"
+                        }
+                    },
+                    {
+                        "name": "dateField",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": ["pickup", "delivery"]
+                        }
+                    },
+                    {
+                        "name": "origin",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 120,
+                            "description": "Pickup city"
+                        }
+                    },
+                    {
+                        "name": "destination",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 120,
+                            "description": "Delivery city"
+                        }
+                    },
+                    {
+                        "name": "carrier",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "description": "Carrier organisation id"
+                        }
+                    },
+                    {
+                        "name": "exceptions",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean",
+                            "description": "Only loads whose tracking has gone silent past the exception threshold"
+                        }
                     }
                 ],
                 "responses": {
@@ -487,7 +571,18 @@
         "/api/positions/latest": {
             "get": {
                 "operationId": "PositionsController_latest",
-                "parameters": [],
+                "parameters": [
+                    {
+                        "name": "loadIds",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "example": "HL-7K2M9QXA,HL-3RW8TNPE",
+                            "description": "Only these loads"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "",
@@ -2188,6 +2283,246 @@
                 "summary": "Record a driver location-sharing decision",
                 "tags": ["drivers"]
             }
+        },
+        "/api/loads/facets": {
+            "get": {
+                "operationId": "LoadsController_facets",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/LoadFacetsDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Carriers and cities across the caller's loads, for filter pickers",
+                "tags": ["loads"]
+            }
+        },
+        "/api/tracking-links": {
+            "post": {
+                "operationId": "TrackingLinksController_createMany",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BulkTrackingLinksDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/BulkTrackingLinkResultDto"
+                                                    }
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Share tracking for several loads in one request, reporting each load",
+                "tags": ["tracking-links"]
+            }
+        },
+        "/api/exports": {
+            "post": {
+                "operationId": "ExportsController_create",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoadExportRequestDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/ExportJobDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "More than three exports running for the organisation"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Export selected or filtered loads; over 100 rows runs as a background job",
+                "tags": ["exports"]
+            }
+        },
+        "/api/exports/{exportId}": {
+            "get": {
+                "operationId": "ExportsController_findOne",
+                "parameters": [
+                    {
+                        "name": "exportId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/ExportJobDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Export job status",
+                "tags": ["exports"]
+            }
+        },
+        "/api/exports/{exportId}/download": {
+            "get": {
+                "operationId": "ExportsController_download",
+                "parameters": [
+                    {
+                        "name": "exportId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/DownloadLinkDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Export not ready"
+                    },
+                    "404": {
+                        "description": "Export missing or expired; request it again"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Short-lived download link for a ready export",
+                "tags": ["exports"]
+            }
         }
     },
     "components": {
@@ -2401,9 +2736,13 @@
                     "nextCursor": {
                         "type": "string",
                         "nullable": true
+                    },
+                    "total": {
+                        "type": "number",
+                        "description": "Loads matching the filters"
                     }
                 },
-                "required": ["items", "nextCursor"]
+                "required": ["items", "nextCursor", "total"]
             },
             "LoadCountDto": {
                 "type": "object",
@@ -3251,10 +3590,7 @@
                         "description": "Road miles of the whole route"
                     }
                 },
-                "required": [
-                    "polyline",
-                    "miles"
-                ]
+                "required": ["polyline", "miles"]
             },
             "PublicTrackingDto": {
                 "type": "object",
@@ -3491,7 +3827,8 @@
                             "trackingStale",
                             "podVerified",
                             "invoiceDue",
-                            "complianceChanged"
+                            "complianceChanged",
+                            "exportReady"
                         ]
                     },
                     "loadId": {
@@ -3507,6 +3844,11 @@
                         "type": "string",
                         "format": "date-time",
                         "nullable": true
+                    },
+                    "exportId": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Set for exportReady"
                     }
                 },
                 "required": ["id", "event", "loadId", "createdAt", "readAt"]
@@ -4103,6 +4445,230 @@
                     }
                 },
                 "required": ["link", "sent"]
+            },
+            "PlaceFacetDto": {
+                "type": "object",
+                "properties": {
+                    "city": {
+                        "type": "string"
+                    },
+                    "region": {
+                        "type": "string"
+                    }
+                },
+                "required": ["city", "region"]
+            },
+            "LoadFacetsDto": {
+                "type": "object",
+                "properties": {
+                    "carriers": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PartyDto"
+                        }
+                    },
+                    "origins": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PlaceFacetDto"
+                        }
+                    },
+                    "destinations": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PlaceFacetDto"
+                        }
+                    }
+                },
+                "required": ["carriers", "origins", "destinations"]
+            },
+            "BulkTrackingLinksDto": {
+                "type": "object",
+                "properties": {
+                    "loadIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "minItems": 1,
+                        "maxItems": 100
+                    },
+                    "reason": {
+                        "type": "string",
+                        "maxLength": 500
+                    }
+                },
+                "required": ["loadIds"]
+            },
+            "TrackingLinkFailureDto": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "number"
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": ["status", "message"]
+            },
+            "BulkTrackingLinkResultDto": {
+                "type": "object",
+                "properties": {
+                    "loadId": {
+                        "type": "string"
+                    },
+                    "link": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/TrackingLinkDto"
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "failure": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/TrackingLinkFailureDto"
+                            }
+                        ],
+                        "nullable": true
+                    }
+                },
+                "required": ["loadId", "link", "failure"]
+            },
+            "LoadExportFiltersDto": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "string"
+                    },
+                    "equipment": {
+                        "type": "string"
+                    },
+                    "q": {
+                        "type": "string",
+                        "maxLength": 200
+                    },
+                    "late": {
+                        "type": "boolean"
+                    },
+                    "from": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "to": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "dateField": {
+                        "type": "string",
+                        "enum": ["pickup", "delivery"]
+                    },
+                    "origin": {
+                        "type": "string",
+                        "maxLength": 120
+                    },
+                    "destination": {
+                        "type": "string",
+                        "maxLength": 120
+                    },
+                    "carrier": {
+                        "type": "string"
+                    },
+                    "exceptions": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "LoadExportRequestDto": {
+                "type": "object",
+                "properties": {
+                    "format": {
+                        "type": "string",
+                        "enum": ["csv"]
+                    },
+                    "loadIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "minItems": 1,
+                        "maxItems": 500
+                    },
+                    "filters": {
+                        "$ref": "#/components/schemas/LoadExportFiltersDto"
+                    }
+                },
+                "required": ["format"]
+            },
+            "ExportJobDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "dataset": {
+                        "type": "string",
+                        "enum": ["loads"]
+                    },
+                    "format": {
+                        "type": "string",
+                        "enum": ["csv"]
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "queued",
+                            "running",
+                            "ready",
+                            "failed",
+                            "expired"
+                        ]
+                    },
+                    "rowCount": {
+                        "type": "number"
+                    },
+                    "progress": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
+                    },
+                    "fileName": {
+                        "type": "string"
+                    },
+                    "sizeBytes": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "readyAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "expiresAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    }
+                },
+                "required": [
+                    "id",
+                    "dataset",
+                    "format",
+                    "status",
+                    "rowCount",
+                    "progress",
+                    "fileName",
+                    "sizeBytes",
+                    "createdAt",
+                    "readyAt",
+                    "expiresAt"
+                ]
             }
         }
     }

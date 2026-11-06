@@ -1,6 +1,11 @@
 import { z } from "zod";
 import {
     apiEnvelopeDtoSchema,
+    bulkTrackingLinkResultDtoSchema,
+    bulkTrackingLinksDtoSchema,
+    exportJobDtoSchema,
+    loadExportRequestDtoSchema,
+    loadFacetsDtoSchema,
     checkCallResponseDtoSchema,
     documentDtoSchema,
     downloadLinkDtoSchema,
@@ -25,12 +30,14 @@ import { LOAD_STATUSES } from "@/lib/enums/load-status";
 import {
     DOCUMENT_RULES,
     LOAD_PAGE_SIZE,
+    LOAD_REASON_MAX,
     LOAD_SEARCH_MAX,
     QUERY_BASE,
     QUICK_FIND,
     STOP_INSTRUCTIONS,
     TIMELINE_CATEGORIES,
 } from "@/lib/loads/constants";
+import { LOAD_DATE_FIELDS, LOAD_FILTER_LIMITS, LOAD_SORTS } from "@/lib/loads/shipments";
 
 const enveloped = <T extends z.ZodType>(data: T) => apiEnvelopeDtoSchema.extend({ data });
 
@@ -47,7 +54,26 @@ export const loadListQuerySchema = z.object({
     late: z.enum(["true", "false"]).optional(),
     cursor: z.string().optional(),
     limit: z.coerce.number().int().min(1).max(LOAD_PAGE_SIZE.max).optional(),
+    sort: z.enum(LOAD_SORTS).optional(),
+    from: z.iso.date().optional(),
+    to: z.iso.date().optional(),
+    dateField: z.enum(LOAD_DATE_FIELDS).optional(),
+    origin: z.string().trim().max(LOAD_FILTER_LIMITS.place).optional(),
+    destination: z.string().trim().max(LOAD_FILTER_LIMITS.place).optional(),
+    carrier: z.string().trim().max(LOAD_FILTER_LIMITS.party).optional(),
+    exceptions: z.enum(["true", "false"]).optional(),
+}).refine(({ from, to }) => !from || !to || from <= to);
+
+export const bulkTrackingSchema = bulkTrackingLinksDtoSchema.extend({
+    loadIds: z.array(z.string().max(LOAD_FILTER_LIMITS.party)).min(1).max(LOAD_FILTER_LIMITS.ids),
+    reason: z.string().trim().max(LOAD_REASON_MAX).optional(),
 });
+
+export const exportRequestSchema = loadExportRequestDtoSchema.extend({
+    loadIds: z.array(z.string().max(LOAD_FILTER_LIMITS.party)).min(1).max(LOAD_FILTER_LIMITS.exportIds).optional(),
+});
+
+export const positionsQuerySchema = z.object({ loadIds: commaList(z.string().max(LOAD_FILTER_LIMITS.party)).optional() });
 
 export const timelineQuerySchema = z.object({
     category: z.enum(TIMELINE_CATEGORIES).optional(),
@@ -86,3 +112,6 @@ export const downloadLinkEnvelopeSchema = enveloped(downloadLinkDtoSchema);
 export const notificationPageEnvelopeSchema = enveloped(notificationPageDtoSchema);
 export const unreadCountEnvelopeSchema = enveloped(unreadCountDtoSchema);
 export const quickFindEnvelopeSchema = enveloped(quickFindDtoSchema);
+export const loadFacetsEnvelopeSchema = enveloped(loadFacetsDtoSchema);
+export const bulkTrackingEnvelopeSchema = enveloped(z.array(bulkTrackingLinkResultDtoSchema));
+export const exportJobEnvelopeSchema = enveloped(exportJobDtoSchema);

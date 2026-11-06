@@ -176,6 +176,7 @@ export type LoadSummaryDto = z.infer<typeof loadSummaryDtoSchema>;
 export const loadPageDtoSchema = z.object({
     items: z.array(loadSummaryDtoSchema),
     nextCursor: z.string().nullable(),
+    total: z.number(),
 });
 export type LoadPageDto = z.infer<typeof loadPageDtoSchema>;
 
@@ -614,10 +615,12 @@ export const notificationDtoSchema = z.object({
         "podVerified",
         "invoiceDue",
         "complianceChanged",
+        "exportReady",
     ]),
     loadId: z.string().nullable(),
     createdAt: z.string(),
     readAt: z.string().nullable(),
+    exportId: z.string().nullable().optional(),
 });
 export type NotificationDto = z.infer<typeof notificationDtoSchema>;
 
@@ -857,3 +860,76 @@ export const trackingSendReceiptDtoSchema = z.object({
 export type TrackingSendReceiptDto = z.infer<
     typeof trackingSendReceiptDtoSchema
 >;
+
+export const placeFacetDtoSchema = z.object({
+    city: z.string(),
+    region: z.string(),
+});
+export type PlaceFacetDto = z.infer<typeof placeFacetDtoSchema>;
+
+export const loadFacetsDtoSchema = z.object({
+    carriers: z.array(partyDtoSchema),
+    origins: z.array(placeFacetDtoSchema),
+    destinations: z.array(placeFacetDtoSchema),
+});
+export type LoadFacetsDto = z.infer<typeof loadFacetsDtoSchema>;
+
+export const bulkTrackingLinksDtoSchema = z.object({
+    loadIds: z.array(z.string()),
+    reason: z.string().optional(),
+});
+export type BulkTrackingLinksDto = z.infer<typeof bulkTrackingLinksDtoSchema>;
+
+export const trackingLinkFailureDtoSchema = z.object({
+    status: z.number(),
+    message: z.string(),
+});
+export type TrackingLinkFailureDto = z.infer<
+    typeof trackingLinkFailureDtoSchema
+>;
+
+export const bulkTrackingLinkResultDtoSchema = z.object({
+    loadId: z.string(),
+    link: trackingLinkDtoSchema.nullable(),
+    failure: trackingLinkFailureDtoSchema.nullable(),
+});
+export type BulkTrackingLinkResultDto = z.infer<
+    typeof bulkTrackingLinkResultDtoSchema
+>;
+
+export const loadExportFiltersDtoSchema = z.object({
+    status: z.string().optional(),
+    equipment: z.string().optional(),
+    q: z.string().optional(),
+    late: z.boolean().optional(),
+    from: z.string().optional(),
+    to: z.string().optional(),
+    dateField: z.enum(["pickup", "delivery"]).optional(),
+    origin: z.string().optional(),
+    destination: z.string().optional(),
+    carrier: z.string().optional(),
+    exceptions: z.boolean().optional(),
+});
+export type LoadExportFiltersDto = z.infer<typeof loadExportFiltersDtoSchema>;
+
+export const loadExportRequestDtoSchema = z.object({
+    format: z.enum(["csv"]),
+    loadIds: z.array(z.string()).optional(),
+    filters: loadExportFiltersDtoSchema.optional(),
+});
+export type LoadExportRequestDto = z.infer<typeof loadExportRequestDtoSchema>;
+
+export const exportJobDtoSchema = z.object({
+    id: z.string(),
+    dataset: z.enum(["loads"]),
+    format: z.enum(["csv"]),
+    status: z.enum(["queued", "running", "ready", "failed", "expired"]),
+    rowCount: z.number(),
+    progress: z.number(),
+    fileName: z.string(),
+    sizeBytes: z.number().nullable(),
+    createdAt: z.string(),
+    readyAt: z.string().nullable(),
+    expiresAt: z.string().nullable(),
+});
+export type ExportJobDto = z.infer<typeof exportJobDtoSchema>;

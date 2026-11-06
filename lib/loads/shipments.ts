@@ -11,6 +11,12 @@ import { queryString } from "@/lib/utils/query-string";
 
 export const SHIPMENT_STAGES = ["all", "moving", "waiting", "attention", "done", "ended"] as const;
 
+export const LOAD_SORTS = ["pickup", "-pickup", "delivery", "-delivery", "updated", "-updated"] as const satisfies readonly NonNullable<LoadListParams["sort"]>[];
+
+export const LOAD_DATE_FIELDS = ["pickup", "delivery"] as const satisfies readonly NonNullable<LoadListParams["dateField"]>[];
+
+export const LOAD_FILTER_LIMITS = { place: 120, party: 64, ids: 100, exportIds: 500 } as const;
+
 export const NO_SHIPMENT_FILTERS: ShipmentFilters = { stage: "all", q: "", equipment: null, late: false };
 
 const STAGE_TONES: Record<Exclude<ShipmentStage, "all">, readonly SignalTone[]> = {

@@ -29,7 +29,7 @@ const toLink = (link: MockTrackingLink, expiresAt: string | null, now: number) =
     expiresAt,
 });
 
-const shareable = (load: MockLoad, caller: MockCaller, reason: string | undefined, path: string): { failure: MockResponse } | { link: TrackingLinkDto } => {
+export const shareable = (load: MockLoad, caller: MockCaller, reason: string | undefined, path: string): { failure: MockResponse } | { link: TrackingLinkDto } => {
     const now = new Date().getTime();
     const expiresAt = linkExpiry(deliveredAt(load.stops));
     if (closed(expiresAt, now)) return { failure: fail(HTTP_STATUS.conflict, LINK_CLOSED, path) };
