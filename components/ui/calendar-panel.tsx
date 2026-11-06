@@ -1,5 +1,6 @@
 "use client";
 import clsx from "clsx";
+import { useId } from "react";
 import { ChevronLeft, ChevronRight } from "@carbon/icons-react";
 import {
     Button as AriaButton,
@@ -37,9 +38,12 @@ const SELECTED = {
 
 interface Props {
     range?: boolean;
+    note?: string;
 }
 
-export default function CalendarPanel({ range = false }: Props) {
+export default function CalendarPanel({ range = false, note }: Props) {
+    const noteId = useId();
+    const described = note ? noteId : undefined;
     const body = (
         <>
             <header className="flex items-center justify-between gap-2">
@@ -59,8 +63,21 @@ export default function CalendarPanel({ range = false }: Props) {
                     {(date) => <CalendarCell date={date} className={clsx(CELL, range ? SELECTED.range : SELECTED.single)} />}
                 </CalendarGridBody>
             </CalendarGrid>
+            {note ? (
+                <p id={noteId} className="text-text-muted max-w-56 text-xs">
+                    {note}
+                </p>
+            ) : null}
         </>
     );
 
-    return range ? <RangeCalendar className={PANEL}>{body}</RangeCalendar> : <Calendar className={PANEL}>{body}</Calendar>;
+    return range ? (
+        <RangeCalendar aria-describedby={described} className={PANEL}>
+            {body}
+        </RangeCalendar>
+    ) : (
+        <Calendar aria-describedby={described} className={PANEL}>
+            {body}
+        </Calendar>
+    );
 }

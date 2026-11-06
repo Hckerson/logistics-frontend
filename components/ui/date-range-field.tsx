@@ -21,7 +21,7 @@ import Popover from "@/components/ui/popover";
 import { describedBy, fieldClass } from "@/lib/ui/classes";
 import { DATE_SEGMENT, LABEL_TEXT, MINUTE_STEP, WINDOW_MINUTES } from "@/lib/ui/constants";
 import { UI_COPY } from "@/lib/ui/copy";
-import { fromDateRange, sameDate, settleWindow, toDateRange, toDateValue, zoneLabel } from "@/lib/utils/date-value";
+import { boundMessage, boundOf, boundsNote, fromDateRange, sameDate, settleWindow, toDateRange, toDateValue, zoneLabel } from "@/lib/utils/date-value";
 import { fillTemplate } from "@/lib/utils/fill-template";
 import type { DateControl, DateRangeValue, DateTiming } from "@/lib/types";
 
@@ -35,14 +35,26 @@ type Props = DateTiming &
         windowMinutes?: number;
     };
 
-const rangeError = (range: DateRange | null, windowed: boolean, maxDays?: number) => {
+interface Limits {
+    floor: DateValue | null;
+    ceiling: DateValue | null;
+    zone: string | null;
+    maxDays?: number;
+}
+
+const rangeError = (range: DateRange | null, { floor, ceiling, zone, maxDays }: Limits) => {
     if (!range) return undefined;
-    if (range.end.compare(range.start) < 0) return windowed ? UI_COPY.windowOrder : UI_COPY.rangeOrder;
+    if (range.end.compare(range.start) < 0) return zone ? UI_COPY.windowOrder : UI_COPY.rangeOrder;
     if (maxDays && toCalendarDate(range.end).compare(toCalendarDate(range.start)) >= maxDays) {
         return fillTemplate(UI_COPY.rangeSpan, { days: String(maxDays) });
     }
-    return undefined;
+    const bound = boundOf(range.start, floor, ceiling) ?? boundOf(range.end, floor, ceiling);
+    return bound ? boundMessage(bound, floor, ceiling, zone) : undefined;
 };
+
+const calendarNote = ({ floor, ceiling, zone, maxDays }: Limits) =>
+    [maxDays ? fillTemplate(UI_COPY.rangeSpanNote, { days: String(maxDays) }) : undefined, boundsNote(floor, ceiling, zone)].filter(Boolean).join(" ") ||
+    undefined;
 
 export default function DateRangeField(props: Props) {
     const { id, value, onChange, size = "md", invalid = false, maxDays, step = MINUTE_STEP, windowMinutes = WINDOW_MINUTES } = props;
@@ -51,7 +63,8 @@ export default function DateRangeField(props: Props) {
     const picking = useRef(false);
     const zone = props.granularity === "minute" ? props.timeZone : null;
     const range = toDateRange(value, zone);
-    const error = rangeError(range, zone !== null, maxDays);
+    const limits = { floor: toDateValue(props.min, zone), ceiling: toDateValue(props.max, zone), zone, maxDays };
+    const error = rangeError(range, limits);
     const flagged = invalid || error !== undefined;
 
     const settle = (next: RangeValue<DateValue | null>) =>
@@ -74,8 +87,8 @@ export default function DateRangeField(props: Props) {
             onOpenChange={(open) => {
                 picking.current = open;
             }}
-            minValue={toDateValue(props.min, zone)}
-            maxValue={toDateValue(props.max, zone)}
+            minValue={limits.floor}
+            maxValue={limits.ceiling}
             isDateUnavailable={maxDays ? outOfSpan : undefined}
             granularity={zone ? "minute" : "day"}
             hideTimeZone
@@ -91,22 +104,24 @@ export default function DateRangeField(props: Props) {
         >
             {({ state }) => (
                 <>
-                    <div className="flex min-w-0 items-center gap-3">
+                    <div className={clsx("flex min-w-0 items-center gap-3", zone && "max-sm:flex-col max-sm:items-stretch max-sm:gap-1")}>
                         <Group
                             onBlur={(event) => {
                                 if (!event.currentTarget.contains(event.relatedTarget)) commit(state);
                             }}
-                            className={fieldClass(size, flagged, "pr-0.5 data-disabled:opacity-40")}
+                            className={fieldClass(size, flagged, clsx("pr-0.5 data-disabled:opacity-40", zone && "max-sm:h-auto max-sm:py-1.5"))}
                         >
-                            <DateInput slot="start" className="flex items-center font-mono">
-                                {(segment) => <DateSegment segment={segment} className={DATE_SEGMENT} />}
-                            </DateInput>
-                            <span aria-hidden className="text-text-muted px-1.5">
-                                {UI_COPY.rangeSeparator}
-                            </span>
-                            <DateInput slot="end" className="flex flex-1 items-center font-mono">
-                                {(segment) => <DateSegment segment={segment} className={DATE_SEGMENT} />}
-                            </DateInput>
+                            <div className={clsx("flex flex-1 items-center", zone && "max-sm:flex-col max-sm:items-start max-sm:gap-1")}>
+                                <DateInput slot="start" className="flex items-center font-mono">
+                                    {(segment) => <DateSegment segment={segment} className={DATE_SEGMENT} />}
+                                </DateInput>
+                                <span aria-hidden className={clsx("text-text-muted px-1.5", zone && "max-sm:hidden")}>
+                                    {UI_COPY.rangeSeparator}
+                                </span>
+                                <DateInput slot="end" className="flex flex-1 items-center font-mono">
+                                    {(segment) => <DateSegment segment={segment} className={DATE_SEGMENT} />}
+                                </DateInput>
+                            </div>
                             <CalendarButton size={size} />
                             <FocusCorners invalid={flagged} />
                         </Group>
@@ -119,7 +134,7 @@ export default function DateRangeField(props: Props) {
                     {error ? <FieldError id={errorId} message={error} /> : null}
                     <Popover placement="bottom start">
                         <Dialog className="p-3 outline-none">
-                            <CalendarPanel range />
+                            <CalendarPanel range note={calendarNote(limits)} />
                         </Dialog>
                     </Popover>
                 </>
