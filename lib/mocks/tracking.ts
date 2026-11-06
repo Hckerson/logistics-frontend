@@ -30,9 +30,6 @@ const toLink = (link: MockTrackingLink, expiresAt: string | null, now: number) =
 });
 
 const shareable = (load: MockLoad, caller: MockCaller, reason: string | undefined, path: string): { failure: MockResponse } | { link: TrackingLinkDto } => {
-    const missing = reasonMissing(caller, reason, path);
-    if (missing) return { failure: missing };
-
     const now = new Date().getTime();
     const expiresAt = linkExpiry(deliveredAt(load.stops));
     if (closed(expiresAt, now)) return { failure: fail(HTTP_STATUS.conflict, LINK_CLOSED, path) };
@@ -40,6 +37,9 @@ const shareable = (load: MockLoad, caller: MockCaller, reason: string | undefine
     const store = freightStore();
     const active = [...store.links.values()].find((link) => link.loadId === load.id && !link.revokedAt);
     if (active) return { link: toLink(active, expiresAt, now) };
+
+    const missing = reasonMissing(caller, reason, path);
+    if (missing) return { failure: missing };
 
     const link = { id: nanoid(), token: `${TRACKING_SHARE.tokenPrefix}${nanoid(TRACKING_SHARE.tokenLength)}`, loadId: load.id, createdByName: caller.user.name, createdAt: new Date(now).toISOString(), revokedAt: null };
     store.links.set(link.token, link);
