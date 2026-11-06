@@ -45,8 +45,7 @@ export default function LoadHeader({ initial }: Props) {
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
                 <h1 className="text-text text-h5 font-mono tracking-tight">{load.id}</h1>
                 <CopyButton value={load.id} label={header.copy} done={fillTemplate(header.copied, { reference: load.id })} />
-                <StatusLabel tag {...loadStatusDisplay(load.status)} />
-                {load.eta?.late ? <StatusLabel tag {...loadStatusDisplay(load.status, "late")} /> : null}
+                <StatusLabel {...loadStatusDisplay(load.status, load.eta?.late ? "late" : undefined)} />
             </div>
             <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
                 <LaneLabel origin={placeName(load.stops[0])} destination={placeName(load.stops[load.stops.length - 1])} />

@@ -48,7 +48,7 @@ export const shipmentColumns = (now: number): readonly TableColumn<LoadSummaryDt
         label: label.status,
         width: "9.5rem",
         phone: "aside",
-        cell: (row) => <StatusLabel {...loadStatusDisplay(row.status, shipmentQualifier(row, now))} tag />,
+        cell: (row) => <StatusLabel {...loadStatusDisplay(row.status, shipmentQualifier(row, now))} />,
     },
     { key: "pickup", label: label.pickup, width: "9.5rem", cell: (row) => shortMoment(row.origin.windowStart, row.origin.timeZone) },
     { key: "delivery", label: label.delivery, width: "10.5rem", cell: delivery },
