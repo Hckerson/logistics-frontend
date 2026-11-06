@@ -1,5 +1,5 @@
 import { Copy, Download, Edit, Location, Share, TrashCan, UserFollow, View } from "@carbon/icons-react";
-import type { ButtonTone, ChoiceOption, ControlSize, DateRangeValue, LoadStatus, MenuEntry, SpecimenFile, SpecimenLoad, SpecimenSignal, SpecimenSwatch, TabItem } from "@/lib/types";
+import type { ButtonTone, ChoiceOption, ControlSize, DateRangeValue, FileUploadState, LoadStatus, MenuEntry, SignalTone, SpecimenFile, SpecimenLoad, SpecimenSignal, SpecimenSwatch, TabItem } from "@/lib/types";
 
 export const SPECIMEN_TONES: readonly ButtonTone[] = ["ink", "accent", "outline", "quiet", "ghost", "danger"];
 
@@ -60,14 +60,28 @@ export const SPECIMEN_TAB_BODY: Readonly<Record<string, string>> = {
 };
 
 export const SPECIMEN_SIGNALS: readonly SpecimenSignal[] = [
+    { status: "PendingApproval" },
+    { status: "Posted" },
+    { status: "Booked" },
+    { status: "AtPickup" },
     { status: "InTransit" },
     { status: "InTransit", qualifier: "late" },
-    { status: "Disputed" },
-    { status: "PendingApproval" },
-    { status: "Booked" },
+    { status: "InTransit", qualifier: "stale" },
+    { status: "AtDelivery" },
     { status: "Delivered" },
+    { status: "Disputed" },
+    { status: "OnHold" },
     { status: "Cancelled" },
 ];
+
+export const SPECIMEN_JOURNEY: readonly SpecimenSignal["status"][] = ["Posted", "Booked", "Dispatched", "AtPickup", "InTransit", "AtDelivery", "Delivered"];
+
+export const SPECIMEN_FILE_STATES = [
+    { state: "scanning", tone: "live", pulse: true },
+    { state: "uploaded", tone: "success", pulse: false },
+    { state: "rejected", tone: "warning", pulse: false },
+    { state: "failed", tone: "danger", pulse: false },
+] as const satisfies readonly { state: FileUploadState; tone: SignalTone; pulse: boolean }[];
 
 export const SPECIMEN_SWATCHES: readonly SpecimenSwatch[] = [
     { tone: "live", word: "bg-signal-live", edge: "bg-signal-live-edge", wash: "bg-signal-live-wash" },

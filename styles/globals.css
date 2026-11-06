@@ -412,6 +412,19 @@
     animation: haulr-panel-in 0.7s var(--haulr-ease) both;
 }
 
+@keyframes haulr-breathe {
+    from {
+        box-shadow: 0 0 0 0 color-mix(in oklab, currentColor 60%, transparent);
+    }
+    to {
+        box-shadow: 0 0 0 4px color-mix(in oklab, currentColor 0%, transparent);
+    }
+}
+
+@utility haulr-breathe {
+    animation: haulr-breathe 2.4s var(--haulr-ease) infinite;
+}
+
 @keyframes haulr-drop {
     from {
         clip-path: inset(0 0 100% 0);

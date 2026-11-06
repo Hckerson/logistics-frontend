@@ -108,16 +108,6 @@ export const SIGNAL_TONES: Record<SignalTone, string> = {
     muted: "text-signal-muted",
 };
 
-export const SIGNAL_TAGS: Record<SignalTone, string> = {
-    neutral: "border-signal-neutral-edge bg-signal-neutral-wash",
-    live: "border-signal-live-edge bg-signal-live-wash",
-    success: "border-signal-success-edge bg-signal-success-wash",
-    warning: "border-signal-warning-edge bg-signal-warning-wash",
-    danger: "border-signal-danger-edge bg-signal-danger-wash",
-    info: "border-signal-info-edge bg-signal-info-wash",
-    muted: "border-signal-muted-edge bg-signal-muted-wash",
-};
-
 export const LABEL_TEXT = "haulr-label text-text-muted";
 
 export const RECORD_LINK = `${FOCUS_RING} text-text hover:text-accent font-mono underline-offset-4 transition-colors hover:underline`;

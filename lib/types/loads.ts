@@ -1,6 +1,6 @@
 import type { z } from "zod";
 import type { routes } from "@/lib/contract/routes";
-import type { LoadPositionsDto, PublicTrackingDto } from "@/lib/contract/schemas";
+import type { DocumentDto, LoadPositionsDto, PublicTrackingDto } from "@/lib/contract/schemas";
 import type { trackingSendSchema } from "@/lib/validations/tracking";
 import type { LoadStatus } from "./enums";
 import type { SignalTone } from "./ui";
@@ -32,6 +32,7 @@ export interface StatusDisplay {
     label: string;
     tone: SignalTone;
     pulse: boolean;
+    stage: number | null;
 }
 
 export interface LoadAction {
@@ -46,3 +47,13 @@ export interface LoadAction {
 }
 
 export type TrackingView = "map" | "text";
+
+export type TimelineFilter = TimelineCategory | "all";
+
+export interface UploadRow {
+    key: string;
+    file: File;
+    type: DocumentDto["type"];
+    state: "uploading" | "failed";
+    message?: string;
+}

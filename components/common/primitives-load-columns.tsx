@@ -25,7 +25,7 @@ export const LOAD_COLUMNS: readonly TableColumn<SpecimenLoad>[] = [
         ),
     },
     { key: "lane", label: label.lane, cell: (row) => <LaneLabel origin={row.origin} destination={row.destination} /> },
-    { key: "status", label: label.status, width: "10rem", phone: "aside", cell: (row) => <StatusLabel {...loadStatusDisplay(row.status, row.qualifier)} tag /> },
+    { key: "status", label: label.status, width: "10rem", phone: "aside", cell: (row) => <StatusLabel {...loadStatusDisplay(row.status, row.qualifier)} /> },
     {
         key: "pickup",
         label: label.pickup,
