@@ -2,7 +2,7 @@ import { HTTP_STATUS, TIME_MS } from "@/lib/constants";
 import { MOCK_FACILITIES } from "@/lib/data/mocks/facilities";
 import { MOCK_FREIGHT } from "@/lib/data/mocks/loads";
 import { MOCK_ORGANISATIONS } from "@/lib/data/mocks/team";
-import { CANCELLATION, CURRENCY, LOAD_PAGE_SIZE } from "@/lib/loads/constants";
+import { CANCELLATION, CURRENCY, LOAD_PAGE_SIZE, STOP_INSTRUCTIONS } from "@/lib/loads/constants";
 import { etaOf } from "@/lib/mocks/fleet";
 import { FREIGHT_MESSAGES, loadMissing, sees, visibleLoad, withCaller } from "@/lib/mocks/freight-access";
 import { freightStore } from "@/lib/mocks/freight-store";
@@ -10,7 +10,7 @@ import { fail, ok } from "@/lib/mocks/http";
 import { toLoadDetail, toLoadSummary } from "@/lib/mocks/load-views";
 import type { ChargeDto } from "@/lib/contract/schemas";
 import type { LoadStatus, MockCharge, MockLoad } from "@/lib/types";
-import { loadListQuerySchema, queryOf } from "@/lib/validations/freight";
+import { loadListQuerySchema, queryOf, stopInstructionsSchema } from "@/lib/validations/freight";
 
 const newestFirst = (first: MockLoad, second: MockLoad) =>
     Date.parse(second.createdAt) - Date.parse(first.createdAt) || second.id.localeCompare(first.id);
@@ -80,4 +80,24 @@ export const cancellationTerms = withCaller(({ path }, { loadId }, caller) => {
         tonu: owed ? { totalCents: TONU_CHARGE.amountCents, currency: CURRENCY, pending: false, parts: [TONU_CHARGE] } : null,
         freeUntil: tonuApplies(load) && !owed ? new Date(freeUntil(load)).toISOString() : null,
     });
+});
+
+const INSTRUCTION_MESSAGES = {
+    stale: "The load changed since you opened it",
+    closed: "Instructions close once the load is dispatched",
+} as const;
+
+export const updateStopInstructions = withCaller(({ path, body }, { loadId, stopId }, caller) => {
+    const load = visibleLoad(caller, loadId, "editStopInstructions");
+    const stop = load?.stops.find((candidate) => candidate.id === stopId);
+    if (!load || !stop) return loadMissing(path);
+    const input = stopInstructionsSchema.safeParse(body);
+    if (!input.success) return fail(HTTP_STATUS.badRequest, FREIGHT_MESSAGES.invalid, path);
+    if (!STOP_INSTRUCTIONS.openStatuses.some((status) => status === load.status)) return fail(HTTP_STATUS.conflict, INSTRUCTION_MESSAGES.closed, path);
+    if (input.data.version !== load.version) return fail(HTTP_STATUS.preconditionFailed, INSTRUCTION_MESSAGES.stale, path);
+
+    const now = new Date().getTime();
+    stop.instructions = input.data.instructions || null;
+    Object.assign(load, { version: load.version + 1, updatedAt: new Date(now).toISOString() });
+    return ok(HTTP_STATUS.ok, toLoadDetail(load, caller, now));
 });

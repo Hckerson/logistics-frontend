@@ -10,6 +10,7 @@ import {
     loadEventPageDtoSchema,
     loadPageDtoSchema,
     loadPositionsDtoSchema,
+    stopInstructionsDtoSchema,
     mapPositionDtoSchema,
     notificationPageDtoSchema,
     quickFindDtoSchema,
@@ -21,7 +22,15 @@ import {
 } from "@/lib/contract/schemas";
 import { EQUIPMENT_TYPES } from "@/lib/enums/equipment-type";
 import { LOAD_STATUSES } from "@/lib/enums/load-status";
-import { DOCUMENT_RULES, LOAD_PAGE_SIZE, LOAD_SEARCH_MAX, QUERY_BASE, QUICK_FIND, TIMELINE_CATEGORIES } from "@/lib/loads/constants";
+import {
+    DOCUMENT_RULES,
+    LOAD_PAGE_SIZE,
+    LOAD_SEARCH_MAX,
+    QUERY_BASE,
+    QUICK_FIND,
+    STOP_INSTRUCTIONS,
+    TIMELINE_CATEGORIES,
+} from "@/lib/loads/constants";
 
 const enveloped = <T extends z.ZodType>(data: T) => apiEnvelopeDtoSchema.extend({ data });
 
@@ -54,6 +63,8 @@ export const documentFileSchema = uploadRequestDtoSchema.extend({
 });
 
 export const pageQuerySchema = timelineQuerySchema.omit({ category: true });
+
+export const stopInstructionsSchema = stopInstructionsDtoSchema.extend({ instructions: z.string().trim().max(STOP_INSTRUCTIONS.max) });
 
 export const queryOf = (path: string) => Object.fromEntries(new URL(path, QUERY_BASE).searchParams);
 

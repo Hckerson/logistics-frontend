@@ -1,12 +1,16 @@
 import clsx from "clsx";
+import StopInstructions from "@/components/common/stop-instructions";
 import type { StopDto } from "@/lib/contract/schemas";
 import { LOAD_COPY } from "@/lib/data/loads/copy";
 import { arrivedLate, stopMoment, stopWindow } from "@/lib/loads/view";
 
 interface Props {
+    loadId: string;
+    version: number;
     stop: StopDto;
     current: boolean;
     last: boolean;
+    editable: boolean;
 }
 
 const { stops: copy } = LOAD_COPY;
@@ -17,7 +21,7 @@ const DOT = {
     ahead: "border-border-dark bg-background border",
 } as const;
 
-export default function LoadStop({ stop, current, last }: Props) {
+export default function LoadStop({ loadId, version, stop, current, last, editable }: Props) {
     const { facility } = stop;
     const momentOf = (iso: string | null) => (iso ? stopMoment(iso, facility.timeZone) : null);
     const rows = [
@@ -58,7 +62,7 @@ export default function LoadStop({ stop, current, last }: Props) {
                     ))}
                 </dl>
                 {arrivedLate(stop) ? <p className="text-signal-warning text-xs">{copy.late}</p> : null}
-                {stop.instructions ? <p className="text-text-secondary border-border-dark border-l-2 pl-2 text-xs">{stop.instructions}</p> : null}
+                <StopInstructions loadId={loadId} version={version} stop={stop} editable={editable} />
             </div>
         </li>
     );

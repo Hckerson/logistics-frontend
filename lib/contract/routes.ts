@@ -73,6 +73,8 @@ export const routes = {
         `/api/loads/${loadId}/transitions` as Endpoint<LoadDto>,
     loadsCancellation: (loadId: string) =>
         `/api/loads/${loadId}/cancellation` as Endpoint<LoadCancellationDto>,
+    loadsUpdateStopInstructions: (loadId: string, stopId: string) =>
+        `/api/loads/${loadId}/stops/${stopId}/instructions` as Endpoint<LoadDto>,
     positionsForLoad: (loadId: string) =>
         `/api/loads/${loadId}/positions` as Endpoint<LoadPositionsDto>,
     positionsCheckCall: (loadId: string) =>
