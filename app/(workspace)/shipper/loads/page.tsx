@@ -6,7 +6,7 @@ import WorkspacePage from "@/components/common/workspace-page";
 import ButtonLink from "@/components/ui/button-link";
 import { appRoutes } from "@/lib/app-routes";
 import { SHIPMENTS_COPY } from "@/lib/data/loads/shipments";
-import { shipmentSearchSchema } from "@/lib/validations/shipments";
+import { parseShipmentSearch } from "@/lib/loads/shipment-search";
 
 interface Props {
     searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -15,7 +15,7 @@ interface Props {
 export const metadata: Metadata = { title: SHIPMENTS_COPY.meta.title, robots: { index: false, follow: false } };
 
 export default async function ShipmentsPage({ searchParams }: Props) {
-    const initial = shipmentSearchSchema.parse(await searchParams);
+    const { filters, reset } = parseShipmentSearch(await searchParams);
 
     return (
         <WorkspacePage>
@@ -24,7 +24,7 @@ export default async function ShipmentsPage({ searchParams }: Props) {
                     {SHIPMENTS_COPY.post}
                 </ButtonLink>
             </WorkspaceHeading>
-            <ShipmentsBoard initial={initial} />
+            <ShipmentsBoard initial={filters} reset={reset} />
         </WorkspacePage>
     );
 }

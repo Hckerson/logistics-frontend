@@ -5,7 +5,7 @@ import { TRACKED_STATUSES, TRACKING } from "@/lib/loads/constants";
 import { LOAD_STATUS_TONES } from "@/lib/loads/status";
 import { minutesSince } from "@/lib/loads/tracking";
 import { clockTime, dayName, shortTime } from "@/lib/tracking/view";
-import type { LoadListParams, LoadQualifier, LoadStatus, ShipmentFilters, ShipmentStage, SignalTone } from "@/lib/types";
+import type { LoadListParams, LoadQualifier, LoadSort, LoadStatus, ShipmentFilters, ShipmentStage, SignalTone, TableSort } from "@/lib/types";
 import { fillTemplate } from "@/lib/utils/fill-template";
 import { queryString } from "@/lib/utils/query-string";
 
@@ -17,7 +17,20 @@ export const LOAD_DATE_FIELDS = ["pickup", "delivery"] as const satisfies readon
 
 export const LOAD_FILTER_LIMITS = { place: 120, party: 64, ids: 100, exportIds: 500 } as const;
 
-export const NO_SHIPMENT_FILTERS: ShipmentFilters = { stage: "all", q: "", equipment: null, late: false };
+export const NO_SHIPMENT_FILTERS: ShipmentFilters = {
+    stage: "all",
+    q: "",
+    equipment: [],
+    late: false,
+    exceptions: false,
+    from: null,
+    to: null,
+    dateField: "pickup",
+    origin: null,
+    destination: null,
+    carrier: null,
+    sort: null,
+};
 
 const STAGE_TONES: Record<Exclude<ShipmentStage, "all">, readonly SignalTone[]> = {
     moving: ["live"],
@@ -35,17 +48,38 @@ export const stageCount = (stage: ShipmentStage, counts: readonly LoadCountDto[]
     return counts.reduce((sum, entry) => (statuses.includes(entry.status) ? sum + entry.count : sum), 0);
 };
 
-export const listParams = ({ stage, q, equipment, late }: ShipmentFilters): LoadListParams => ({
-    status: stage === "all" ? undefined : stageStatuses(stage).join(","),
-    q: q || undefined,
-    equipment: equipment ?? undefined,
-    late: late || undefined,
+const sameSet = (statuses: readonly string[], wanted: ReadonlySet<string>) => statuses.length === wanted.size && statuses.every((status) => wanted.has(status));
+
+export const stageOf = (value: string) => {
+    const wanted = new Set(value.split(",").filter(Boolean));
+    return SHIPMENT_STAGES.find((stage) => stage !== "all" && sameSet(stageStatuses(stage), wanted)) ?? value;
+};
+
+const dated = ({ from, to, dateField }: ShipmentFilters) => ({ from: from ?? undefined, to: to ?? undefined, dateField: from || to ? dateField : undefined });
+
+export const listParams = (filters: ShipmentFilters): LoadListParams => ({
+    status: filters.stage === "all" ? undefined : stageStatuses(filters.stage).join(","),
+    q: filters.q || undefined,
+    equipment: filters.equipment.length ? filters.equipment.join(",") : undefined,
+    late: filters.late || undefined,
+    exceptions: filters.exceptions || undefined,
+    ...dated(filters),
+    origin: filters.origin ?? undefined,
+    destination: filters.destination ?? undefined,
+    carrier: filters.carrier ?? undefined,
+    sort: filters.sort ?? undefined,
 });
 
-export const refinements = ({ q, equipment, late }: ShipmentFilters) => [q, equipment, late].filter(Boolean).length;
+export const refinements = ({ q, equipment, late, exceptions, from, to, origin, destination, carrier }: ShipmentFilters) =>
+    [q, equipment.length > 0, late, exceptions, from || to, origin, destination, carrier].filter(Boolean).length;
 
-export const shipmentQuery = ({ stage, q, equipment, late }: ShipmentFilters) =>
-    queryString({ stage: stage === "all" ? undefined : stage, q: q || undefined, equipment: equipment ?? undefined, late: late || undefined });
+export const shipmentQuery = (filters: ShipmentFilters) => queryString(listParams(filters));
+
+export const tableSort = (sort: LoadSort | null): TableSort | undefined =>
+    sort ? { column: sort.replace("-", ""), direction: sort.startsWith("-") ? "descending" : "ascending" } : undefined;
+
+export const loadSort = ({ column, direction }: TableSort): LoadSort | null =>
+    LOAD_SORTS.find((sort) => sort === (direction === "descending" ? `-${column}` : column)) ?? null;
 
 export const shipmentQualifier = (load: LoadSummaryDto, now: number): LoadQualifier | undefined => {
     if (load.eta?.late) return "late";

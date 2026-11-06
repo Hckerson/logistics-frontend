@@ -50,8 +50,8 @@ export const shipmentColumns = (now: number): readonly TableColumn<LoadSummaryDt
         phone: "aside",
         cell: (row) => <StatusLabel {...loadStatusDisplay(row.status, shipmentQualifier(row, now))} />,
     },
-    { key: "pickup", label: label.pickup, width: "9.5rem", cell: (row) => shortMoment(row.origin.windowStart, row.origin.timeZone) },
-    { key: "delivery", label: label.delivery, width: "10.5rem", cell: delivery },
+    { key: "pickup", label: label.pickup, width: "9.5rem", sortable: true, cell: (row) => shortMoment(row.origin.windowStart, row.origin.timeZone) },
+    { key: "delivery", label: label.delivery, width: "10.5rem", sortable: true, cell: delivery },
     { key: "carrier", label: label.carrier, width: "9rem", cell: (row) => row.carrier?.name ?? <span className="text-text-muted">{SHIPMENTS_COPY.notBooked}</span> },
     { key: "seen", label: label.seen, width: "10.5rem", phone: "hidden", cell: (row) => seen(row, now) },
 ];
