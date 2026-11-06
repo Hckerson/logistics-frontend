@@ -132,6 +132,8 @@ export const MINUTE_STEP = 15;
 
 export const WINDOW_MINUTES = 120;
 
+export const BOOKING_HORIZON_DAYS = 90;
+
 export const DATE_SEGMENT = [
     "text-text px-px tabular-nums outline-none caret-transparent",
     "data-placeholder:text-text-muted data-[type=literal]:text-text-muted data-[type=literal]:px-0",

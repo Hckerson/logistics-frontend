@@ -22,7 +22,8 @@ import {
     SPECIMEN_TIME_ZONE,
     SPECIMEN_WINDOW,
 } from "@/lib/data/primitives/samples";
-import { MINUTE_STEP } from "@/lib/ui/constants";
+import { BOOKING_HORIZON_DAYS, MINUTE_STEP } from "@/lib/ui/constants";
+import { bookingBounds } from "@/lib/utils/date-value";
 import { fillTemplate } from "@/lib/utils/fill-template";
 import type { DateRangeValue } from "@/lib/types";
 
@@ -39,6 +40,7 @@ export default function PrimitivesFields() {
     const [pickup, setPickup] = useState<string | null>(null);
     const [period, setPeriod] = useState<DateRangeValue | null>(SPECIMEN_PERIOD);
     const [appointment, setAppointment] = useState<DateRangeValue | null>(SPECIMEN_WINDOW);
+    const [bookable] = useState(() => bookingBounds(SPECIMEN_TIME_ZONE, MINUTE_STEP, BOOKING_HORIZON_DAYS));
     const error = touched && reference.trim() === "" ? demo.referenceError : undefined;
 
     return (
@@ -98,7 +100,7 @@ export default function PrimitivesFields() {
             <PrimitivesSpecimen label={specimens.date} contract="IC-08">
                 <div className="w-full">
                     <Field id="specimen-pickup" label={demo.pickupDate} hint={stepHint}>
-                        {(control) => <DateField {...control} value={pickup} onChange={setPickup} timeZone={SPECIMEN_TIME_ZONE} granularity="minute" />}
+                        {(control) => <DateField {...control} {...bookable} value={pickup} onChange={setPickup} timeZone={SPECIMEN_TIME_ZONE} granularity="minute" />}
                     </Field>
                 </div>
             </PrimitivesSpecimen>
@@ -110,10 +112,17 @@ export default function PrimitivesFields() {
                 </div>
             </PrimitivesSpecimen>
             <PrimitivesSpecimen label={specimens.window} contract="IC-08" wide>
-                <div className="w-full max-w-md">
+                <div className="w-full sm:max-w-md">
                     <Field id="specimen-window" label={demo.deliveryWindow} hint={stepHint}>
                         {(control) => (
-                            <DateRangeField {...control} value={appointment} onChange={setAppointment} timeZone={SPECIMEN_TIME_ZONE} granularity="minute" />
+                            <DateRangeField
+                                {...control}
+                                {...bookable}
+                                value={appointment}
+                                onChange={setAppointment}
+                                timeZone={SPECIMEN_TIME_ZONE}
+                                granularity="minute"
+                            />
                         )}
                     </Field>
                 </div>
