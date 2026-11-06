@@ -1,5 +1,8 @@
 import { routes } from "@/lib/contract/routes";
+import { createLinks } from "@/lib/mocks/bulk-tracking";
 import { completeUpload, downloadDocument, listDocuments, requestUpload } from "@/lib/mocks/documents";
+import { createExport, downloadExport, findExport } from "@/lib/mocks/load-exports";
+import { loadFacets } from "@/lib/mocks/load-facets";
 import { transitionLoad } from "@/lib/mocks/load-transitions";
 import { cancellationTerms, countLoads, findLoad, listLoads, updateStopInstructions } from "@/lib/mocks/loads";
 import { listNotifications, markAllRead, markRead, unreadCount } from "@/lib/mocks/notifications";
@@ -15,6 +18,7 @@ const LOAD = ":loadId";
 export const FREIGHT_HANDLERS: Record<string, MockHandler> = {
     [`GET ${routes.loadsFindAll()}`]: listLoads,
     [`GET ${routes.loadsCounts()}`]: countLoads,
+    [`GET ${routes.loadsFacets()}`]: loadFacets,
     [`GET ${routes.loadsFindOne(LOAD)}`]: findLoad,
     [`POST ${routes.loadsTransition(LOAD)}`]: transitionLoad,
     [`GET ${routes.loadsCancellation(LOAD)}`]: cancellationTerms,
@@ -27,6 +31,10 @@ export const FREIGHT_HANDLERS: Record<string, MockHandler> = {
     [`POST ${routes.trackingLinksCreate(LOAD)}`]: createLink,
     [`POST ${routes.trackingLinksSend(LOAD)}`]: sendLink,
     [`POST ${routes.trackingLinksRevoke(":linkId")}`]: revokeLink,
+    [`POST ${routes.trackingLinksCreateMany()}`]: createLinks,
+    [`POST ${routes.exportsCreate()}`]: createExport,
+    [`GET ${routes.exportsFindOne(":exportId")}`]: findExport,
+    [`GET ${routes.exportsDownload(":exportId")}`]: downloadExport,
     [`GET ${routes.publicTrackingFind(":token")}`]: publicTracking,
     [`GET ${routes.documentsList(LOAD)}`]: listDocuments,
     [`POST ${routes.documentsRequestUpload(LOAD)}`]: requestUpload,

@@ -7,6 +7,7 @@ import { etaOf, latestPosition, routeOf, trackOf } from "@/lib/mocks/fleet";
 import { FREIGHT_MESSAGES, loadMissing, recordEvent, sees, visibleLoad, withCaller } from "@/lib/mocks/freight-access";
 import { freightStore } from "@/lib/mocks/freight-store";
 import { fail, ok } from "@/lib/mocks/http";
+import { positionsQuerySchema, queryOf } from "@/lib/validations/freight";
 
 const CHECK_CALL_MESSAGES = {
     closed: "A check call opens once the last position is an hour old",
@@ -28,12 +29,16 @@ export const loadPositions = withCaller(({ path }, { loadId }, caller) => {
     });
 });
 
-export const mapPositions = withCaller((_request, _params, caller) => {
+export const mapPositions = withCaller(({ path }, _params, caller) => {
     if (!can(caller.user.roles, "viewLiveLocation")) return ok(HTTP_STATUS.ok, []);
+    const query = positionsQuerySchema.safeParse(queryOf(path));
+    if (!query.success) return fail(HTTP_STATUS.badRequest, FREIGHT_MESSAGES.invalid, path);
 
+    const only = query.data.loadIds ? new Set(query.data.loadIds) : null;
     const now = new Date().getTime();
     const positions = [...freightStore().loads.values()]
         .filter(sees(caller))
+        .filter((load) => !only || only.has(load.id))
         .filter((load) => TRACKED_STATUSES.includes(load.status))
         .slice(0, TRACKING.mapLoadLimit)
         .flatMap((load) => {

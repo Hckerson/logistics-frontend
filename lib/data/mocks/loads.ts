@@ -1,3 +1,4 @@
+import { MOCK_LOAD_HISTORY } from "@/lib/data/mocks/load-history";
 import type { MockLoadSpec } from "@/lib/types";
 
 export const MOCK_FREIGHT = {
@@ -14,7 +15,7 @@ export const MOCK_FREIGHT = {
 const ridgeway = { carrier: "ridgeway", driver: "usr_driver" } as const;
 const northline = { shipper: "northline" } as const;
 
-export const MOCK_LOADS: readonly MockLoadSpec[] = [
+const CURRENT_LOADS: readonly MockLoadSpec[] = [
     {
         ...northline, ...ridgeway, id: "HL-7K2M9QXA", status: "InTransit", equipment: "dry-van", commodity: "Packaged beverages", weightLb: 41200, pallets: 22, poNumber: "PO-88213", bolNumber: "BOL-55120", priceCents: 241000, payCents: 205000, ageHours: 52,
         stops: [
@@ -115,3 +116,5 @@ export const MOCK_LOADS: readonly MockLoadSpec[] = [
         stops: [{ facility: "kci", type: "pickup", opensIn: -206, arrived: 206, departed: 205 }, { facility: "stl", type: "delivery", opensIn: -200.5, arrived: 200.5, departed: 200 }],
     },
 ];
+
+export const MOCK_LOADS: readonly MockLoadSpec[] = [...CURRENT_LOADS, ...MOCK_LOAD_HISTORY];

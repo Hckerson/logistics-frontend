@@ -4,16 +4,19 @@ import { queryString } from "@/lib/utils/query-string";
 import type {
     AcceptedDto,
     AuthResponseDto,
+    BulkTrackingLinkResultDto,
     CheckCallResponseDto,
     DocumentDto,
     DownloadLinkDto,
     EmailDto,
+    ExportJobDto,
     HealthResponseDto,
     InvitationDto,
     LoadCancellationDto,
     LoadCountDto,
     LoadDto,
     LoadEventPageDto,
+    LoadFacetsDto,
     LoadPageDto,
     LoadPositionsDto,
     LocationConsentReceiptDto,
@@ -65,6 +68,20 @@ export const routes = {
         equipment?: string;
         q?: string;
         late?: boolean;
+        sort?:
+            | "pickup"
+            | "-pickup"
+            | "delivery"
+            | "-delivery"
+            | "updated"
+            | "-updated";
+        from?: string;
+        to?: string;
+        dateField?: "pickup" | "delivery";
+        origin?: string;
+        destination?: string;
+        carrier?: string;
+        exceptions?: boolean;
     }) => `/api/loads${queryString(query)}` as Endpoint<LoadPageDto>,
     loadsCounts: () => "/api/loads/counts" as Endpoint<LoadCountDto[]>,
     loadsFindOne: (loadId: string) =>
@@ -79,8 +96,10 @@ export const routes = {
         `/api/loads/${loadId}/positions` as Endpoint<LoadPositionsDto>,
     positionsCheckCall: (loadId: string) =>
         `/api/loads/${loadId}/check-calls` as Endpoint<CheckCallResponseDto>,
-    positionsLatest: () =>
-        "/api/positions/latest" as Endpoint<MapPositionDto[]>,
+    positionsLatest: (query?: { loadIds?: string }) =>
+        `/api/positions/latest${queryString(query)}` as Endpoint<
+            MapPositionDto[]
+        >,
     timelineList: (
         loadId: string,
         query?: {
@@ -158,4 +177,12 @@ export const routes = {
         "/api/team/invitations/accept" as Endpoint<AuthResponseDto>,
     driversRecordLocationConsent: () =>
         "/api/drivers/location-consent" as Endpoint<LocationConsentReceiptDto>,
+    loadsFacets: () => "/api/loads/facets" as Endpoint<LoadFacetsDto>,
+    trackingLinksCreateMany: () =>
+        "/api/tracking-links" as Endpoint<BulkTrackingLinkResultDto[]>,
+    exportsCreate: () => "/api/exports" as Endpoint<ExportJobDto>,
+    exportsFindOne: (exportId: string) =>
+        `/api/exports/${exportId}` as Endpoint<ExportJobDto>,
+    exportsDownload: (exportId: string) =>
+        `/api/exports/${exportId}/download` as Endpoint<DownloadLinkDto>,
 } as const;

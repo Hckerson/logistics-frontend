@@ -4,12 +4,15 @@ import { LOAD_PAGE_SIZE } from "@/lib/loads/constants";
 import { FREIGHT_MESSAGES, withCaller, type MockCaller } from "@/lib/mocks/freight-access";
 import { freightStore } from "@/lib/mocks/freight-store";
 import { fail, ok } from "@/lib/mocks/http";
+import { settleExports } from "@/lib/mocks/load-exports";
 import { pageQuerySchema, queryOf } from "@/lib/validations/freight";
 
-const mine = ({ user }: MockCaller) =>
-    [...freightStore().notifications.values()]
+const mine = ({ user }: MockCaller) => {
+    settleExports();
+    return [...freightStore().notifications.values()]
         .filter((notification) => notification.userId === user.id)
         .sort((first, second) => Date.parse(second.createdAt) - Date.parse(first.createdAt) || second.id.localeCompare(first.id));
+};
 
 const unread = (caller: MockCaller) => ({ count: mine(caller).filter((notification) => !notification.readAt).length });
 

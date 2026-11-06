@@ -111,6 +111,15 @@ export interface MockNotification extends NotificationDto {
     userId: string;
 }
 
+export interface MockExport {
+    id: string;
+    userId: string;
+    organisation: string | null;
+    loadIds: readonly string[];
+    createdAt: number;
+    notified: boolean;
+}
+
 export interface MockCheckCall {
     loadId: string;
     requestedAt: string;
