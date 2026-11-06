@@ -351,6 +351,12 @@ export const loadCancellationDtoSchema = z.object({
 });
 export type LoadCancellationDto = z.infer<typeof loadCancellationDtoSchema>;
 
+export const stopInstructionsDtoSchema = z.object({
+    instructions: z.string(),
+    version: z.number(),
+});
+export type StopInstructionsDto = z.infer<typeof stopInstructionsDtoSchema>;
+
 export const checkCallResponseDtoSchema = z.object({ requestedAt: z.string() });
 export type CheckCallResponseDto = z.infer<typeof checkCallResponseDtoSchema>;
 

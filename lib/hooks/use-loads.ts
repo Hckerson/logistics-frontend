@@ -1,8 +1,9 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { transitionLoad } from "@/lib/actions/transition-load";
+import { updateStopInstructions } from "@/lib/actions/update-stop-instructions";
 import { local } from "@/lib/api-client";
 import { apiRoutes } from "@/lib/api-routes";
-import type { LoadDto, LoadTransitionDto } from "@/lib/contract/schemas";
+import type { LoadDto, LoadTransitionDto, StopInstructionsDto } from "@/lib/contract/schemas";
 import { timelineKeys } from "@/lib/hooks/use-load-timeline";
 import { REFRESH_MS } from "@/lib/loads/constants";
 import type { LoadListParams } from "@/lib/types";
@@ -68,5 +69,14 @@ export const useLoadActions = (loadId: string) => {
             void client.invalidateQueries({ queryKey: loadKeys.counts() });
             void client.invalidateQueries({ queryKey: timelineKeys.load(loadId) });
         },
+    });
+};
+
+export const useStopInstructions = (loadId: string, stopId: string) => {
+    const client = useQueryClient();
+    return useMutation({
+        mutationFn: async (input: StopInstructionsDto) => unwrap(await updateStopInstructions(loadId, stopId, input)),
+        onSuccess: (load) => client.setQueryData(loadKeys.detail(loadId), load),
+        onError: () => client.invalidateQueries({ queryKey: loadKeys.detail(loadId) }),
     });
 };

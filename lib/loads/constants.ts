@@ -28,6 +28,13 @@ export const STOP_EVENT_UNDO_MINUTES = 5;
 
 export const LOAD_REASON_MAX = 500;
 
+export const STOP_INSTRUCTIONS = { max: 1000, openStatuses: ["Draft", "PendingApproval", "Posted", "Booked"] } as const satisfies {
+    max: number;
+    openStatuses: readonly LoadStatus[];
+};
+
+export const UNPOSTED_STATUSES: readonly LoadStatus[] = ["Draft", "PendingApproval"];
+
 export const CANCELLATION = { tonuHours: 24, tonuStatuses: ["Dispatched", "AtPickup"], penaltyDays: 90 } as const satisfies {
     tonuHours: number;
     tonuStatuses: readonly LoadStatus[];

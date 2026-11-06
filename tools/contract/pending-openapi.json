@@ -303,6 +303,80 @@
                 "tags": ["loads"]
             }
         },
+        "/api/loads/{loadId}/stops/{stopId}/instructions": {
+            "post": {
+                "operationId": "LoadsController_updateStopInstructions",
+                "parameters": [
+                    {
+                        "name": "loadId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "stopId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StopInstructionsDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/LoadDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Load or stop not found"
+                    },
+                    "409": {
+                        "description": "Instructions close once the load is dispatched"
+                    },
+                    "412": {
+                        "description": "Load changed since read"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Replace a stop's instructions before dispatch (SC-40.3)",
+                "tags": ["loads"]
+            }
+        },
         "/api/loads/{loadId}/positions": {
             "get": {
                 "operationId": "PositionsController_forLoad",
@@ -2789,6 +2863,19 @@
                     }
                 },
                 "required": ["tonu", "freeUntil"]
+            },
+            "StopInstructionsDto": {
+                "type": "object",
+                "properties": {
+                    "instructions": {
+                        "type": "string",
+                        "maxLength": 1000
+                    },
+                    "version": {
+                        "type": "number"
+                    }
+                },
+                "required": ["instructions", "version"]
             },
             "CheckCallResponseDto": {
                 "type": "object",

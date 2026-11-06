@@ -9,6 +9,7 @@ export const CAPABILITY_ROLES = {
     shareTrackingLink: ["shipper.member", "shipper.admin", "internal.ops", "internal.support"],
     requestCheckCall: ["carrier.dispatcher", "carrier.admin", "internal.ops"],
     uploadDocument: ["shipper.member", "shipper.admin", "carrier.dispatcher", "carrier.admin", "internal.ops", "internal.finance"],
+    editStopInstructions: ["shipper.member", "shipper.admin"],
 } as const satisfies Record<string, readonly RoleKey[]>;
 
 export type Capability = keyof typeof CAPABILITY_ROLES;
