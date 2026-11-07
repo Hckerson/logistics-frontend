@@ -32,6 +32,7 @@ export default function TableCards<Item>({ caption, columns, rows, rowKey, rowLa
                                     label={fillTemplate(UI_COPY.rowActions, { name: rowLabel(row) })}
                                     items={menu.items(row)}
                                     onAction={(action) => menu.onAction(row, action)}
+                                    onOpenChange={(isOpen) => menu.onOpenChange?.(row, isOpen)}
                                     size="sm"
                                 />
                             ) : null}

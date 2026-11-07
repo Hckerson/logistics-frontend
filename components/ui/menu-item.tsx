@@ -1,6 +1,7 @@
 "use client";
 import clsx from "clsx";
 import { MenuItem as AriaMenuItem } from "react-aria-components";
+import ProgressLine from "@/components/ui/progress-line";
 import { ITEM_ROW, ITEM_SIGNAL } from "@/lib/ui/constants";
 import type { MenuEntry } from "@/lib/types";
 
@@ -9,14 +10,14 @@ interface Props {
 }
 
 export default function MenuItem({ entry }: Props) {
-    const { id, label, icon: Icon, href, destructive = false, disabledReason } = entry;
+    const { id, label, icon: Icon, href, destructive = false, disabledReason, pending = false } = entry;
 
     return (
         <AriaMenuItem
             id={id}
             href={href}
             textValue={label}
-            isDisabled={disabledReason !== undefined}
+            isDisabled={pending || disabledReason !== undefined}
             className={clsx(ITEM_ROW, destructive && "text-error!")}
         >
             <span aria-hidden className={ITEM_SIGNAL} />
@@ -25,6 +26,7 @@ export default function MenuItem({ entry }: Props) {
                 <span>{label}</span>
                 {disabledReason ? <span className="text-text-muted">{disabledReason}</span> : null}
             </span>
+            {pending ? <ProgressLine className="absolute inset-x-3 bottom-0.5" /> : null}
         </AriaMenuItem>
     );
 }

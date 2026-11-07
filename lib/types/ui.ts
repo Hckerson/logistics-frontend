@@ -27,6 +27,7 @@ export interface MenuEntry {
     href?: string;
     destructive?: boolean;
     disabledReason?: string;
+    pending?: boolean;
 }
 
 export interface TabItem {
@@ -49,6 +50,7 @@ export interface TableColumn<Row> {
 
 export interface TableSelection {
     keys: ReadonlySet<string>;
+    count?: number;
     onChange: (keys: ReadonlySet<string>) => void;
     actions?: (keys: ReadonlySet<string>) => ReactNode;
 }
@@ -56,6 +58,7 @@ export interface TableSelection {
 export interface TableRowMenu<Row> {
     items: (row: Row) => readonly MenuEntry[];
     onAction: (row: Row, id: string) => void;
+    onOpenChange?: (row: Row, isOpen: boolean) => void;
 }
 
 export interface TablePreview<Row> {
