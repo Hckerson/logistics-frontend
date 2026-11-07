@@ -3,7 +3,7 @@ import clsx from "clsx";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, type KeyboardEvent, type MouseEvent, type PointerEvent, type ReactNode } from "react";
 import { ChevronRight } from "@carbon/icons-react";
-import Checkbox from "@/components/ui/checkbox";
+import TableCheck from "@/components/ui/table-check";
 import Menu from "@/components/ui/menu";
 import { squareButtonClass } from "@/lib/ui/classes";
 import { useReduced } from "@/lib/hooks/use-reduced";
@@ -76,10 +76,8 @@ export default function TableRow<Item>(props: Props<Item>) {
                 )}
             >
                 {onPick ? (
-                    <td className={TABLE_CELL} onPointerDownCapture={onArm} onKeyDownCapture={onArm}>
-                        <Checkbox isSelected={picked} onChange={onPick}>
-                            <span className="sr-only">{fillTemplate(UI_COPY.selectRow, { name })}</span>
-                        </Checkbox>
+                    <td className="h-9 p-0 align-middle">
+                        <TableCheck label={fillTemplate(UI_COPY.selectRow, { name })} checked={Boolean(picked)} onChange={onPick} onArm={onArm} />
                     </td>
                 ) : null}
                 {onOpen ? (
