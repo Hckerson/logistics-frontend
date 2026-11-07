@@ -126,6 +126,12 @@ export const TABLE_FLASH = { ms: 1400, easing: "cubic-bezier(0.16, 1, 0.3, 1)", 
 
 export const TABLE_SKELETON_ROWS = 5;
 
+export const CHECK_BOX = "grid size-4 shrink-0 place-items-center border transition-colors duration-200";
+
+export const CHECK_FILL = { on: "bg-text text-text-inverse", off: "bg-background" } as const;
+
+export const CHECK_EDGE = { on: "border-text", off: "border-text-muted", invalid: "border-error" } as const;
+
 export const COPY_RESET_MS = 2000;
 
 export const MINUTE_STEP = 15;

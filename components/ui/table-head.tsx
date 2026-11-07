@@ -1,6 +1,6 @@
 "use client";
 import clsx from "clsx";
-import Checkbox from "@/components/ui/checkbox";
+import TableCheck from "@/components/ui/table-check";
 import TableHeading from "@/components/ui/table-heading";
 import { TABLE_HEAD } from "@/lib/ui/constants";
 import { UI_COPY } from "@/lib/ui/copy";
@@ -30,10 +30,8 @@ export default function TableHead<Item>(props: Props<Item>) {
         <thead>
             <tr className="border-border border-b">
                 {selectable ? (
-                    <th scope="col" className={TABLE_HEAD}>
-                        <Checkbox isSelected={allOnPage} isIndeterminate={someOnPage} onChange={onTogglePage}>
-                            <span className="sr-only">{UI_COPY.selectPage}</span>
-                        </Checkbox>
+                    <th scope="col" className="h-9 p-0 align-middle font-normal">
+                        <TableCheck label={UI_COPY.selectPage} checked={allOnPage} indeterminate={someOnPage} onChange={onTogglePage} />
                     </th>
                 ) : null}
                 {expandable ? <td aria-hidden className={TABLE_HEAD} /> : null}

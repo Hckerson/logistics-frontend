@@ -3,6 +3,7 @@ import clsx from "clsx";
 import type { ReactNode } from "react";
 import { Checkmark, Subtract } from "@carbon/icons-react";
 import { Checkbox as AriaCheckbox, type CheckboxProps } from "react-aria-components";
+import { CHECK_BOX, CHECK_EDGE, CHECK_FILL } from "@/lib/ui/constants";
 
 interface Props extends Omit<CheckboxProps, "children" | "className" | "style" | "isInvalid"> {
     invalid?: boolean;
@@ -26,14 +27,15 @@ export default function Checkbox({ invalid = false, className, children, ...rest
                     <span
                         aria-hidden
                         className={clsx(
-                            "mt-0.5 grid size-4 shrink-0 place-items-center border transition-colors duration-200",
+                            CHECK_BOX,
+                            "mt-0.5",
                             "group-data-focus-visible/check:outline-text group-data-focus-visible/check:outline-2 group-data-focus-visible/check:outline-offset-2",
-                            isSelected || isIndeterminate ? "bg-text text-text-inverse" : "bg-background",
+                            isSelected || isIndeterminate ? CHECK_FILL.on : CHECK_FILL.off,
                             invalid
-                                ? "border-error"
+                                ? CHECK_EDGE.invalid
                                 : isSelected || isIndeterminate
-                                  ? "border-text"
-                                  : "border-text-muted group-data-hovered/check:border-text",
+                                  ? CHECK_EDGE.on
+                                  : clsx(CHECK_EDGE.off, "group-data-hovered/check:border-text"),
                         )}
                     >
                         {isIndeterminate ? (
