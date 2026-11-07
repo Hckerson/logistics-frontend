@@ -131,6 +131,7 @@ export const LOAD_COPY = {
         checkCallDone: "Check call requested. The carrier is asked to report a position.",
         checkCallClosed: "A check call opens once the last position is an hour old.",
         checkCallRecent: "A check call was already requested in the last 30 minutes.",
+        checkCallRecentBy: "{name} requested one {age}. Another opens at {time}.",
         paused: "Live updates paused.",
     },
     money: {

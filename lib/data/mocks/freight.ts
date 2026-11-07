@@ -78,6 +78,8 @@ export const MOCK_NOTIFICATIONS: readonly NotificationSeed[] = [
     { user: "usr_ops", event: "trackingStale", load: "HL-9DQ4ZB2M", ageHours: 0.3, read: false },
 ];
 
+export const mockDocumentId = (index: number) => `doc_${index + 1}`;
+
 export const MOCK_SAMPLE_TYPE = "application/pdf";
 
 export const MOCK_SAMPLE_PDF =

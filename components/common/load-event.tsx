@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import EventEvidence from "@/components/common/event-evidence";
 import type { LoadEventDto } from "@/lib/contract/schemas";
 import { LOAD_RECORD_COPY } from "@/lib/data/loads/record-copy";
 import { LOAD_STATUS_LABELS, LOAD_STATUS_TONES } from "@/lib/loads/status";
@@ -56,6 +57,7 @@ export default function LoadEvent({ event, zone, now, last }: Props) {
                         </p>
                     ) : null,
                 )}
+                <EventEvidence event={event} />
             </div>
         </li>
     );

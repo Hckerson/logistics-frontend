@@ -39,7 +39,10 @@ export const longDate = formatter({ month: "long", day: "numeric", year: "numeri
 const relative = new Intl.RelativeTimeFormat(TRACKING_LOCALE, { style: "short", numeric: "auto" });
 const MINUTES_PER_HOUR = 60;
 
-export const ageOf = (minutes: number) =>
-    minutes < MINUTES_PER_HOUR * 2
-        ? relative.format(-Math.max(0, Math.round(minutes)), "minute")
-        : relative.format(-Math.round(minutes / MINUTES_PER_HOUR), "hour");
+const HOURS_PER_DAY = 24;
+
+export const ageOf = (minutes: number) => {
+    if (minutes < MINUTES_PER_HOUR * 2) return relative.format(-Math.max(0, Math.round(minutes)), "minute");
+    const hours = minutes / MINUTES_PER_HOUR;
+    return hours < HOURS_PER_DAY * 2 ? relative.format(-Math.round(hours), "hour") : relative.format(-Math.round(hours / HOURS_PER_DAY), "day");
+};

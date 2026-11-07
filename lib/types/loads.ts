@@ -50,6 +50,8 @@ export type TrackingView = "map" | "text";
 
 export type TimelineFilter = TimelineCategory | "all";
 
+export type DocumentFilter = DocumentDto["type"] | "all";
+
 export interface UploadRow {
     key: string;
     file: File;

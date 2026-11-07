@@ -36,6 +36,9 @@ export const LOAD_RECORD_COPY = {
         } satisfies Record<LoadEventDto["source"], string>,
         reason: "Reason",
         note: "Note",
+        evidence: "Evidence",
+        recordedAt: "Recorded at {city}",
+        openDocument: "Open document",
         older: "Load older events",
         loadingOlder: "Loading older events…",
         unposted: "Events will be recorded once the load is posted.",
@@ -45,6 +48,8 @@ export const LOAD_RECORD_COPY = {
     },
     documents: {
         label: "Documents",
+        filter: "Show documents of type",
+        allTypes: "All types",
         types: {
             bol: "Bill of lading",
             pod: "Proof of delivery",

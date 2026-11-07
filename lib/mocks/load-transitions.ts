@@ -1,6 +1,7 @@
 import { actorsOf } from "@/lib/auth/capabilities";
 import { HTTP_STATUS, TIME_MS } from "@/lib/constants";
 import { loadTransitionDtoSchema } from "@/lib/contract/schemas";
+import { MOCK_FACILITIES } from "@/lib/data/mocks/facilities";
 import { MOCK_ORGANISATIONS } from "@/lib/data/mocks/team";
 import { STOP_EVENT_UNDO_MINUTES, UNDOABLE_LOAD_STATUSES } from "@/lib/loads/constants";
 import { LOAD_MOVES, LOAD_RETURNS } from "@/lib/loads/transitions";
@@ -60,11 +61,13 @@ export const transitionLoad = withCaller(({ path, body }, { loadId }, caller) =>
     const from = load.status;
     const at = new Date(now).toISOString();
     if (to === "Cancelled") load.charges.push(...tonuCharges(load, now));
+    const stop = load.stops.find((candidate) => !candidate.departedAt);
+    const city = !undo && stop && UNDOABLE_LOAD_STATUSES.includes(to) ? MOCK_FACILITIES[stop.facility].city : null;
     applyStopTimes(load.stops, from, to, undo, at);
     if (booking) load.carrier = booking;
     if (to === "Posted" && from !== "Draft") Object.assign(load, { carrier: null, driver: null });
     Object.assign(load, { status: to, version: load.version + 1, updatedAt: at });
-    recordEvent(load.id, caller, { type: "statusChanged", category: "status", fromStatus: from, toStatus: to, reason: reason ?? null });
+    recordEvent(load.id, caller, { type: "statusChanged", category: "status", fromStatus: from, toStatus: to, reason: reason ?? null, city });
 
     return ok(HTTP_STATUS.ok, toLoadDetail(load, caller, now));
 });

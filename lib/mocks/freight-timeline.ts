@@ -1,6 +1,7 @@
 import { nanoid } from "nanoid";
 import { TIME_MS } from "@/lib/constants";
-import { MOCK_DOCUMENTS, MOCK_TRACKING_LINKS } from "@/lib/data/mocks/freight";
+import { MOCK_FACILITIES } from "@/lib/data/mocks/facilities";
+import { MOCK_DOCUMENTS, MOCK_TRACKING_LINKS, mockDocumentId } from "@/lib/data/mocks/freight";
 import { TRACKING } from "@/lib/loads/constants";
 import type { LoadEventDto } from "@/lib/contract/schemas";
 import type { LoadStatus, MockLoad, MockLoadEvent } from "@/lib/types";
@@ -34,6 +35,7 @@ const event = (load: MockLoad, at: number, actor: Actor, fields: Partial<LoadEve
     reason: null,
     note: null,
     city: null,
+    documentId: null,
     occurredAt: new Date(at).toISOString(),
     ...actor,
     ...fields,
@@ -44,8 +46,8 @@ const statusEvents = (load: MockLoad, now: number): MockLoadEvent[] => {
     const target = load.heldFrom ?? load.status;
     const events: MockLoadEvent[] = [];
     let current: LoadStatus = "Draft";
-    const step = (to: LoadStatus, at: number, actor: Actor, reason: string | null = null) => {
-        events.push(event(load, at, actor, { type: "statusChanged", category: "status", fromStatus: current, toStatus: to, reason }));
+    const step = (to: LoadStatus, at: number, actor: Actor, reason: string | null = null, city: string | null = null) => {
+        events.push(event(load, at, actor, { type: "statusChanged", category: "status", fromStatus: current, toStatus: to, reason, city }));
         current = to;
     };
     const after = (hours: number) => created + hours * TIME_MS.hour;
@@ -64,8 +66,9 @@ const statusEvents = (load: MockLoad, now: number): MockLoadEvent[] => {
         step("Dispatched", after(STEP_HOURS.dispatched), carrierActor(load));
 
         load.stops.forEach((stop, index) => {
-            if (stop.arrivedAt) step(stop.type === "pickup" ? "AtPickup" : "AtDelivery", Date.parse(stop.arrivedAt), driverActor(load, "geofence"));
-            if (stop.departedAt) step(index === load.stops.length - 1 ? "Delivered" : "InTransit", Date.parse(stop.departedAt), driverActor(load, "driver"));
+            const { city } = MOCK_FACILITIES[stop.facility];
+            if (stop.arrivedAt) step(stop.type === "pickup" ? "AtPickup" : "AtDelivery", Date.parse(stop.arrivedAt), driverActor(load, "geofence"), null, city);
+            if (stop.departedAt) step(index === load.stops.length - 1 ? "Delivered" : "InTransit", Date.parse(stop.departedAt), driverActor(load, "driver"), null, city);
         });
 
         const delivered = load.stops[load.stops.length - 1].departedAt;
@@ -87,8 +90,17 @@ const sideEvents = (load: MockLoad, now: number): MockLoadEvent[] => [
         event(load, now - link.ageHours * TIME_MS.hour, SHIPPER, { type: "trackingLinkCreated", category: "tracking" }),
         ...(link.revokedHoursAgo ? [event(load, now - link.revokedHoursAgo * TIME_MS.hour, SHIPPER, { type: "trackingLinkRevoked", category: "tracking" })] : []),
     ]),
-    ...MOCK_DOCUMENTS.filter((document) => document.load === load.id && document.scanStatus !== "rejected").map((document) =>
-        event(load, now - document.ageHours * TIME_MS.hour, { actorType: "member", actorName: document.by, source: "web" }, { type: "documentUploaded", category: "document" }),
+    ...MOCK_DOCUMENTS.flatMap((document, index) =>
+        document.load === load.id && document.scanStatus !== "rejected"
+            ? [
+                  event(
+                      load,
+                      now - document.ageHours * TIME_MS.hour,
+                      { actorType: "member", actorName: document.by, source: "web" },
+                      { type: "documentUploaded", category: "document", documentId: mockDocumentId(index) },
+                  ),
+              ]
+            : [],
     ),
     ...((load.track?.silentMinutes ?? 0) >= TRACKING.exceptionMinutes
         ? [event(load, now - ((load.track?.silentMinutes ?? 0) - TRACKING.exceptionMinutes) * TIME_MS.minute, SYSTEM, { type: "trackingStale", category: "tracking" })]
