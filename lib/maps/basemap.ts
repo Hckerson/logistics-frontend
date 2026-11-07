@@ -3,6 +3,8 @@ import type { StyleSpecification } from "maplibre-gl";
 import { BASEMAP, MAP_KEY } from "@/lib/maps/constants";
 import { rgbOf } from "@/lib/utils/css-color";
 
+export const firstLabelLayer = (style: StyleSpecification) => style.layers.find((layer) => layer.type === "symbol")?.id;
+
 export function basemapStyle(element: HTMLElement): StyleSpecification {
     const styles = getComputedStyle(element);
     const read = (name: string, fallback: string) => {

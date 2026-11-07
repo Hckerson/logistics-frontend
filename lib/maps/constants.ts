@@ -22,14 +22,22 @@ export const MAP_VIEW = {
 } as const;
 
 export const ROUTE_MARKS = {
-    lane: 14,
-    travelled: 7,
-    pulse: 6,
     terminal: 13,
     upcoming: 9,
     truck: 26,
     core: 3,
-    alpha: { lane: 170, upcoming: 150, stale: 160 },
+    fleet: 18,
+    alpha: { upcoming: 150, stale: 160 },
+} as const;
+
+export const ROUTE_LINES = {
+    glow: { width: 14, blur: 10, alpha: 0.4 },
+    lane: { width: 2.5, alpha: 0.85 },
+    travelledGlow: { width: 10, blur: 7, alpha: 0.45 },
+    travelled: { width: 3.5, alpha: 1 },
+    pulse: { width: 5, blur: 2, alpha: 1 },
+    trackGlow: { width: 10, blur: 6, alpha: 0.27 },
+    track: { width: 2.5, alpha: 1 },
 } as const;
 
 export const ROUTE_MOTION = {
@@ -40,8 +48,6 @@ export const ROUTE_MOTION = {
 } as const;
 
 export const MAP_MARKS = {
-    trackGlow: 10,
-    track: 2.5,
     cityRadiusM: 22_000,
-    alpha: { glow: 70, area: 26, areaLine: 110 },
+    alpha: { area: 26, areaLine: 110 },
 } as const;

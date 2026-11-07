@@ -42,6 +42,7 @@ export interface MapPalette {
     hot: Rgb;
     accent: Rgb;
     muted: Rgb;
+    warning: Rgb;
     font: string;
 }
 
@@ -88,6 +89,14 @@ export interface RouteLine {
 export interface MapRoute extends RouteLine {
     travelled: number;
     live: boolean;
+}
+
+export interface CollectionVehicle {
+    id: string;
+    position: LonLat;
+    label: string;
+    stale: boolean;
+    late: boolean;
 }
 
 export interface MapMotion {
