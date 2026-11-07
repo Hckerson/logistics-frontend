@@ -16,16 +16,17 @@ interface Props {
     size?: ControlSize;
     pending?: boolean;
     placement?: "bottom start" | "bottom end";
+    onOpenChange?: (isOpen: boolean) => void;
 }
 
-export default function Menu({ label, items, onAction, text, tone, size = "md", pending = false, placement = "bottom end" }: Props) {
+export default function Menu({ label, items, onAction, text, tone, size = "md", pending = false, placement = "bottom end", onOpenChange }: Props) {
     const act = (key: Key) => {
         const entry = items.find((item) => item.id === key);
         if (entry && !entry.href) onAction(entry.id);
     };
 
     return (
-        <MenuTrigger>
+        <MenuTrigger onOpenChange={onOpenChange}>
             {text ? (
                 <Button tone={tone ?? "outline"} size={size} pending={pending} trailing={ChevronDown}>
                     {text}

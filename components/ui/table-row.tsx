@@ -119,6 +119,7 @@ export default function TableRow<Item>(props: Props<Item>) {
                             label={fillTemplate(UI_COPY.rowActions, { name })}
                             items={menu.items(row)}
                             onAction={(action) => menu.onAction(row, action)}
+                            onOpenChange={(isOpen) => menu.onOpenChange?.(row, isOpen)}
                             size="sm"
                         />
                     </td>

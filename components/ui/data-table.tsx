@@ -61,7 +61,7 @@ export default function DataTable<Item>(props: Props<Item>) {
                 count={count}
                 note={note}
                 tools={tools}
-                picked={selection ? picks.count : 0}
+                picked={selection ? (selection.count ?? picks.count) : 0}
                 onClear={picks.clear}
                 actions={selection?.actions?.(selection.keys)}
             />
