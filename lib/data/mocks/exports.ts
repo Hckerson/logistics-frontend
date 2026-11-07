@@ -1,5 +1,4 @@
 export const MOCK_EXPORTS = {
-    instantRows: 100,
     queuedMs: 600,
     quickMs: 900,
     jobMs: 9000,
