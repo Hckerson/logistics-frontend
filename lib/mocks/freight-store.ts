@@ -1,6 +1,6 @@
 import { nanoid } from "nanoid";
 import { TIME_MS } from "@/lib/constants";
-import { MOCK_DOCUMENTS, MOCK_NOTIFICATIONS, MOCK_TRACKING_LINKS } from "@/lib/data/mocks/freight";
+import { MOCK_DOCUMENTS, MOCK_NOTIFICATIONS, MOCK_TRACKING_LINKS, mockDocumentId } from "@/lib/data/mocks/freight";
 import { MOCK_FREIGHT, MOCK_LOADS } from "@/lib/data/mocks/loads";
 import { timelineOf } from "@/lib/mocks/freight-timeline";
 import type {
@@ -102,7 +102,7 @@ const seedFreight = (): FreightStore => {
         ),
         documents: new Map(
             MOCK_DOCUMENTS.map((document, index) => {
-                const id = `doc_${index + 1}`;
+                const id = mockDocumentId(index);
                 const contentType = document.fileName.endsWith(".pdf") ? "application/pdf" : document.fileName.endsWith(".png") ? "image/png" : "image/jpeg";
                 return [id, { id, loadId: document.load, type: document.type, fileName: document.fileName, contentType, sizeBytes: document.sizeBytes, scanStatus: document.scanStatus, version: 1, uploadedByName: document.by, createdAt: at(now, -document.ageHours) }];
             }),

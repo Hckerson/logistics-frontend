@@ -82,7 +82,7 @@ export const completeUpload = withCaller(({ path }, { documentId }, caller) => {
 
     document.scanStatus = "pending";
     store.scans.set(documentId, new Date().getTime() + MOCK_FREIGHT.scanSeconds * TIME_MS.second);
-    recordEvent(load.id, caller, { type: "documentUploaded", category: "document" });
+    recordEvent(load.id, caller, { type: "documentUploaded", category: "document", documentId: document.id });
     return ok(HTTP_STATUS.ok, documentDtoSchema.parse(document));
 });
 

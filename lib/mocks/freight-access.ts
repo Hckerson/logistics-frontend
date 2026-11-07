@@ -82,6 +82,7 @@ export const recordEvent = (loadId: string, caller: MockCaller, fields: Pick<Loa
         reason: null,
         note: null,
         city: null,
+        documentId: null,
         occurredAt: new Date().toISOString(),
         ...actorOf(caller),
         ...fields,

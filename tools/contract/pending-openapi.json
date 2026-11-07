@@ -3444,6 +3444,10 @@
                         "type": "string",
                         "nullable": true
                     },
+                    "documentId": {
+                        "type": "string",
+                        "nullable": true
+                    },
                     "occurredAt": {
                         "type": "string",
                         "format": "date-time"
@@ -3461,6 +3465,7 @@
                     "reason",
                     "note",
                     "city",
+                    "documentId",
                     "occurredAt"
                 ]
             },

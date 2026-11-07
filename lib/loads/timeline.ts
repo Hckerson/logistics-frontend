@@ -14,7 +14,9 @@ export const zoneAt = (stops: readonly Pick<StopDto, "departedAt" | "facility">[
 export const eventTitle = ({ type, toStatus, city }: LoadEventDto) =>
     fillTemplate(copy.events[type], { status: toStatus ? LOAD_STATUS_LABELS[toStatus] : "", city: city ?? "" });
 
-export const eventActor = ({ actorName, actorType, source }: LoadEventDto) => `${actorName ?? copy.actors[actorType]} · ${copy.sources[source]}`;
+export const actorOf = ({ actorName, actorType }: Pick<LoadEventDto, "actorName" | "actorType">) => actorName ?? copy.actors[actorType];
+
+export const eventActor = (event: LoadEventDto) => `${actorOf(event)} · ${copy.sources[event.source]}`;
 
 export const recentAge = (iso: string, now: number | null) => {
     if (now === null) return null;

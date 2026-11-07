@@ -16,6 +16,7 @@ import { useLoadPositions } from "@/lib/hooks/use-load-positions";
 import { useLoad } from "@/lib/hooks/use-loads";
 import { useWide } from "@/lib/hooks/use-wide";
 import { TRACKED_STATUSES } from "@/lib/loads/constants";
+import { currentStop } from "@/lib/loads/view";
 import type { TrackingView } from "@/lib/types";
 
 interface Props {
@@ -57,7 +58,7 @@ export default function LoadTracking({ initial }: Props) {
                         </Button>
                     </div>
                 ) : null}
-                {checkCall ? <CheckCall loadId={load.id} health={health} /> : null}
+                {checkCall ? <CheckCall loadId={load.id} health={health} zone={(currentStop(load.stops) ?? load.stops[load.stops.length - 1]).facility.timeZone} /> : null}
             </div>
         </Panel>
     );

@@ -17,7 +17,7 @@ export const loadTimeline = withCaller(({ path }, { loadId }, caller) => {
         .events.filter((event) => event.loadId === load.id && (!category || event.category === category))
         .sort((first, second) => Date.parse(second.occurredAt) - Date.parse(first.occurredAt) || second.id.localeCompare(first.id));
     const start = cursor ? events.findIndex((event) => event.id === cursor) + 1 : 0;
-    const items = events.slice(start, start + limit).map((event) => loadEventDtoSchema.parse(event));
+    const items = events.slice(start, start + limit).map((event) => loadEventDtoSchema.parse({ documentId: null, ...event }));
 
     return ok(HTTP_STATUS.ok, { items, nextCursor: start + limit < events.length ? (items.at(-1)?.id ?? null) : null });
 });

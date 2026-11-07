@@ -464,6 +464,7 @@ export const loadEventDtoSchema = z.object({
     reason: z.string().nullable(),
     note: z.string().nullable(),
     city: z.string().nullable(),
+    documentId: z.string().nullable(),
     occurredAt: z.string(),
 });
 export type LoadEventDto = z.infer<typeof loadEventDtoSchema>;
