@@ -10,10 +10,12 @@ import { glowsOf } from "@/lib/home/glow";
 import { paletteOf } from "@/lib/home/palette";
 import { useMapMotion } from "@/lib/hooks/use-map-motion";
 import { useReduced } from "@/lib/hooks/use-reduced";
-import { basemapStyle } from "@/lib/maps/basemap";
+import { basemapStyle, firstLabelLayer } from "@/lib/maps/basemap";
 import { MAP_CENTER, MAP_VIEW, ROUTE_MOTION } from "@/lib/maps/constants";
+import { fleetTooltip } from "@/lib/maps/fleet";
 import { freightLayers } from "@/lib/maps/layers";
-import type { Glows, LonLat, MapMotion, MapPalette, MapPrecision, MapRoute, MapStop, MapVehicle } from "@/lib/types";
+import { mountRoute, paintRoute, setRouteData } from "@/lib/maps/native-route";
+import type { CollectionVehicle, Glows, LonLat, MapMotion, MapPalette, MapPrecision, MapRoute, MapStop, MapVehicle } from "@/lib/types";
 
 interface Props {
     label: string;
@@ -23,12 +25,15 @@ interface Props {
     route?: MapRoute | null;
     track?: readonly LonLat[];
     vehicle?: MapVehicle | null;
+    vehicles?: readonly CollectionVehicle[];
+    onSelect?: (id: string) => void;
     className?: string;
 }
 
 setWorkerUrl(new URL("maplibre-gl/dist/maplibre-gl-worker.mjs", import.meta.url).href);
 
 const NO_STOPS: readonly MapStop[] = [];
+const NO_VEHICLES: readonly CollectionVehicle[] = [];
 const CONTROLS = [
     "font-body! [&_.maplibregl-cooperative-gesture-screen]:hidden!",
     "[&_.maplibregl-ctrl-group]:border [&_.maplibregl-ctrl-group]:border-border-dark [&_.maplibregl-ctrl-group]:bg-background/90! [&_.maplibregl-ctrl-group]:rounded-none! [&_.maplibregl-ctrl-group]:shadow-none!",
@@ -37,23 +42,25 @@ const CONTROLS = [
 ];
 
 export default function FreightMap(props: Props) {
-    const { label, recentreLabel, precision, stops = NO_STOPS, route = null, track, vehicle = null, className } = props;
+    const { label, recentreLabel, precision, stops = NO_STOPS, route = null, track, vehicle = null, vehicles = NO_VEHICLES, onSelect, className } = props;
     const host = useRef<HTMLDivElement>(null);
     const map = useRef<MapLibreMap | null>(null);
     const overlay = useRef<MapboxOverlay | null>(null);
     const look = useRef<{ palette: MapPalette; glows: Glows } | null>(null);
+    const refresh = useRef<() => void>(() => undefined);
     const motion = useRef<MapMotion>(ROUTE_MOTION.still);
     const framed = useRef<string | null>(null);
     const reduced = useReduced();
-    const place = [...stops.map((stop) => stop.position.join(",")), route?.path.length ?? 0].join(";");
+    const place = [...stops.map((stop) => stop.position.join(",")), route?.path.length ?? 0, vehicles.length > 0].join(";");
 
     useEffect(() => {
         const element = host.current;
         if (!element) return;
         const palette = paletteOf(element);
+        const style = basemapStyle(element);
         const instance = new MapLibreMap({
             container: element,
-            style: basemapStyle(element),
+            style,
             center: MAP_CENTER,
             zoom: MAP_VIEW.zoom,
             attributionControl: { compact: true },
@@ -61,12 +68,23 @@ export default function FreightMap(props: Props) {
             dragRotate: false,
             pitchWithRotate: false,
         });
-        const deck = new MapboxOverlay({ interleaved: false, layers: [] });
+        const deck = new MapboxOverlay({
+            interleaved: false,
+            layers: [],
+            getTooltip: fleetTooltip,
+            onHover: ({ object }) => {
+                instance.getCanvas().style.cursor = object ? "pointer" : "";
+            },
+        });
         instance.addControl(new NavigationControl({ showCompass: false }), "top-right");
         instance.addControl(deck);
         map.current = instance;
         overlay.current = deck;
         look.current = { palette, glows: glowsOf(palette) };
+        instance.once("load", () => {
+            mountRoute(instance, palette, firstLabelLayer(style));
+            refresh.current();
+        });
         return () => {
             instance.remove();
             map.current = null;
@@ -78,26 +96,42 @@ export default function FreightMap(props: Props) {
     const paint = useCallback(
         (next: MapMotion) => {
             motion.current = next;
-            if (!overlay.current || !look.current) return;
-            overlay.current.setProps({ layers: freightLayers({ stops, route, track, vehicle, precision, motion: next, ...look.current }) });
+            const instance = map.current;
+            if (!instance || !overlay.current || !look.current) return;
+            overlay.current.setProps({ layers: freightLayers({ stops, vehicle, vehicles, precision, drawn: next.drawn, onSelect, ...look.current }) });
+            paintRoute(instance, route, next, look.current.palette);
         },
-        [stops, route, track, vehicle, precision],
+        [stops, route, vehicle, vehicles, precision, onSelect],
     );
 
     const frame = useCallback(() => {
         const instance = map.current;
-        const points: LonLat[] = [...stops.map((stop) => stop.position), ...(route?.path ?? []), ...(track ?? []), ...(vehicle ? [vehicle.position] : [])];
+        const points: LonLat[] = [
+            ...stops.map((stop) => stop.position),
+            ...(route?.path ?? []),
+            ...(track ?? []),
+            ...(vehicle ? [vehicle.position] : []),
+            ...vehicles.map((item) => item.position),
+        ];
         if (!instance || points.length === 0) return;
         const bounds = points.reduce((box, point) => box.extend(point), new LngLatBounds(points[0], points[0]));
         instance.fitBounds(bounds, { padding: MAP_VIEW.padding, maxZoom: MAP_VIEW.maxZoom[precision], duration: reduced ? 0 : MAP_VIEW.ease });
-    }, [stops, route, track, vehicle, precision, reduced]);
+    }, [stops, route, track, vehicle, vehicles, precision, reduced]);
 
     useEffect(() => {
-        paint(motion.current);
+        const sync = () => {
+            if (map.current) setRouteData(map.current, route, track);
+            paint(motion.current);
+        };
+        refresh.current = sync;
+        sync();
+    }, [route, track, paint]);
+
+    useEffect(() => {
         if (framed.current === place) return;
         framed.current = place;
         frame();
-    }, [paint, frame, place]);
+    }, [frame, place]);
 
     useMapMotion(paint, { animate: !reduced && route !== null, loop: Boolean(route?.live), restart: place });
 

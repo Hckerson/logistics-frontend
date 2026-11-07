@@ -19,6 +19,7 @@ export function paletteOf(element: HTMLElement): MapPalette {
         hot: token("--haulr-hot"),
         accent: token("--colors-accent"),
         muted: token("--colors-text-muted"),
+        warning: token("--signal-warning"),
         font: styles.fontFamily,
     };
 }
