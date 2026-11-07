@@ -12,6 +12,7 @@ export * from "./map";
 export * from "./primitives";
 export * from "./mocks";
 export * from "./quote";
+export * from "./shell";
 export * from "./team";
 export * from "./tracking";
 export * from "./support";
