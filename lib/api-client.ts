@@ -27,6 +27,8 @@ export const local = {
         (await sameOriginClient.post<T>(url, body)).data,
     delete: async <T>(url: string) =>
         (await sameOriginClient.delete<T>(url)).data,
+    patch: async (url: string): Promise<unknown> =>
+        (await sameOriginClient.patch<unknown>(url)).data,
 };
 
 export const storage = {
