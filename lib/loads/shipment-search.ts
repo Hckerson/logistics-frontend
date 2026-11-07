@@ -11,6 +11,7 @@ import { shipmentParamSchema } from "@/lib/validations/shipments";
 type SearchParams = Record<string, string | string[] | undefined>;
 
 const { chips, dates } = SHIPMENTS_COPY;
+const EXPORT_ID = /^[\w-]{1,64}$/;
 
 export const parseShipmentSearch = (raw: SearchParams) => {
     const reset: ShipmentParam[] = [];
@@ -43,8 +44,11 @@ export const parseShipmentSearch = (raw: SearchParams) => {
         destination: read("destination", shape.destination),
         carrier: read("carrier", shape.carrier),
         sort: read("sort", shape.sort),
+        view: read("view", shape.view) ?? NO_SHIPMENT_FILTERS.view,
     };
-    return { filters, reset };
+    const job = raw.export;
+    const exportId = typeof job === "string" && EXPORT_ID.test(job) ? job : null;
+    return { filters, reset, exportId };
 };
 
 const day = (value: string | null) => {

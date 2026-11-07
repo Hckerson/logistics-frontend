@@ -1,4 +1,5 @@
-import type { LoadCountDto, LoadSummaryDto, StopPlaceDto } from "@/lib/contract/schemas";
+import { TIME_MS } from "@/lib/constants";
+import type { LoadCountDto, LoadExportFiltersDto, LoadSummaryDto, StopPlaceDto } from "@/lib/contract/schemas";
 import { SHIPMENTS_COPY } from "@/lib/data/loads/shipments";
 import { LOAD_STATUSES } from "@/lib/enums/load-status";
 import { TRACKED_STATUSES, TRACKING } from "@/lib/loads/constants";
@@ -11,11 +12,15 @@ import { queryString } from "@/lib/utils/query-string";
 
 export const SHIPMENT_STAGES = ["all", "moving", "waiting", "attention", "done", "ended"] as const;
 
+export const SHIPMENT_VIEWS = ["list", "map"] as const;
+
 export const LOAD_SORTS = ["pickup", "-pickup", "delivery", "-delivery", "updated", "-updated"] as const satisfies readonly NonNullable<LoadListParams["sort"]>[];
 
 export const LOAD_DATE_FIELDS = ["pickup", "delivery"] as const satisfies readonly NonNullable<LoadListParams["dateField"]>[];
 
 export const LOAD_FILTER_LIMITS = { place: 120, party: 64, ids: 100, exportIds: 500 } as const;
+
+export const EXPORT_RULES = { instantRows: 100, pollMs: { quick: TIME_MS.second, job: 10 * TIME_MS.second }, settled: ["ready", "failed", "expired"] } as const;
 
 export const NO_SHIPMENT_FILTERS: ShipmentFilters = {
     stage: "all",
@@ -30,6 +35,7 @@ export const NO_SHIPMENT_FILTERS: ShipmentFilters = {
     destination: null,
     carrier: null,
     sort: null,
+    view: "list",
 };
 
 const STAGE_TONES: Record<Exclude<ShipmentStage, "all">, readonly SignalTone[]> = {
@@ -73,7 +79,12 @@ export const listParams = (filters: ShipmentFilters): LoadListParams => ({
 export const refinements = ({ q, equipment, late, exceptions, from, to, origin, destination, carrier }: ShipmentFilters) =>
     [q, equipment.length > 0, late, exceptions, from || to, origin, destination, carrier].filter(Boolean).length;
 
-export const shipmentQuery = (filters: ShipmentFilters) => queryString(listParams(filters));
+export const shipmentQuery = (filters: ShipmentFilters) => queryString({ ...listParams(filters), view: filters.view === "map" ? filters.view : undefined });
+
+export const exportFilters = (filters: ShipmentFilters): LoadExportFiltersDto => {
+    const { status, equipment, q, late, from, to, dateField, origin, destination, carrier, exceptions } = listParams(filters);
+    return { status, equipment, q, late, from, to, dateField, origin, destination, carrier, exceptions };
+};
 
 export const tableSort = (sort: LoadSort | null): TableSort | undefined =>
     sort ? { column: sort.replace("-", ""), direction: sort.startsWith("-") ? "descending" : "ascending" } : undefined;

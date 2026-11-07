@@ -7,6 +7,7 @@ import { MOCK_ORGANISATIONS } from "@/lib/data/mocks/team";
 import { FREIGHT_MESSAGES, visibleLoad, withCaller, type MockCaller } from "@/lib/mocks/freight-access";
 import { freightStore } from "@/lib/mocks/freight-store";
 import { fail, ok } from "@/lib/mocks/http";
+import { EXPORT_RULES } from "@/lib/loads/shipments";
 import { deliveryOf, findLoads, pickupOf } from "@/lib/mocks/load-query";
 import type { MockExport, MockLoad } from "@/lib/types";
 import { fillTemplate } from "@/lib/utils/fill-template";
@@ -15,7 +16,7 @@ import { exportRequestSchema, loadListQuerySchema } from "@/lib/validations/frei
 const holder = globalThis as typeof globalThis & { haulrExports?: Map<string, MockExport> };
 const jobs = () => (holder.haulrExports ??= new Map());
 const iso = (moment: number) => new Date(moment).toISOString();
-const durationOf = (job: MockExport) => (job.loadIds.length > MOCK_EXPORTS.instantRows ? MOCK_EXPORTS.jobMs : MOCK_EXPORTS.quickMs);
+const durationOf = (job: MockExport) => (job.loadIds.length > EXPORT_RULES.instantRows ? MOCK_EXPORTS.jobMs : MOCK_EXPORTS.quickMs);
 const readyAt = (job: MockExport) => job.createdAt + durationOf(job);
 const expiresAt = (job: MockExport) => readyAt(job) + MOCK_EXPORTS.ttlHours * TIME_MS.hour;
 const fileNameOf = (job: MockExport) => fillTemplate(MOCK_EXPORTS.fileName, { date: iso(job.createdAt).slice(0, 10) });
@@ -72,7 +73,7 @@ const viewOf = (job: MockExport, now: number): ExportJobDto => {
 export const settleExports = (now = new Date().getTime()) => {
     const notifications = freightStore().notifications;
     for (const job of jobs().values()) {
-        if (job.notified || job.loadIds.length <= MOCK_EXPORTS.instantRows || statusOf(job, now) !== "ready") continue;
+        if (job.notified || job.loadIds.length <= EXPORT_RULES.instantRows || statusOf(job, now) !== "ready") continue;
         job.notified = true;
         const id = nanoid();
         notifications.set(id, { id, userId: job.userId, event: "exportReady", loadId: null, exportId: job.id, createdAt: iso(readyAt(job)), readAt: null });

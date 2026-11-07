@@ -15,7 +15,7 @@ interface Props {
 export const metadata: Metadata = { title: SHIPMENTS_COPY.meta.title, robots: { index: false, follow: false } };
 
 export default async function ShipmentsPage({ searchParams }: Props) {
-    const { filters, reset } = parseShipmentSearch(await searchParams);
+    const { filters, reset, exportId } = parseShipmentSearch(await searchParams);
 
     return (
         <WorkspacePage>
@@ -24,7 +24,7 @@ export default async function ShipmentsPage({ searchParams }: Props) {
                     {SHIPMENTS_COPY.post}
                 </ButtonLink>
             </WorkspaceHeading>
-            <ShipmentsBoard initial={filters} reset={reset} />
+            <ShipmentsBoard initial={filters} reset={reset} exportId={exportId} />
         </WorkspacePage>
     );
 }

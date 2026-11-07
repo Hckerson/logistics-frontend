@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { EQUIPMENT_TYPES } from "@/lib/enums/equipment-type";
 import { LOAD_SEARCH_MAX } from "@/lib/loads/constants";
-import { LOAD_DATE_FIELDS, LOAD_FILTER_LIMITS, LOAD_SORTS, SHIPMENT_STAGES, stageOf } from "@/lib/loads/shipments";
+import { LOAD_DATE_FIELDS, LOAD_FILTER_LIMITS, LOAD_SORTS, SHIPMENT_STAGES, SHIPMENT_VIEWS, stageOf } from "@/lib/loads/shipments";
 
 const commaList = <T extends z.ZodType<unknown, string>>(item: T) =>
     z
@@ -24,6 +24,7 @@ export const shipmentParamSchema = z.object({
     destination: place,
     carrier: z.string().trim().min(1).max(LOAD_FILTER_LIMITS.party),
     sort: z.enum(LOAD_SORTS),
+    view: z.enum(SHIPMENT_VIEWS),
 });
 
 export const shipmentFiltersSchema = z.object({
@@ -39,4 +40,5 @@ export const shipmentFiltersSchema = z.object({
     destination: z.string().nullable(),
     carrier: z.string().nullable(),
     sort: z.enum(LOAD_SORTS).nullable(),
+    view: z.enum(SHIPMENT_VIEWS),
 });
