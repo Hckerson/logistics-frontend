@@ -4,9 +4,11 @@ import SessionProvider from "@/components/providers/session-provider";
 import { requireUser } from "@/lib/auth/guards";
 
 export default async function WorkspaceLayout({ children }: { children: ReactNode }) {
+    const user = await requireUser();
+
     return (
-        <SessionProvider user={await requireUser()}>
-            <WorkspaceFrame>{children}</WorkspaceFrame>
+        <SessionProvider user={user}>
+            <WorkspaceFrame session={user}>{children}</WorkspaceFrame>
         </SessionProvider>
     );
 }

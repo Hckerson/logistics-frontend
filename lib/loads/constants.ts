@@ -1,5 +1,6 @@
+import { appRoutes } from "@/lib/app-routes";
 import { TIME_MS } from "@/lib/constants";
-import type { ChargeDto, DocumentDto, LoadEventDto } from "@/lib/contract/schemas";
+import type { ChargeDto, DocumentDto, LoadEventDto, QuickFindItemDto } from "@/lib/contract/schemas";
 import type { LoadStatus } from "@/lib/types";
 
 export const LOAD_ACTORS = ["Shipper", "Approver", "Carrier", "Driver", "Operations", "Compliance", "Finance", "System"] as const;
@@ -45,7 +46,13 @@ export const LOAD_PAGE_SIZE = { default: 50, max: 200 } as const;
 
 export const LOAD_SEARCH_MAX = 200;
 
-export const QUICK_FIND = { min: 2, max: 200, groupLimit: 5, debounceMs: 300, recentLimit: 10 } as const;
+export const QUICK_FIND = { min: 2, max: 200, groupLimit: 5, debounceMs: 300, recentLimit: 10, storageKey: "haulr.quick-find" } as const;
+
+export const QUICK_FIND_ROUTES: Partial<Record<QuickFindItemDto["type"], (id: string) => string>> = { load: appRoutes.load };
+
+export const LOAD_REFERENCE = /^HL-[A-Z0-9]{8}$/;
+
+export const NOTIFICATION_PREVIEW = 8;
 
 export const QUERY_BASE = "http://query.local";
 
