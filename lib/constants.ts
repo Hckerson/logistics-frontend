@@ -77,6 +77,8 @@ export const API_BASE_URL =
 
 export const SESSION_MAX_AGE = 60 * 60 * 24 * 7;
 
+export const SESSION_IDLE = { workspaceMinutes: 30, internalMinutes: 15, warningMinutes: 2, activityRefreshMinutes: 1, channel: "haulr-session" } as const;
+
 export const API_MOCKS = process.env.NEXT_PUBLIC_API_MOCKS !== "off";
 
 export const MOCK_LATENCY_MS = { min: 300, max: 800 } as const;

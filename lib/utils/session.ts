@@ -2,9 +2,11 @@ import "server-only";
 import { z } from "zod";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { readJson } from "@/lib/api-server";
+import { backendFetch, readJson } from "@/lib/api-server";
 import { authResponseDtoSchema } from "@/lib/contract/schemas";
-import { HTTP_STATUS, MFA_CHALLENGE_MINUTES, MFA_COOKIE, SESSION_COOKIE, SESSION_MAX_AGE } from "@/lib/constants";
+import { HTTP_STATUS, MFA_CHALLENGE_MINUTES, MFA_COOKIE, SESSION_COOKIE, SESSION_MAX_AGE, SESSION_REQUIRED } from "@/lib/constants";
+import { routes } from "@/lib/contract/routes";
+import { sessionWindowOf } from "@/lib/utils/session-user";
 import {
     verifySessionToken,
     type SessionPayload,
@@ -70,4 +72,18 @@ export const completeChallenge = async (body: unknown): Promise<boolean> => {
 
     (await cookies()).delete(MFA_COOKIE);
     return true;
+};
+
+export const refreshSession = async (): Promise<NextResponse> => {
+    const upstream = await backendFetch(routes.authRefresh(), { method: "POST" });
+    const envelope = authEnvelopeSchema.safeParse(await readJson(upstream));
+    const token = upstream.ok && envelope.success ? envelope.data.data.accessToken : null;
+    const session = token ? await verifySessionToken(token) : null;
+    if (!token || !session) {
+        return NextResponse.json({ message: SESSION_REQUIRED }, { status: upstream.ok ? HTTP_STATUS.badGateway : upstream.status });
+    }
+
+    const response = NextResponse.json(sessionWindowOf(session));
+    response.cookies.set(SESSION_COOKIE, token, cookieOptions(SESSION_MAX_AGE));
+    return response;
 };

@@ -1,4 +1,6 @@
+import { jwtVerify } from "jose";
 import { nanoid } from "nanoid";
+import { SESSION_MAX_AGE } from "@/lib/constants";
 import { loginDtoSchema, registerDtoSchema } from "@/lib/contract/schemas";
 import { linkTokenSchema, resetPasswordSchema, resetRequestSchema } from "@/lib/validations/auth";
 import {
@@ -10,6 +12,7 @@ import {
 } from "@/lib/data/mocks/users";
 import { fail, issueSession, ok, playScenario, UNAVAILABLE } from "@/lib/mocks/http";
 import { openChallenge } from "@/lib/mocks/mfa";
+import { MOCK_TOKEN_ALGORITHM, MOCK_TOKEN_SECRET, nowSeconds } from "@/lib/mocks/session-token";
 import { mockStore } from "@/lib/mocks/store";
 import type { MockHandler, MockResponse, MockUser } from "@/lib/types";
 
@@ -20,6 +23,7 @@ const LINK_DEAD = "Reset link is invalid or expired";
 const BREACHED = "Password found in a data breach";
 const VERIFY_LINK_DEAD = "Verification link is invalid or expired";
 const ALREADY_VERIFIED = "Email already verified";
+const SESSION_ENDED = "Session expired or past its absolute lifetime";
 
 export const scenario = (email: string, path: string): MockResponse | null =>
     playScenario(MOCK_SCENARIOS[email.toLowerCase()], path);
@@ -102,4 +106,13 @@ export const resendVerification: MockHandler = ({ body, path }) => {
     if (blocked) return blocked;
     const verified = mockStore().verifiedEmails.has(input.data.email.toLowerCase());
     return verified ? fail(409, ALREADY_VERIFIED, path) : ok(202, { accepted: true });
+};
+
+export const refreshSession: MockHandler = async ({ token, path }) => {
+    const verified = token ? await jwtVerify(token, MOCK_TOKEN_SECRET, { algorithms: [MOCK_TOKEN_ALGORITHM] }).catch(() => null) : null;
+    const claims = verified?.payload;
+    const user = [...mockStore().users.values()].find((candidate) => candidate.id === claims?.sub);
+    const authTime = typeof claims?.authTime === "number" ? claims.authTime : claims?.iat;
+    if (!user || authTime === undefined || nowSeconds() - authTime >= SESSION_MAX_AGE) return fail(401, SESSION_ENDED, path);
+    return issueSession(200, user, authTime);
 };

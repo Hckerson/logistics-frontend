@@ -337,6 +337,47 @@
                 "tags": ["loads"]
             }
         },
+        "/api/auth/refresh": {
+            "post": {
+                "operationId": "AuthController_refresh",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/AuthResponseDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Session expired or past its absolute lifetime"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Extend the caller's idle session with a fresh token (IC-54)",
+                "tags": ["auth"]
+            }
+        },
         "/api/loads/{loadId}/cancellation": {
             "get": {
                 "operationId": "LoadsController_cancellation",

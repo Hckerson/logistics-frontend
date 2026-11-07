@@ -1,6 +1,6 @@
 import { MOCK_LATENCY_MS } from "@/lib/constants";
 import { routes } from "@/lib/contract/routes";
-import { checkReset, confirmReset, login, register, requestReset, resendVerification, verifyEmail } from "@/lib/mocks/auth";
+import { checkReset, confirmReset, login, refreshSession, register, requestReset, resendVerification, verifyEmail } from "@/lib/mocks/auth";
 import { fail } from "@/lib/mocks/http";
 import { answerChallenge, challengeStatus } from "@/lib/mocks/mfa";
 import { recordFeedback } from "@/lib/mocks/help";
@@ -18,6 +18,7 @@ const ANY_LANE: LaneQuery = { origin: "", destination: "", equipment: EQUIPMENT_
 
 const HANDLERS: Record<string, MockHandler> = {
     [`POST ${routes.authLogin()}`]: login,
+    [`POST ${routes.authRefresh()}`]: refreshSession,
     [`POST ${routes.authRegister()}`]: register,
     [`POST ${routes.authRequestPasswordReset()}`]: requestReset,
     [`POST ${routes.authCheckPasswordReset()}`]: checkReset,

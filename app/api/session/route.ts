@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { backendFetch, readJson, relay } from "@/lib/api-server";
 import { HTTP_STATUS, INVALID_CREDENTIALS, SESSION_COOKIE } from "@/lib/constants";
 import { routes } from "@/lib/contract/routes";
-import { startChallenge, startSession } from "@/lib/utils/session";
+import { refreshSession, startChallenge, startSession } from "@/lib/utils/session";
 import { withHandler } from "@/lib/utils/with-action";
 import { loginSchema } from "@/lib/validations/auth";
 
@@ -34,3 +34,5 @@ export const DELETE = withHandler(async () => {
     response.cookies.delete(SESSION_COOKIE);
     return response;
 });
+
+export const PATCH = withHandler(async () => refreshSession());

@@ -88,6 +88,7 @@ export const routes = {
         `/api/loads/${loadId}` as Endpoint<LoadDto>,
     loadsTransition: (loadId: string) =>
         `/api/loads/${loadId}/transitions` as Endpoint<LoadDto>,
+    authRefresh: () => "/api/auth/refresh" as Endpoint<AuthResponseDto>,
     loadsCancellation: (loadId: string) =>
         `/api/loads/${loadId}/cancellation` as Endpoint<LoadCancellationDto>,
     loadsUpdateStopInstructions: (loadId: string, stopId: string) =>

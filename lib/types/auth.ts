@@ -3,7 +3,7 @@ import type { AuthResponseUserDto } from "@/lib/contract/schemas";
 import type { ActionFailure } from "@/lib/types/api";
 import type { RoleKey } from "@/lib/types/enums";
 import type { SessionPayload } from "@/lib/utils/verify-session-token";
-import type { mfaAnswerSchema, mfaStatusSchema } from "@/lib/validations/auth";
+import type { mfaAnswerSchema, mfaStatusSchema, sessionWindowSchema } from "@/lib/validations/auth";
 
 export type AccountSide = "shipper" | "carrier";
 
@@ -116,4 +116,6 @@ export interface LaneTag {
     rolling: string;
 }
 
-export type SessionUser = Pick<SessionPayload, "email" | "role"> & { id: string; roles: RoleKey[] };
+export type SessionUser = Pick<SessionPayload, "email" | "role"> & { id: string; roles: RoleKey[] } & SessionWindow;
+
+export type SessionWindow = z.infer<typeof sessionWindowSchema>;

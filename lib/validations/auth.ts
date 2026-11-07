@@ -74,3 +74,5 @@ export const mfaChallengeSchema = apiEnvelopeDtoSchema.extend({ data: mfaChallen
 export const mfaStatusSchema = apiEnvelopeDtoSchema.extend({ data: mfaStatusDtoSchema });
 
 export const mfaRefusalSchema = z.object({ attemptsRemaining: z.number().int().nonnegative() });
+
+export const sessionWindowSchema = z.object({ issuedAt: z.number(), expiresAt: z.number(), serverNow: z.number() });
