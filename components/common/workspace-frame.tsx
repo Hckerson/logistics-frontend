@@ -15,9 +15,9 @@ interface Props {
 
 export default function WorkspaceFrame({ session, children }: Props) {
     return (
-        <div className="flex min-h-svh flex-col">
+        <div className="flex min-h-svh flex-col [--sticky-top:var(--workspace-header)]">
             <header className="border-border bg-background/95 sticky top-0 z-(--z-indices-sticky) border-b backdrop-blur">
-                <div className="haulr-shell flex h-12 items-center gap-3">
+                <div className="haulr-shell flex h-(--workspace-header) items-center gap-3">
                     <HaulrWordmark compact />
                     <div className="ml-auto flex items-center gap-2">
                         <QuickFind />
