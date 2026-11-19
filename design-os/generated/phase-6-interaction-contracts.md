@@ -1,6 +1,6 @@
 # Phase 6 — Interaction Contracts
 
-`Haulr Design OS` · `Version 1.3.7` · `2026-11-02` · Previous: [Phase 5 — Section Blueprints](./phase-5-section-blueprints.md) · Next: [Phase 7 — Frontend Architecture](./phase-7-frontend-architecture.md)
+`Haulr Design OS` · `Version 1.3.8` · `2026-11-18` · Previous: [Phase 5 — Section Blueprints](./phase-5-section-blueprints.md) · Next: [Phase 7 — Frontend Architecture](./phase-7-frontend-architecture.md)
 
 How every interactive element behaves. Sections in [Phase 5](./phase-5-section-blueprints.md) cite these contracts by ID (`IC-nn`). A contract defines behaviour only: inputs, states, keyboard and assistive-technology behaviour, validation, loading, errors and content rules. Which components exist, how they are grouped and how they look is decided when pages are built.
 
@@ -965,7 +965,7 @@ Global rules that bind every contract:
 - **Content rules:** Name states the destination; record names and references are inserted through named placeholders; breadcrumb labels come from the same label constants as page titles (SSB-7) and tolerate 40% expansion.
 - **Do:** Build hrefs from route constants.
 - **Don't:** Open new tabs without saying so.
-- **Dependencies:** `next/link`, `lib/utils/internal-path.ts`, `appRoutes` in `lib/constants.ts`.
+- **Dependencies:** `next/link`, `lib/utils/internal-path.ts`, `appRoutes` in `lib/app-routes.ts`.
 
 ### IC-52 — Skip link
 

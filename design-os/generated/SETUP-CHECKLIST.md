@@ -1,6 +1,6 @@
 # Setup Checklist — Haulr
 
-`Version 1.3.7` · `2026-11-02` · Start: [START_HERE](./START_HERE.md) · Architecture: [Phase 7](./phase-7-frontend-architecture.md) · Build: [IMPLEMENTATION_PROMPT](./IMPLEMENTATION_PROMPT.md)
+`Version 1.3.8` · `2026-11-18` · Start: [START_HERE](./START_HERE.md) · Architecture: [Phase 7](./phase-7-frontend-architecture.md) · Build: [IMPLEMENTATION_PROMPT](./IMPLEMENTATION_PROMPT.md)
 
 Step by step, from a fresh machine to a repository ready for Sprint 1. Tick each box as you go. Steps marked **Approval** need the maintainer's go-ahead before you run them (Library Selection Policy, [Phase 7 §15](./phase-7-frontend-architecture.md#15-shared-libraries)).
 
@@ -205,7 +205,7 @@ Create folders only when their first file lands (empty folders are not committed
 
 ### 6.2 Constants updates
 
-- [ ] `lib/constants.ts`: add `appRoutes`, extend `PROTECTED_ROUTE_PREFIXES` to all workspace prefixes, add `INTERNAL_ROUTE_PREFIXES` (D-7).
+- [x] `appRoutes` in `lib/app-routes.ts`; `PROTECTED_ROUTE_PREFIXES` covers every workspace and internal prefix, with `INTERNAL_ROUTE_PREFIXES`, in `lib/constants.ts` (D-7).
 - [ ] `proxy.ts`: add the internal-role check for `INTERNAL_ROUTE_PREFIXES`.
 
 ### 6.3 Naming check

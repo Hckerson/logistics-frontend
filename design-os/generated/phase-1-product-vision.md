@@ -1,6 +1,6 @@
 # Phase 1 — Product Vision
 
-`Haulr Design OS` · `Version 1.3.7` · `2026-11-02` · Next: [Phase 2 — Experience Maps](./phase-2-experience-maps.md) · Index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
+`Haulr Design OS` · `Version 1.3.8` · `2026-11-18` · Next: [Phase 2 — Experience Maps](./phase-2-experience-maps.md) · Index: [DESIGN-OS-COMPLETE](./DESIGN-OS-COMPLETE.md)
 
 This document is the single source of truth for what Haulr is, who it serves and which rules it obeys. Every later phase cites the IDs defined here (`A` assumptions, `BG-` goals, `PR-` personas, `JTBD-` jobs, `BR-` business rules, `KPI-` metrics, `PP-` product principles, and the `NFR-`, `CMP-`, `SEC-` and `OPS-` requirements).
 
@@ -192,7 +192,7 @@ A user holds exactly one organisation membership and one or more roles within it
 | ID | Rule |
 | --- | --- |
 | BR-01 | **Load lifecycle.** A load moves through `Draft → Posted → Booked → Dispatched → AtPickup → InTransit → AtDelivery → Delivered → PodVerified → Invoiced → Paid → Closed`. Side states: `PendingApproval` (BR-23), `Cancelled`, `Expired`, `OnHold`, `Disputed`. Only the transitions in [Phase 2 §5](./phase-2-experience-maps.md#5-load-state-machine) are legal. |
-| BR-02 | **Bid lifecycle.** `Submitted → Countered ↔ Submitted → Accepted | Declined | Withdrawn | Expired`. Accepting a bid books the load and expires every other open bid on it. |
+| BR-02 | **Bid lifecycle.** `Submitted → Countered ↔ Submitted → Accepted \| Declined \| Withdrawn \| Expired`. Accepting a bid books the load and expires every other open bid on it. |
 | BR-03 | **Booking eligibility.** A carrier can book or bid only when its compliance status is `Approved`, its authority is active, its insurance meets the load's minimums, it has the equipment type the load requires, it holds no Unsatisfactory FMCSA safety rating and no active out-of-service order, and any Conditional rating has been reviewed and accepted by compliance with a recorded reason (CMP-2). |
 | BR-04 | **Rate confirmation.** A booking is binding only after the carrier accepts the rate confirmation. Acceptance records user, time, IP and document version. |
 | BR-05 | **Price separation.** Shipper price and carrier pay are separate values. A shipper never sees carrier pay; a carrier never sees shipper price or margin. |
