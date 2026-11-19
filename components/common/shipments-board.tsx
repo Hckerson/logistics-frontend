@@ -11,6 +11,7 @@ import ShipmentsTable from "@/components/common/shipments-table";
 import ShipmentsTools from "@/components/common/shipments-tools";
 import Tabs from "@/components/ui/tabs";
 import { SHIPMENTS_COPY } from "@/lib/data/loads/shipments";
+import { useImportBatch } from "@/lib/hooks/use-bulk-import";
 import { useDebouncedSearch } from "@/lib/hooks/use-debounced-search";
 import { useLoadFacets } from "@/lib/hooks/use-load-facets";
 import { useLoadList } from "@/lib/hooks/use-load-list";
@@ -41,6 +42,7 @@ export default function ShipmentsBoard({ initial, reset, exportId }: Props) {
     const list = useLoadList(listParams(applied));
     const counts = useLoadCounts();
     const facets = useLoadFacets();
+    const imported = useImportBatch(filters.batch);
     const wide = useWide();
     const query = shipmentQuery(applied);
     const rows = list.data?.pages.flatMap((page) => page.items) ?? [];
@@ -80,7 +82,7 @@ export default function ShipmentsBoard({ initial, reset, exportId }: Props) {
                 view={filters.view}
                 onView={(view) => change({ view })}
             />
-            <ShipmentsChips applied={appliedFilters(filters, facets.data?.carriers ?? [])} onRemove={(id) => change(withoutFilter(id))} onClear={() => clear(true)} />
+            <ShipmentsChips applied={appliedFilters(filters, facets.data?.carriers ?? [], imported.data?.fileName ?? null)} onRemove={(id) => change(withoutFilter(id))} onClear={() => clear(true)} />
             <ShipmentsReset dropped={dropped} />
             <Tabs tabs={tabs} selected={filters.stage} onSelect={pickStage} label={SHIPMENTS_COPY.stagesLabel}>
                 {() =>

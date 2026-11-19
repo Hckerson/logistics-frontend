@@ -36,6 +36,7 @@ export const NO_SHIPMENT_FILTERS: ShipmentFilters = {
     carrier: null,
     sort: null,
     view: "list",
+    batch: null,
 };
 
 const STAGE_TONES: Record<Exclude<ShipmentStage, "all">, readonly SignalTone[]> = {
@@ -74,16 +75,17 @@ export const listParams = (filters: ShipmentFilters): LoadListParams => ({
     destination: filters.destination ?? undefined,
     carrier: filters.carrier ?? undefined,
     sort: filters.sort ?? undefined,
+    batch: filters.batch ?? undefined,
 });
 
-export const refinements = ({ q, equipment, late, exceptions, from, to, origin, destination, carrier }: ShipmentFilters) =>
-    [q, equipment.length > 0, late, exceptions, from || to, origin, destination, carrier].filter(Boolean).length;
+export const refinements = ({ q, equipment, late, exceptions, from, to, origin, destination, carrier, batch }: ShipmentFilters) =>
+    [q, equipment.length > 0, late, exceptions, from || to, origin, destination, carrier, batch].filter(Boolean).length;
 
 export const shipmentQuery = (filters: ShipmentFilters) => queryString({ ...listParams(filters), view: filters.view === "map" ? filters.view : undefined });
 
 export const exportFilters = (filters: ShipmentFilters): LoadExportFiltersDto => {
-    const { status, equipment, q, late, from, to, dateField, origin, destination, carrier, exceptions } = listParams(filters);
-    return { status, equipment, q, late, from, to, dateField, origin, destination, carrier, exceptions };
+    const { status, equipment, q, late, from, to, dateField, origin, destination, carrier, exceptions, batch } = listParams(filters);
+    return { status, equipment, q, late, from, to, dateField, origin, destination, carrier, exceptions, batch };
 };
 
 export const tableSort = (sort: LoadSort | null): TableSort | undefined =>

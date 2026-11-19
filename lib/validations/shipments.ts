@@ -25,6 +25,7 @@ export const shipmentParamSchema = z.object({
     carrier: z.string().trim().min(1).max(LOAD_FILTER_LIMITS.party),
     sort: z.enum(LOAD_SORTS),
     view: z.enum(SHIPMENT_VIEWS),
+    batch: z.string().trim().min(1).max(LOAD_FILTER_LIMITS.party),
 });
 
 export const shipmentFiltersSchema = z.object({
@@ -41,4 +42,5 @@ export const shipmentFiltersSchema = z.object({
     carrier: z.string().nullable(),
     sort: z.enum(LOAD_SORTS).nullable(),
     view: z.enum(SHIPMENT_VIEWS),
+    batch: z.string().nullable(),
 });

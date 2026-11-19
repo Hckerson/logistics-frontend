@@ -1,4 +1,4 @@
-import { Add } from "@carbon/icons-react";
+import { Add, Upload } from "@carbon/icons-react";
 import Button from "@/components/ui/button";
 import ButtonLink from "@/components/ui/button-link";
 import { appRoutes } from "@/lib/app-routes";
@@ -21,9 +21,14 @@ export default function ShipmentsEmpty({ filters, onClear }: Props) {
                     {empty.clear}
                 </Button>
             ) : (
-                <ButtonLink href={appRoutes.postLoad()} tone="outline" size="sm" icon={Add}>
-                    {empty.start}
-                </ButtonLink>
+                <span className="flex flex-wrap gap-2">
+                    <ButtonLink href={appRoutes.bulkImport()} tone="outline" size="sm" icon={Upload}>
+                        {empty.importFile}
+                    </ButtonLink>
+                    <ButtonLink href={appRoutes.postLoad()} tone="outline" size="sm" icon={Add}>
+                        {empty.start}
+                    </ButtonLink>
+                </span>
             )}
         </span>
     );
