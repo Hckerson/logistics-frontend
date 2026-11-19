@@ -1,6 +1,6 @@
 # Phase 7 — Frontend Architecture
 
-`Haulr Design OS` · `Version 1.3.7` · `2026-11-02` · Previous: [Phase 6 — Interaction Contracts](./phase-6-interaction-contracts.md) · Next: [Phase 8 — Implementation Roadmap](./phase-8-implementation-roadmap.md)
+`Haulr Design OS` · `Version 1.3.8` · `2026-11-18` · Previous: [Phase 6 — Interaction Contracts](./phase-6-interaction-contracts.md) · Next: [Phase 8 — Implementation Roadmap](./phase-8-implementation-roadmap.md)
 
 How the code is organised to deliver Phases 1–6. This phase names files and folders because its job is code organisation. It says nothing about how anything looks; styling organisation follows the host repo's conventions (`styles/tokens.css`, `styles/globals.css`) and is not specified here.
 
@@ -57,7 +57,7 @@ How the code is organised to deliver Phases 1–6. This phase names files and fo
 | D-11 | Feature flags are read server-side from one typed module `lib/flags.ts` backed by environment or a flag service, and passed to client components as props | Progressive rollout and kill switches for enterprise features without redeploying code paths; no client-side flag fetching | Single source of truth |
 | D-12 | Mutations on mutable records send the record `version` (or ETag via `If-Match`); a 412 is mapped to E-PRECONDITION and handled by IC-67 | SSB-8; no last-write-wins in a multi-user enterprise tenant | Contract carries `version` on mutable DTOs |
 | D-13 | Every Server Action and Route Handler is wrapped by one higher-order helper, `withAction` or `withHandler` in `lib/utils/`, which applies the session, role check, correlation ID, audit reason pass-through, error-class mapping and timing | One enforcement point for SEC-4, NFR-OBS-1 and Phase 4 §2.2; avoids copy-pasted guards | Extends the `create-user.ts` pattern rather than replacing it |
-| D-14 | Sections used by a single public or access page live in a page-domain folder, `components/home/` (PG-01), `components/auth/` (PG-10 … PG-15 and the system pages PG-53 … PG-55), `components/legal/` (PG-09), `components/help/` (PG-06, PG-07), `components/support/` (PG-08) and `components/estimator/` (PG-05), with matching `lib/home/`, `lib/auth/`, `lib/quotes/` and `lib/data/home/`, `lib/data/auth/`, `lib/data/quotes/`. Workspace and internal pages keep D-4 | Recorded after the fact (2026-10-09): both folders already exist and hold about 70 single-page files, and `eslint.config.ts` exempts each folder as a unit from `application-register-density` (its cinematic register) | Folder structure table lists only flat `ui`, `common`, `wrappers`, `providers`. Deviation from D-4, confirmed by the maintainer on 2026-10-09 and recorded in the `.claude/CLAUDE.md` folder table |
+| D-14 | Sections used by a single public or access page live in a page-domain folder, `components/home/` (PG-01), `components/auth/` (PG-10 … PG-15 and the system pages PG-53 … PG-55), `components/legal/` (PG-09), `components/help/` (PG-06, PG-07), `components/support/` (PG-08), `components/estimator/` (PG-05) and `components/tracking/` (PG-02), with matching `lib/home/`, `lib/auth/`, `lib/team/`, `lib/quotes/`, `lib/tracking/` and `lib/data/home/`, `lib/data/auth/`, `lib/data/quotes/`, `lib/data/tracking/`. Workspace and internal pages keep D-4 | Recorded after the fact (2026-10-09): both folders already exist and hold about 70 single-page files, and `eslint.config.ts` exempts each folder as a unit from `application-register-density` (its cinematic register) | Folder structure table lists only flat `ui`, `common`, `wrappers`, `providers`. Deviation from D-4, confirmed by the maintainer on 2026-10-09 and recorded in the `.claude/CLAUDE.md` folder table |
 
 ---
 
@@ -70,24 +70,39 @@ app/
   layout.tsx                         (exists) root layout: providers, skip link (IC-52)
   page.tsx                           (exists) PG-01; moves to (public)/page.tsx when route groups land (D-1)
   global-not-found.tsx               (exists) PG-53 for unknown URLs (`experimental.globalNotFound`); segments add `not-found.tsx` for records, and `(public)/not-found.tsx` exists
-  global-error.tsx, error.tsx        (exist) PG-54 at the root and app level; `auth/error.tsx` and `dashboard/error.tsx` exist
+  global-error.tsx, error.tsx        (exist) PG-54 at the root and app level; `auth/error.tsx`, `(workspace)/dashboard/error.tsx` and `(workspace)/loads/[loadId]/error.tsx` exist
   forbidden.tsx                      (exists) PG-55 (`experimental.authInterrupts`)
-  dashboard/                         (exists) interim signed-in holding page until the workspace roots exist (Phase 8 §16)
+  primitives/page.tsx                (exists) dev-only showcase of every `components/ui/` primitive; not found in production
   sitemap.ts, robots.ts              Phase 3 §11
   api/
-    session/route.ts                 (exists)
+    session/route.ts                 (exists) sign-in, sign-out, the session window and its idle refresh (IC-54)
     register/route.ts                (exists)
-    tracking/[token]/route.ts        public polled read (PG-02)
-    loads/[loadId]/positions/route.ts
+    tracking/[token]/route.ts        (exists) public polled read (PG-02)
+    loads/route.ts                   (exists) shipments list with filters, sort and totals (PG-26)
+    loads/counts/route.ts            (exists) status counts (PG-26)
+    loads/facets/route.ts            (exists) filter facets: places and carriers (PG-26)
+    loads/[loadId]/route.ts          (exists) load record (PG-40)
+    loads/[loadId]/positions/route.ts   (exists) Server-Sent Events position stream (SH-02)
+    loads/[loadId]/events/route.ts   (exists) timeline (SH-01)
+    loads/[loadId]/documents/route.ts   (exists) document set (SH-03)
+    loads/[loadId]/tracking-links/route.ts   (exists) tracking links (SC-40.15)
+    loads/[loadId]/cancellation/route.ts   (exists) cancellation terms (SC-40.2)
     loads/[loadId]/bids/route.ts
+    positions/latest/route.ts        (exists) latest positions for the shipments map (SC-26.2)
+    documents/[documentId]/download/route.ts   (exists) document download
+    exports/[exportId]/route.ts      (exists) polled export job status (SC-26.3; later PG-59, PG-62, PG-63)
+    exports/[exportId]/download/route.ts   (exists) export file
+    search/route.ts                  (exists) quick find (IC-50)
+    notifications/route.ts           (exists) notification list (IC-53)
+    notifications/unread-count/route.ts   (exists) unread count (IC-53)
+    tickets/route.ts                 (exists) support ticket list (PG-08, D-2)
+    mock-storage/[documentId]/route.ts, mock-storage/exports/[exportId]/route.ts   (exist) mocks only: stand-in for presigned storage
     exceptions/route.ts
     threads/[threadId]/messages/route.ts
-    notifications/route.ts
     rate-estimate/route.ts           (exists) anonymous, rate-limited estimate (PG-05)
     rate-estimate/trend/route.ts     (exists) anonymous lane trend (PG-05)
     places/route.ts                  (exists) anonymous location suggestions (IC-05, PG-05)
     imports/[batchId]/route.ts       polled batch status (PG-56)
-    exports/route.ts                 polled export job status (PG-59, PG-62, PG-63)
     approvals/route.ts               polled approval queue (PG-58)
     quote-requests/route.ts          polled custom quote queue and open request (PG-66, SC-27.7)
     fleet-plan/route.ts              polled fleet plan (PG-65)
@@ -98,24 +113,27 @@ app/
     login/page.tsx                   (exists)
   (public)/  (workspace)/  (internal)/   see §3
 components/
-  ui/                                (exists, flat) domain-free primitives; button.tsx, input.tsx (exist)
-  common/                            (exists, flat) shared compositions; login-form.tsx, error-summary.tsx, board-field.tsx, board-cells.tsx, field-error.tsx, field-label.tsx, area-field.tsx, choice-grid.tsx, page-intro.tsx, public-page.tsx, assembly-frame.tsx, scramble-text.tsx, hud-panel.tsx, hud-corners.tsx (exist)
-  wrappers/                          (exists, flat) motion-wrapper.tsx (exists), boundaries
-  providers/                         (exists, flat) provider.tsx, auth-signal-provider.tsx, assembly-provider.tsx (exist)
-  home/  auth/  legal/  help/  support/  estimator/   (exist) page-domain sections for PG-01, the access and system pages, PG-09, PG-06 and PG-07, PG-08, and PG-05 (D-14)
+  ui/                                (exists, flat) domain-free primitives on React Aria Components (§15), shown on /primitives; listed in §12
+  common/                            (exists, flat) shared compositions: access-form fields and panels, section states, the workspace frame and shell, load record sections (load-*.tsx), the shipments list (shipments-*.tsx), freight-map.tsx and the /primitives specimens (primitives-*.tsx); listed in §12
+  wrappers/                          (exists, flat) motion-wrapper.tsx, section-boundary.tsx (exist)
+  providers/                         (exists, flat) provider.tsx, announcer-provider.tsx, session-provider.tsx, auth-signal-provider.tsx, assembly-provider.tsx (exist)
+  home/  auth/  legal/  help/  support/  estimator/  tracking/   (exist) page-domain sections for PG-01, the access and system pages, PG-09, PG-06 and PG-07, PG-08, PG-05 and PG-02 (D-14)
 lib/
   actions/                           (exists) Server Actions, for authenticated mutations only (D-2)
   contract/                          (exists, generated) schemas.ts, routes.ts
-  data/                              (exists) seed data, help and legal content (D-3); home/, auth/ (exist, D-14); legal/, help/ and support/ (exist, D-3); quotes/ (exists, estimator copy, D-14); system.ts (exists, system page copy); mocks/ (exists) mock fixtures
+  data/                              (exists) seed data, help and legal content (D-3); home/, auth/ (exist, D-14); legal/, help/ and support/ (exist, D-3); quotes/ and tracking/ (exist, D-14); loads/ (exists, load record and shipments copy); notifications.ts and shell.ts (exist, workspace frame copy); primitives/ (exists, showcase samples); system.ts (exists, system page copy); mocks/ (exists) mock fixtures
   mocks/                             (exists) mocked backend: one handler per backend module, router.ts, store.ts (host "The mocked backend")
-  enums/                             enumerations mirrored from the contract
+  enums/                             (exists) enumerations mirrored from the contract; 14 of the 27 in §10
   hooks/                             (exists) use-<resource>.ts
   types/                             (exists) <domain>.ts + index.ts
   utils/                             (exists) pure helpers
-  validations/                       (exists) Zod schemas composed over the contract; auth.ts and lane.ts (exist), env.ts (D-9), load.ts
-  home/  auth/  legal/  help/  support/  quotes/   (exist) feature constants and domain logic for PG-01, the access pages, PG-09, help, support and the estimator (D-5, D-14)
-  loads/  tracking/  billing/  compliance/  ops/   feature constants and domain logic (D-5)
+  validations/                       (exists) Zod schemas composed over the contract; auth.ts, lane.ts, team.ts, freight.ts, shipments.ts, tracking.ts, help.ts and support.ts (exist), env.ts (D-9), load.ts
+  home/  auth/  team/  legal/  help/  support/  quotes/  tracking/   (exist) feature constants and domain logic for PG-01, the access pages and invitations, PG-09, help, support, the estimator and public tracking (D-5, D-14)
+  loads/  maps/                     (exist) load status, transitions, stops, timeline, next actions and shipments logic; map layers, routes and the fleet (D-5)
+  ui/  errors/  announcer/  security/   (exist) primitive style maps and copy; error classes and copy (§28); announcer timing (IC-14); security headers (§19)
+  billing/  compliance/  ops/        feature constants and domain logic (D-5)
   constants.ts                       (exists) app-wide constants
+  app-routes.ts                      (exists) `appRoutes`, every internal path (IC-51)
   api-client.ts, api-routes.ts, api-server.ts      (exist) transport
 instrumentation.ts                   OpenTelemetry registration (§21)
 proxy.ts                             (exists) edge guard (D-7)
@@ -136,7 +154,7 @@ app/
   (public)/
     layout.tsx                                   (exists) public layout with session-aware navigation (SC-01.4)
     page.tsx                                     PG-01  / (exists at app/page.tsx until the group lands)
-    track/[token]/page.tsx                       PG-02
+    track/[token]/page.tsx                       PG-02 (exists, with not-found.tsx)
     carriers/[carrierId]/page.tsx                PG-03
     tools/rate-estimator/page.tsx                PG-05 (exists)
     help/page.tsx                                PG-06 (exists)
@@ -150,15 +168,15 @@ app/
     forgot-password/page.tsx                     PG-12 (exists)
     reset-password/page.tsx                      PG-13 (exists)
     verify/page.tsx                              PG-14 (exists)
-    invite/[token]/page.tsx                      PG-15
+    invite/[token]/page.tsx                      PG-15 (exists)
   (workspace)/
-    layout.tsx                                   authenticated workspace layout
-    dashboard/page.tsx                           role-resolving redirect (an interim holding page exists at app/dashboard/)
+    layout.tsx                                   (exists) authenticated workspace layout: session, frame and shell
+    dashboard/page.tsx                           role-resolving redirect (exists as the interim signed-in holding page, Phase 8 §16)
     onboarding/shipper/page.tsx                  PG-16
     onboarding/carrier/page.tsx                  PG-17
-    shipper/layout.tsx                           shipper role guard
+    shipper/layout.tsx                           (exists) shipper role guard
     shipper/page.tsx                             PG-18
-    shipper/loads/page.tsx                       PG-26
+    shipper/loads/page.tsx                       PG-26 (exists)
     shipper/loads/new/page.tsx                   PG-27
     shipper/loads/[loadId]/bids/page.tsx         PG-28
     shipper/carriers/page.tsx                    PG-29
@@ -169,7 +187,7 @@ app/
     shipper/templates/page.tsx                   PG-57
     shipper/approvals/page.tsx                   PG-58
     shipper/reports/page.tsx                     PG-59
-    carrier/layout.tsx                           carrier role guard
+    carrier/layout.tsx                           (exists) carrier role guard
     carrier/page.tsx                             PG-19
     carrier/load-board/page.tsx                  PG-33
     carrier/load-board/[loadId]/book/page.tsx    PG-34
@@ -178,10 +196,10 @@ app/
     carrier/fleet/page.tsx                       PG-37
     carrier/settlements/page.tsx                 PG-38
     carrier/plan/page.tsx                        PG-65
-    driver/layout.tsx                            driver guard, offline provider
+    driver/layout.tsx                            (exists) driver guard; the offline provider comes with stage 4
     driver/page.tsx                              PG-20
     driver/trips/[loadId]/page.tsx               PG-39
-    loads/[loadId]/page.tsx                      PG-40
+    loads/[loadId]/page.tsx                      PG-40 (exists, with loading, error and not-found)
     loads/[loadId]/amendments/[amendmentId]/page.tsx   PG-64
     messages/page.tsx                            PG-41
     notifications/page.tsx                       PG-42
@@ -199,7 +217,7 @@ app/
     settings/audit/page.tsx                      PG-63
     shippers/[shipperId]/page.tsx                PG-04
   (internal)/
-    layout.tsx                                   internal-role guard
+    layout.tsx                                   (exists) internal-role guard
     ops/page.tsx                                 PG-21
     ops/exceptions/page.tsx                      PG-50
     ops/quotes/page.tsx                          PG-66
@@ -213,7 +231,7 @@ app/
 
 Every data-bearing segment adds `loading.tsx` (SSB-1) and `error.tsx` (SSB-3, PG-54 behaviour). Each group adds `not-found.tsx` (Phase 3 §14). Unknown URLs fall to `app/global-not-found.tsx` (exists).
 
-**Route helpers.** All internal paths are built by `lib/api-routes.ts`-style helpers in a new `appRoutes` object in `lib/constants.ts` (for example `appRoutes.load(loadId)`), never string literals in components (IC-51).
+**Route helpers.** All internal paths are built by `lib/api-routes.ts`-style helpers in the `appRoutes` object in `lib/app-routes.ts` (exists; for example `appRoutes.load(loadId)`), never string literals in components (IC-51).
 
 ---
 
@@ -224,11 +242,11 @@ Layouts define structure and guards, not appearance.
 | Layout | Responsibilities |
 | --- | --- |
 | `app/layout.tsx` (exists) | Providers, fonts, skip link (IC-52), live announcer (IC-14), default metadata |
-| `(public)/layout.tsx` | Public metadata defaults; session-aware access routing (SC-01.4) |
-| `auth/layout.tsx` | Redirects signed-in users (already in `proxy.ts`); no workspace data |
-| `(workspace)/layout.tsx` | Server-side session and role read (`lib/utils/session.ts`); onboarding redirect (Phase 3 §14); global destinations per role (Phase 3 §4); quick find (IC-50); notifications count (IC-53); session timeout (IC-54); connectivity (IC-55) |
-| `shipper/`, `carrier/`, `driver/` layouts | Role guard → `forbidden()`; role-specific providers (driver offline queue) |
-| `(internal)/layout.tsx` | Internal-role guard; shortcut scope (IC-49) |
+| `(public)/layout.tsx` (exists) | Public metadata defaults; session-aware access routing (SC-01.4) |
+| `auth/layout.tsx` (exists) | Redirects signed-in users (already in `proxy.ts`); no workspace data |
+| `(workspace)/layout.tsx` (exists) | Server-side session and role read (`requireUser` in `lib/auth/guards.ts`) and the workspace frame (`workspace-frame.tsx`) with quick find (IC-50), notifications count (IC-53), session timeout (IC-54) and connectivity (IC-55), all built; onboarding redirect (Phase 3 §14) and global destinations per role (Phase 3 §4) not yet |
+| `shipper/`, `carrier/`, `driver/` layouts (exist) | Role guard → `forbidden()`; role-specific providers (driver offline queue) |
+| `(internal)/layout.tsx` (exists) | Internal-role guard; shortcut scope (IC-49) |
 
 ---
 
@@ -240,8 +258,8 @@ All providers live in `components/providers/` (flat), composed by the existing `
 | --- | --- | --- |
 | Query client | `provider.tsx` (exists) | TanStack Query; adjust defaults: `refetchOnWindowFocus` true for workspace queries that need freshness (per-query override), keep `staleTime` 60 s default |
 | Motion config | `provider.tsx` (exists) | `reducedMotion="user"` (G-4) |
-| Announcer | `announcer-provider.tsx` | Single live region and queue for IC-14 |
-| Session | `session-provider.tsx` | Exposes the server-read session (user, role, organisation) to client components; read-only |
+| Announcer | `announcer-provider.tsx` (exists) | Single live region and queue for IC-14 |
+| Session | `session-provider.tsx` (exists) | Exposes the server-read session (user, role, organisation) to client components; read-only |
 | Offline queue | `offline-queue-provider.tsx` | Driver event and upload queue (D-6, §13); mounted only in `driver/layout.tsx` |
 | Auth signal | `auth-signal-provider.tsx` (exists) | Shares the sign-in step state (`AuthSignal` enum: origin, midway, held, pending, arrived) between the PG-10 entry and the access pages' non-interactive scene; mounted by `components/auth/auth-shell.tsx`, never app-wide |
 | Assembly | `assembly-provider.tsx` (exists) | Shares a step's start value with the fields inside it (`board-field.tsx` reads it through `useAssembly`); mounted per step by `components/auth/step-frame.tsx`, never app-wide |
@@ -258,8 +276,9 @@ The host keeps `components/*` flat and `lib/` layered by kind, so "features" are
 
 | Folder | Contents |
 | --- | --- |
-| `lib/loads/` | `constants.ts` (status labels, refresh intervals, quote validity), `transitions.ts` (Phase 2 §5 state machine: `(role, state) → legal actions`), `bid-transitions.ts` (Phase 2 §6) |
-| `lib/tracking/` | `constants.ts` (stale thresholds BR-10, refresh intervals), `eta.ts` (freshness helpers) |
+| `lib/loads/` | `constants.ts` (status labels, refresh intervals, quote validity), `transitions.ts` (Phase 2 §5 state machine: `(role, state) → legal actions`), `status.ts` (status words, tones and stages, IC-59), `stops.ts`, `timeline.ts`, `next-actions.ts`, `shipments.ts`, `position-stream.ts` (exist); `bid-transitions.ts` (Phase 2 §6) |
+| `lib/tracking/` | `constants.ts` (stale thresholds BR-10, refresh intervals), `lead.ts`, `view.ts`, `route.ts`, `server-read.ts` (exist, PG-02); `eta.ts` (freshness helpers) |
+| `lib/maps/` | `basemap.ts`, `layers.ts`, `native-route.ts` (route lines as MapLibre layers), `fleet.ts`, `polyline.ts`, `route.ts`, `constants.ts` (exist, IC-30) |
 | `lib/billing/` | `constants.ts` (payment copy, quick pay copy), `money.ts` (formatting, never computation of amounts) |
 | `lib/compliance/` | `constants.ts` (status labels, reason codes) |
 | `lib/ops/` | `constants.ts` (exception types, severities, shortcuts) |
@@ -297,13 +316,16 @@ Every hook lives in `lib/hooks/use-<resource>.ts` (host rule), and components co
 | `use-sessions.ts` | `useSessions` | Route Handlers (reads); Server Actions (writes) |
 | `use-profile.ts` | `useProfile`, `useChangeEmail`, `useChangePassword` | Route Handlers (reads); Server Actions (writes) |
 | `use-organization.ts` | `useOrganization`, `useAccountStanding`, `useOnboarding`, `useCreditApplication`, `useCredit` | Route Handlers (reads); Server Actions (writes) |
-| `use-members.ts` | `useMembers`, `useInvitations`, `useInvitation`, `useAcceptInvitation` | Route Handlers (reads); Server Actions (writes) |
+| `use-members.ts` | `useMembers`, `useInvitations`, `useInvitation` | Route Handlers (reads); Server Actions (writes) |
+| `use-accept-invitation.ts`, `use-location-consent.ts` (exist; one file per hook) | `useAcceptInvitation`, `useLocationConsent` | Server Actions (`accept-invitation.ts`, `record-location-consent.ts`); the invitation is read by the page's Server Component (D-2) |
 | `use-facilities.ts` | `useFacilities` | Route Handlers (reads); Server Actions (writes) |
 | `use-location-suggestions.ts` (exists) | `useLocationSuggestions` | Route Handler (`app/api/places`, anonymous) |
-| `use-loads.ts` | `useLoads`, `useLoad`, `useLoadCounts`, `useLoadActions`, `usePostLoad`, `useExportLoads` | Route Handlers (reads); Server Actions (writes) |
-| `use-load-timeline.ts` | `useLoadTimeline` | Route Handler (read) |
-| `use-load-positions.ts` | `useLoadPositions`, `useTrackingHealth` | Server-Sent Events stream from a Route Handler; polling as the fallback |
-| `use-tracking.ts` | `useTracking`, `useTrackingLinks` | Route Handlers (reads, public); Server Actions (writes) |
+| `use-loads.ts` (exists) | `useLoads`, `useLoad`, `useLoadCounts`, `useLoadActions`, `useLoadCancellation`, `useStopInstructions` (exist); `usePostLoad`; `useExportLoads` (served today by `useRequestExport`) | Route Handlers (reads: `app/api/loads`, `loads/[loadId]`, `loads/counts`, `loads/[loadId]/cancellation`); Server Actions (writes: `transition-load.ts`, `update-stop-instructions.ts`) |
+| `use-load-list.ts`, `use-load-facets.ts`, `use-row-load.ts`, `use-shipment-positions.ts` (exist) | `useLoadList`, `useLoadFacets`, `useRowLoad`, `useShipmentPositions` | Route Handlers (reads: the paged shipments list, its facets, one row's load on demand, `app/api/positions/latest` for the map) |
+| `use-bulk-tracking.ts`, `use-export-job.ts` (exist) | `useShareTrackingLinks`, `useRequestExport`, `useExportJob`, `useExportDownload` | Server Actions (`share-tracking-links.ts`, `request-export.ts`); Route Handlers for the export job, polled, and its file (`app/api/exports/[exportId]`) |
+| `use-load-timeline.ts` (exists) | `useLoadTimeline` | Route Handler (`app/api/loads/[loadId]/events`) |
+| `use-load-positions.ts` (exists) | `useLoadPositions`, `useMapPositions`, `useCheckCall` (exist); `useTrackingHealth` | Server-Sent Events stream from a Route Handler, polling as the fallback; Server Action for check calls (`request-check-call.ts`, IC-10) |
+| `use-tracking.ts` (exists) | `useTracking`, `useTrackingLinks`, `useShareTrackingLink`, `useSendTrackingLink`, `useRevokeTrackingLink` | Route Handlers (reads: public `app/api/tracking/[token]`, `loads/[loadId]/tracking-links`); Server Actions (writes) |
 | `use-rate-estimate.ts`, `use-lane-trend.ts`, `use-save-estimate.ts` (exist; one file per hook) | `useRateEstimate`, `useLaneTrend`, `useSaveEstimate` | Route Handlers (reads, anonymous: `app/api/rate-estimate`, `app/api/rate-estimate/trend`); Server Action for saving (`save-estimate.ts`) |
 | `use-quote.ts` | `useQuote`, `useSavedEstimates` | Route Handlers (reads); Server Actions (writes) |
 | `use-bids.ts` | `useBids`, `useBidActions`, `useTenders`, `useTenderRules` | Route Handlers (reads, polled); Server Actions (writes) |
@@ -311,15 +333,15 @@ Every hook lives in `lib/hooks/use-<resource>.ts` (host rule), and components co
 | `use-load-board.ts` | `useLoadBoard`, `useRecommendedLoads`, `useBookLoad`, `useWatchedLoads` | Route Handlers (reads); Server Actions (writes) |
 | `use-saved-searches.ts` | `useSavedSearches` | Route Handlers (reads); Server Actions (writes) |
 | `use-fleet.ts` | `useFleet`, `useAssignLoad` | Route Handlers (reads); Server Actions (writes) |
-| `use-trip.ts` | `useDriverTrips`, `useTrip`, `useStopEvents`, `useReportIssue`, `useLocationConsent` | Route Handlers (reads); Server Actions (writes) + offline queue |
-| `use-documents.ts` | `useDocuments`, `useDocumentUpload`, `usePodUpload`, `useSignAgreement` | Route Handlers (reads); Server Actions (writes, presigned upload) |
+| `use-trip.ts` | `useDriverTrips`, `useTrip`, `useStopEvents`, `useReportIssue` | Route Handlers (reads); Server Actions (writes) + offline queue |
+| `use-documents.ts` (exists) | `useDocuments`, `useDocumentDownload`, `useDocumentUpload` (exist); `usePodUpload`, `useSignAgreement` | Route Handlers (reads); Server Actions (writes, presigned upload) |
 | `use-accessorials.ts` | `useAccessorials` | Route Handlers (reads); Server Actions (writes) |
 | `use-invoices.ts` | `useInvoices`, `useInvoice`, `useInvoiceSummary`, `usePayInvoices` | Route Handlers (reads); Server Actions (writes) |
 | `use-settlements.ts` | `useSettlements`, `useSettlement`, `useSettlementSummary`, `useQuickPay` | Route Handlers (reads); Server Actions (writes) |
 | `use-payment-methods.ts` | `usePaymentMethods` | Route Handlers (reads); Server Actions (writes) |
 | `use-claims.ts` | `useClaims`, `useClaim`, `useCreateClaim`, `useClaimActions` | Route Handlers (reads); Server Actions (writes) |
 | `use-messages.ts` | `useThreads`, `useMessages`, `useSendMessage` | Route Handlers (reads, polled); Server Action (send) |
-| `use-notifications.ts` | `useNotifications`, `useNotificationPreferences` | Route Handlers (reads, polled); Server Actions (writes) |
+| `use-notifications.ts` (exists) | `useNotifications`, `useUnreadCount`, `useMarkRead`, `useMarkAllRead` (exist); `useNotificationPreferences` | Route Handlers (reads, polled); Server Actions (writes) |
 | `use-attention-items.ts` | `useAttentionItems` | Route Handler (polled) |
 | `use-metrics.ts` | `useMetrics`, `useScorecard` | Route Handlers (reads); Server Actions (writes) |
 | `use-ratings.ts` | `useRateCounterparty` | Server Action |
@@ -327,10 +349,11 @@ Every hook lives in `lib/hooks/use-<resource>.ts` (host rule), and components co
 | `use-exceptions.ts` | `useExceptions`, `useException`, `useExceptionSummary`, `useExceptionActions`, `useCoverageRisk` | Route Handlers (reads, polled); Server Actions (writes) |
 | `use-compliance.ts` | `useComplianceStatus`, `useAuthorityLookup`, `useCarrierVetting`, `useVettingDecision`, `useMonitoringEvents` | Route Handlers (reads); Server Actions (writes) |
 | `use-finance-queues.ts` | `usePodQueue`, `useVerifyPod`, `usePayoutFailures`, `useRetryPayout` | Route Handlers (reads); Server Actions (writes) |
-| `use-tickets.ts`, `use-create-ticket.ts` (exist) | `useTickets`, `useCreateTicket`, `useRequesterContext` | Server Actions today: `list-tickets.ts` reads and `create-ticket.ts` writes. Under D-2 the ticket list moves to a Route Handler |
+| `use-tickets.ts`, `use-create-ticket.ts` (exist) | `useTickets`, `useCreateTicket`, `useRequesterContext` | Route Handler for the list (`app/api/tickets`, D-2); Server Action for create (`create-ticket.ts`) |
 | `use-admin.ts` | `useAccounts`, `usePlatformConfig`, `useUpdateConfig`, `useAuditLog` | Route Handlers (reads); Server Actions (writes) |
 | `use-help-search.ts`, `use-article-feedback.ts` (exist; one file per hook) | `useHelpSearch`, `useArticleFeedback` | Local index; Server Action for feedback (`send-article-feedback.ts`) |
-| `use-quick-find.ts` | `useQuickFind` | Route Handler (read) |
+| `use-quick-find.ts` (exists) | `useQuickFind` | Route Handler (`app/api/search`, IC-50) |
+| `use-session-timeout.ts` (exists) | `useSessionTimeout` | Route Handler (`app/api/session`: the session window and its idle refresh, IC-54) |
 | `use-bulk-import.ts` | `useImportBatch`, `useImportMappings`, `useImportRows`, `useUpdateImportRow`, `usePriceImportBatch`, `useConfirmImportBatch`, `useImportBatches` | Route Handlers (reads, batch status polled); Server Actions (writes) |
 | `use-templates.ts` | `useLoadTemplates`, `useRecurrences` | Route Handlers (reads); Server Actions (writes) |
 | `use-approvals.ts` | `useApprovalRequests`, `useApprovalRequest`, `useDecideApproval`, `useApprovalDelegations`, `useSpendPolicy` | Route Handlers (reads, polled queue); Server Actions (writes) |
@@ -360,6 +383,12 @@ Every hook lives in `lib/hooks/use-<resource>.ts` (host rule), and components co
 | `use-slow.ts` (exists) | `useSlow` | LS-3: reports when a pending request passes the slow threshold |
 | `use-estimator.ts` (exists) | `useEstimator` | SC-05.1 entry, validation and submit over `useRateEstimate` and `useLaneTrend`; the submitted lane is written to the URL |
 | `use-scene-progress.ts`, `use-truck-readouts.ts`, `use-freight-map.ts` (exist) | `useSceneProgress`, `useTruckReadouts`, `useFreightMap` | PG-01 and access-page scenes; no data, no transport |
+| `use-invite-flow.ts` (exists) | `useInviteFlow` | SC-15.1 and SC-15.2 steps over `useAcceptInvitation` and `useLocationConsent` |
+| `use-load-route.ts`, `use-tracking-route.ts`, `use-map-motion.ts` (exist) | `useLoadRoute`, `useTrackingRoute`, `useMapMotion` | IC-30 route geometry and camera motion for `freight-map.tsx` |
+| `use-row-selection.ts`, `use-shipment-selection.ts`, `use-row-steps.ts` (exist) | `useRowSelection`, `useShipmentSelection`, `useRowSteps` | IC-23 selection with ranges and select-all-matching; lazy row next steps on PG-26 |
+| `use-connectivity.ts`, `use-page-visible.ts` (exist) | `useConnectivity`, `usePageVisible` | IC-55 connectivity; pausing polls and streams while hidden (§13) |
+| `use-shortcut.ts`, `use-recent-searches.ts` (exist) | `useShortcut`, `useApplePlatform`, `useRecentSearches` | IC-49 quick-find shortcut and IC-50 recent searches |
+| `use-clock.ts`, `use-now.ts`, `use-wide.ts` (exist) | `useClock`, `useNow`, `useWide` | Ticking time for ages and ETAs; the wide-layout breakpoint |
 
 **Naming across phases.** Phases 5 and 6 cite hooks in the kebab form used for files, with parameters (for example `use-account-standing()`). The export is always the camelCase equivalent (`useAccountStanding`), and it lives in the file listed in this table, which may group several related hooks (`useAccountStanding` is exported from `use-organization.ts`).
 
@@ -386,18 +415,19 @@ Pure, framework-free helpers in `lib/utils/` (existing files kept):
 | `session.ts` (exists) | Server session read |
 | `verify-session-token.ts` (exists) | RS256 verification |
 | `reference-id.ts` | `nanoid` custom alphabet for `HL-`, `CLM-`, `TKT-` client-generated references and idempotency keys |
-| `currency.ts` | Currency and per-mile formatting (display only) |
+| `currency.ts` (exists) | Currency and per-mile formatting (display only) |
 | `units.ts` | Miles, pounds, temperature formatting |
-| `action-result.ts` | Map `ActionResult` failures to user-facing constants |
+| `action-result.ts` (exists) | Map `ActionResult` failures to user-facing constants |
 | `offline-queue.ts` | IndexedDB-backed queue with external-store interface (§13) |
-| `with-action.ts` | `withAction` and `withHandler` wrappers: session, role, correlation ID, reason pass-through, error-class mapping, timing (D-13) |
+| `with-action.ts` (exists for `withAction`; `withHandler` not yet, route handlers relay through `relay-read.ts`) | `withAction` and `withHandler` wrappers: session, role, correlation ID, reason pass-through, error-class mapping, timing (D-13) |
 | `report-error.ts` | Single error-reporting entry point with PII scrubbing (D-10, §21) |
+| `date-value.ts`, `relay-read.ts`, `backend-mutation.ts`, `correlation.ts`, `check-files.ts`, `announcement-queue.ts`, `fill-template.ts`, `format-number.ts`, `geo.ts`, `css-color.ts`, `session-user.ts`, `number.ts`, `plural.ts` (exist) | Calendar values for IC-08; the route handler relay (D-2); the mutation call and correlation ID (D-13); upload checks (IC-24); the announcer queue (IC-14); copy templates; number, place and colour helpers; the session user |
 
 ---
 
 ## 10. Constants and Enums
 
-- **`lib/constants.ts`** (exists) gains app-wide values: `appRoutes`, `PROTECTED_ROUTE_PREFIXES` (all workspace and internal prefixes), `INTERNAL_ROUTE_PREFIXES`, page size (default 50, maximum 200), upload limits, session warning lead time, `errorCopy` per error class (Phase 4 §2.2), the analytics event catalogue (§27), loading and freshness thresholds (Phase 4 §2.1, §2.6), metadata title template.
+- **`lib/constants.ts`** (exists) gains app-wide values (`appRoutes` lives in `lib/app-routes.ts`): `PROTECTED_ROUTE_PREFIXES` (all workspace and internal prefixes), `INTERNAL_ROUTE_PREFIXES`, page size (default 50, maximum 200), upload limits, session warning lead time, error copy per class (`ERROR_COPY` in `lib/errors/constants.ts`, exists; Phase 4 §2.2), the analytics event catalogue (§27), loading and freshness thresholds (Phase 4 §2.1, §2.6), metadata title template.
 - **Feature constants** in `lib/<feature>/constants.ts` (§6): status labels, refresh intervals, thresholds (BR-06, BR-08, BR-10, BR-11), glossary definitions (IC-56), notification copy.
 - **`lib/enums/`** holds one file per enumeration from Phase 3 §6 (`load-status.ts`, `bid-status.ts`, `equipment-type.ts`, `stop-type.ts`, `accessorial-type.ts`, `document-type.ts`, `exception-type.ts`, `invoice-status.ts`, `settlement-status.ts`, `claim-type.ts`, `claim-status.ts`, `compliance-status.ts`, `notification-event.ts`, `role-key.ts`, `amendment-status.ts`, `approval-status.ts`, `exception-severity.ts`, `api-scope.ts`, `webhook-event.ts`, `export-dataset.ts`, `import-row-outcome.ts`, `audit-action.ts`, `audit-actor-type.ts`, `ticket-status.ts`, `ticket-urgency.ts`, `facility-type.ts`, `quote-request-status.ts`). Each derives from the generated contract enum where one exists, so a backend change breaks type-checking here.
 - **Configurable values.** Where the platform configuration (SC-25.2) owns a value, the constant is the fallback and the server value wins.
@@ -444,11 +474,11 @@ Pure, framework-free helpers in `lib/utils/` (existing files kept):
 
 | Folder | What goes there | Examples (names only; appearance decided at build) |
 | --- | --- | --- |
-| `components/ui/` | Domain-free primitives implementing Phase 6 contracts, built on React Aria Components (§15) and styled with the host tokens | `button.tsx` (exists, IC-11), `input.tsx` (exists, IC-01), `combobox.tsx` (IC-05/07), `date-window-field.tsx` (IC-08), `dialog.tsx` (IC-41), `confirm-dialog.tsx` (IC-12), `tabs.tsx` (IC-16), `file-drop.tsx` (IC-24), `switch.tsx` (IC-36), `data-table.tsx` (IC-22), `pagination.tsx` (IC-21), `status-label.tsx` (IC-59), `countdown.tsx` (IC-46), `toggletip.tsx` (IC-56), `menu.tsx` (IC-57), `skip-link.tsx` (IC-52) |
-| `components/common/` | Shared compositions implementing shared sections (SH-) and repeated page sections | `record-collection.tsx` (SH-05), `load-timeline.tsx` (SH-01), `load-position.tsx` (SH-02), `document-set.tsx` (SH-03), `conversation.tsx` (SH-04), `account-standing.tsx` (SH-06), `attention-queue.tsx` (SH-07), `metric-set.tsx` (SH-08), `scorecard.tsx` (SH-09), `money-breakdown.tsx` (SH-14), `assignment-picker.tsx` (SH-15), `step-flow.tsx` (SH-13), `section-state.tsx` (one loading, empty and error handler for every section, SSB-1 … SSB-3), `login-form.tsx` (exists, SC-10.1), `error-summary.tsx` (exists, IC-02), `board-field.tsx` (exists, IC-01 label and error wiring with `field-error.tsx`, IC-03 reveal), `root-document.tsx` (exists, the document shell `global-not-found.tsx` needs), `public-page.tsx` (exists, the public page frame for PG-05 … PG-09) |
-| `components/home/`, `components/auth/`, `components/legal/`, `components/help/`, `components/support/`, `components/estimator/` | Sections used by one public, access, system or legal page (D-14) | `fork-section.tsx` (exists, SC-01.1), `lane-form.tsx` (exists, SC-01.2), `email-step.tsx` and `password-step.tsx` (exist, SC-10.1), `auth-links.tsx` (exists, SC-10.2), `forgot-form.tsx` (exists, SC-12.1), `reset-form.tsx` (exists, SC-13.1), `verify-email.tsx` (exists, SC-14.1), `code-challenge.tsx` and `code-step.tsx` (exist, SC-14.2, IC-04), `expired-panel.tsx` (exists, SC-13.1 expired link), `side-picker.tsx` (exists, SC-11.1), `consent-check.tsx` (exists, IC-38), `link-countdown.tsx` (exists, IC-46), `system-page.tsx` (exists, PG-53, PG-55), `server-error.tsx` (exists, PG-54), `signed-in.tsx` (exists, interim dashboard); in `components/legal/`: `legal-document.tsx`, `legal-history.tsx`, `legal-contents.tsx`, `sub-processors.tsx` and `print-button.tsx` (exist, SC-09.1, NFR-PRIV-7); in `components/help/` and `components/support/`: `help-center.tsx`, `help-article.tsx`, `support-desk.tsx` and `ticket-form.tsx` with their parts (exist, PG-06 … PG-08); in `components/estimator/`: `rate-estimator.tsx` (exists, composes PG-05), `lane-query-form.tsx` and `location-field.tsx` (exist, SC-05.1, IC-05, IC-08), `estimate-panel.tsx`, `estimate-figures.tsx`, `rate-range.tsx` and `estimate-notice.tsx` (exist, SC-05.2), `trend-panel.tsx`, `trend-chart.tsx` and `trend-table.tsx` (exist, SC-05.3, IC-45), `estimate-actions.tsx` (exists, SC-05.4) |
-| `components/wrappers/` | Behavioural wrappers | `motion-wrapper.tsx` (exists), `section-boundary.tsx` (error + suspense per section, SSB-1/3), `role-gate.tsx` (render by capability, never security) |
-| `components/providers/` | Providers (§5) | `provider.tsx`, `auth-signal-provider.tsx` (exist) |
+| `components/ui/` | Domain-free primitives implementing Phase 6 contracts, built on React Aria Components (§15) and styled with the host tokens; every one is shown on the dev-only `/primitives` page | `button.tsx`, `button-link.tsx`, `icon-button.tsx` (IC-11), `input.tsx`, `field.tsx`, `field-label.tsx`, `field-error.tsx` (IC-01), `combobox.tsx` (IC-05), `select.tsx` (IC-07, single select), `date-field.tsx`, `date-range-field.tsx`, `calendar-panel.tsx` (IC-08), `radio-group.tsx` (IC-09), `dialog.tsx`, `drawer.tsx` (IC-41), `confirm-dialog.tsx` (IC-12), `tabs.tsx` (IC-16), `search-field.tsx` (IC-19), `filter-chip.tsx` (IC-20), `pagination.tsx` (IC-21), `data-table.tsx` with `table-*.tsx` (IC-22, IC-23; a native table with its own selection, bulk bar, row menu and phone cards), `file-drop.tsx`, `file-row.tsx` (IC-24), `disclosure.tsx` (IC-32), `switch.tsx` (IC-36), `copy-button.tsx` (IC-44), `countdown.tsx` (IC-46), `toggletip.tsx` (IC-56), `menu.tsx`, `menu-item.tsx` (IC-57), `status-label.tsx`, `status-lane.tsx` (IC-59), and `panel.tsx`, `popover.tsx`, `tooltip.tsx`, `segmented-control.tsx`, `skeleton.tsx`, `kbd.tsx`, `count-badge.tsx` (all exist) |
+| `components/common/` | Shared compositions implementing shared sections (SH-) and repeated page sections | `shipments-table.tsx` over `data-table.tsx` (exists, SH-05; the generic `record-collection.tsx` when a second collection needs it), `load-timeline.tsx` (exists, SH-01), `load-position.tsx` (exists, SH-02), `load-documents.tsx` (exists, SH-03), `money-breakdown.tsx` (exists, SH-14), the other `load-*.tsx` sections of PG-40 (exist), `shipments-*.tsx` and `shipment-*.tsx` (exist, PG-26), `freight-map.tsx` (exists, IC-30), `check-call.tsx` (exists, IC-10), `reason-dialog.tsx` (exists, IC-12 with a reason), `share-link.tsx` and `share-send-form.tsx` (exist, IC-44), `stop-instructions.tsx` (exists, IC-67), `workspace-frame.tsx`, `workspace-account.tsx`, `workspace-page.tsx` and `workspace-heading.tsx` (exist, the workspace frame), `quick-find.tsx` (exists, IC-50), `notification-bell.tsx` and `notification-list.tsx` (exist, IC-53), `session-timeout.tsx` (exists, IC-54), `connectivity-bar.tsx` (exists, IC-55), `skip-link.tsx` (exists, IC-52), `section-state.tsx` and `section-failure.tsx` (exist, SSB-1 … SSB-3, IC-60), `status-toast.tsx` (exists), `login-form.tsx` (exists, SC-10.1), `error-summary.tsx` (exists, IC-02), `board-field.tsx` (exists, IC-03 reveal), `root-document.tsx` (exists), `public-page.tsx` (exists, the public page frame), `primitives-*.tsx` (exist, the `/primitives` specimens); planned: `conversation.tsx` (SH-04), `account-standing.tsx` (SH-06), `attention-queue.tsx` (SH-07), `metric-set.tsx` (SH-08), `scorecard.tsx` (SH-09), `step-flow.tsx` (SH-13), `assignment-picker.tsx` (SH-15) |
+| `components/home/`, `components/auth/`, `components/legal/`, `components/help/`, `components/support/`, `components/estimator/`, `components/tracking/` | Sections used by one public, access, system or legal page (D-14) | `fork-section.tsx` (exists, SC-01.1), `lane-form.tsx` (exists, SC-01.2), `email-step.tsx` and `password-step.tsx` (exist, SC-10.1), `auth-links.tsx` (exists, SC-10.2), `forgot-form.tsx` (exists, SC-12.1), `reset-form.tsx` (exists, SC-13.1), `verify-email.tsx` (exists, SC-14.1), `code-challenge.tsx` and `code-step.tsx` (exist, SC-14.2, IC-04), `expired-panel.tsx` (exists, SC-13.1 expired link), `side-picker.tsx` (exists, SC-11.1), `consent-check.tsx` (exists, IC-38), `link-countdown.tsx` (exists, IC-46), `system-page.tsx` (exists, PG-53, PG-55), `server-error.tsx` (exists, PG-54), `signed-in.tsx` (exists, interim dashboard); in `components/legal/`: `legal-document.tsx`, `legal-history.tsx`, `legal-contents.tsx`, `sub-processors.tsx` and `print-button.tsx` (exist, SC-09.1, NFR-PRIV-7); in `components/help/` and `components/support/`: `help-center.tsx`, `help-article.tsx`, `support-desk.tsx` and `ticket-form.tsx` with their parts (exist, PG-06 … PG-08); in `components/estimator/`: `rate-estimator.tsx` (exists, composes PG-05), `lane-query-form.tsx` and `location-field.tsx` (exist, SC-05.1, IC-05, IC-08), `estimate-panel.tsx`, `estimate-figures.tsx`, `rate-range.tsx` and `estimate-notice.tsx` (exist, SC-05.2), `trend-panel.tsx`, `trend-chart.tsx` and `trend-table.tsx` (exist, SC-05.3, IC-45), `estimate-actions.tsx` (exists, SC-05.4), `estimate-lane.tsx` (exists, SC-05.2); for PG-15 in `components/auth/`: `invite-view.tsx`, `invite-panel.tsx`, `invite-join-step.tsx`, `invite-notice.tsx` and `switch-account.tsx` (exist, SC-15.1), `location-consent-step.tsx` (exists, SC-15.2); in `components/tracking/`: `tracking-view.tsx` (exists, composes PG-02), `tracking-position.tsx`, `tracking-arrival.tsx` and `tracking-map.tsx` (exist, SC-02.1), `tracking-stops.tsx` (exists, SC-02.2), `tracking-link.tsx`, `tracking-ended.tsx` and `tracking-wait.tsx` (exist, SC-02.3) |
+| `components/wrappers/` | Behavioural wrappers | `motion-wrapper.tsx` (exists), `section-boundary.tsx` (exists, error + suspense per section, SSB-1/3), `role-gate.tsx` (render by capability, never security) |
+| `components/providers/` | Providers (§5) | `provider.tsx`, `announcer-provider.tsx`, `session-provider.tsx`, `auth-signal-provider.tsx`, `assembly-provider.tsx` (exist) |
 
 **Rules.** One component per file, kebab-case matching the export (host). A section used on two pages is promoted from the page to `components/common/` (host). Page-only sections also live in `components/common/` with a page-domain prefix, because pages may not define components (host rule, ESLint `page-composes-only`); the exception is the page-domain folders of D-14. Any file over ~150 lines is split.
 
@@ -515,8 +545,8 @@ Per the master prompt's Library Selection Policy: reuse first, otherwise recomme
 | Session | Reuse | `jose` (installed) | Existing verification |
 | Unit tests | Reuse | `vitest` (installed), `fast-check` (installed) | Host standard |
 | Forms | **Approved** (2026-10-10), not yet installed | `@tanstack/react-form` with Zod through Standard Schema | Type-safe field arrays with no casts (the no-unchecked-cast rule), per-step validation for multi-step forms (PG-27, PG-17), and the TanStack family already used for server state. New forms use it; the access forms' native pattern moves over when next changed |
-| Maps | Reuse | `@deck.gl/core`, `@deck.gl/layers`, `@deck.gl/geo-layers` (installed; PG-01 freight map), with `topojson-client` and `us-atlas` (installed) for static geometry | Reuse first: the repo already renders maps with deck.gl, so IC-30 builds on it rather than a second map library. Changed in 1.1.1; 1.1.0 proposed `maplibre-gl` + `react-map-gl` before deck.gl was installed |
-| Map base layer | **Approved** (2026-10-10), not yet installed | `maplibre-gl` with `@deck.gl/mapbox` (deck.gl layers interleaved) and Protomaps vector tiles styled with the Haulr tokens | Street-level tracking (PG-02, PG-26, PG-40) needs roads and labels under the deck.gl layers; MapLibre is open with no per-load fees, and deck.gl keeps the landing page's visual standard |
+| Maps | Reuse | `@deck.gl/core`, `@deck.gl/layers`, `@deck.gl/geo-layers` (installed; PG-01 freight map), with `topojson-client` and `us-atlas` (installed) for static geometry | Reuse first: the repo already renders maps with deck.gl, so IC-30 builds on it rather than a second drawing library. On the street maps deck.gl draws stops, trucks and the fleet as a non-interleaved overlay above MapLibre |
+| Map base layer | **Installed** (2026-10-12) | `maplibre-gl` 6 with `@protomaps/basemaps` (hosted Protomaps key in `NEXT_PUBLIC_PROTOMAPS_KEY`, never committed) and `@deck.gl/mapbox` | Street-level tracking (PG-02, PG-26, PG-40) needs roads and labels; MapLibre is open with no per-load fees. **Changed 2026-11-06:** route lines are native MapLibre line layers under the labels (`lib/maps/native-route.ts`: glow, lane, travelled line and pulse through `line-gradient`), because deck.gl 9.4's interleaved mode reads a MapLibre internal that version 6 moved, and crashes; deck.gl stays non-interleaved |
 | Truck routing and ETAs | **Approved** for the backend (2026-10-10) | HERE Routing API, truck profile | Deepest truck rules (weight per axle group for US bridge limits, hazmat, height); drives ETAs, reachability and empty miles (SH-02, SC-65.2, SC-65.4); the frontend only renders its results |
 | Charts | **Approved** (2026-10-10), not yet installed | `@visx/*` packages as needed (scales, shapes, axes) | Bespoke styling to the landing page's standard with accessible SVG and the IC-45 data equivalents. The first chart, PG-05's lane trend (SC-05.3), was built in native SVG with its table equivalent and keyboard exploration, without visx |
 | Component tests | **Approved** (2026-10-10), not yet installed | Vitest Browser Mode: `@vitest/browser-playwright`, `vitest-browser-react` | Runs every IC- contract's focus, keyboard and ARIA behaviour in a real browser, which jsdom cannot reproduce; stable since Vitest 4 |
@@ -528,7 +558,7 @@ Per the master prompt's Library Selection Policy: reuse first, otherwise recomme
 | Product analytics | **Approved** (2026-10-10) after the privacy review, not yet installed | PostHog (`posthog-js`, `posthog-node`), self-hostable | Funnels for the KPIs, session replay with masking, and the §27 catalogue; its feature flags back `lib/flags.ts` (D-11). NFR-PRIV-3 constrains properties |
 | Feature flags | **Approved** (2026-10-10) | PostHog feature flags behind `lib/flags.ts`, read server-side and passed as props | One typed module (D-11); targeting by organisation for enterprise pilots without a second service |
 | Passkeys | **Reuse** | Browser WebAuthn API (no dependency); server library chosen by the backend | SEC-1 |
-| Accessible primitives | **Approved** (2026-10-10), not yet installed | `react-aria-components` | Unstyled, WAI-ARIA-complete combobox (IC-05), time-zone-aware date and time windows (IC-08, through `@internationalized/date`), sortable tables and selection (IC-22, IC-23), keyboard-accessible drag and drop (IC-40, IC-68), dialog, menu, tabs and switch. `components/ui/` primitives wrap it, so the look stays bespoke |
+| Accessible primitives | **Installed** (2026-11-03) | `react-aria-components` 1.22 with `@internationalized/date` | Unstyled, WAI-ARIA-complete combobox (IC-05), time-zone-aware date and time windows (IC-08), dialog, menu, tabs and switch; about 55 `components/ui/` primitives wrap it, so the look stays bespoke. The data table is a native table with its own selection, row menu and phone cards (rebuilt 2026-11-05) rather than React Aria's table; keyboard drag and drop (IC-40, IC-68) is not built yet |
 | Enterprise SSO and provisioning | **Approved** for the backend (2026-10-10) | WorkOS (SAML, OIDC, SCIM, admin portal) | One integration covers every identity provider; its admin portal matches PG-60's self-service setup; testing uses WorkOS's test provider |
 
 ---
@@ -938,10 +968,10 @@ The catalogue lives in `lib/constants.ts` as a typed map, so an unknown event na
 
 ## 28. Error Taxonomy Implementation
 
-- `lib/utils/action-result.ts` maps HTTP status and parse failures to the classes in Phase 4 §2.2 and returns `{ class, messageKey, retryAfter?, correlationId? }`.
-- `errorCopy` in `lib/constants.ts` holds one message per class; sections add a context phrase from their feature constants.
-- The Query client's `retry` function implements the automatic-retry column of Phase 4 §2.2: reads only, E-SERVER and E-UNAVAILABLE, with the stated delays; never for mutations without idempotency keys.
-- `components/common/section-state.tsx` renders LS, E and EM classes consistently for every section.
+- `lib/utils/action-result.ts` (exists) maps HTTP status and parse failures to the classes in Phase 4 §2.2 and returns `{ class, messageKey, retryAfter?, correlationId? }`.
+- `ERROR_COPY` in `lib/errors/constants.ts` (exists, with `ERROR_CLASSES` and the read retry delays) holds one message per class; sections add a context phrase from their feature constants.
+- The Query client's `retry` function (exists, `provider.tsx`) implements the automatic-retry column of Phase 4 §2.2: reads only, E-SERVER and E-UNAVAILABLE, with the stated delays; never for mutations without idempotency keys.
+- `components/common/section-state.tsx` (exists, with `section-failure.tsx`) renders LS, E and EM classes consistently for every section.
 
 ---
 
