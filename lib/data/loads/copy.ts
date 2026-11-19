@@ -1,6 +1,7 @@
 import { CANCELLATION } from "@/lib/loads/constants";
-import type { ChargeDto, PositionDto } from "@/lib/contract/schemas";
-import type { ChoiceOption, Equipment, LoadStatus, TrackingView } from "@/lib/types";
+import { LOAD_TRACKING_COPY } from "@/lib/data/loads/tracking-copy";
+import type { ChargeDto } from "@/lib/contract/schemas";
+import type { Equipment, LoadStatus } from "@/lib/types";
 
 export const LOAD_COPY = {
     meta: { title: "{reference} · Haulr", fallback: "Load · Haulr" },
@@ -98,42 +99,7 @@ export const LOAD_COPY = {
         reference: "Ref",
         late: "Arrived after the window",
     },
-    tracking: {
-        label: "Tracking",
-        views: [
-            { value: "map", label: "Map" },
-            { value: "text", label: "Text only" },
-        ] satisfies ChoiceOption<TrackingView>[],
-        viewLabel: "Tracking view",
-        map: "Map of {reference} by road, with the truck near {city}",
-        mapIdle: "Map of {reference} by road",
-        recentre: "Recentre map",
-        eta: "ETA {city}",
-        etaText: "Estimated arrival in {city}: {time}.",
-        confidence: { high: "High confidence", medium: "Medium confidence", low: "Low confidence" },
-        late: "Running late",
-        onTime: "On time",
-        window: "Window {window}",
-        miles: "{miles} mi to go",
-        position: "Near {city}",
-        sourceAge: "{source} · {age}",
-        updated: "Updated {age}",
-        stale: "Last seen {age}. Position is over an hour old.",
-        exception: "Last update {age}. Haulr operations has an open tracking exception.",
-        before: "Tracking starts at pickup, {window}.",
-        delivered: "Delivered {time}.",
-        deliveredLabel: "Delivered",
-        idle: "No live tracking while the load is {status}.",
-        none: "No position yet.",
-        sources: { eld: "ELD", driverApp: "Driver app", mobileWeb: "Driver's phone", checkCall: "Check call" } satisfies Record<PositionDto["source"], string>,
-        checkCall: "Request check call",
-        checkCallPending: "Requesting…",
-        checkCallDone: "Check call requested. The carrier is asked to report a position.",
-        checkCallClosed: "A check call opens once the last position is an hour old.",
-        checkCallRecent: "A check call was already requested in the last 30 minutes.",
-        checkCallRecentBy: "{name} requested one {age}. Another opens at {time}.",
-        paused: "Live updates paused.",
-    },
+    tracking: LOAD_TRACKING_COPY,
     money: {
         shipperPrice: "Shipper price",
         carrierPay: "Carrier pay",
