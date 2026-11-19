@@ -170,6 +170,7 @@ export const loadSummaryDtoSchema = z.object({
     lastPositionAt: z.string().nullable(),
     lastPositionCity: z.string().nullable(),
     updatedAt: z.string(),
+    importBatchId: z.string().nullable(),
 });
 export type LoadSummaryDto = z.infer<typeof loadSummaryDtoSchema>;
 
@@ -910,6 +911,7 @@ export const loadExportFiltersDtoSchema = z.object({
     destination: z.string().optional(),
     carrier: z.string().optional(),
     exceptions: z.boolean().optional(),
+    batch: z.string().optional(),
 });
 export type LoadExportFiltersDto = z.infer<typeof loadExportFiltersDtoSchema>;
 
@@ -934,3 +936,289 @@ export const exportJobDtoSchema = z.object({
     expiresAt: z.string().nullable(),
 });
 export type ExportJobDto = z.infer<typeof exportJobDtoSchema>;
+
+export const importUploadRequestDtoSchema = z.object({
+    fileName: z.string(),
+    contentType: z.enum([
+        "text/csv",
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    ]),
+    sizeBytes: z.number(),
+});
+export type ImportUploadRequestDto = z.infer<
+    typeof importUploadRequestDtoSchema
+>;
+
+export const importColumnDtoSchema = z.object({
+    index: z.number(),
+    header: z.string(),
+    samples: z.array(z.string()),
+    field: z
+        .enum([
+            "reference",
+            "pickupFacility",
+            "pickupDate",
+            "pickupTime",
+            "deliveryFacility",
+            "deliveryDate",
+            "deliveryTime",
+            "equipment",
+            "commodity",
+            "weightLb",
+            "pallets",
+            "tempMinF",
+            "tempMaxF",
+            "hazmat",
+            "poNumber",
+            "instructions",
+        ])
+        .nullable(),
+    source: z.enum(["saved", "detected", "none"]),
+});
+export type ImportColumnDto = z.infer<typeof importColumnDtoSchema>;
+
+export const importCountsDtoSchema = z.object({
+    total: z.number(),
+    valid: z.number(),
+    warning: z.number(),
+    invalid: z.number(),
+    excluded: z.number(),
+});
+export type ImportCountsDto = z.infer<typeof importCountsDtoSchema>;
+
+export const importPricingDtoSchema = z.object({
+    postNow: z.number(),
+    needsApproval: z.number(),
+    draft: z.number(),
+    totalCents: z.number(),
+    quoteExpiresAt: z.string(),
+    spendLimitCents: z.number().nullable(),
+    unavailable: z.boolean(),
+});
+export type ImportPricingDto = z.infer<typeof importPricingDtoSchema>;
+
+export const importOutcomeDtoSchema = z.object({
+    posted: z.number(),
+    pendingApproval: z.number(),
+    draft: z.number(),
+    rejected: z.number(),
+});
+export type ImportOutcomeDto = z.infer<typeof importOutcomeDtoSchema>;
+
+export const importTenderDtoSchema = z.object({
+    strategy: z.enum(["openMarket", "waterfall", "both"]),
+    mode: z.enum(["bid", "bookNow"]),
+});
+export type ImportTenderDto = z.infer<typeof importTenderDtoSchema>;
+
+export const importProblemDtoSchema = z.object({
+    code: z.enum([
+        "unreadable",
+        "encoding",
+        "tooManyRows",
+        "noHeader",
+        "empty",
+    ]),
+    message: z.string(),
+});
+export type ImportProblemDto = z.infer<typeof importProblemDtoSchema>;
+
+export const importBatchDtoSchema = z.object({
+    id: z.string(),
+    fileName: z.string(),
+    status: z.enum([
+        "awaitingUpload",
+        "parsing",
+        "mapping",
+        "validating",
+        "review",
+        "pricing",
+        "priced",
+        "confirming",
+        "completed",
+        "failed",
+    ]),
+    progress: z.number(),
+    processed: z.number(),
+    rowCount: z.number(),
+    columns: z.array(importColumnDtoSchema),
+    counts: importCountsDtoSchema,
+    pricing: importPricingDtoSchema.nullable(),
+    outcome: importOutcomeDtoSchema.nullable(),
+    tender: importTenderDtoSchema.nullable(),
+    problem: importProblemDtoSchema.nullable(),
+    mappingSaved: z.boolean(),
+    createdByName: z.string(),
+    createdAt: z.string(),
+    completedAt: z.string().nullable(),
+    version: z.number(),
+});
+export type ImportBatchDto = z.infer<typeof importBatchDtoSchema>;
+
+export const importUploadTicketDtoSchema = z.object({
+    batch: importBatchDtoSchema,
+    uploadUrl: z.string(),
+    expiresAt: z.string(),
+});
+export type ImportUploadTicketDto = z.infer<typeof importUploadTicketDtoSchema>;
+
+export const importBatchPageDtoSchema = z.object({
+    items: z.array(importBatchDtoSchema),
+    nextCursor: z.string().nullable(),
+});
+export type ImportBatchPageDto = z.infer<typeof importBatchPageDtoSchema>;
+
+export const importRowValuesDtoSchema = z.object({
+    reference: z.string(),
+    pickupFacility: z.string(),
+    pickupDate: z.string(),
+    pickupTime: z.string(),
+    deliveryFacility: z.string(),
+    deliveryDate: z.string(),
+    deliveryTime: z.string(),
+    equipment: z.string(),
+    commodity: z.string(),
+    weightLb: z.string(),
+    pallets: z.string(),
+    tempMinF: z.string(),
+    tempMaxF: z.string(),
+    hazmat: z.string(),
+    poNumber: z.string(),
+    instructions: z.string(),
+});
+export type ImportRowValuesDto = z.infer<typeof importRowValuesDtoSchema>;
+
+export const importIssueDtoSchema = z.object({
+    field: z
+        .enum([
+            "reference",
+            "pickupFacility",
+            "pickupDate",
+            "pickupTime",
+            "deliveryFacility",
+            "deliveryDate",
+            "deliveryTime",
+            "equipment",
+            "commodity",
+            "weightLb",
+            "pallets",
+            "tempMinF",
+            "tempMaxF",
+            "hazmat",
+            "poNumber",
+            "instructions",
+        ])
+        .nullable(),
+    severity: z.enum(["error", "warning"]),
+    code: z.enum([
+        "required",
+        "format",
+        "past",
+        "horizon",
+        "order",
+        "facility",
+        "equipment",
+        "weight",
+        "temperature",
+        "duplicateFile",
+        "duplicateLoad",
+        "closeToPickup",
+        "unpriced",
+    ]),
+    message: z.string(),
+    loadId: z.string().nullable(),
+});
+export type ImportIssueDto = z.infer<typeof importIssueDtoSchema>;
+
+export const importRowDtoSchema = z.object({
+    id: z.string(),
+    line: z.number(),
+    values: importRowValuesDtoSchema,
+    outcome: z.enum(["valid", "warning", "invalid"]),
+    excluded: z.boolean(),
+    issues: z.array(importIssueDtoSchema),
+    pickupFacilityId: z.string().nullable(),
+    deliveryFacilityId: z.string().nullable(),
+    priceCents: z.number().nullable(),
+    split: z.enum(["postNow", "needsApproval", "draft"]).nullable(),
+    loadId: z.string().nullable(),
+    version: z.number(),
+});
+export type ImportRowDto = z.infer<typeof importRowDtoSchema>;
+
+export const importRowPageDtoSchema = z.object({
+    items: z.array(importRowDtoSchema),
+    nextCursor: z.string().nullable(),
+    counts: importCountsDtoSchema,
+});
+export type ImportRowPageDto = z.infer<typeof importRowPageDtoSchema>;
+
+export const importMappingColumnDtoSchema = z.object({
+    index: z.number(),
+    field: z
+        .enum([
+            "reference",
+            "pickupFacility",
+            "pickupDate",
+            "pickupTime",
+            "deliveryFacility",
+            "deliveryDate",
+            "deliveryTime",
+            "equipment",
+            "commodity",
+            "weightLb",
+            "pallets",
+            "tempMinF",
+            "tempMaxF",
+            "hazmat",
+            "poNumber",
+            "instructions",
+        ])
+        .nullable(),
+});
+export type ImportMappingColumnDto = z.infer<
+    typeof importMappingColumnDtoSchema
+>;
+
+export const importMappingRequestDtoSchema = z.object({
+    columns: z.array(importMappingColumnDtoSchema),
+    save: z.boolean(),
+    version: z.number(),
+});
+export type ImportMappingRequestDto = z.infer<
+    typeof importMappingRequestDtoSchema
+>;
+
+export const importRowUpdateDtoSchema = z.object({
+    values: importRowValuesDtoSchema,
+    version: z.number(),
+});
+export type ImportRowUpdateDto = z.infer<typeof importRowUpdateDtoSchema>;
+
+export const importExcludeRequestDtoSchema = z.object({
+    rowIds: z.array(z.string()),
+    excluded: z.boolean(),
+});
+export type ImportExcludeRequestDto = z.infer<
+    typeof importExcludeRequestDtoSchema
+>;
+
+export const importVersionDtoSchema = z.object({ version: z.number() });
+export type ImportVersionDto = z.infer<typeof importVersionDtoSchema>;
+
+export const importConfirmRequestDtoSchema = z.object({
+    tender: importTenderDtoSchema,
+    version: z.number(),
+});
+export type ImportConfirmRequestDto = z.infer<
+    typeof importConfirmRequestDtoSchema
+>;
+
+export const facilityOptionDtoSchema = z.object({
+    id: z.string(),
+    name: z.string(),
+    city: z.string(),
+    region: z.string(),
+});
+export type FacilityOptionDto = z.infer<typeof facilityOptionDtoSchema>;

@@ -86,6 +86,7 @@ export interface MockLoad {
     charges: MockCharge[];
     track: MockTrackSpec | null;
     seededAt: number;
+    importBatchId?: string;
     createdAt: string;
     updatedAt: string;
 }

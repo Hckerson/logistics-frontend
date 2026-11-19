@@ -10,7 +10,13 @@ import type {
     DownloadLinkDto,
     EmailDto,
     ExportJobDto,
+    FacilityOptionDto,
     HealthResponseDto,
+    ImportBatchDto,
+    ImportBatchPageDto,
+    ImportRowDto,
+    ImportRowPageDto,
+    ImportUploadTicketDto,
     InvitationDto,
     LoadCancellationDto,
     LoadCountDto,
@@ -82,6 +88,7 @@ export const routes = {
         destination?: string;
         carrier?: string;
         exceptions?: boolean;
+        batch?: string;
     }) => `/api/loads${queryString(query)}` as Endpoint<LoadPageDto>,
     loadsCounts: () => "/api/loads/counts" as Endpoint<LoadCountDto[]>,
     loadsFindOne: (loadId: string) =>
@@ -186,4 +193,34 @@ export const routes = {
         `/api/exports/${exportId}` as Endpoint<ExportJobDto>,
     exportsDownload: (exportId: string) =>
         `/api/exports/${exportId}/download` as Endpoint<DownloadLinkDto>,
+    importsFindAll: (query?: { cursor?: string; limit?: number }) =>
+        `/api/imports${queryString(query)}` as Endpoint<ImportBatchPageDto>,
+    importsCreate: () => "/api/imports" as Endpoint<ImportUploadTicketDto>,
+    importsTemplate: () => "/api/imports/template" as Endpoint<DownloadLinkDto>,
+    importsFindOne: (batchId: string) =>
+        `/api/imports/${batchId}` as Endpoint<ImportBatchDto>,
+    importsComplete: (batchId: string) =>
+        `/api/imports/${batchId}/complete` as Endpoint<ImportBatchDto>,
+    importsMap: (batchId: string) =>
+        `/api/imports/${batchId}/mapping` as Endpoint<ImportBatchDto>,
+    importsRows: (
+        batchId: string,
+        query?: {
+            outcome?: "valid" | "warning" | "invalid" | "excluded";
+            cursor?: string;
+            limit?: number;
+        },
+    ) =>
+        `/api/imports/${batchId}/rows${queryString(query)}` as Endpoint<ImportRowPageDto>,
+    importsUpdateRow: (batchId: string, rowId: string) =>
+        `/api/imports/${batchId}/rows/${rowId}` as Endpoint<ImportRowDto>,
+    importsExclude: (batchId: string) =>
+        `/api/imports/${batchId}/exclusions` as Endpoint<ImportBatchDto>,
+    importsPrice: (batchId: string) =>
+        `/api/imports/${batchId}/price` as Endpoint<ImportBatchDto>,
+    importsConfirm: (batchId: string) =>
+        `/api/imports/${batchId}/confirm` as Endpoint<ImportBatchDto>,
+    importsResults: (batchId: string) =>
+        `/api/imports/${batchId}/results` as Endpoint<DownloadLinkDto>,
+    facilitiesFindAll: () => "/api/facilities" as Endpoint<FacilityOptionDto[]>,
 } as const;
