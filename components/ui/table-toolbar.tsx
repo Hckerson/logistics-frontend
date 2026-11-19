@@ -17,7 +17,7 @@ export const TABLE_STRIP = "border-border flex min-h-11 items-center justify-bet
 
 export default function TableToolbar({ caption, count, note, tools, picked, onClear, actions }: Props) {
     return (
-        <div className={clsx(TABLE_STRIP, "transition-colors", picked > 0 && "bg-background-muted/60")}>
+        <div className={clsx(TABLE_STRIP, "transition-colors", picked > 0 ? "bg-background-muted sticky top-(--sticky-top) z-(--z-indices-dropdown)" : "bg-background")}>
             {picked > 0 ? (
                 <TableBulkBar count={picked} onClear={onClear}>
                     {actions}
