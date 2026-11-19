@@ -1,7 +1,7 @@
 import { Copy, Download, Edit, Location, Share, TrashCan, UserFollow, View } from "@carbon/icons-react";
 import type { ButtonTone, ChoiceOption, ControlSize, DateRangeValue, FileUploadState, LoadStatus, MenuEntry, SignalTone, SpecimenFile, SpecimenLoad, SpecimenSignal, SpecimenSwatch, TabItem } from "@/lib/types";
 
-export const SPECIMEN_TONES: readonly ButtonTone[] = ["ink", "accent", "outline", "quiet", "ghost", "danger"];
+export const SPECIMEN_TONES: readonly ButtonTone[] = ["ink", "accent", "outline", "quiet", "ghost", "danger", "link"];
 
 export const SPECIMEN_SIZES: readonly ControlSize[] = ["sm", "md", "lg", "xl"];
 
