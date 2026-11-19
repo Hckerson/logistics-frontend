@@ -47,7 +47,7 @@ export const PRIMITIVES_COPY = {
         table: "Data table",
         upload: "Upload",
     },
-    tones: { ink: "Book load", accent: "Get a price", outline: "Share tracking", quiet: "Add stop", ghost: "View timeline", danger: "Cancel load" },
+    tones: { ink: "Book load", accent: "Get a price", outline: "Share tracking", quiet: "Add stop", ghost: "View timeline", danger: "Cancel load", link: "Open documents" },
     demo: {
         primary: "Book load",
         booking: "Booking…",
