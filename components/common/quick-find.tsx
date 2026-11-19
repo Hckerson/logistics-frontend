@@ -21,7 +21,7 @@ export default function QuickFind() {
     return (
         <>
             <Button tone="outline" size="sm" icon={Search} onPress={show} className="max-sm:hidden">
-                <span className="flex items-center gap-6">
+                <span className="flex items-center gap-4">
                     <span className="text-text-muted">{copy.trigger}</span>
                     <Kbd keys={apple ? copy.keys.apple : copy.keys.other} announce />
                 </span>

@@ -58,7 +58,7 @@ export default function LoadHeader({ initial }: Props) {
                     </span>
                 ))}
             </p>
-            <dl className="flex flex-wrap gap-x-5 gap-y-1 text-xs">
+            <dl className="flex flex-wrap gap-x-4 gap-y-1 text-xs">
                 {parties.map(({ id, label, value }) =>
                     value ? (
                         <div key={id} className="flex gap-1.5">

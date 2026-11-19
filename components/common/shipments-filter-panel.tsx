@@ -56,7 +56,7 @@ export default function ShipmentsFilterPanel({ isOpen, onOpenChange, filters, fa
 
     return (
         <Drawer isOpen={isOpen} onOpenChange={onOpenChange} title={copy.more} side="right" width="md" footer={footer}>
-            <div className="flex flex-col gap-5 p-4">
+            <div className="flex flex-col gap-4 p-4">
                 <fieldset className="flex flex-col gap-2">
                     <legend className={`${LABEL_TEXT} mb-2`}>{copy.equipment.label}</legend>
                     {EQUIPMENT_TYPES.map((type) => (
