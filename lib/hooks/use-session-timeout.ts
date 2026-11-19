@@ -34,7 +34,12 @@ export function useSessionTimeout(initial: SessionWindow) {
     const pathname = usePathname();
     const now = useNow();
     const [held, setHeld] = useState<LocalWindow | null>(null);
+    const [source, setSource] = useState<SessionWindow | null>(null);
     const [ended, setEnded] = useState(false);
+    if (now !== null && source !== initial) {
+        setSource(initial);
+        setHeld(toLocal(initial));
+    }
     const channel = useRef<BroadcastChannel | null>(null);
     const phase = ended ? "expired" : phaseOf(held, now);
 
@@ -53,10 +58,6 @@ export function useSessionTimeout(initial: SessionWindow) {
         if (held === null || phase !== "active" || extend.isPending || new Date().getTime() - held.issuedAt < ACTIVITY_MS) return;
         extend.mutate();
     });
-
-    useEffect(() => {
-        setHeld(toLocal(initial));
-    }, [initial]);
 
     useEffect(() => {
         const shared = new BroadcastChannel(SESSION_IDLE.channel);
