@@ -1,4 +1,4 @@
-import type { LaneQuery, LoadListParams, PageParams, TicketStatus, TimelineParams } from "@/lib/types";
+import type { ImportRowsParams, LaneQuery, LoadListParams, PageParams, TicketStatus, TimelineParams } from "@/lib/types";
 import { queryString } from "@/lib/utils/query-string";
 
 export const apiRoutes = {
@@ -34,4 +34,10 @@ export const apiRoutes = {
         `/api/notifications${queryString(query)}`,
     unreadCount: () => "/api/notifications/unread-count",
     quickFind: (q: string) => `/api/search${queryString({ q })}`,
+    imports: (query?: PageParams) => `/api/imports${queryString(query)}`,
+    importTemplate: () => "/api/imports/template",
+    importBatch: (batchId: string) => `/api/imports/${encodeURIComponent(batchId)}`,
+    importRows: (batchId: string, query?: ImportRowsParams) => `/api/imports/${encodeURIComponent(batchId)}/rows${queryString(query)}`,
+    importResults: (batchId: string) => `/api/imports/${encodeURIComponent(batchId)}/results`,
+    facilities: () => "/api/facilities",
 } as const;

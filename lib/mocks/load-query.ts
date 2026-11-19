@@ -60,7 +60,7 @@ const silent = (load: MockLoad, now: number) => {
 };
 
 export const findLoads = (caller: MockCaller, filters: LoadListFilters, now: number) => {
-    const { status, equipment, q, late, origin, destination, carrier, exceptions, sort } = filters;
+    const { status, equipment, q, late, origin, destination, carrier, exceptions, batch, sort } = filters;
     return [...freightStore().loads.values()]
         .filter(sees(caller))
         .filter((load) => !status?.length || status.includes(load.status))
@@ -72,5 +72,6 @@ export const findLoads = (caller: MockCaller, filters: LoadListFilters, now: num
         .filter((load) => !destination || cityOf(deliveryOf(load)) === destination.toLowerCase())
         .filter((load) => !carrier || load.carrier === carrier)
         .filter((load) => exceptions !== "true" || silent(load, now))
+        .filter((load) => !batch || load.importBatchId === batch)
         .sort(sorter(sort));
 };

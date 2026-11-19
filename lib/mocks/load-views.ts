@@ -65,6 +65,7 @@ export const toLoadSummary = (load: MockLoad, now: number): LoadSummaryDto => {
         eta: etaOf(load, now),
         lastPositionAt: latest?.recordedAt ?? null,
         lastPositionCity: latest?.city ?? null,
+        importBatchId: load.importBatchId ?? null,
         updatedAt: load.updatedAt,
     };
 };

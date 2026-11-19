@@ -39,7 +39,7 @@ import {
 } from "@/lib/loads/constants";
 import { LOAD_DATE_FIELDS, LOAD_FILTER_LIMITS, LOAD_SORTS } from "@/lib/loads/shipments";
 
-const enveloped = <T extends z.ZodType>(data: T) => apiEnvelopeDtoSchema.extend({ data });
+export const enveloped = <T extends z.ZodType>(data: T) => apiEnvelopeDtoSchema.extend({ data });
 
 const commaList = <T extends z.ZodType<unknown, string>>(item: T) =>
     z
@@ -62,6 +62,7 @@ export const loadListQuerySchema = z.object({
     destination: z.string().trim().max(LOAD_FILTER_LIMITS.place).optional(),
     carrier: z.string().trim().max(LOAD_FILTER_LIMITS.party).optional(),
     exceptions: z.enum(["true", "false"]).optional(),
+    batch: z.string().trim().max(LOAD_FILTER_LIMITS.party).optional(),
 }).refine(({ from, to }) => !from || !to || from <= to);
 
 export const bulkTrackingSchema = bulkTrackingLinksDtoSchema.extend({

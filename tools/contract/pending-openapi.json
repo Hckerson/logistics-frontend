@@ -147,6 +147,14 @@
                             "type": "boolean",
                             "description": "Only loads whose tracking has gone silent past the exception threshold"
                         }
+                    },
+                    {
+                        "name": "batch",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
@@ -2549,11 +2557,11 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Export not ready"
-                    },
                     "404": {
                         "description": "Export missing or expired; request it again"
+                    },
+                    "409": {
+                        "description": "Export not ready"
                     }
                 },
                 "security": [
@@ -2563,6 +2571,740 @@
                 ],
                 "summary": "Short-lived download link for a ready export",
                 "tags": ["exports"]
+            }
+        },
+        "/api/imports": {
+            "get": {
+                "operationId": "ImportsController_findAll",
+                "parameters": [
+                    {
+                        "name": "cursor",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "minimum": 1,
+                            "maximum": 100,
+                            "default": 100,
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/ImportBatchPageDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "The organisation's import batches from the last 90 days, newest first",
+                "tags": ["imports"]
+            },
+            "post": {
+                "operationId": "ImportsController_create",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ImportUploadRequestDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/ImportUploadTicketDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "File type or size not accepted"
+                    },
+                    "429": {
+                        "description": "Too many imports at once"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Open an import batch and get a short-lived upload URL for its file",
+                "tags": ["imports"]
+            }
+        },
+        "/api/imports/template": {
+            "get": {
+                "operationId": "ImportsController_template",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/DownloadLinkDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Download link for the import template CSV",
+                "tags": ["imports"]
+            }
+        },
+        "/api/imports/{batchId}": {
+            "get": {
+                "operationId": "ImportsController_findOne",
+                "parameters": [
+                    {
+                        "name": "batchId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/ImportBatchDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Import batch status, polled while it is processing",
+                "tags": ["imports"]
+            }
+        },
+        "/api/imports/{batchId}/complete": {
+            "post": {
+                "operationId": "ImportsController_complete",
+                "parameters": [
+                    {
+                        "name": "batchId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/ImportBatchDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "File has not reached storage yet"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Mark the upload finished and start parsing; idempotent per file hash and user",
+                "tags": ["imports"]
+            }
+        },
+        "/api/imports/{batchId}/mapping": {
+            "post": {
+                "operationId": "ImportsController_map",
+                "parameters": [
+                    {
+                        "name": "batchId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ImportMappingRequestDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/ImportBatchDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Batch is not waiting for a mapping"
+                    },
+                    "412": {
+                        "description": "Batch changed since it was read"
+                    },
+                    "422": {
+                        "description": "A required field is not mapped"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Confirm the column mapping, optionally save it for the organisation, and validate every row",
+                "tags": ["imports"]
+            }
+        },
+        "/api/imports/{batchId}/rows": {
+            "get": {
+                "operationId": "ImportsController_rows",
+                "parameters": [
+                    {
+                        "name": "batchId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "outcome",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": ["valid", "warning", "invalid", "excluded"]
+                        }
+                    },
+                    {
+                        "name": "cursor",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "minimum": 1,
+                            "maximum": 100,
+                            "default": 100,
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/ImportRowPageDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Rows of a batch with their outcome and every issue",
+                "tags": ["imports"]
+            }
+        },
+        "/api/imports/{batchId}/rows/{rowId}": {
+            "post": {
+                "operationId": "ImportsController_updateRow",
+                "parameters": [
+                    {
+                        "name": "batchId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "rowId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ImportRowUpdateDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/ImportRowDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Batch is no longer editable"
+                    },
+                    "412": {
+                        "description": "Row changed since it was read"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Correct a row and re-validate it; clears any batch pricing",
+                "tags": ["imports"]
+            }
+        },
+        "/api/imports/{batchId}/exclusions": {
+            "post": {
+                "operationId": "ImportsController_exclude",
+                "parameters": [
+                    {
+                        "name": "batchId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ImportExcludeRequestDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/ImportBatchDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Batch is no longer editable"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Exclude rows from the batch or bring them back; clears any batch pricing",
+                "tags": ["imports"]
+            }
+        },
+        "/api/imports/{batchId}/price": {
+            "post": {
+                "operationId": "ImportsController_price",
+                "parameters": [
+                    {
+                        "name": "batchId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ImportVersionDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/ImportBatchDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Invalid rows are still included"
+                    },
+                    "412": {
+                        "description": "Batch changed since it was read"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Price every included valid row and split the batch by spend limit",
+                "tags": ["imports"]
+            }
+        },
+        "/api/imports/{batchId}/confirm": {
+            "post": {
+                "operationId": "ImportsController_confirm",
+                "parameters": [
+                    {
+                        "name": "batchId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ImportConfirmRequestDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/ImportBatchDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Quotes expired; price the batch again"
+                    },
+                    "412": {
+                        "description": "Batch changed since it was read"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Create the loads: post, route to approval or save as draft; idempotent by batch",
+                "tags": ["imports"]
+            }
+        },
+        "/api/imports/{batchId}/results": {
+            "get": {
+                "operationId": "ImportsController_results",
+                "parameters": [
+                    {
+                        "name": "batchId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/DownloadLinkDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Batch has not finished"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Download link for the results CSV: every row with its final outcome and load reference",
+                "tags": ["imports"]
+            }
+        },
+        "/api/facilities": {
+            "get": {
+                "operationId": "FacilitiesController_findAll",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/FacilityOptionDto"
+                                                    }
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "The caller organisation's facilities",
+                "tags": ["facilities"]
             }
         }
     },
@@ -2749,6 +3491,10 @@
                     "updatedAt": {
                         "type": "string",
                         "format": "date-time"
+                    },
+                    "importBatchId": {
+                        "type": "string",
+                        "nullable": true
                     }
                 },
                 "required": [
@@ -2762,7 +3508,8 @@
                     "eta",
                     "lastPositionAt",
                     "lastPositionCity",
-                    "updatedAt"
+                    "updatedAt",
+                    "importBatchId"
                 ]
             },
             "LoadPageDto": {
@@ -4624,6 +5371,9 @@
                     },
                     "exceptions": {
                         "type": "boolean"
+                    },
+                    "batch": {
+                        "type": "string"
                     }
                 }
             },
@@ -4715,6 +5465,678 @@
                     "readyAt",
                     "expiresAt"
                 ]
+            },
+            "ImportUploadRequestDto": {
+                "type": "object",
+                "properties": {
+                    "fileName": {
+                        "type": "string",
+                        "maxLength": 200
+                    },
+                    "contentType": {
+                        "type": "string",
+                        "enum": [
+                            "text/csv",
+                            "application/vnd.ms-excel",
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                        ]
+                    },
+                    "sizeBytes": {
+                        "type": "number",
+                        "minimum": 1,
+                        "maximum": 5242880
+                    }
+                },
+                "required": ["fileName", "contentType", "sizeBytes"]
+            },
+            "ImportUploadTicketDto": {
+                "type": "object",
+                "properties": {
+                    "batch": {
+                        "$ref": "#/components/schemas/ImportBatchDto"
+                    },
+                    "uploadUrl": {
+                        "type": "string"
+                    },
+                    "expiresAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": ["batch", "uploadUrl", "expiresAt"]
+            },
+            "ImportColumnDto": {
+                "type": "object",
+                "properties": {
+                    "index": {
+                        "type": "number"
+                    },
+                    "header": {
+                        "type": "string"
+                    },
+                    "samples": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "field": {
+                        "type": "string",
+                        "enum": [
+                            "reference",
+                            "pickupFacility",
+                            "pickupDate",
+                            "pickupTime",
+                            "deliveryFacility",
+                            "deliveryDate",
+                            "deliveryTime",
+                            "equipment",
+                            "commodity",
+                            "weightLb",
+                            "pallets",
+                            "tempMinF",
+                            "tempMaxF",
+                            "hazmat",
+                            "poNumber",
+                            "instructions"
+                        ],
+                        "nullable": true
+                    },
+                    "source": {
+                        "type": "string",
+                        "enum": ["saved", "detected", "none"]
+                    }
+                },
+                "required": ["index", "header", "samples", "field", "source"]
+            },
+            "ImportCountsDto": {
+                "type": "object",
+                "properties": {
+                    "total": {
+                        "type": "number"
+                    },
+                    "valid": {
+                        "type": "number"
+                    },
+                    "warning": {
+                        "type": "number"
+                    },
+                    "invalid": {
+                        "type": "number"
+                    },
+                    "excluded": {
+                        "type": "number"
+                    }
+                },
+                "required": ["total", "valid", "warning", "invalid", "excluded"]
+            },
+            "ImportPricingDto": {
+                "type": "object",
+                "properties": {
+                    "postNow": {
+                        "type": "number"
+                    },
+                    "needsApproval": {
+                        "type": "number"
+                    },
+                    "draft": {
+                        "type": "number"
+                    },
+                    "totalCents": {
+                        "type": "number"
+                    },
+                    "quoteExpiresAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "spendLimitCents": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "unavailable": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "postNow",
+                    "needsApproval",
+                    "draft",
+                    "totalCents",
+                    "quoteExpiresAt",
+                    "spendLimitCents",
+                    "unavailable"
+                ]
+            },
+            "ImportOutcomeDto": {
+                "type": "object",
+                "properties": {
+                    "posted": {
+                        "type": "number"
+                    },
+                    "pendingApproval": {
+                        "type": "number"
+                    },
+                    "draft": {
+                        "type": "number"
+                    },
+                    "rejected": {
+                        "type": "number"
+                    }
+                },
+                "required": ["posted", "pendingApproval", "draft", "rejected"]
+            },
+            "ImportTenderDto": {
+                "type": "object",
+                "properties": {
+                    "strategy": {
+                        "type": "string",
+                        "enum": ["openMarket", "waterfall", "both"]
+                    },
+                    "mode": {
+                        "type": "string",
+                        "enum": ["bid", "bookNow"]
+                    }
+                },
+                "required": ["strategy", "mode"]
+            },
+            "ImportProblemDto": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "enum": [
+                            "unreadable",
+                            "encoding",
+                            "tooManyRows",
+                            "noHeader",
+                            "empty"
+                        ]
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": ["code", "message"]
+            },
+            "ImportBatchDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "fileName": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "awaitingUpload",
+                            "parsing",
+                            "mapping",
+                            "validating",
+                            "review",
+                            "pricing",
+                            "priced",
+                            "confirming",
+                            "completed",
+                            "failed"
+                        ]
+                    },
+                    "progress": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
+                    },
+                    "processed": {
+                        "type": "number"
+                    },
+                    "rowCount": {
+                        "type": "number"
+                    },
+                    "columns": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ImportColumnDto"
+                        }
+                    },
+                    "counts": {
+                        "$ref": "#/components/schemas/ImportCountsDto"
+                    },
+                    "pricing": {
+                        "nullable": true,
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/ImportPricingDto"
+                            }
+                        ]
+                    },
+                    "outcome": {
+                        "nullable": true,
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/ImportOutcomeDto"
+                            }
+                        ]
+                    },
+                    "tender": {
+                        "nullable": true,
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/ImportTenderDto"
+                            }
+                        ]
+                    },
+                    "problem": {
+                        "nullable": true,
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/ImportProblemDto"
+                            }
+                        ]
+                    },
+                    "mappingSaved": {
+                        "type": "boolean"
+                    },
+                    "createdByName": {
+                        "type": "string"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "completedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "version": {
+                        "type": "number"
+                    }
+                },
+                "required": [
+                    "id",
+                    "fileName",
+                    "status",
+                    "progress",
+                    "processed",
+                    "rowCount",
+                    "columns",
+                    "counts",
+                    "pricing",
+                    "outcome",
+                    "tender",
+                    "problem",
+                    "mappingSaved",
+                    "createdByName",
+                    "createdAt",
+                    "completedAt",
+                    "version"
+                ]
+            },
+            "ImportBatchPageDto": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ImportBatchDto"
+                        }
+                    },
+                    "nextCursor": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "required": ["items", "nextCursor"]
+            },
+            "ImportRowValuesDto": {
+                "type": "object",
+                "properties": {
+                    "reference": {
+                        "type": "string",
+                        "maxLength": 500
+                    },
+                    "pickupFacility": {
+                        "type": "string",
+                        "maxLength": 500
+                    },
+                    "pickupDate": {
+                        "type": "string",
+                        "maxLength": 500
+                    },
+                    "pickupTime": {
+                        "type": "string",
+                        "maxLength": 500
+                    },
+                    "deliveryFacility": {
+                        "type": "string",
+                        "maxLength": 500
+                    },
+                    "deliveryDate": {
+                        "type": "string",
+                        "maxLength": 500
+                    },
+                    "deliveryTime": {
+                        "type": "string",
+                        "maxLength": 500
+                    },
+                    "equipment": {
+                        "type": "string",
+                        "maxLength": 500
+                    },
+                    "commodity": {
+                        "type": "string",
+                        "maxLength": 500
+                    },
+                    "weightLb": {
+                        "type": "string",
+                        "maxLength": 500
+                    },
+                    "pallets": {
+                        "type": "string",
+                        "maxLength": 500
+                    },
+                    "tempMinF": {
+                        "type": "string",
+                        "maxLength": 500
+                    },
+                    "tempMaxF": {
+                        "type": "string",
+                        "maxLength": 500
+                    },
+                    "hazmat": {
+                        "type": "string",
+                        "maxLength": 500
+                    },
+                    "poNumber": {
+                        "type": "string",
+                        "maxLength": 500
+                    },
+                    "instructions": {
+                        "type": "string",
+                        "maxLength": 500
+                    }
+                },
+                "required": [
+                    "reference",
+                    "pickupFacility",
+                    "pickupDate",
+                    "pickupTime",
+                    "deliveryFacility",
+                    "deliveryDate",
+                    "deliveryTime",
+                    "equipment",
+                    "commodity",
+                    "weightLb",
+                    "pallets",
+                    "tempMinF",
+                    "tempMaxF",
+                    "hazmat",
+                    "poNumber",
+                    "instructions"
+                ]
+            },
+            "ImportIssueDto": {
+                "type": "object",
+                "properties": {
+                    "field": {
+                        "type": "string",
+                        "enum": [
+                            "reference",
+                            "pickupFacility",
+                            "pickupDate",
+                            "pickupTime",
+                            "deliveryFacility",
+                            "deliveryDate",
+                            "deliveryTime",
+                            "equipment",
+                            "commodity",
+                            "weightLb",
+                            "pallets",
+                            "tempMinF",
+                            "tempMaxF",
+                            "hazmat",
+                            "poNumber",
+                            "instructions"
+                        ],
+                        "nullable": true
+                    },
+                    "severity": {
+                        "type": "string",
+                        "enum": ["error", "warning"]
+                    },
+                    "code": {
+                        "type": "string",
+                        "enum": [
+                            "required",
+                            "format",
+                            "past",
+                            "horizon",
+                            "order",
+                            "facility",
+                            "equipment",
+                            "weight",
+                            "temperature",
+                            "duplicateFile",
+                            "duplicateLoad",
+                            "closeToPickup",
+                            "unpriced"
+                        ]
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "loadId": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "required": ["field", "severity", "code", "message", "loadId"]
+            },
+            "ImportRowDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "line": {
+                        "type": "number"
+                    },
+                    "values": {
+                        "$ref": "#/components/schemas/ImportRowValuesDto"
+                    },
+                    "outcome": {
+                        "type": "string",
+                        "enum": ["valid", "warning", "invalid"]
+                    },
+                    "excluded": {
+                        "type": "boolean"
+                    },
+                    "issues": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ImportIssueDto"
+                        }
+                    },
+                    "pickupFacilityId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "deliveryFacilityId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "priceCents": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "split": {
+                        "type": "string",
+                        "enum": ["postNow", "needsApproval", "draft"],
+                        "nullable": true
+                    },
+                    "loadId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "version": {
+                        "type": "number"
+                    }
+                },
+                "required": [
+                    "id",
+                    "line",
+                    "values",
+                    "outcome",
+                    "excluded",
+                    "issues",
+                    "pickupFacilityId",
+                    "deliveryFacilityId",
+                    "priceCents",
+                    "split",
+                    "loadId",
+                    "version"
+                ]
+            },
+            "ImportRowPageDto": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ImportRowDto"
+                        }
+                    },
+                    "nextCursor": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "counts": {
+                        "$ref": "#/components/schemas/ImportCountsDto"
+                    }
+                },
+                "required": ["items", "nextCursor", "counts"]
+            },
+            "ImportMappingColumnDto": {
+                "type": "object",
+                "properties": {
+                    "index": {
+                        "type": "number"
+                    },
+                    "field": {
+                        "type": "string",
+                        "enum": [
+                            "reference",
+                            "pickupFacility",
+                            "pickupDate",
+                            "pickupTime",
+                            "deliveryFacility",
+                            "deliveryDate",
+                            "deliveryTime",
+                            "equipment",
+                            "commodity",
+                            "weightLb",
+                            "pallets",
+                            "tempMinF",
+                            "tempMaxF",
+                            "hazmat",
+                            "poNumber",
+                            "instructions"
+                        ],
+                        "nullable": true
+                    }
+                },
+                "required": ["index", "field"]
+            },
+            "ImportMappingRequestDto": {
+                "type": "object",
+                "properties": {
+                    "columns": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ImportMappingColumnDto"
+                        }
+                    },
+                    "save": {
+                        "type": "boolean"
+                    },
+                    "version": {
+                        "type": "number"
+                    }
+                },
+                "required": ["columns", "save", "version"]
+            },
+            "ImportRowUpdateDto": {
+                "type": "object",
+                "properties": {
+                    "values": {
+                        "$ref": "#/components/schemas/ImportRowValuesDto"
+                    },
+                    "version": {
+                        "type": "number"
+                    }
+                },
+                "required": ["values", "version"]
+            },
+            "ImportExcludeRequestDto": {
+                "type": "object",
+                "properties": {
+                    "rowIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "minItems": 1,
+                        "maxItems": 500
+                    },
+                    "excluded": {
+                        "type": "boolean"
+                    }
+                },
+                "required": ["rowIds", "excluded"]
+            },
+            "ImportVersionDto": {
+                "type": "object",
+                "properties": {
+                    "version": {
+                        "type": "number"
+                    }
+                },
+                "required": ["version"]
+            },
+            "ImportConfirmRequestDto": {
+                "type": "object",
+                "properties": {
+                    "tender": {
+                        "$ref": "#/components/schemas/ImportTenderDto"
+                    },
+                    "version": {
+                        "type": "number"
+                    }
+                },
+                "required": ["tender", "version"]
+            },
+            "FacilityOptionDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "city": {
+                        "type": "string"
+                    },
+                    "region": {
+                        "type": "string"
+                    }
+                },
+                "required": ["id", "name", "city", "region"]
             }
         }
     }

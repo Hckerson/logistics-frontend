@@ -10,6 +10,7 @@ import { fail, ok } from "@/lib/mocks/http";
 import { EXPORT_RULES } from "@/lib/loads/shipments";
 import { deliveryOf, findLoads, pickupOf } from "@/lib/mocks/load-query";
 import type { MockExport, MockLoad } from "@/lib/types";
+import { csvLine } from "@/lib/utils/csv";
 import { fillTemplate } from "@/lib/utils/fill-template";
 import { exportRequestSchema, loadListQuerySchema } from "@/lib/validations/freight";
 
@@ -27,10 +28,8 @@ const statusOf = (job: MockExport, now: number): ExportJobDto["status"] => {
     return now - job.createdAt < MOCK_EXPORTS.queuedMs ? "queued" : "running";
 };
 
-const cell = (value: string) => (/[",\n]/.test(value) ? `"${value.replaceAll('"', '""')}"` : value);
-
 const rowOf = (load: MockLoad) =>
-    [
+    csvLine([
         load.id,
         load.status,
         MOCK_FACILITIES[pickupOf(load).facility].city,
@@ -39,9 +38,7 @@ const rowOf = (load: MockLoad) =>
         deliveryOf(load).windowStart,
         load.carrier ? MOCK_ORGANISATIONS[load.carrier].name : "",
         load.equipment,
-    ]
-        .map(cell)
-        .join(",");
+    ]);
 
 const csvOf = (job: MockExport) => {
     const loads = freightStore().loads;
