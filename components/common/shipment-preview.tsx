@@ -40,7 +40,7 @@ export default function ShipmentPreview({ load, now }: Props) {
 
     return (
         <div className="flex flex-col gap-3 whitespace-normal">
-            <dl className="grid gap-x-6 gap-y-2.5 sm:grid-cols-2 lg:grid-cols-3">
+            <dl className="grid gap-x-4 gap-y-2.5 sm:grid-cols-2 lg:grid-cols-3">
                 {facts.map((fact) =>
                     fact.value ? (
                         <div key={fact.label} className="flex min-w-0 flex-col gap-0.5">
