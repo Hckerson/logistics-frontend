@@ -74,6 +74,6 @@ export const readRetryDelays = (error: unknown): readonly number[] => {
 };
 
 export const READ_RETRY = {
-    retry: (failureCount: number, error: unknown) => failureCount < readRetryDelays(error).length,
-    retryDelay: (failureCount: number, error: unknown) => readRetryDelays(error)[failureCount] ?? 0,
+    retry: (failureCount: number, error: Error) => failureCount < readRetryDelays(error).length,
+    retryDelay: (failureCount: number, error: Error) => readRetryDelays(error)[failureCount] ?? 0,
 } as const;
