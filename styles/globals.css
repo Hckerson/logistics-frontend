@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "./tokens.css";
 
+@source not "../.claude";
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
