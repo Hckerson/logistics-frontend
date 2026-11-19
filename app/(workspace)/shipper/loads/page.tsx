@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Add } from "@carbon/icons-react";
+import { Add, Upload } from "@carbon/icons-react";
 import ShipmentsBoard from "@/components/common/shipments-board";
 import WorkspaceHeading from "@/components/common/workspace-heading";
 import WorkspacePage from "@/components/common/workspace-page";
@@ -20,6 +20,9 @@ export default async function ShipmentsPage({ searchParams }: Props) {
     return (
         <WorkspacePage>
             <WorkspaceHeading title={SHIPMENTS_COPY.title}>
+                <ButtonLink href={appRoutes.bulkImport()} tone="outline" icon={Upload}>
+                    {SHIPMENTS_COPY.importLoads}
+                </ButtonLink>
                 <ButtonLink href={appRoutes.postLoad()} icon={Add}>
                     {SHIPMENTS_COPY.post}
                 </ButtonLink>

@@ -45,6 +45,7 @@ export const parseShipmentSearch = (raw: SearchParams) => {
         carrier: read("carrier", shape.carrier),
         sort: read("sort", shape.sort),
         view: read("view", shape.view) ?? NO_SHIPMENT_FILTERS.view,
+        batch: read("batch", shape.batch),
     };
     const job = raw.export;
     const exportId = typeof job === "string" && EXPORT_ID.test(job) ? job : null;
@@ -63,7 +64,7 @@ const dateChip = ({ from, to, dateField }: ShipmentFilters) => {
     return to ? fillTemplate(chips.until, { field, to: day(to) }) : null;
 };
 
-export const appliedFilters = (filters: ShipmentFilters, carriers: readonly PartyDto[]): AppliedFilter[] => {
+export const appliedFilters = (filters: ShipmentFilters, carriers: readonly PartyDto[], batchName: string | null): AppliedFilter[] => {
     const entries: [ShipmentParam, string | null][] = [
         ["equipment", filters.equipment.length ? filters.equipment.map((type) => LOAD_COPY.equipment[type]).join(", ") : null],
         ["from", dateChip(filters)],
@@ -72,6 +73,7 @@ export const appliedFilters = (filters: ShipmentFilters, carriers: readonly Part
         ["carrier", filters.carrier && (carriers.find((carrier) => carrier.id === filters.carrier)?.name ?? filters.carrier)],
         ["late", filters.late ? SHIPMENTS_COPY.lateOnly : null],
         ["exceptions", filters.exceptions ? SHIPMENTS_COPY.exceptionsOnly : null],
+        ["batch", filters.batch && fillTemplate(chips.batch, { file: batchName ?? chips.batchUnknown })],
     ];
     return entries.flatMap(([id, label]) => (label ? [{ id, label }] : []));
 };
@@ -84,6 +86,7 @@ const CLEARED: Partial<Record<ShipmentParam, Partial<ShipmentFilters>>> = {
     carrier: { carrier: null },
     late: { late: false },
     exceptions: { exceptions: false },
+    batch: { batch: null },
 };
 
 export const withoutFilter = (id: ShipmentParam): Partial<ShipmentFilters> => CLEARED[id] ?? {};

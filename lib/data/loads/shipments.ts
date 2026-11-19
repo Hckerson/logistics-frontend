@@ -33,7 +33,16 @@ export const SHIPMENTS_COPY = {
     origin: { label: "Origin", placeholder: "Any pickup city" },
     destination: { label: "Destination", placeholder: "Any delivery city" },
     carrier: { label: "Carrier", placeholder: "Any carrier" },
-    chips: { between: "{field} {from} – {to}", since: "{field} from {from}", until: "{field} until {to}", origin: "From {place}", destination: "To {place}" },
+    chips: {
+        between: "{field} {from} – {to}",
+        since: "{field} from {from}",
+        until: "{field} until {to}",
+        origin: "From {place}",
+        destination: "To {place}",
+        batch: "Imported from {file}",
+        batchUnknown: "an import",
+    },
+    importLoads: "Import loads",
     reset: {
         one: "We dropped the {names} filter from this link because its value wasn't valid.",
         other: "We dropped the {names} filters from this link because their values weren't valid.",
@@ -52,6 +61,7 @@ export const SHIPMENTS_COPY = {
         carrier: "carrier",
         sort: "sort",
         view: "view",
+        batch: "import",
     } satisfies Record<ShipmentParam, string>,
     updated: "Updated {age}",
     bulk: {
@@ -126,6 +136,7 @@ export const SHIPMENTS_COPY = {
     empty: {
         none: "No loads yet. Get a price and post your first load.",
         start: "Get a quote",
+        importFile: "Import a file",
         filtered: { one: "No loads match. {count} filter is on.", other: "No loads match. {count} filters are on." },
         clear: "Clear filters",
     },
