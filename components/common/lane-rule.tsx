@@ -6,21 +6,23 @@ import { LANE_DRAW_SECONDS, LANE_RULE, REVEAL_EASE, REVEAL_VIEWPORT } from "@/li
 interface Props {
     state?: "moving" | "settled";
     still?: boolean;
+    at?: number;
     className?: string;
 }
 
 const DOT = "bg-accent absolute top-1/2 block size-2.5 -translate-y-1/2 rounded-full";
-const BAND = `polygon(${LANE_RULE.load}% 50%, 100% ${LANE_RULE.spread}%, 100% ${100 - LANE_RULE.spread}%)`;
+const bandFrom = (load: number) => `polygon(${load}% 50%, 100% ${LANE_RULE.spread}%, 100% ${100 - LANE_RULE.spread}%)`;
 
-export default function LaneRule({ state = "moving", still = false, className }: Props) {
+export default function LaneRule({ state = "moving", still = false, at, className }: Props) {
     const moving = state === "moving";
+    const load = at === undefined ? LANE_RULE.load : Math.min(Math.max(at, 0), 1) * 100;
 
     return (
         <div aria-hidden className={clsx("relative h-10", className)}>
             {moving ? (
                 <motion.span
                     className="bg-accent/20 absolute inset-0 block"
-                    style={{ clipPath: BAND }}
+                    style={{ clipPath: bandFrom(load) }}
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 1 }}
                     viewport={REVEAL_VIEWPORT}
@@ -37,7 +39,7 @@ export default function LaneRule({ state = "moving", still = false, className }:
             <span className={clsx(DOT, "left-0")} />
             {moving ? (
                 <>
-                    <span className={clsx(DOT, "-translate-x-1/2")} style={{ left: `${LANE_RULE.load}%` }} />
+                    <span className={clsx(DOT, "-translate-x-1/2")} style={{ left: `${load}%` }} />
                     <span className="border-accent bg-background absolute top-1/2 right-0 block size-2.5 -translate-y-1/2 rounded-full border-2" />
                 </>
             ) : (

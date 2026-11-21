@@ -163,6 +163,10 @@
     letter-spacing: -0.035em;
 }
 
+@utility haulr-lane {
+    font-stretch: var(--haulr-semi);
+}
+
 @utility haulr-title {
     font-size: var(--haulr-title);
     font-weight: 400;
@@ -457,6 +461,20 @@
 
 @utility haulr-open {
     animation: haulr-panel-in var(--durations-normal) var(--haulr-ease) backwards;
+}
+
+@keyframes haulr-sheet {
+    from {
+        transform: translateY(100%);
+    }
+}
+
+@utility haulr-sheet {
+    animation: haulr-sheet var(--durations-normal) var(--haulr-ease) backwards;
+
+    @media (prefers-reduced-motion: reduce) {
+        animation: haulr-fade var(--durations-fast) var(--haulr-ease) backwards;
+    }
 }
 
 @utility haulr-auth-mask {
