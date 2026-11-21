@@ -1,6 +1,6 @@
 # Phase 8 — Implementation Roadmap
 
-`Haulr Design OS` · `Version 1.3.8` · `2026-11-18` · Previous: [Phase 7 — Frontend Architecture](./phase-7-frontend-architecture.md) · Next: [Phase 9 — QA Checklist](./phase-9-qa-checklist.md)
+`Haulr Design OS` · `Version 1.3.9` · `2026-11-19` · Previous: [Phase 7 — Frontend Architecture](./phase-7-frontend-architecture.md) · Next: [Phase 9 — QA Checklist](./phase-9-qa-checklist.md)
 
 The plan for building Phases 1–7 in 16 weeks (8 two-week sprints), plus the single record of build status for every page, section, interaction contract and flow. Status lives here and nowhere else; the blueprints in Phases 1–7 record intent and are never edited to reflect progress (Critical Rules › Scope Preservation).
 
@@ -260,6 +260,12 @@ A feature with no implementation is **Specified**, not absent. Status is never r
 - **Map decision changed (2026-11-06):** route lines are native MapLibre line layers under the labels; deck.gl stays a non-interleaved overlay for stops, trucks and the fleet, because deck.gl 9.4's interleaved mode crashes against MapLibre 6 (Phase 7 §15).
 - **Still open:** shipper roles still land on the `/dashboard` holding page rather than PG-26 (§16 interim behaviour); SC-01.3 has no stats mock; the 128-character password maximum is not enforced; IC-07 has single select only; document preview (IC-58) and drag and drop (IC-40, IC-68) are not built.
 
+**Update 2026-11-19:**
+
+- **Bulk Load Import built ahead** (PG-56, SC-56.1 … SC-56.4, IC-61, XF-14) at `shipper/loads/import`: file upload, column mapping with a column dictionary, row review and correction, batch pricing and confirmation, progress, results and batch history, and a downloadable template. Shipments filters by import batch (`?batch=`) and links to the import. Route handlers under `app/api/imports/` and `app/api/facilities`, seven Server Actions, `use-bulk-import.ts` and `use-import-actions.ts`; the mock parses spreadsheets with `read-excel-file` (Phase 7 §15).
+- **Status catch-up:** XS-07 (help and support ticket) is In progress. Its public pages PG-06 … PG-08 were recorded in 1.3.4 but the flow was missed. A flow is In progress once the page it starts on is built.
+- **Still open on PG-56:** the owner's review of the page is pending; saved column mappings (`useImportMappings`) are not built.
+
 ### 9.2 Flows
 
 | ID | Status | Stage or sprint | ID | Status | Stage or sprint |
@@ -277,8 +283,8 @@ A feature with no implementation is **Specified**, not absent. Status is never r
 | XF-11 | Specified | S6 (team plan) | XS-03 | Specified | S7 (team plan) |
 | XF-12 | Specified | S2, S4 (team plan) | XS-04 | Specified | S7 (team plan) |
 | XF-13 | Specified | S2 (team plan) | XS-05 | Specified | S7 (team plan) |
-| XF-14 | Specified | S3–S4 (team plan) | XS-06 | Specified | S6 (team plan) |
-| XF-15 | Specified | S5 (team plan) | XS-07 | Specified | S7 (team plan) |
+| XF-14 | In progress | Built ahead (S3–S4 team plan) | XS-06 | Specified | S6 (team plan) |
+| XF-15 | Specified | S5 (team plan) | XS-07 | In progress | Built ahead (S7 team plan) |
 | XF-16 | Specified | S4 (team plan) | XS-08 | Specified | S6 (team plan) |
 | XF-17 | Scheduled | Solo 3 | XS-09 | Specified | S4 (team plan) |
 | | | | XS-10 | In progress | Built ahead (Solo 5) |
@@ -320,7 +326,7 @@ Size: **S** ≈ 2 engineer-days, **M** ≈ 5, **L** ≈ 10, **XL** ≈ 15, exclu
 | PG-21 | Operations Dashboard | M | Specified | S8 (team plan) | PG-53 | Not Found | S | In progress | Solo 1 |
 | PG-22 | Compliance Dashboard | S | Specified | S4 (team plan) | PG-54 | Server Error | S | In progress | Solo 1 |
 | PG-23 | Finance Operations Dashboard | M | Specified | S6, S8 (team plan) | PG-55 | Access Denied | S | In progress | Solo 1 |
-| PG-24 | Support Console | L | Specified | S8 (team plan) | PG-56 | Bulk Load Import | L | Specified | S4 (team plan) |
+| PG-24 | Support Console | L | Specified | S8 (team plan) | PG-56 | Bulk Load Import | L | In progress | Built ahead (S4 team plan) |
 | PG-25 | Admin Dashboard | M | Specified | S8 (team plan) | PG-57 | Templates and Recurring Loads | M | Specified | S3 (team plan) |
 | PG-26 | Shipments | L | In progress | Solo 2 | PG-58 | Approvals | M | Specified | S4 (team plan) |
 | PG-27 | Post a Load | XL | Scheduled | Solo 5 | PG-59 | Reports | L | Specified | S7 (team plan) |
@@ -344,6 +350,7 @@ Each section appears once. Where a group of sections shares one status and stage
 | SC-09.1 | In progress | Built ahead (S2 team plan) |
 | SC-15.1, SC-15.2 | In progress | Built ahead (S1 team plan) |
 | SC-26.3 | In progress | Built ahead (S5 team plan) |
+| SC-56.1 … SC-56.4 | In progress | Built ahead (S4 team plan) |
 | SC-06.1 … SC-06.3, SC-07.1 … SC-07.3, SC-08.1, SC-08.2 | In progress | Built ahead (S7 team plan) |
 | SC-01.3 | Scheduled | Solo 1 |
 | SC-40.5, SC-65.1 … SC-65.4, SH-06, SH-15 | Scheduled | Solo 3 |
@@ -353,7 +360,7 @@ Each section appears once. Where a group of sections shares one status and stage
 | SC-31.1 … SC-31.3 | Scheduled | Solo 7 |
 | SC-10.3, SC-16.1 … SC-16.4, SC-17.1 … SC-17.6, SC-46.1, SC-46.2, SC-47.1, SC-47.2, SC-48.1 … SC-48.3, SC-60.1 … SC-60.5 | Specified | S2 (team plan) |
 | SC-27.7, SC-32.1, SC-32.2, SC-57.1 … SC-57.3, SC-66.1 … SC-66.3 | Specified | S3 (team plan) |
-| SC-03.1 … SC-03.3, SC-04.1, SC-04.2, SC-22.1 … SC-22.3, SC-28.1 … SC-28.4, SC-29.1, SC-29.2, SC-33.4, SC-35.1, SC-36.1, SC-36.2, SC-40.17, SC-48.4, SC-51.1 … SC-51.5, SC-56.1 … SC-56.4, SC-58.1 … SC-58.4, SH-09 | Specified | S4 (team plan) |
+| SC-03.1 … SC-03.3, SC-04.1, SC-04.2, SC-22.1 … SC-22.3, SC-28.1 … SC-28.4, SC-29.1, SC-29.2, SC-33.4, SC-35.1, SC-36.1, SC-36.2, SC-40.17, SC-48.4, SC-51.1 … SC-51.5, SC-58.1 … SC-58.4, SH-09 | Specified | S4 (team plan) |
 | SC-35.2, SC-37.1, SC-37.2, SC-39.4, SC-40.12, SC-40.16, SC-64.1 … SC-64.4 | Specified | S5 (team plan) |
 | SC-23.1, SC-30.1 … SC-30.3, SC-31.4, SC-38.1 … SC-38.4, SC-40.9, SC-40.13, SC-43.1, SC-43.2, SC-44.1, SC-44.2, SC-45.1 … SC-45.4, SC-49.1 … SC-49.3, SC-62.1, SC-62.2, SC-63.1, SC-63.2, SH-11 | Specified | S6 (team plan) |
 | SC-18.1 … SC-18.5, SC-19.1 … SC-19.5, SC-40.11, SC-40.14, SC-41.1, SC-41.2, SC-42.1, SC-42.2, SC-47.3, SC-59.1 … SC-59.3, SC-61.1 … SC-61.3, SH-04, SH-07, SH-08, SH-10, SH-12 | Specified | S7 (team plan) |
@@ -368,6 +375,7 @@ Check: 15 shared + 223 page sections = 238, matching [Phase 5 §13](./phase-5-se
 | IC-01, IC-02, IC-03, IC-04, IC-09, IC-11, IC-12, IC-14, IC-19, IC-38, IC-41, IC-44, IC-46, IC-52, IC-55, IC-59, IC-60, IC-67 | In progress | Solo 1 |
 | IC-05, IC-07, IC-08, IC-10, IC-20, IC-21, IC-22, IC-24, IC-30, IC-32, IC-56 | In progress | Solo 2 |
 | IC-23, IC-57 | In progress | Built ahead (S3 team plan) |
+| IC-61 | In progress | Built ahead (S4 team plan) |
 | IC-65 | In progress | Built ahead (S6 team plan) |
 | IC-16, IC-36, IC-45, IC-50, IC-53, IC-54 | In progress | Built ahead (S7 team plan) |
 | IC-49 | In progress | Built ahead (S8 team plan) |
@@ -379,13 +387,13 @@ Check: 15 shared + 223 page sections = 238, matching [Phase 5 §13](./phase-5-se
 | IC-26, IC-27 | Scheduled | Solo 6 |
 | IC-43 | Scheduled | Solo 7 |
 | IC-13, IC-63 | Specified | S2 (team plan) |
-| IC-28, IC-33, IC-34, IC-61, IC-62 | Specified | S4 (team plan) |
+| IC-28, IC-33, IC-34, IC-62 | Specified | S4 (team plan) |
 | IC-66 | Specified | S5 (team plan) |
 | IC-42 | Specified | S6 (team plan) |
 | IC-17, IC-35, IC-37 | Specified | S7 (team plan) |
 | IC-47, IC-48, IC-64 | Specified | S8 (team plan) |
 
-In progress contracts build on existing files, all in `components/ui/` unless named otherwise: IC-01 `input.tsx` and `field.tsx`, IC-02 `error-summary.tsx`, IC-03 `board-field.tsx` (reveal) with `use-caps-lock.ts`, IC-04 `code-step.tsx`, IC-05 `combobox.tsx` (the estimator's `location-field.tsx` is still hand-built), IC-07 `select.tsx` (single select; multi-select remains), IC-08 `date-field.tsx`, `date-range-field.tsx` and `calendar-panel.tsx` with the 15-minute step, IC-09 `radio-group.tsx`, IC-10 `check-call.tsx`, IC-11 `button.tsx`, IC-12 `confirm-dialog.tsx` and `reason-dialog.tsx`, IC-14 `announcer-provider.tsx`, IC-16 `tabs.tsx`, IC-19 `search-field.tsx`, IC-20 `shipments-filter-panel.tsx` with `filter-chip.tsx`, IC-21 `pagination.tsx`, IC-22 `data-table.tsx`, IC-23 `table-bulk-bar.tsx` with `use-row-selection.ts`, IC-24 `file-drop.tsx` with `document-upload.tsx`, IC-30 `freight-map.tsx`, IC-32 `disclosure.tsx`, IC-36 `switch.tsx`, IC-38 `consent-check.tsx`, IC-41 `dialog.tsx` and `drawer.tsx`, IC-44 `copy-button.tsx` and `share-link.tsx`, IC-45 `trend-chart.tsx` with `trend-table.tsx`, IC-46 `countdown.tsx`, IC-49 `use-shortcut.ts` (the quick-find shortcut only), IC-50 `quick-find.tsx`, IC-52 `skip-link.tsx`, IC-53 `notification-bell.tsx`, IC-54 `session-timeout.tsx`, IC-55 `connectivity-bar.tsx`, IC-56 `toggletip.tsx`, IC-57 `menu.tsx`, IC-59 `status-label.tsx` and `status-lane.tsx`, IC-60 `section-failure.tsx`, IC-65 `shipments-export-dialog.tsx`, IC-67 `stop-instructions.tsx` (version check on save).
+In progress contracts build on existing files, all in `components/ui/` unless named otherwise: IC-01 `input.tsx` and `field.tsx`, IC-02 `error-summary.tsx`, IC-03 `board-field.tsx` (reveal) with `use-caps-lock.ts`, IC-04 `code-step.tsx`, IC-05 `combobox.tsx` (the estimator's `location-field.tsx` is still hand-built), IC-07 `select.tsx` (single select; multi-select remains), IC-08 `date-field.tsx`, `date-range-field.tsx` and `calendar-panel.tsx` with the 15-minute step, IC-09 `radio-group.tsx`, IC-10 `check-call.tsx`, IC-11 `button.tsx`, IC-12 `confirm-dialog.tsx` and `reason-dialog.tsx`, IC-14 `announcer-provider.tsx`, IC-16 `tabs.tsx`, IC-19 `search-field.tsx`, IC-20 `shipments-filter-panel.tsx` with `filter-chip.tsx`, IC-21 `pagination.tsx`, IC-22 `data-table.tsx`, IC-23 `table-bulk-bar.tsx` with `use-row-selection.ts`, IC-24 `file-drop.tsx` with `document-upload.tsx`, IC-30 `freight-map.tsx`, IC-32 `disclosure.tsx`, IC-36 `switch.tsx`, IC-38 `consent-check.tsx`, IC-41 `dialog.tsx` and `drawer.tsx`, IC-44 `copy-button.tsx` and `share-link.tsx`, IC-45 `trend-chart.tsx` with `trend-table.tsx`, IC-46 `countdown.tsx`, IC-49 `use-shortcut.ts` (the quick-find shortcut only), IC-50 `quick-find.tsx`, IC-52 `skip-link.tsx`, IC-53 `notification-bell.tsx`, IC-54 `session-timeout.tsx`, IC-55 `connectivity-bar.tsx`, IC-56 `toggletip.tsx`, IC-57 `menu.tsx`, IC-59 `status-label.tsx` and `status-lane.tsx`, IC-60 `section-failure.tsx`, IC-61 `import-intake.tsx` with `import-mapping.tsx`, IC-65 `shipments-export-dialog.tsx`, IC-67 `stop-instructions.tsx` (version check on save).
 
 Check: 68 contracts, matching [Phase 6 §13](./phase-6-interaction-contracts.md#13-contract-usage-index).
 
