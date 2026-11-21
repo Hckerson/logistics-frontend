@@ -12,8 +12,12 @@ export const CAPABILITY_ROLES = {
     editStopInstructions: ["shipper.member", "shipper.admin"],
     assignLoad: ["carrier.dispatcher", "carrier.admin", "internal.ops"],
     planFleet: ["carrier.dispatcher", "carrier.admin"],
+    bookLoad: ["carrier.dispatcher", "carrier.admin"],
+    readFleetPlan: ["carrier.dispatcher", "carrier.admin", "internal.ops"],
     importLoads: ["shipper.member", "shipper.admin"],
+    postLoads: ["shipper.member", "shipper.admin"],
     viewImports: ["shipper.member", "shipper.admin", "internal.support"],
+    payInvoices: ["shipper.finance", "shipper.admin"],
 } as const satisfies Record<string, readonly RoleKey[]>;
 
 export type Capability = keyof typeof CAPABILITY_ROLES;

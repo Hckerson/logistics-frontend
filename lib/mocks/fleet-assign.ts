@@ -1,11 +1,12 @@
 import { can } from "@/lib/auth/capabilities";
 import { HTTP_STATUS } from "@/lib/constants";
-import type { FleetOptionDto } from "@/lib/contract/schemas";
+import type { FleetOptionDto, FleetSuggestionDto } from "@/lib/contract/schemas";
 import { LOAD_COPY } from "@/lib/data/loads/copy";
 import { MOCK_FACILITIES } from "@/lib/data/mocks/facilities";
 import { assignmentDeadline } from "@/lib/fleet/time";
 import { carrierLoads, driverName, movable, overlaps, spanOf } from "@/lib/mocks/fleet-entries";
 import { fleetStore } from "@/lib/mocks/fleet-store";
+import { freightStore } from "@/lib/mocks/freight-store";
 import { FREIGHT_MESSAGES, loadMissing, recordEvent, staleLoad, visibleLoad, withCaller, type MockCaller } from "@/lib/mocks/freight-access";
 import { fail, ok } from "@/lib/mocks/http";
 import { toLoadDetail } from "@/lib/mocks/load-views";
@@ -58,6 +59,19 @@ const trucksFor = (load: MockLoad): FleetOptionDto[] =>
             return { id: truck.id, label: `Unit ${truck.unit}`, detail: driverName(truck.driver), eligible: reason === null, reason };
         });
 
+const fits = (options: readonly FleetOptionDto[], id: string | null | undefined) => options.some((option) => option.id === id && option.eligible);
+
+const suggestionFor = (load: MockLoad, drivers: readonly FleetOptionDto[], trucks: readonly FleetOptionDto[]): FleetSuggestionDto | null => {
+    const usedAt = (other: MockLoad) => Date.parse(other.assignedAt ?? other.createdAt);
+    const recent = [...freightStore().loads.values()]
+        .filter((other) => other.id !== load.id && other.carrier === load.carrier && other.driver && other.truck)
+        .filter((other) => other.driver !== load.driver || other.truck !== load.truck)
+        .sort((first, second) => usedAt(second) - usedAt(first))
+        .find((other) => fits(drivers, other.driver) && fits(trucks, other.truck));
+    if (!recent?.driver || !recent.truck) return null;
+    return { driverId: recent.driver, truckId: recent.truck, loadId: recent.id, assignedAt: recent.assignedAt ?? recent.createdAt };
+};
+
 const deadlineOf = (load: MockLoad) => new Date(assignmentDeadline(load.stops[0].windowStart)).toISOString();
 
 const assignable = (caller: MockCaller, loadId: string) => {
@@ -68,13 +82,15 @@ const assignable = (caller: MockCaller, loadId: string) => {
 export const fleetOptions = withCaller(({ path }, { loadId }, caller) => {
     const load = assignable(caller, loadId);
     if (!load) return loadMissing(path);
+    const drivers = driversFor(load);
+    const trucks = trucksFor(load);
     return ok(HTTP_STATUS.ok, {
-        drivers: driversFor(load),
-        trucks: trucksFor(load),
+        drivers,
+        trucks,
         driverId: load.driver,
         truckId: load.truck ?? null,
         deadline: movable(load.status) ? deadlineOf(load) : null,
-        suggestion: null,
+        suggestion: suggestionFor(load, drivers, trucks),
         version: load.version,
         timeZone: zoneOf(load),
         reassign: load.driver !== null && Boolean(load.truck),

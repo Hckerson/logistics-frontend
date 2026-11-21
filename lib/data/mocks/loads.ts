@@ -127,6 +127,50 @@ const CURRENT_LOADS: readonly MockLoadSpec[] = [
         ...northline, carrier: "ridgeway", id: "HL-9TQ3VD6J", status: "Booked", equipment: "flatbed", commodity: "Rebar", weightLb: 46000, priceCents: 154000, payCents: 132000, ageHours: 22,
         stops: [{ facility: "den", type: "pickup", opensIn: 1 }, { facility: "slc", type: "delivery", opensIn: 14 }],
     },
+    {
+        ...northline, id: "HL-4XN7TD2Q", status: "Posted", equipment: "dry-van", commodity: "Paper goods", weightLb: 31200, pallets: 22, priceCents: 152000, payCents: 129000, ageHours: 5,
+        stops: [{ facility: "atl", type: "pickup", opensIn: 30 }, { facility: "nsh", type: "delivery", opensIn: 36 }],
+    },
+    {
+        ...northline, id: "HL-7QH3WL9P", status: "Posted", equipment: "reefer", commodity: "Fresh produce", weightLb: 38400, pallets: 20, tempF: [34, 38], priceCents: 268000, payCents: 228000, ageHours: 4,
+        stops: [{ facility: "atl", type: "pickup", opensIn: 50 }, { facility: "mia", type: "delivery", opensIn: 60 }],
+    },
+    {
+        ...northline, id: "HL-2ZM8KV5R", status: "Posted", equipment: "dry-van", commodity: "Housewares", weightLb: 24600, pallets: 18, priceCents: 88000, payCents: 74000, ageHours: 3,
+        stops: [{ facility: "dal", type: "pickup", opensIn: 26 }, { facility: "hou", type: "delivery", opensIn: 31 }],
+    },
+    {
+        ...northline, id: "HL-8LB4NX7T", status: "Posted", equipment: "dry-van", commodity: "Auto parts", weightLb: 40100, pallets: 24, priceCents: 198000, payCents: 168000, ageHours: 8,
+        stops: [{ facility: "dal", type: "pickup", opensIn: 40 }, { facility: "kci", type: "delivery", opensIn: 49 }],
+    },
+    {
+        ...northline, id: "HL-5WR9JC3M", status: "Posted", equipment: "dry-van", commodity: "Canned goods", weightLb: 42800, pallets: 26, priceCents: 154000, payCents: 131000, ageHours: 2,
+        stops: [{ facility: "nol", type: "pickup", opensIn: 20 }, { facility: "mem", type: "delivery", opensIn: 27 }],
+    },
+    {
+        ...northline, id: "HL-6PD2QS8V", status: "Posted", equipment: "dry-van", commodity: "Packaged beverages", weightLb: 43500, pallets: 26, priceCents: 124000, payCents: 105000, ageHours: 6,
+        stops: [{ facility: "det", type: "pickup", opensIn: 28 }, { facility: "chi", type: "delivery", opensIn: 34 }],
+    },
+    {
+        ...northline, id: "HL-3HV7RB4K", status: "Posted", equipment: "reefer", commodity: "Dairy", weightLb: 36200, pallets: 20, tempF: [33, 36], priceCents: 142000, payCents: 121000, ageHours: 3,
+        stops: [{ facility: "phx", type: "pickup", opensIn: 30 }, { facility: "las", type: "delivery", opensIn: 36 }],
+    },
+    {
+        ...northline, id: "HL-9CJ5MF2W", status: "Posted", equipment: "flatbed", commodity: "Lumber", weightLb: 45000, priceCents: 231000, payCents: 196000, ageHours: 7,
+        stops: [{ facility: "slc", type: "pickup", opensIn: 34 }, { facility: "den", type: "delivery", opensIn: 43 }],
+    },
+    {
+        ...northline, id: "HL-7MT3GZ6N", status: "Posted", equipment: "dry-van", commodity: "Electronics", weightLb: 21800, pallets: 16, priceCents: 142000, payCents: 121000, ageHours: 1,
+        stops: [{ facility: "chi", type: "pickup", opensIn: 22 }, { facility: "stl", type: "delivery", opensIn: 28 }],
+    },
+    {
+        ...northline, id: "HL-4KR8YP3D", status: "Posted", equipment: "dry-van", commodity: "Pharmaceuticals", weightLb: 14200, pallets: 12, priceCents: 205000, payCents: 174000, ageHours: 4,
+        stops: [{ facility: "chi", type: "pickup", opensIn: 46 }, { facility: "det", type: "delivery", opensIn: 53 }],
+    },
+    {
+        ...northline, id: "HL-2JS6WD9H", status: "Posted", equipment: "flatbed", commodity: "Steel coil", weightLb: 44500, priceCents: 176000, payCents: 150000, ageHours: 2,
+        stops: [{ facility: "den", type: "pickup", opensIn: 18 }, { facility: "oma", type: "delivery", opensIn: 27 }],
+    },
 ];
 
 export const MOCK_LOADS: readonly MockLoadSpec[] = [...CURRENT_LOADS, ...MOCK_LOAD_HISTORY];

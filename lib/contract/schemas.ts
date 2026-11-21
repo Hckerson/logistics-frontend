@@ -119,6 +119,113 @@ export type PeriodSeriesResponseDto = z.infer<
     typeof periodSeriesResponseDtoSchema
 >;
 
+export const draftStopDtoSchema = z.object({
+    facilityId: z.string(),
+    type: z.enum(["pickup", "delivery"]),
+    windowStart: z.string(),
+    windowEnd: z.string(),
+    reference: z.string().nullable(),
+    instructions: z.string().nullable(),
+});
+export type DraftStopDto = z.infer<typeof draftStopDtoSchema>;
+
+export const draftFreightDtoSchema = z.object({
+    equipment: z.enum(["dry-van", "reefer", "flatbed"]),
+    commodity: z.string(),
+    weightLb: z.number(),
+    pallets: z.number().nullable(),
+    tempMinF: z.number().nullable(),
+    tempMaxF: z.number().nullable(),
+    hazmat: z.boolean(),
+    unNumber: z.string().nullable(),
+    requirements: z.array(
+        z.enum(["team", "liftgate", "tarps", "driverAssist"]),
+    ),
+    poNumber: z.string().nullable(),
+});
+export type DraftFreightDto = z.infer<typeof draftFreightDtoSchema>;
+
+export const loadDraftRequestDtoSchema = z.object({
+    stops: z.array(draftStopDtoSchema),
+    freight: draftFreightDtoSchema.nullable(),
+});
+export type LoadDraftRequestDto = z.infer<typeof loadDraftRequestDtoSchema>;
+
+export const loadDraftUpdateDtoSchema = z.object({
+    version: z.number(),
+    stops: z.array(draftStopDtoSchema),
+    freight: draftFreightDtoSchema.nullable(),
+});
+export type LoadDraftUpdateDto = z.infer<typeof loadDraftUpdateDtoSchema>;
+
+export const quoteApprovalDtoSchema = z.object({
+    required: z.boolean(),
+    limitCents: z.number().nullable(),
+    approvers: z.array(z.string()),
+});
+export type QuoteApprovalDto = z.infer<typeof quoteApprovalDtoSchema>;
+
+export const chargeDtoSchema = z.object({
+    kind: z.enum([
+        "linehaul",
+        "fuel",
+        "accessorial",
+        "fee",
+        "deduction",
+        "quickPayFee",
+    ]),
+    amountCents: z.number(),
+    status: z.enum(["agreed", "pendingApproval", "disputed"]),
+});
+export type ChargeDto = z.infer<typeof chargeDtoSchema>;
+
+export const moneyDtoSchema = z.object({
+    totalCents: z.number(),
+    currency: z.string(),
+    pending: z.boolean(),
+    parts: z.array(chargeDtoSchema),
+});
+export type MoneyDto = z.infer<typeof moneyDtoSchema>;
+
+export const loadQuoteDtoSchema = z.object({
+    id: z.string(),
+    price: moneyDtoSchema,
+    miles: z.number(),
+    confidence: z.enum(["high", "medium", "low"]),
+    validUntil: z.string(),
+    approval: quoteApprovalDtoSchema,
+});
+export type LoadQuoteDto = z.infer<typeof loadQuoteDtoSchema>;
+
+export const loadDraftDtoSchema = z.object({
+    id: z.string(),
+    version: z.number(),
+    stops: z.array(draftStopDtoSchema),
+    freight: draftFreightDtoSchema.nullable(),
+    quote: loadQuoteDtoSchema.nullable(),
+    updatedAt: z.string(),
+});
+export type LoadDraftDto = z.infer<typeof loadDraftDtoSchema>;
+
+export const loadQuoteRequestDtoSchema = z.object({ version: z.number() });
+export type LoadQuoteRequestDto = z.infer<typeof loadQuoteRequestDtoSchema>;
+
+export const postLoadRequestDtoSchema = z.object({
+    version: z.number(),
+    quoteId: z.string(),
+    idempotencyKey: z.string(),
+    note: z.string().nullable(),
+});
+export type PostLoadRequestDto = z.infer<typeof postLoadRequestDtoSchema>;
+
+export const postLoadResultDtoSchema = z.object({
+    loadId: z.string(),
+    status: z.enum(["Posted", "PendingApproval"]),
+    approvers: z.array(z.string()),
+    decideBy: z.string().nullable(),
+});
+export type PostLoadResultDto = z.infer<typeof postLoadResultDtoSchema>;
+
 export const partyDtoSchema = z.object({ id: z.string(), name: z.string() });
 export type PartyDto = z.infer<typeof partyDtoSchema>;
 
@@ -231,28 +338,6 @@ export const stopDtoSchema = z.object({
 });
 export type StopDto = z.infer<typeof stopDtoSchema>;
 
-export const chargeDtoSchema = z.object({
-    kind: z.enum([
-        "linehaul",
-        "fuel",
-        "accessorial",
-        "fee",
-        "deduction",
-        "quickPayFee",
-    ]),
-    amountCents: z.number(),
-    status: z.enum(["agreed", "pendingApproval", "disputed"]),
-});
-export type ChargeDto = z.infer<typeof chargeDtoSchema>;
-
-export const moneyDtoSchema = z.object({
-    totalCents: z.number(),
-    currency: z.string(),
-    pending: z.boolean(),
-    parts: z.array(chargeDtoSchema),
-});
-export type MoneyDto = z.infer<typeof moneyDtoSchema>;
-
 export const loadAssignmentDtoSchema = z.object({
     driverId: z.string().nullable(),
     driverName: z.string(),
@@ -303,6 +388,7 @@ export const loadDtoSchema = z.object({
     carrierPay: moneyDtoSchema.nullable(),
     createdAt: z.string(),
     updatedAt: z.string(),
+    invoiceId: z.string().nullable(),
 });
 export type LoadDto = z.infer<typeof loadDtoSchema>;
 
@@ -771,6 +857,123 @@ export const recommendedLoadDtoSchema = z.object({
     rateCents: z.number(),
 });
 export type RecommendedLoadDto = z.infer<typeof recommendedLoadDtoSchema>;
+
+export const loadBoardPlaceDtoSchema = z.object({
+    city: z.string(),
+    region: z.string(),
+    latitude: z.number(),
+    longitude: z.number(),
+});
+export type LoadBoardPlaceDto = z.infer<typeof loadBoardPlaceDtoSchema>;
+
+export const loadBoardItemDtoSchema = z.object({
+    loadId: z.string(),
+    version: z.number(),
+    origin: loadBoardPlaceDtoSchema,
+    destination: loadBoardPlaceDtoSchema,
+    pickupStart: z.string(),
+    pickupEnd: z.string(),
+    deliveryStart: z.string(),
+    deliveryEnd: z.string(),
+    timeZone: z.string(),
+    equipment: z.enum(["dry-van", "reefer", "flatbed"]),
+    commodity: z.string(),
+    weightLb: z.number(),
+    tempMinF: z.number().nullable(),
+    tempMaxF: z.number().nullable(),
+    hazmat: z.boolean(),
+    carrierPayCents: z.number(),
+    currency: z.string(),
+    miles: z.number(),
+    ratePerMileCents: z.number(),
+    deadheadMiles: z.number().nullable(),
+});
+export type LoadBoardItemDto = z.infer<typeof loadBoardItemDtoSchema>;
+
+export const loadBoardPageDtoSchema = z.object({
+    items: z.array(loadBoardItemDtoSchema),
+    total: z.number(),
+    nextCursor: z.string().nullable(),
+    origin: loadBoardPlaceDtoSchema.nullable(),
+    checkedAt: z.string(),
+});
+export type LoadBoardPageDto = z.infer<typeof loadBoardPageDtoSchema>;
+
+export const bookingCheckDtoSchema = z.object({
+    key: z.enum(["standing", "insurance", "equipment", "availability"]),
+    passed: z.boolean(),
+    detail: z.string(),
+    fix: z.enum(["onboarding", "documents", "fleet", "loadBoard"]).nullable(),
+});
+export type BookingCheckDto = z.infer<typeof bookingCheckDtoSchema>;
+
+export const bookingTermsDtoSchema = z.object({
+    detentionFreeHours: z.number(),
+    detentionCentsPerHour: z.number(),
+    layoverCentsPerDay: z.number(),
+    tonuCents: z.number(),
+    cancellationNoticeHours: z.number(),
+});
+export type BookingTermsDto = z.infer<typeof bookingTermsDtoSchema>;
+
+export const rateConfirmationSectionDtoSchema = z.object({
+    heading: z.string(),
+    body: z.string(),
+});
+export type RateConfirmationSectionDto = z.infer<
+    typeof rateConfirmationSectionDtoSchema
+>;
+
+export const rateConfirmationDtoSchema = z.object({
+    version: z.number(),
+    fileName: z.string(),
+    issuedAt: z.string(),
+    sections: z.array(rateConfirmationSectionDtoSchema),
+});
+export type RateConfirmationDto = z.infer<typeof rateConfirmationDtoSchema>;
+
+export const loadBookingDtoSchema = z.object({
+    loadId: z.string(),
+    version: z.number(),
+    status: z.string(),
+    shipperName: z.string(),
+    stops: z.array(stopDtoSchema),
+    equipment: z.enum(["dry-van", "reefer", "flatbed"]),
+    commodity: z.string(),
+    weightLb: z.number(),
+    pallets: z.number().nullable(),
+    tempMinF: z.number().nullable(),
+    tempMaxF: z.number().nullable(),
+    hazmat: z.boolean(),
+    insuranceMinCents: z.number(),
+    carrierPay: moneyDtoSchema,
+    miles: z.number(),
+    ratePerMileCents: z.number(),
+    terms: bookingTermsDtoSchema,
+    rateConfirmation: rateConfirmationDtoSchema,
+    checks: z.array(bookingCheckDtoSchema),
+    bookable: z.boolean(),
+});
+export type LoadBookingDto = z.infer<typeof loadBookingDtoSchema>;
+
+export const bookLoadDtoSchema = z.object({
+    idempotencyKey: z.string(),
+    version: z.number(),
+    rateConfirmationVersion: z.number(),
+    signerName: z.string(),
+    attested: z.boolean(),
+});
+export type BookLoadDto = z.infer<typeof bookLoadDtoSchema>;
+
+export const loadBookedDtoSchema = z.object({
+    loadId: z.string(),
+    status: z.string(),
+    rateConfirmationVersion: z.number(),
+    acceptedAt: z.string(),
+    assignmentDeadline: z.string(),
+    timeZone: z.string(),
+});
+export type LoadBookedDto = z.infer<typeof loadBookedDtoSchema>;
 
 export const loadCancellationDtoSchema = z.object({
     tonu: moneyDtoSchema.nullable(),
@@ -1630,5 +1833,148 @@ export const facilityOptionDtoSchema = z.object({
     name: z.string(),
     city: z.string(),
     region: z.string(),
+    line1: z.string(),
+    postalCode: z.string(),
+    timeZone: z.string(),
 });
 export type FacilityOptionDto = z.infer<typeof facilityOptionDtoSchema>;
+
+export const networkStatsDtoSchema = z.object({
+    approvedCarriers: z.number(),
+    loadsDelivered: z.number(),
+    onTimeRate: z.number(),
+    periodStart: z.string(),
+    periodEnd: z.string(),
+    computedAt: z.string(),
+});
+export type NetworkStatsDto = z.infer<typeof networkStatsDtoSchema>;
+
+export const standingBlockerDtoSchema = z.object({
+    id: z.string(),
+    type: z.enum([
+        "onboardingIncomplete",
+        "complianceHold",
+        "insuranceExpiring",
+        "insuranceLapsed",
+        "authorityInactive",
+        "paymentMethodMissing",
+        "paymentMethodFailed",
+        "creditLimitReached",
+        "payoutMethodFailed",
+    ]),
+    severity: z.enum(["blocking", "warning"]),
+    capabilities: z.array(z.enum(["book", "bid", "post", "pay"])),
+    effectiveAt: z.string().nullable(),
+    fix: z
+        .enum([
+            "shipperOnboarding",
+            "carrierOnboarding",
+            "billing",
+            "compliance",
+        ])
+        .nullable(),
+});
+export type StandingBlockerDto = z.infer<typeof standingBlockerDtoSchema>;
+
+export const organisationStandingDtoSchema = z.object({
+    organisation: partyDtoSchema,
+    blockers: z.array(standingBlockerDtoSchema),
+    checkedAt: z.string(),
+});
+export type OrganisationStandingDto = z.infer<
+    typeof organisationStandingDtoSchema
+>;
+
+export const invoiceEvidenceDtoSchema = z.object({
+    documentId: z.string(),
+    label: z.string(),
+});
+export type InvoiceEvidenceDto = z.infer<typeof invoiceEvidenceDtoSchema>;
+
+export const invoiceLineDtoSchema = z.object({
+    id: z.string(),
+    kind: z.enum(["linehaul", "fuel", "accessorial", "fee", "deduction"]),
+    description: z.string(),
+    amountCents: z.number(),
+    evidence: invoiceEvidenceDtoSchema.nullable(),
+});
+export type InvoiceLineDto = z.infer<typeof invoiceLineDtoSchema>;
+
+export const invoicePaymentDtoSchema = z.object({
+    id: z.string(),
+    reference: z.string(),
+    amountCents: z.number(),
+    methodLabel: z.string(),
+    methodType: z.enum(["ach", "card"]),
+    paidAt: z.string(),
+    paidByName: z.string(),
+});
+export type InvoicePaymentDto = z.infer<typeof invoicePaymentDtoSchema>;
+
+export const invoiceLaneDtoSchema = z.object({
+    origin: z.string(),
+    destination: z.string(),
+    deliveredAt: z.string().nullable(),
+});
+export type InvoiceLaneDto = z.infer<typeof invoiceLaneDtoSchema>;
+
+export const invoiceDtoSchema = z.object({
+    id: z.string(),
+    number: z.string(),
+    loadId: z.string(),
+    status: z.enum(["open", "paid", "disputed"]),
+    shipper: partyDtoSchema,
+    carrier: partyDtoSchema.nullable(),
+    lane: invoiceLaneDtoSchema,
+    issuedAt: z.string(),
+    dueAt: z.string(),
+    termsDays: z.number(),
+    currency: z.string(),
+    lines: z.array(invoiceLineDtoSchema),
+    totalCents: z.number(),
+    paidCents: z.number(),
+    disputedCents: z.number(),
+    balanceCents: z.number(),
+    agreedRateCents: z.number(),
+    rateConfirmationVersion: z.number().nullable(),
+    brokerMc: z.string(),
+    payments: z.array(invoicePaymentDtoSchema),
+    version: z.number(),
+});
+export type InvoiceDto = z.infer<typeof invoiceDtoSchema>;
+
+export const paymentMethodDtoSchema = z.object({
+    id: z.string(),
+    type: z.enum(["ach", "card"]),
+    label: z.string(),
+    last4: z.string(),
+    brand: z.string().nullable(),
+    status: z.enum(["verified", "pendingVerification", "failed"]),
+    isDefault: z.boolean(),
+});
+export type PaymentMethodDto = z.infer<typeof paymentMethodDtoSchema>;
+
+export const invoicePaymentItemDtoSchema = z.object({
+    invoiceId: z.string(),
+    version: z.number(),
+    amountCents: z.number(),
+});
+export type InvoicePaymentItemDto = z.infer<typeof invoicePaymentItemDtoSchema>;
+
+export const invoicePaymentRequestDtoSchema = z.object({
+    items: z.array(invoicePaymentItemDtoSchema),
+    methodId: z.string(),
+    idempotencyKey: z.string(),
+});
+export type InvoicePaymentRequestDto = z.infer<
+    typeof invoicePaymentRequestDtoSchema
+>;
+
+export const invoicePaymentResultDtoSchema = z.object({
+    status: z.enum(["succeeded", "declined", "verificationRequired"]),
+    payment: invoicePaymentDtoSchema.nullable(),
+    reason: z.string().nullable(),
+});
+export type InvoicePaymentResultDto = z.infer<
+    typeof invoicePaymentResultDtoSchema
+>;

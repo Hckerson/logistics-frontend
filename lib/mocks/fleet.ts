@@ -7,7 +7,8 @@ import { MOCK_TOWNS } from "@/lib/data/mocks/towns";
 import { TRACE_STATUSES, TRACKING } from "@/lib/loads/constants";
 import { encodePolyline } from "@/lib/maps/polyline";
 import { roadRoute } from "@/lib/mocks/road-route";
-import type { EtaDto, PositionDto, PublicRouteDto } from "@/lib/contract/schemas";
+import type { DriverPositionDto, EtaDto, PositionDto, PublicRouteDto } from "@/lib/contract/schemas";
+import { reportedPositions } from "@/lib/mocks/position-store";
 import type { LonLat, MockLoad, MockTrackSpec } from "@/lib/types";
 import { cumulativeMiles, headingFrom, milesApart } from "@/lib/utils/geo";
 
@@ -80,10 +81,25 @@ const positionAt = (load: MockLoad, track: MockTrackSpec, moment: number): Posit
     };
 };
 
-export const latestPosition = (load: MockLoad, now: number): PositionDto | null =>
-    tracked(load) ? positionAt(load, load.track, reportedAt(load.track, now)) : null;
+const fromReport = ({ latitude, longitude, heading, speedMph, recordedAt }: DriverPositionDto): PositionDto => ({
+    latitude,
+    longitude,
+    heading: heading ?? null,
+    speedMph: speedMph ?? null,
+    city: nearestCity([longitude, latitude]),
+    source: "driverApp",
+    recordedAt,
+});
+
+export const latestPosition = (load: MockLoad, now: number): PositionDto | null => {
+    const reported = reportedPositions(load.id).at(-1);
+    if (reported) return fromReport(reported);
+    return tracked(load) ? positionAt(load, load.track, reportedAt(load.track, now)) : null;
+};
 
 export const trackOf = (load: MockLoad, now: number): PositionDto[] => {
+    const reported = reportedPositions(load.id).filter(({ recordedAt }) => Date.parse(recordedAt) >= now - TRACKING.windowHours * TIME_MS.hour);
+    if (reported.length > 0) return reported.map(fromReport);
     if (!tracked(load)) return [];
     const last = reportedAt(load.track, now);
     const since = Math.max(now - TRACKING.windowHours * TIME_MS.hour, timeOf(load.stops[0].arrivedAt) ?? last);

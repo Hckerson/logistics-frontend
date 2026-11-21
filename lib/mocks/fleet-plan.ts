@@ -1,3 +1,4 @@
+import { can } from "@/lib/auth/capabilities";
 import { hasAnyRole, ROLE_GROUPS } from "@/lib/auth/roles";
 import { HTTP_STATUS, TIME_MS } from "@/lib/constants";
 import type { FleetConflictDto, FleetRowDto, FleetWindowDto } from "@/lib/contract/schemas";
@@ -7,6 +8,7 @@ import { MOCK_CARRIER_ZONES, MOCK_ELD } from "@/lib/data/mocks/trucks";
 import { FLEET } from "@/lib/fleet/constants";
 import { DAY_PATTERN, addDays, assignmentDeadline, dayOf, startOfDay, weekOf, weekStartOf } from "@/lib/fleet/time";
 import { latestPosition } from "@/lib/mocks/fleet";
+import { pairConflicts, unavailableConflicts } from "@/lib/mocks/fleet-conflicts";
 import { carrierLoads, driverName, overlaps, spanOf, toEntry } from "@/lib/mocks/fleet-entries";
 import { fleetStore } from "@/lib/mocks/fleet-store";
 import { FREIGHT_MESSAGES, withCaller, type MockCaller } from "@/lib/mocks/freight-access";
@@ -24,6 +26,15 @@ const coordsOf = (facility: string): [number, number] => [MOCK_FACILITIES[facili
 export const fleetCarrier = (caller: MockCaller) => {
     if (caller.staff) return null;
     return caller.side === "carrier" && hasAnyRole(caller.user.roles, ROLE_GROUPS.carrier) ? caller.organisation : undefined;
+};
+
+const carrierIds = () => Object.entries(MOCK_ORGANISATIONS).flatMap(([id, { side }]) => (side === "carrier" ? [id] : []));
+
+const planCarrier = (caller: MockCaller, requested: string | undefined) => {
+    if (!caller.staff) return fleetCarrier(caller);
+    if (!can(caller.user.roles, "readFleetPlan")) return undefined;
+    const known = carrierIds();
+    return requested && known.includes(requested) ? requested : (known.at(0) ?? undefined);
 };
 
 const truckOf = (truck: MockTruck) => ({ id: truck.id, unit: truck.unit, equipment: truck.equipment, driverId: truck.driver, driverName: driverName(truck.driver) });
@@ -65,30 +76,11 @@ const windowsOf = (truck: MockTruck, loads: readonly MockLoad[], range: { from: 
     return gaps;
 };
 
-const pairConflicts = (truck: MockTruck, loads: readonly MockLoad[]): FleetConflictDto[] => {
-    const ordered = [...loads].sort((first, second) => spanOf(first).from - spanOf(second).from);
-    return ordered.slice(1).flatMap((next, index) => {
-        const previous = ordered[index];
-        const gapHours = (spanOf(next).from - spanOf(previous).to) / TIME_MS.hour;
-        const drive = milesApart(coordsOf(previous.stops[previous.stops.length - 1].facility), coordsOf(next.stops[0].facility)) / FLEET.averageMph;
-        const base = { loadId: next.id, truckId: truck.id, otherLoadId: previous.id, deadline: next.stops[0].windowStart, overdue: false };
-        if (overlaps(spanOf(previous), spanOf(next))) return [{ ...base, type: "overlap" as const }];
-        return drive > gapHours ? [{ ...base, type: "unreachable" as const }] : [];
-    });
-};
-
-const unavailableConflicts = (truck: MockTruck, loads: readonly MockLoad[]): FleetConflictDto[] =>
-    [...fleetStore().unavailable.values()]
-        .filter((period) => period.truck === truck.id)
-        .flatMap((period) =>
-            loads.filter((load) => overlaps(spanOf(load), period)).map((load) => ({ type: "unavailable" as const, loadId: load.id, truckId: truck.id, otherLoadId: null, deadline: load.stops[0].windowStart, overdue: false })),
-        );
-
 export const fleetPlan = withCaller(({ path }, _params, caller) => {
-    const carrier = fleetCarrier(caller);
     const query = fleetQuerySchema.safeParse(queryOf(path));
-    if (carrier === undefined) return fail(HTTP_STATUS.forbidden, FREIGHT_MESSAGES.signedOut, path);
     if (!query.success) return fail(HTTP_STATUS.badRequest, FREIGHT_MESSAGES.invalid, path);
+    const carrier = planCarrier(caller, query.data.carrier);
+    if (carrier === undefined || carrier === null) return fail(HTTP_STATUS.forbidden, FREIGHT_MESSAGES.signedOut, path);
 
     const now = new Date().getTime();
     const timeZone = (carrier && MOCK_CARRIER_ZONES[carrier]) ?? FLEET.defaultZone;
@@ -138,7 +130,7 @@ export const fleetPlan = withCaller(({ path }, _params, caller) => {
         timeZone,
         carrier,
         carriers: Object.entries(MOCK_ORGANISATIONS)
-            .filter(([id, { side }]) => side === "carrier" && (carrier === null || id === carrier))
+            .filter(([id, { side }]) => side === "carrier" && (caller.staff || id === carrier))
             .map(([id, { name }]) => ({ id, name })),
         fleet: fleet.map(truckOf),
         rows,

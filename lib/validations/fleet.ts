@@ -18,6 +18,7 @@ export const fleetQuerySchema = z.object({
     truck: z.string().optional(),
     driver: z.string().optional(),
     equipment: z.enum(EQUIPMENT_TYPES).optional(),
+    carrier: z.string().trim().min(1).max(FLEET.carrierIdMax).optional(),
 });
 
 export const assignSchema = assignLoadDtoSchema.extend({ reason: z.string().trim().min(1).max(FLEET.reasonMax).optional() });

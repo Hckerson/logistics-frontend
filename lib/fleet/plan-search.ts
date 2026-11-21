@@ -11,6 +11,7 @@ export const parsePlanSearch = (search: Search): FleetQuery => {
         truck: single(search.truck),
         driver: single(search.driver),
         equipment: single(search.equipment),
+        carrier: single(search.carrier),
     });
     return parsed.success ? parsed.data : {};
 };
