@@ -7,12 +7,13 @@ import { pluralize } from "@/lib/utils/plural";
 
 interface Props {
     filters: number;
+    canImport: boolean;
     onClear: () => void;
 }
 
 const { empty } = SHIPMENTS_COPY;
 
-export default function ShipmentsEmpty({ filters, onClear }: Props) {
+export default function ShipmentsEmpty({ filters, canImport, onClear }: Props) {
     return (
         <span className="flex flex-wrap items-center justify-between gap-3">
             <span>{filters > 0 ? pluralize(filters, empty.filtered) : empty.none}</span>
@@ -22,9 +23,11 @@ export default function ShipmentsEmpty({ filters, onClear }: Props) {
                 </Button>
             ) : (
                 <span className="flex flex-wrap gap-2">
-                    <ButtonLink href={appRoutes.bulkImport()} tone="outline" size="sm" icon={Upload}>
-                        {empty.importFile}
-                    </ButtonLink>
+                    {canImport ? (
+                        <ButtonLink href={appRoutes.bulkImport()} tone="outline" size="sm" icon={Upload}>
+                            {empty.importFile}
+                        </ButtonLink>
+                    ) : null}
                     <ButtonLink href={appRoutes.postLoad()} tone="outline" size="sm" icon={Add}>
                         {empty.start}
                     </ButtonLink>
