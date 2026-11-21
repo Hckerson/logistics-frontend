@@ -13,6 +13,7 @@ import { fileSize } from "@/lib/utils/format-number";
 interface Props {
     document: DocumentDto;
     zone: string;
+    id?: string;
 }
 
 const { documents: copy } = LOAD_RECORD_COPY;
@@ -25,7 +26,7 @@ const TONES: Record<DocumentDto["scanStatus"], SignalTone> = {
     failed: "danger",
 };
 
-export default function DocumentRow({ document, zone }: Props) {
+export default function DocumentRow({ document, zone, id }: Props) {
     const { id, type, version, fileName, sizeBytes, scanStatus, uploadedByName, createdAt } = document;
     const download = useDocumentDownload();
     const name = copy.types[type];
@@ -33,7 +34,7 @@ export default function DocumentRow({ document, zone }: Props) {
     const open = () => download.mutate(id, { onSuccess: ({ url }) => window.location.assign(url) });
 
     return (
-        <li className="border-border flex items-start gap-3 border-t py-2.5 first:border-t-0 first:pt-0">
+        <li id={id} className="border-border flex scroll-mt-24 items-start gap-3 border-t py-2.5 first:border-t-0 first:pt-0">
             <Document aria-hidden className="text-text-muted mt-0.5 size-4 shrink-0" />
             <div className="flex min-w-0 flex-1 flex-col gap-0.5 text-xs">
                 <p className="text-text">

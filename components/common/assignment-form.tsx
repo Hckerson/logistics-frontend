@@ -7,6 +7,7 @@ import Button from "@/components/ui/button";
 import Field from "@/components/ui/field";
 import Input from "@/components/ui/input";
 import RadioGroup from "@/components/ui/radio-group";
+import { useAnnounce } from "@/components/providers/announcer-provider";
 import Select from "@/components/ui/select";
 import { appRoutes } from "@/lib/app-routes";
 import { QUIET_LINK } from "@/lib/auth/constants";
@@ -46,6 +47,19 @@ export default function AssignmentForm({ options, target, staff, pending, previe
     const truck = options.trucks.find(({ id }) => id === truckId);
     const current = options.drivers.find(({ id }) => id === options.driverId);
     const missing = { driver: !driver, truck: !truck, reason: needsReason && !reason.trim() };
+    const announce = useAnnounce();
+    const pairDriver = options.drivers.find((option) => option.id === options.suggestion?.driverId);
+    const pairTruck = options.trucks.find((option) => option.id === options.suggestion?.truckId);
+    const offer =
+        options.suggestion && pairDriver && pairTruck && (pairDriver.id !== driverId || pairTruck.id !== truckId)
+            ? { load: options.suggestion.loadId, driver: pairDriver, truck: pairTruck }
+            : null;
+
+    const takePair = (pair: NonNullable<typeof offer>) => {
+        setDriverId(pair.driver.id);
+        setTruckId(pair.truck.id);
+        announce({ message: fillTemplate(copy.suggestion.used, { driver: pair.driver.label, truck: pair.truck.label }) });
+    };
 
     const pickDriver = (id: string) => {
         setDriverId(id);
@@ -63,6 +77,14 @@ export default function AssignmentForm({ options, target, staff, pending, previe
         <div className="flex flex-col gap-4">
             {options.deadline ? <AssignmentDeadline deadline={options.deadline} timeZone={options.timeZone} /> : null}
             {options.drivers.length === 0 ? <p className="text-text-secondary text-xs">{copy.noDrivers}</p> : null}
+            {offer ? (
+                <div className="border-border flex flex-wrap items-center justify-between gap-2 border px-3 py-2 text-xs">
+                    <span className="text-text-secondary">{fillTemplate(copy.suggestion.label, { driver: offer.driver.label, truck: offer.truck.label, load: offer.load })}</span>
+                    <Button tone="outline" size="sm" onPress={() => takePair(offer)}>
+                        {copy.suggestion.use}
+                    </Button>
+                </div>
+            ) : null}
             <Field id={`${fieldId}-driver`} label={copy.driver} error={checked && missing.driver ? copy.missing.driver : undefined}>
                 {(control) => <Select {...control} options={choices(options.drivers, () => undefined)} value={driverId} onChange={pickDriver} placeholder={copy.driverPlaceholder} />}
             </Field>
