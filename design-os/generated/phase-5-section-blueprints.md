@@ -1,6 +1,6 @@
 # Phase 5 — Section Blueprints
 
-`Haulr Design OS` · `Version 1.3.9` · `2026-11-19` · Previous: [Phase 4 — Page Blueprints](./phase-4-page-blueprints.md) · Next: [Phase 6 — Interaction Contracts](./phase-6-interaction-contracts.md)
+`Haulr Design OS` · `Version 1.3.13` · `2026-11-21` · Previous: [Phase 4 — Page Blueprints](./phase-4-page-blueprints.md) · Next: [Phase 6 — Interaction Contracts](./phase-6-interaction-contracts.md)
 
 Every page from [Phase 4](./phase-4-page-blueprints.md) is broken into sections, one per job. A section is a unit of behaviour: what it is responsible for, the data it needs, how the user interacts with it, and what happens when it is loading, empty or failing. Sections never say what they show, which components or controls they use, how they are arranged, their order on screen, their size, imagery or animation.
 
@@ -270,7 +270,7 @@ IDs: `SH-` shared sections (defined once, reused by reference), `SC-<page>.<n>` 
 - **Purpose:** Start a price check from the home page.
 - **Responsibilities:** Accept origin, destination and equipment and hand them to PG-05 as URL parameters; accept free text when suggestions are unavailable.
 - **Data requirements:** Location suggestions via `use-location-suggestions(query)` (Route Handler, debounced); equipment vocabulary from `lib/enums/equipment-type.ts`; lane schema from `lib/validations/lane.ts`.
-- **Interaction model:** Location entries follow IC-05 and equipment IC-07; submitting (IC-11) validates presence of origin and destination, then navigates to PG-05 with parameters; nothing is stored or sent until a suggestion request.
+- **Interaction model:** Location entries follow IC-05 and equipment IC-09, the radio group the estimator uses (the maintainer's choice, 2026-11-21); submitting (IC-11) validates presence of origin and destination, then navigates to PG-05 with parameters; nothing is stored or sent until a suggestion request.
 - **Device needs:** DV-PHONE: enter a lane with the on-screen keyboard and suggestions reachable by touch. DV-DESK: enter a lane entirely by keyboard. DV-AT: full parity with DV-DESK.
 - **Accessibility requirements:** Labelled inputs; suggestions per IC-05 (combobox semantics, count announced politely); missing entries reported through IC-02 with focus moved to the summary.
 - **Loading states:** LS-2 while suggestions are pending per IC-05, the entered text staying editable; no page-level loading.
