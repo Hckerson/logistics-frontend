@@ -8,7 +8,8 @@ import PasswordRule from "@/components/auth/password-rule";
 import BoardField from "@/components/common/board-field";
 import AssemblyProvider, { useAssembly } from "@/components/providers/assembly-provider";
 import { FIELD_FLIP } from "@/lib/auth/constants";
-import { ACCOUNT_SIDES, PASSWORD_MIN_LENGTH } from "@/lib/constants";
+import { ACCOUNT_SIDES } from "@/lib/constants";
+import { passwordFits } from "@/lib/validations/auth";
 import { REGISTER_COPY } from "@/lib/data/auth/register";
 import { AUTH_COPY } from "@/lib/data/auth/shared";
 import { useCapsLock } from "@/lib/hooks/use-caps-lock";
@@ -82,7 +83,7 @@ export default function DetailsStep(props: Props) {
                                   <PasswordRule
                                       id={ruleId}
                                       rule={REGISTER_COPY.rule}
-                                      met={values.password.length >= PASSWORD_MIN_LENGTH}
+                                      met={passwordFits(values.password)}
                                   />
                               ),
                           }

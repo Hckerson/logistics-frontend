@@ -5,7 +5,7 @@ import ConsentCheck from "@/components/auth/consent-check";
 import IdentityRow from "@/components/auth/identity-row";
 import PasswordRule from "@/components/auth/password-rule";
 import BoardField from "@/components/common/board-field";
-import { PASSWORD_MIN_LENGTH } from "@/lib/constants";
+import { passwordFits } from "@/lib/validations/auth";
 import { INVITE_COPY } from "@/lib/data/auth/invite";
 import { AUTH_COPY } from "@/lib/data/auth/shared";
 import { useCapsLock } from "@/lib/hooks/use-caps-lock";
@@ -56,7 +56,7 @@ export default function InviteJoinStep({ invitation, draft, idOf, errorFor, pend
                 revealLabel={AUTH_COPY.reveal}
                 describedBy={ruleId}
                 hint={caps.on ? AUTH_COPY.capsLock : null}
-                aside={<PasswordRule id={ruleId} rule={INVITE_COPY.rule} met={draft.password.length >= PASSWORD_MIN_LENGTH} />}
+                aside={<PasswordRule id={ruleId} rule={INVITE_COPY.rule} met={passwordFits(draft.password)} />}
             />
             <ConsentCheck
                 id={idOf("consent")}

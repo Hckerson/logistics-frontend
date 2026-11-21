@@ -90,7 +90,7 @@ export const REGISTER_COPY = {
         side: { missing: "Choose whether you ship or haul freight." },
         fullName: { missing: "Enter your full name." },
         email: { missing: "Enter your email address.", invalid: "Enter an email address like name@company.com." },
-        password: { missing: "Create a password.", short: AUTH_COPY.password.short },
+        password: { missing: "Create a password.", short: AUTH_COPY.password.short, long: AUTH_COPY.password.long },
         consent: { missing: "Agree to the terms to create your account." },
         conflict: "An account already uses this email.",
         session: `${SESSION_UNAVAILABLE}. Sign in to continue.`,

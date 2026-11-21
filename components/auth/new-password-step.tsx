@@ -4,7 +4,7 @@ import AuthSubmit from "@/components/auth/auth-submit";
 import IdentityRow from "@/components/auth/identity-row";
 import PasswordRule from "@/components/auth/password-rule";
 import BoardField from "@/components/common/board-field";
-import { PASSWORD_MIN_LENGTH } from "@/lib/constants";
+import { passwordFits } from "@/lib/validations/auth";
 import { RESET_COPY, RESET_FIELDS } from "@/lib/data/auth/reset";
 import { AUTH_COPY } from "@/lib/data/auth/shared";
 import { useCapsLock } from "@/lib/hooks/use-caps-lock";
@@ -25,7 +25,7 @@ const { fields, rules } = RESET_COPY;
 export default function NewPasswordStep({ idOf, email, values, errorFor, pending, onChange, onSubmit }: Props) {
     const first = useRef<HTMLInputElement>(null);
     const caps = { password: useCapsLock(), confirm: useCapsLock() };
-    const long = values.password.length >= PASSWORD_MIN_LENGTH;
+    const long = passwordFits(values.password);
     const met = { password: long, confirm: long && values.confirm === values.password };
 
     useEffect(() => first.current?.focus(), []);
