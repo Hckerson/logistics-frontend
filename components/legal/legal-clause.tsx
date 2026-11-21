@@ -27,7 +27,7 @@ export default function LegalClause({ clause, number, revision, children }: Prop
             </a>
             <div className="flex min-w-0 flex-col gap-3">
                 <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                    <h2 id={heading} className="text-text text-xl tracking-tight" style={{ fontStretch: "var(--haulr-semi)" }}>
+                    <h2 id={heading} className="text-text haulr-lane text-xl tracking-tight">
                         {clause.title}
                     </h2>
                     {revision ? <span className="haulr-label text-accent border-accent/40 border px-1.5 py-0.5">{revision}</span> : null}

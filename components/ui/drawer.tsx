@@ -10,7 +10,7 @@ interface Props {
     onOpenChange: (isOpen: boolean) => void;
     title: string;
     kicker?: string;
-    side?: "left" | "right";
+    side?: "left" | "right" | "bottom";
     width?: "sm" | "md";
     footer?: ReactNode;
     children: ReactNode;
@@ -22,8 +22,9 @@ const WIDTHS = {
 } as const;
 
 const SIDES = {
-    left: "left-0 border-r",
-    right: "right-0 border-l",
+    left: "inset-y-0 left-0 border-r data-entering:haulr-open",
+    right: "inset-y-0 right-0 border-l data-entering:haulr-open",
+    bottom: "inset-x-0 bottom-0 max-h-[85svh] border-t pb-[env(safe-area-inset-bottom)] data-entering:haulr-sheet",
 } as const;
 
 export default function Drawer({ isOpen, onOpenChange, title, kicker, side = "left", width = "sm", footer, children }: Props) {
@@ -31,9 +32,9 @@ export default function Drawer({ isOpen, onOpenChange, title, kicker, side = "le
         <ModalOverlay isOpen={isOpen} onOpenChange={onOpenChange} isDismissable className={OVERLAY_BACKDROP}>
             <Modal
                 className={clsx(
-                    "border-border/70 bg-background fixed inset-y-0 flex flex-col outline-none data-entering:haulr-open",
+                    "border-border/70 bg-background fixed flex flex-col outline-none",
                     SIDES[side],
-                    WIDTHS[width],
+                    side === "bottom" ? undefined : WIDTHS[width],
                 )}
             >
                 <AriaDialog className="flex h-full min-h-0 flex-col outline-none">

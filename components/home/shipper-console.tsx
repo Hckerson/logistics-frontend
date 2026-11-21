@@ -1,7 +1,7 @@
 "use client";
 import clsx from "clsx";
 import { motion } from "motion/react";
-import LaneRule from "@/components/home/lane-rule";
+import LaneRule from "@/components/common/lane-rule";
 import StatusPill from "@/components/home/status-pill";
 import { CONSOLE_COLUMNS, CONSOLE_DETAIL, CONSOLE_LOADS, PRODUCTS_COPY } from "@/lib/data/home/products";
 import { ARRIVE } from "@/lib/home/constants";
