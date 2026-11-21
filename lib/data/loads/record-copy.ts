@@ -22,6 +22,7 @@ export const LOAD_RECORD_COPY = {
             documentUploaded: "Document uploaded",
             trackingLinkCreated: "Tracking link created",
             trackingLinkRevoked: "Tracking link revoked",
+            driverAssigned: "Driver assigned",
         } satisfies Record<LoadEventDto["type"], string>,
         from: "from {status}",
         actors: { member: "A member", staff: "Haulr staff", apiKey: "API key", system: "Haulr" } satisfies Record<LoadEventDto["actorType"], string>,

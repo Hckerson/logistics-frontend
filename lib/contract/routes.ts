@@ -8,9 +8,16 @@ import type {
     CheckCallResponseDto,
     DocumentDto,
     DownloadLinkDto,
+    DriverPodPageTicketDto,
+    DriverPositionsAcceptedDto,
+    DriverTripDto,
+    DriverTripsDto,
     EmailDto,
     ExportJobDto,
     FacilityOptionDto,
+    FleetOptionsDto,
+    FleetPlanDto,
+    FleetUnavailableDto,
     HealthResponseDto,
     ImportBatchDto,
     ImportBatchPageDto,
@@ -18,6 +25,7 @@ import type {
     ImportRowPageDto,
     ImportUploadTicketDto,
     InvitationDto,
+    InvitationSentDto,
     LoadCancellationDto,
     LoadCountDto,
     LoadDto,
@@ -36,6 +44,7 @@ import type {
     PublicTrackingDto,
     QuickFindDto,
     RateEstimateDto,
+    RecommendedLoadDto,
     SavedEstimateDto,
     TicketReceiptDto,
     TicketSummaryDto,
@@ -96,6 +105,43 @@ export const routes = {
     loadsTransition: (loadId: string) =>
         `/api/loads/${loadId}/transitions` as Endpoint<LoadDto>,
     authRefresh: () => "/api/auth/refresh" as Endpoint<AuthResponseDto>,
+    driversTrips: () => "/api/driver/trips" as Endpoint<DriverTripsDto>,
+    driversTrip: (loadId: string) =>
+        `/api/driver/trips/${loadId}` as Endpoint<DriverTripDto>,
+    driversRecordEvent: (loadId: string) =>
+        `/api/driver/trips/${loadId}/events` as Endpoint<DriverTripDto>,
+    driversUndoEvent: (loadId: string, eventId: string) =>
+        `/api/driver/trips/${loadId}/events/${eventId}/undo` as Endpoint<DriverTripDto>,
+    driversPodPage: (loadId: string) =>
+        `/api/driver/trips/${loadId}/pod/pages` as Endpoint<DriverPodPageTicketDto>,
+    driversReportPositions: (loadId: string) =>
+        `/api/driver/trips/${loadId}/positions` as Endpoint<DriverPositionsAcceptedDto>,
+    driversDownloadDocument: (loadId: string, documentId: string) =>
+        `/api/driver/trips/${loadId}/documents/${documentId}/download` as Endpoint<DownloadLinkDto>,
+    driversSubmitPod: (loadId: string) =>
+        `/api/driver/trips/${loadId}/pod` as Endpoint<DriverTripDto>,
+    fleetPlan: (query?: {
+        week?: string;
+        truck?: string;
+        driver?: string;
+        equipment?: string;
+    }) => `/api/fleet/plan${queryString(query)}` as Endpoint<FleetPlanDto>,
+    fleetRecommendations: (query?: {
+        truck?: string;
+        from?: string;
+        to?: string;
+    }) =>
+        `/api/fleet/recommendations${queryString(query)}` as Endpoint<
+            RecommendedLoadDto[]
+        >,
+    fleetSetUnavailable: (truckId: string) =>
+        `/api/fleet/trucks/${truckId}/unavailable` as Endpoint<FleetUnavailableDto>,
+    fleetEndUnavailable: (truckId: string, periodId: string) =>
+        `/api/fleet/trucks/${truckId}/unavailable/${periodId}/end` as Endpoint<FleetUnavailableDto>,
+    fleetOptionsFor: (loadId: string) =>
+        `/api/loads/${loadId}/fleet` as Endpoint<FleetOptionsDto>,
+    fleetAssign: (loadId: string) =>
+        `/api/loads/${loadId}/assignment` as Endpoint<LoadDto>,
     loadsCancellation: (loadId: string) =>
         `/api/loads/${loadId}/cancellation` as Endpoint<LoadCancellationDto>,
     loadsUpdateStopInstructions: (loadId: string, stopId: string) =>
@@ -179,6 +225,8 @@ export const routes = {
         "/api/pricing/estimates" as Endpoint<SavedEstimateDto>,
     geoPlaces: (query: { q: string }) =>
         `/api/geo/places${queryString(query)}` as Endpoint<PlaceDto[]>,
+    teamInviteDriver: () =>
+        "/api/team/invitations" as Endpoint<InvitationSentDto>,
     teamCheckInvitation: () =>
         "/api/team/invitations/check" as Endpoint<InvitationDto>,
     teamAcceptInvitation: () =>

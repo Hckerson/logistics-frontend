@@ -24,6 +24,8 @@ export interface MockChallenge {
 
 export interface MockErrorDetails {
     attemptsRemaining?: number;
+    changedBy?: string | null;
+    changedAt?: string | null;
 }
 
 export interface MockRequest {

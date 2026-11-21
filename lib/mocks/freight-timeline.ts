@@ -1,6 +1,7 @@
 import { nanoid } from "nanoid";
 import { TIME_MS } from "@/lib/constants";
 import { MOCK_FACILITIES } from "@/lib/data/mocks/facilities";
+import { MOCK_USERS } from "@/lib/data/mocks/users";
 import { MOCK_DOCUMENTS, MOCK_TRACKING_LINKS, mockDocumentId } from "@/lib/data/mocks/freight";
 import { TRACKING } from "@/lib/loads/constants";
 import type { LoadEventDto } from "@/lib/contract/schemas";
@@ -25,7 +26,11 @@ const RIDGEWAY = "ridgeway";
 
 const carrierActor = (load: MockLoad): Actor => ({ actorType: "member", actorName: load.carrier === RIDGEWAY ? "Ray Okoro" : null, source: "web" });
 
-const driverActor = (load: MockLoad, source: Actor["source"]): Actor => ({ actorType: "member", actorName: load.carrier === RIDGEWAY ? "Ana Ruiz" : null, source });
+const driverActor = (load: MockLoad, source: Actor["source"]): Actor => ({
+    actorType: "member",
+    actorName: MOCK_USERS.find((user) => user.id === load.driver)?.name ?? null,
+    source,
+});
 
 const event = (load: MockLoad, at: number, actor: Actor, fields: Partial<LoadEventDto> & Pick<LoadEventDto, "type" | "category">): MockLoadEvent => ({
     id: nanoid(),

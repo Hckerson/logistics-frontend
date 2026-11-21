@@ -1,4 +1,4 @@
-import type { ImportRowsParams, LaneQuery, LoadListParams, PageParams, TicketStatus, TimelineParams } from "@/lib/types";
+import type { FleetQuery, ImportRowsParams, LaneQuery, LoadListParams, PageParams, RecommendationQuery, TicketStatus, TimelineParams } from "@/lib/types";
 import { queryString } from "@/lib/utils/query-string";
 
 export const apiRoutes = {
@@ -17,6 +17,13 @@ export const apiRoutes = {
     exportJob: (exportId: string) => `/api/exports/${encodeURIComponent(exportId)}`,
     exportDownload: (exportId: string) => `/api/exports/${encodeURIComponent(exportId)}/download`,
     load: (loadId: string) => `/api/loads/${encodeURIComponent(loadId)}`,
+    loadFleet: (loadId: string) => `/api/loads/${encodeURIComponent(loadId)}/fleet`,
+    fleetPlan: (query?: FleetQuery) => `/api/fleet/plan${queryString(query)}`,
+    fleetRecommendations: (query: RecommendationQuery) => `/api/fleet/recommendations${queryString(query)}`,
+    driverTrips: () => "/api/driver/trips",
+    driverTrip: (loadId: string) => `/api/driver/trips/${encodeURIComponent(loadId)}`,
+    driverDocument: (loadId: string, documentId: string) =>
+        `/api/driver/trips/${encodeURIComponent(loadId)}/documents/${encodeURIComponent(documentId)}/download`,
     loadCancellation: (loadId: string) =>
         `/api/loads/${encodeURIComponent(loadId)}/cancellation`,
     loadPositions: (loadId: string) =>

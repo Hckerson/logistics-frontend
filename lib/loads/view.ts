@@ -11,7 +11,11 @@ export const placeName = ({ facility }: Pick<StopDto, "facility">) => `${facilit
 
 export const currentStop = (stops: readonly StopDto[]) => stops.find((stop) => !stop.departedAt) ?? null;
 
-export const stopWindow = ({ windowStart, windowEnd, facility: { timeZone } }: Pick<StopDto, "windowStart" | "windowEnd" | "facility">) =>
+export const stopWindow = ({
+    windowStart,
+    windowEnd,
+    facility: { timeZone },
+}: Pick<StopDto, "windowStart" | "windowEnd"> & { facility: Pick<StopDto["facility"], "timeZone"> }) =>
     `${dayName(windowStart, timeZone)} · ${shortTime(windowStart, timeZone)}–${clockTime(windowEnd, timeZone)}`;
 
 export const stopMoment = (iso: string, timeZone: string) => `${dayName(iso, timeZone)} · ${clockTime(iso, timeZone)}`;

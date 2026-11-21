@@ -17,7 +17,7 @@ const northline = { shipper: "northline" } as const;
 
 const CURRENT_LOADS: readonly MockLoadSpec[] = [
     {
-        ...northline, ...ridgeway, id: "HL-7K2M9QXA", status: "InTransit", equipment: "dry-van", commodity: "Packaged beverages", weightLb: 41200, pallets: 22, poNumber: "PO-88213", bolNumber: "BOL-55120", priceCents: 241000, payCents: 205000, ageHours: 52,
+        ...northline, ...ridgeway, driver: "usr_driver_dee", truck: "veh_101", id: "HL-7K2M9QXA", status: "InTransit", equipment: "dry-van", commodity: "Packaged beverages", weightLb: 41200, pallets: 22, poNumber: "PO-88213", bolNumber: "BOL-55120", priceCents: 241000, payCents: 205000, ageHours: 52,
         stops: [
             { facility: "chi", type: "pickup", opensIn: -10, arrived: 10.2, departed: 9, reference: "PU-44817", instructions: "Check in at gate 3 with the PO number. Live load, about two hours." },
             { facility: "dal", type: "delivery", opensIn: 10, reference: "DEL-90213", instructions: "Receiving closes at 15:00. Call ahead if arriving after 14:00." },
@@ -25,7 +25,7 @@ const CURRENT_LOADS: readonly MockLoadSpec[] = [
         track: { mph: 52, source: "eld", confidence: "high" },
     },
     {
-        ...northline, ...ridgeway, id: "HL-3RW8TNPE", status: "InTransit", equipment: "reefer", commodity: "Fresh produce", weightLb: 38600, pallets: 20, tempF: [34, 38], poNumber: "PO-88240", priceCents: 128000, payCents: 109000, ageHours: 30,
+        ...northline, ...ridgeway, driver: "usr_driver_marco", truck: "veh_105", id: "HL-3RW8TNPE", status: "InTransit", equipment: "reefer", commodity: "Fresh produce", weightLb: 38600, pallets: 20, tempF: [34, 38], poNumber: "PO-88240", priceCents: 128000, payCents: 109000, ageHours: 30,
         stops: [{ facility: "lax", type: "pickup", opensIn: -5, arrived: 5.1, departed: 4 }, { facility: "phx", type: "delivery", opensIn: 2 }],
         track: { mph: 55, silentMinutes: 72, source: "driverApp", confidence: "medium" },
     },
@@ -35,24 +35,24 @@ const CURRENT_LOADS: readonly MockLoadSpec[] = [
         track: { mph: 50, silentMinutes: 110, source: "eld", confidence: "low" },
     },
     {
-        ...northline, ...ridgeway, id: "HL-5HJ2KX8C", status: "AtPickup", equipment: "flatbed", commodity: "Structural steel", weightLb: 44800, poNumber: "PO-88262", priceCents: 162000, payCents: 139000, ageHours: 26,
+        ...northline, ...ridgeway, truck: "veh_103", id: "HL-5HJ2KX8C", status: "AtPickup", equipment: "flatbed", commodity: "Structural steel", weightLb: 44800, poNumber: "PO-88262", priceCents: 162000, payCents: 139000, ageHours: 26,
         stops: [{ facility: "den", type: "pickup", opensIn: -0.5, arrived: 0.4 }, { facility: "slc", type: "delivery", opensIn: 13 }],
         track: { mph: 50, source: "eld", confidence: "high" },
     },
     {
-        ...northline, ...ridgeway, id: "HL-2PV7MW4R", status: "AtDelivery", equipment: "dry-van", commodity: "Canned goods", weightLb: 39900, pallets: 21, bolNumber: "BOL-55188", priceCents: 96000, payCents: 82000, ageHours: 34,
+        ...northline, ...ridgeway, driver: "usr_driver_luis", truck: "veh_102", id: "HL-2PV7MW4R", status: "AtDelivery", equipment: "dry-van", commodity: "Canned goods", weightLb: 39900, pallets: 21, bolNumber: "BOL-55188", priceCents: 96000, payCents: 82000, ageHours: 34,
         stops: [{ facility: "hou", type: "pickup", opensIn: -8.5, arrived: 8.4, departed: 7.5 }, { facility: "nol", type: "delivery", opensIn: -1, arrived: 0.6 }],
         track: { mph: 50, source: "eld", confidence: "high" },
     },
     {
-        ...northline, ...ridgeway, id: "HL-8TB3QF6N", status: "Dispatched", equipment: "dry-van", commodity: "Paper products", weightLb: 28700, pallets: 24, poNumber: "PO-88277", priceCents: 198000, payCents: 168000, ageHours: 20,
+        ...northline, ...ridgeway, truck: "veh_106", id: "HL-8TB3QF6N", status: "Dispatched", equipment: "dry-van", commodity: "Paper products", weightLb: 28700, pallets: 24, poNumber: "PO-88277", priceCents: 198000, payCents: 168000, ageHours: 20,
         stops: [
             { facility: "dal", type: "pickup", opensIn: 14, reference: "PU-45102", instructions: "Drop trailer accepted. Seal number goes on the BOL." },
             { facility: "atl", type: "delivery", opensIn: 32, reference: "DEL-90388" },
         ],
     },
     {
-        ...northline, ...ridgeway, id: "HL-4MC9RD7K", status: "InTransit", equipment: "dry-van", commodity: "Retail apparel", weightLb: 22100, pallets: 16, poNumber: "PO-88280", priceCents: 142000, payCents: 121000, ageHours: 36,
+        ...northline, ...ridgeway, driver: "usr_driver_kim", truck: "veh_104", id: "HL-4MC9RD7K", status: "InTransit", equipment: "dry-van", commodity: "Retail apparel", weightLb: 22100, pallets: 16, poNumber: "PO-88280", priceCents: 142000, payCents: 121000, ageHours: 36,
         stops: [
             { facility: "chi", type: "pickup", opensIn: -9.5, arrived: 9.6, departed: 9 },
             { facility: "ind", type: "delivery", opensIn: -5, arrived: 5, departed: 4 },
@@ -114,6 +114,18 @@ const CURRENT_LOADS: readonly MockLoadSpec[] = [
     {
         ...northline, ...ridgeway, id: "HL-8DS6WJ4L", status: "Disputed", equipment: "dry-van", commodity: "Pet food", weightLb: 38800, pallets: 22, bolNumber: "BOL-55034", priceCents: 79000, payCents: 67000, pendingCents: 12500, ageHours: 220,
         stops: [{ facility: "kci", type: "pickup", opensIn: -206, arrived: 206, departed: 205 }, { facility: "stl", type: "delivery", opensIn: -200.5, arrived: 200.5, departed: 200 }],
+    },
+    {
+        ...northline, carrier: "ridgeway", id: "HL-6WB2KQ9D", status: "Booked", equipment: "dry-van", commodity: "Bottled water", weightLb: 42100, pallets: 24, poNumber: "PO-88311", priceCents: 88000, payCents: 75000, ageHours: 9,
+        stops: [{ facility: "chi", type: "pickup", opensIn: 3, reference: "PU-45301" }, { facility: "ind", type: "delivery", opensIn: 9 }],
+    },
+    {
+        ...northline, carrier: "ridgeway", id: "HL-2FR7LM4X", status: "Booked", equipment: "reefer", commodity: "Frozen berries", weightLb: 36400, pallets: 20, tempF: [-5, 0], priceCents: 131000, payCents: 112000, ageHours: 14,
+        stops: [{ facility: "lax", type: "pickup", opensIn: 40 }, { facility: "phx", type: "delivery", opensIn: 50 }],
+    },
+    {
+        ...northline, carrier: "ridgeway", id: "HL-9TQ3VD6J", status: "Booked", equipment: "flatbed", commodity: "Rebar", weightLb: 46000, priceCents: 154000, payCents: 132000, ageHours: 22,
+        stops: [{ facility: "den", type: "pickup", opensIn: 1 }, { facility: "slc", type: "delivery", opensIn: 14 }],
     },
 ];
 
