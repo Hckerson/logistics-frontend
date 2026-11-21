@@ -8,6 +8,9 @@ import { createTicket, listTickets } from "@/lib/mocks/support";
 import { places } from "@/lib/mocks/geo";
 import { estimate, saveEstimate, trend } from "@/lib/mocks/pricing";
 import { acceptInvitation, checkInvitation, recordLocationConsent } from "@/lib/mocks/team";
+import { DRIVER_HANDLERS } from "@/lib/mocks/driver-routes";
+import { FLEET_HANDLERS } from "@/lib/mocks/fleet-routes";
+import { inviteDriver } from "@/lib/mocks/team-invite";
 import { FREIGHT_HANDLERS } from "@/lib/mocks/freight-routes";
 import { pathOf, resolveRoute } from "@/lib/mocks/match-route";
 import { EQUIPMENT_TYPES } from "@/lib/enums/equipment-type";
@@ -36,8 +39,11 @@ const HANDLERS: Record<string, MockHandler> = {
     [`GET ${pathOf(routes.geoPlaces({ q: "" }))}`]: places,
     [`POST ${routes.teamCheckInvitation()}`]: checkInvitation,
     [`POST ${routes.teamAcceptInvitation()}`]: acceptInvitation,
+    [`POST ${routes.teamInviteDriver()}`]: inviteDriver,
     [`POST ${routes.driversRecordLocationConsent()}`]: recordLocationConsent,
     ...FREIGHT_HANDLERS,
+    ...DRIVER_HANDLERS,
+    ...FLEET_HANDLERS,
 };
 
 const randomLatency = () => MOCK_LATENCY_MS.min + Math.random() * (MOCK_LATENCY_MS.max - MOCK_LATENCY_MS.min);

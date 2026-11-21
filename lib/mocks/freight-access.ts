@@ -57,6 +57,9 @@ export const visibleLoad = (caller: MockCaller, loadId: string, capability?: Cap
 
 export const loadMissing = (path: string) => fail(HTTP_STATUS.notFound, FREIGHT_MESSAGES.loadMissing, path);
 
+export const staleLoad = (path: string, message: string, { updatedBy, updatedAt }: MockLoad) =>
+    fail(HTTP_STATUS.preconditionFailed, message, path, undefined, { changedBy: updatedBy ?? null, changedAt: updatedAt });
+
 export const reasonMissing = (caller: MockCaller, reason: string | undefined, path: string) =>
     caller.staff && !reason ? fail(HTTP_STATUS.unprocessable, FREIGHT_MESSAGES.reasonRequired, path) : null;
 

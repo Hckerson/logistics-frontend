@@ -10,6 +10,8 @@ export const CAPABILITY_ROLES = {
     requestCheckCall: ["carrier.dispatcher", "carrier.admin", "internal.ops"],
     uploadDocument: ["shipper.member", "shipper.admin", "carrier.dispatcher", "carrier.admin", "internal.ops", "internal.finance"],
     editStopInstructions: ["shipper.member", "shipper.admin"],
+    assignLoad: ["carrier.dispatcher", "carrier.admin", "internal.ops"],
+    planFleet: ["carrier.dispatcher", "carrier.admin"],
     importLoads: ["shipper.member", "shipper.admin"],
     viewImports: ["shipper.member", "shipper.admin", "internal.support"],
 } as const satisfies Record<string, readonly RoleKey[]>;

@@ -86,11 +86,15 @@ export const completeUpload = withCaller(({ path }, { documentId }, caller) => {
     return ok(HTTP_STATUS.ok, documentDtoSchema.parse(document));
 });
 
-export const downloadDocument = withCaller(({ path }, { documentId }, caller) => {
+export const documentLink = (found: MockDocument | null, path: string) => {
     const now = new Date().getTime();
-    const found = freightStore().documents.get(documentId);
-    const document = found && visibleLoad(caller, found.loadId) ? settled(found, now) : null;
+    const document = found ? settled(found, now) : null;
     if (!document) return fail(HTTP_STATUS.notFound, DOCUMENT_MESSAGES.missing, path);
     if (document.scanStatus !== "clean") return fail(HTTP_STATUS.conflict, DOCUMENT_MESSAGES.notReady, path);
     return ok(HTTP_STATUS.ok, { url: storageUrl(document.id), expiresAt: expiresAt(now) });
+};
+
+export const downloadDocument = withCaller(({ path }, { documentId }, caller) => {
+    const found = freightStore().documents.get(documentId);
+    return documentLink(found && visibleLoad(caller, found.loadId) ? found : null, path);
 });

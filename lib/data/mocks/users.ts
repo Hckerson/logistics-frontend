@@ -1,3 +1,4 @@
+import { MOCK_DRIVER_USERS } from "@/lib/data/mocks/drivers";
 import type { MockScenario, MockUser } from "@/lib/types";
 
 export const MOCK_USERS: readonly MockUser[] = [
@@ -51,6 +52,7 @@ export const MOCK_USERS: readonly MockUser[] = [
         verified: true,
         mfa: false,
     },
+    ...MOCK_DRIVER_USERS,
     {
         id: "usr_ops",
         name: "Theo Banks",

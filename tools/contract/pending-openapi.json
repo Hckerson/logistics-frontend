@@ -333,7 +333,14 @@
                         "description": "Move not open"
                     },
                     "412": {
-                        "description": "Load changed since read"
+                        "description": "Load changed since read",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PreconditionFailedDto"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -384,6 +391,853 @@
                 ],
                 "summary": "Extend the caller's idle session with a fresh token (IC-54)",
                 "tags": ["auth"]
+            }
+        },
+        "/api/driver/trips": {
+            "get": {
+                "operationId": "DriversController_trips",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/DriverTripsDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Trip not assigned to the caller"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "The signed-in driver's assigned trips",
+                "tags": ["drivers"]
+            }
+        },
+        "/api/driver/trips/{loadId}": {
+            "get": {
+                "operationId": "DriversController_trip",
+                "parameters": [
+                    {
+                        "name": "loadId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/DriverTripDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Trip not assigned to the caller"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "One assigned trip shaped for the driver",
+                "tags": ["drivers"]
+            }
+        },
+        "/api/driver/trips/{loadId}/events": {
+            "post": {
+                "operationId": "DriversController_recordEvent",
+                "parameters": [
+                    {
+                        "name": "loadId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DriverStopEventDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/DriverTripDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Trip not assigned to the caller"
+                    },
+                    "409": {
+                        "description": "Event no longer legal for the stop"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Record a stop event, idempotent by event id",
+                "tags": ["drivers"]
+            }
+        },
+        "/api/driver/trips/{loadId}/events/{eventId}/undo": {
+            "post": {
+                "operationId": "DriversController_undoEvent",
+                "parameters": [
+                    {
+                        "name": "loadId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "eventId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DriverUndoRequestDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/DriverTripDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Trip not assigned to the caller"
+                    },
+                    "409": {
+                        "description": "Event no longer legal for the stop"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Undo a stop event within 5 minutes, idempotent by undo id",
+                "tags": ["drivers"]
+            }
+        },
+        "/api/driver/trips/{loadId}/pod/pages": {
+            "post": {
+                "operationId": "DriversController_podPage",
+                "parameters": [
+                    {
+                        "name": "loadId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DriverPodPageDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/DriverPodPageTicketDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Trip not assigned to the caller"
+                    },
+                    "409": {
+                        "description": "Event no longer legal for the stop"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Presigned upload for one POD page, idempotent by page id",
+                "tags": ["drivers"]
+            }
+        },
+        "/api/driver/trips/{loadId}/positions": {
+            "post": {
+                "operationId": "DriversController_reportPositions",
+                "parameters": [
+                    {
+                        "name": "loadId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DriverPositionsDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/DriverPositionsAcceptedDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "The driver declined location sharing"
+                    },
+                    "404": {
+                        "description": "Trip not assigned to this driver"
+                    },
+                    "409": {
+                        "description": "Trip not active"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Report the driver's positions while the trip is active, idempotent by position id (XF-06)",
+                "tags": ["drivers"]
+            }
+        },
+        "/api/driver/trips/{loadId}/documents/{documentId}/download": {
+            "get": {
+                "operationId": "DriversController_downloadDocument",
+                "parameters": [
+                    {
+                        "name": "loadId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "documentId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/DownloadLinkDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not on this driver's trip, or hidden from drivers (rate confirmation)"
+                    },
+                    "409": {
+                        "description": "Safety scan not finished"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Short-lived link to a trip document the assigned driver may open",
+                "tags": ["drivers"]
+            }
+        },
+        "/api/driver/trips/{loadId}/pod": {
+            "post": {
+                "operationId": "DriversController_submitPod",
+                "parameters": [
+                    {
+                        "name": "loadId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DriverPodSubmitDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/DriverTripDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Trip not assigned to the caller"
+                    },
+                    "409": {
+                        "description": "Event no longer legal for the stop"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Submit the uploaded POD pages, idempotent by POD id",
+                "tags": ["drivers"]
+            }
+        },
+        "/api/fleet/plan": {
+            "get": {
+                "operationId": "FleetController_plan",
+                "parameters": [
+                    {
+                        "name": "week",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "truck",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "driver",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "equipment",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/FleetPlanDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "The carrier's week plan by truck, with conflicts and open windows (XF-17)",
+                "tags": ["fleet"]
+            }
+        },
+        "/api/fleet/recommendations": {
+            "get": {
+                "operationId": "FleetController_recommendations",
+                "parameters": [
+                    {
+                        "name": "truck",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "from",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "to",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/RecommendedLoadDto"
+                                                    }
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Posted loads that fit a truck's open window",
+                "tags": ["fleet"]
+            }
+        },
+        "/api/fleet/trucks/{truckId}/unavailable": {
+            "post": {
+                "operationId": "FleetController_setUnavailable",
+                "parameters": [
+                    {
+                        "name": "truckId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TruckUnavailableDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/FleetUnavailableDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Period ends before it starts or covers a booked load"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Mark a truck unavailable for a period, idempotent by period id",
+                "tags": ["fleet"]
+            }
+        },
+        "/api/fleet/trucks/{truckId}/unavailable/{periodId}/end": {
+            "post": {
+                "operationId": "FleetController_endUnavailable",
+                "parameters": [
+                    {
+                        "name": "truckId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "periodId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/FleetUnavailableDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "End an unavailable period now",
+                "tags": ["fleet"]
+            }
+        },
+        "/api/loads/{loadId}/fleet": {
+            "get": {
+                "operationId": "FleetController_optionsFor",
+                "parameters": [
+                    {
+                        "name": "loadId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/FleetOptionsDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Drivers and trucks with eligibility for one load (SH-15)",
+                "tags": ["fleet"]
+            }
+        },
+        "/api/loads/{loadId}/assignment": {
+            "post": {
+                "operationId": "FleetController_assign",
+                "parameters": [
+                    {
+                        "name": "loadId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AssignLoadDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/LoadDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Driver or truck busy, or the load is no longer assignable"
+                    },
+                    "412": {
+                        "description": "Load changed since read",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PreconditionFailedDto"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Assign or reassign the driver and truck for a load",
+                "tags": ["fleet"]
             }
         },
         "/api/loads/{loadId}/cancellation": {
@@ -498,7 +1352,14 @@
                         "description": "Instructions close once the load is dispatched"
                     },
                     "412": {
-                        "description": "Load changed since read"
+                        "description": "Load changed since read",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PreconditionFailedDto"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -2187,6 +3048,57 @@
                 "tags": ["geo"]
             }
         },
+        "/api/team/invitations": {
+            "post": {
+                "operationId": "TeamController_inviteDriver",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/InviteDriverDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/InvitationSentDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Already a member or already invited"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Invite a driver to the carrier organisation (IC-39)",
+                "tags": ["team"]
+            }
+        },
         "/api/team/invitations/check": {
             "post": {
                 "operationId": "TeamController_checkInvitation",
@@ -3806,6 +4718,15 @@
                             }
                         ]
                     },
+                    "assignment": {
+                        "nullable": true,
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/LoadAssignmentDto"
+                            }
+                        ]
+                    },
                     "carrierPay": {
                         "nullable": true,
                         "type": "object",
@@ -3842,6 +4763,7 @@
                     "eta",
                     "stops",
                     "shipperPrice",
+                    "assignment",
                     "carrierPay",
                     "createdAt",
                     "updatedAt"
@@ -3887,6 +4809,120 @@
                     }
                 },
                 "required": ["to", "version"]
+            },
+            "DriverPositionDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64
+                    },
+                    "recordedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "latitude": {
+                        "type": "number",
+                        "minimum": -90,
+                        "maximum": 90
+                    },
+                    "longitude": {
+                        "type": "number",
+                        "minimum": -180,
+                        "maximum": 180
+                    },
+                    "accuracyM": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "speedMph": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "heading": {
+                        "type": "number",
+                        "nullable": true
+                    }
+                },
+                "required": ["id", "recordedAt", "latitude", "longitude"]
+            },
+            "DriverPositionsDto": {
+                "type": "object",
+                "properties": {
+                    "positions": {
+                        "type": "array",
+                        "minItems": 1,
+                        "maxItems": 50,
+                        "items": {
+                            "$ref": "#/components/schemas/DriverPositionDto"
+                        }
+                    }
+                },
+                "required": ["positions"]
+            },
+            "DriverPositionsAcceptedDto": {
+                "type": "object",
+                "properties": {
+                    "accepted": {
+                        "type": "number"
+                    }
+                },
+                "required": ["accepted"]
+            },
+            "PreconditionFailedDto": {
+                "type": "object",
+                "description": "Body of a 412 on a load write: who saved the newer version and when (IC-67)",
+                "properties": {
+                    "statusCode": {
+                        "type": "number"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "changedBy": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "changedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    }
+                },
+                "required": ["statusCode", "message", "changedBy", "changedAt"]
+            },
+            "FleetCarrierDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "required": ["id", "name"]
+            },
+            "FleetSuggestionDto": {
+                "type": "object",
+                "description": "Most recently used compatible pair: the carrier's latest assignment whose driver and truck are both eligible for this load",
+                "properties": {
+                    "driverId": {
+                        "type": "string"
+                    },
+                    "truckId": {
+                        "type": "string"
+                    },
+                    "loadId": {
+                        "type": "string"
+                    },
+                    "assignedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": ["driverId", "truckId", "loadId", "assignedAt"]
             },
             "PositionDto": {
                 "type": "object",
@@ -3970,6 +5006,1121 @@
                     }
                 },
                 "required": ["latest", "track", "eta", "health", "route"]
+            },
+            "DriverContactDto": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "phone": {
+                        "type": "string"
+                    }
+                },
+                "required": ["name", "phone"]
+            },
+            "DriverStopDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "sequence": {
+                        "type": "number"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": ["pickup", "delivery"]
+                    },
+                    "facility": {
+                        "$ref": "#/components/schemas/FacilityPlaceDto"
+                    },
+                    "windowStart": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "windowEnd": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "reference": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "instructions": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "contact": {
+                        "nullable": true,
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/DriverContactDto"
+                            }
+                        ]
+                    },
+                    "arrivedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "departedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "seal": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "pieces": {
+                        "type": "number",
+                        "nullable": true
+                    }
+                },
+                "required": [
+                    "id",
+                    "sequence",
+                    "type",
+                    "facility",
+                    "windowStart",
+                    "windowEnd",
+                    "reference",
+                    "instructions",
+                    "contact",
+                    "arrivedAt",
+                    "departedAt",
+                    "seal",
+                    "pieces"
+                ]
+            },
+            "DriverPodDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": ["checking", "verified", "review"]
+                    },
+                    "pages": {
+                        "type": "number"
+                    },
+                    "submittedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": ["id", "status", "pages", "submittedAt"]
+            },
+            "DriverUndoDto": {
+                "type": "object",
+                "properties": {
+                    "eventId": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": ["arrive", "depart"]
+                    },
+                    "stopId": {
+                        "type": "string"
+                    },
+                    "until": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": ["eventId", "type", "stopId", "until"]
+            },
+            "DriverTripDto": {
+                "type": "object",
+                "properties": {
+                    "loadId": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "Draft",
+                            "PendingApproval",
+                            "Posted",
+                            "Booked",
+                            "Dispatched",
+                            "AtPickup",
+                            "InTransit",
+                            "AtDelivery",
+                            "Delivered",
+                            "PodVerified",
+                            "Invoiced",
+                            "Paid",
+                            "Closed",
+                            "Cancelled",
+                            "Expired",
+                            "OnHold",
+                            "Disputed"
+                        ]
+                    },
+                    "active": {
+                        "type": "boolean"
+                    },
+                    "equipment": {
+                        "type": "string",
+                        "enum": ["dry-van", "reefer", "flatbed"]
+                    },
+                    "commodity": {
+                        "type": "string"
+                    },
+                    "weightLb": {
+                        "type": "number"
+                    },
+                    "pallets": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "tempMinF": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "tempMaxF": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "hazmat": {
+                        "type": "boolean"
+                    },
+                    "poNumber": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "bolNumber": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "shipperName": {
+                        "type": "string"
+                    },
+                    "stops": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DriverStopDto"
+                        }
+                    },
+                    "dispatch": {
+                        "nullable": true,
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/DriverContactDto"
+                            }
+                        ]
+                    },
+                    "route": {
+                        "nullable": true,
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/PublicRouteDto"
+                            }
+                        ]
+                    },
+                    "documents": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DocumentDto"
+                        }
+                    },
+                    "pod": {
+                        "nullable": true,
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/DriverPodDto"
+                            }
+                        ]
+                    },
+                    "undo": {
+                        "nullable": true,
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/DriverUndoDto"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "loadId",
+                    "status",
+                    "active",
+                    "equipment",
+                    "commodity",
+                    "weightLb",
+                    "pallets",
+                    "tempMinF",
+                    "tempMaxF",
+                    "hazmat",
+                    "poNumber",
+                    "bolNumber",
+                    "shipperName",
+                    "stops",
+                    "dispatch",
+                    "route",
+                    "documents",
+                    "pod",
+                    "undo"
+                ]
+            },
+            "DriverNextStopDto": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": ["pickup", "delivery"]
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "city": {
+                        "type": "string"
+                    },
+                    "region": {
+                        "type": "string"
+                    },
+                    "windowStart": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "windowEnd": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "timeZone": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "type",
+                    "name",
+                    "city",
+                    "region",
+                    "windowStart",
+                    "windowEnd",
+                    "timeZone"
+                ]
+            },
+            "DriverTripSummaryDto": {
+                "type": "object",
+                "properties": {
+                    "loadId": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "Draft",
+                            "PendingApproval",
+                            "Posted",
+                            "Booked",
+                            "Dispatched",
+                            "AtPickup",
+                            "InTransit",
+                            "AtDelivery",
+                            "Delivered",
+                            "PodVerified",
+                            "Invoiced",
+                            "Paid",
+                            "Closed",
+                            "Cancelled",
+                            "Expired",
+                            "OnHold",
+                            "Disputed"
+                        ]
+                    },
+                    "active": {
+                        "type": "boolean"
+                    },
+                    "stopCount": {
+                        "type": "number"
+                    },
+                    "stopsDone": {
+                        "type": "number"
+                    },
+                    "needsPod": {
+                        "type": "boolean"
+                    },
+                    "origin": {
+                        "$ref": "#/components/schemas/FleetPlaceDto"
+                    },
+                    "destination": {
+                        "$ref": "#/components/schemas/FleetPlaceDto"
+                    },
+                    "nextStop": {
+                        "nullable": true,
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/DriverNextStopDto"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "loadId",
+                    "status",
+                    "active",
+                    "stopCount",
+                    "stopsDone",
+                    "needsPod",
+                    "origin",
+                    "destination",
+                    "nextStop"
+                ]
+            },
+            "DriverTripsDto": {
+                "type": "object",
+                "properties": {
+                    "trips": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DriverTripSummaryDto"
+                        }
+                    },
+                    "dispatch": {
+                        "nullable": true,
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/DriverContactDto"
+                            }
+                        ]
+                    }
+                },
+                "required": ["trips", "dispatch"]
+            },
+            "DriverStopEventDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": ["arrive", "depart"]
+                    },
+                    "stopId": {
+                        "type": "string"
+                    },
+                    "recordedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "latitude": {
+                        "type": "number",
+                        "minimum": -90,
+                        "maximum": 90
+                    },
+                    "longitude": {
+                        "type": "number",
+                        "minimum": -180,
+                        "maximum": 180
+                    },
+                    "seal": {
+                        "type": "string",
+                        "maxLength": 30
+                    },
+                    "pieces": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 99999
+                    }
+                },
+                "required": ["id", "type", "stopId", "recordedAt"]
+            },
+            "DriverUndoRequestDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64
+                    }
+                },
+                "required": ["id"]
+            },
+            "DriverPodPageDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64
+                    },
+                    "contentType": {
+                        "type": "string",
+                        "enum": ["image/jpeg", "image/png"]
+                    },
+                    "sizeBytes": {
+                        "type": "number",
+                        "minimum": 1
+                    }
+                },
+                "required": ["id", "contentType", "sizeBytes"]
+            },
+            "DriverPodPageTicketDto": {
+                "type": "object",
+                "properties": {
+                    "uploadUrl": {
+                        "type": "string"
+                    },
+                    "expiresAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": ["uploadUrl", "expiresAt"]
+            },
+            "DriverPodSubmitDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64
+                    },
+                    "pageIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "minItems": 1,
+                        "maxItems": 10
+                    },
+                    "receiverName": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 120
+                    },
+                    "osdNotes": {
+                        "type": "string",
+                        "maxLength": 1000
+                    }
+                },
+                "required": ["id", "pageIds", "receiverName"]
+            },
+            "LoadAssignmentDto": {
+                "type": "object",
+                "properties": {
+                    "driverId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "driverName": {
+                        "type": "string"
+                    },
+                    "truckId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "truckUnit": {
+                        "type": "string"
+                    },
+                    "trackingSource": {
+                        "type": "string",
+                        "enum": ["driverApp", "eld"]
+                    },
+                    "assignedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "driverId",
+                    "driverName",
+                    "truckId",
+                    "truckUnit",
+                    "trackingSource",
+                    "assignedAt"
+                ]
+            },
+            "FleetPlaceDto": {
+                "type": "object",
+                "properties": {
+                    "city": {
+                        "type": "string"
+                    },
+                    "region": {
+                        "type": "string"
+                    }
+                },
+                "required": ["city", "region"]
+            },
+            "FleetTruckDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "unit": {
+                        "type": "string"
+                    },
+                    "equipment": {
+                        "type": "string",
+                        "enum": ["dry-van", "reefer", "flatbed"]
+                    },
+                    "driverId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "driverName": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "required": [
+                    "id",
+                    "unit",
+                    "equipment",
+                    "driverId",
+                    "driverName"
+                ]
+            },
+            "FleetEntryDto": {
+                "type": "object",
+                "properties": {
+                    "loadId": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "Draft",
+                            "PendingApproval",
+                            "Posted",
+                            "Booked",
+                            "Dispatched",
+                            "AtPickup",
+                            "InTransit",
+                            "AtDelivery",
+                            "Delivered",
+                            "PodVerified",
+                            "Invoiced",
+                            "Paid",
+                            "Closed",
+                            "Cancelled",
+                            "Expired",
+                            "OnHold",
+                            "Disputed"
+                        ]
+                    },
+                    "origin": {
+                        "$ref": "#/components/schemas/FleetPlaceDto"
+                    },
+                    "destination": {
+                        "$ref": "#/components/schemas/FleetPlaceDto"
+                    },
+                    "pickupStart": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "pickupEnd": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "deliveryStart": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "deliveryEnd": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "timeZone": {
+                        "type": "string"
+                    },
+                    "equipment": {
+                        "type": "string",
+                        "enum": ["dry-van", "reefer", "flatbed"]
+                    },
+                    "carrierPayCents": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "driverName": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "movable": {
+                        "type": "boolean"
+                    },
+                    "version": {
+                        "type": "number"
+                    }
+                },
+                "required": [
+                    "loadId",
+                    "status",
+                    "origin",
+                    "destination",
+                    "pickupStart",
+                    "pickupEnd",
+                    "deliveryStart",
+                    "deliveryEnd",
+                    "timeZone",
+                    "equipment",
+                    "carrierPayCents",
+                    "driverName",
+                    "movable",
+                    "version"
+                ]
+            },
+            "FleetUnavailableDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "from": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "to": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "reason": {
+                        "type": "string",
+                        "enum": ["maintenance", "timeOff", "other"]
+                    },
+                    "note": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "required": ["id", "from", "to", "reason", "note"]
+            },
+            "FleetWindowDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "from": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "to": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "city": {
+                        "type": "string"
+                    },
+                    "region": {
+                        "type": "string"
+                    },
+                    "latitude": {
+                        "type": "number"
+                    },
+                    "longitude": {
+                        "type": "number"
+                    },
+                    "hours": {
+                        "type": "number"
+                    },
+                    "emptyMiles": {
+                        "type": "number",
+                        "nullable": true
+                    }
+                },
+                "required": [
+                    "id",
+                    "from",
+                    "to",
+                    "city",
+                    "region",
+                    "latitude",
+                    "longitude",
+                    "hours",
+                    "emptyMiles"
+                ]
+            },
+            "FleetPositionDto": {
+                "type": "object",
+                "properties": {
+                    "city": {
+                        "type": "string"
+                    },
+                    "source": {
+                        "type": "string",
+                        "enum": ["eld", "driverApp", "stopEvent", "home"]
+                    },
+                    "recordedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    }
+                },
+                "required": ["city", "source", "recordedAt"]
+            },
+            "FleetHoursDto": {
+                "type": "object",
+                "properties": {
+                    "state": {
+                        "type": "string",
+                        "enum": ["reported", "unavailable"]
+                    },
+                    "remainingMinutes": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "readAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": ["state", "remainingMinutes", "readAt"]
+            },
+            "FleetRowDto": {
+                "type": "object",
+                "properties": {
+                    "truck": {
+                        "$ref": "#/components/schemas/FleetTruckDto"
+                    },
+                    "position": {
+                        "nullable": true,
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/FleetPositionDto"
+                            }
+                        ]
+                    },
+                    "hours": {
+                        "nullable": true,
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/FleetHoursDto"
+                            }
+                        ]
+                    },
+                    "entries": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FleetEntryDto"
+                        }
+                    },
+                    "unavailable": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FleetUnavailableDto"
+                        }
+                    },
+                    "windows": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FleetWindowDto"
+                        }
+                    }
+                },
+                "required": [
+                    "truck",
+                    "position",
+                    "hours",
+                    "entries",
+                    "unavailable",
+                    "windows"
+                ]
+            },
+            "FleetConflictDto": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "needsAssignment",
+                            "overlap",
+                            "unreachable",
+                            "unavailable"
+                        ]
+                    },
+                    "loadId": {
+                        "type": "string"
+                    },
+                    "truckId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "otherLoadId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "deadline": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "overdue": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "type",
+                    "loadId",
+                    "truckId",
+                    "otherLoadId",
+                    "deadline",
+                    "overdue"
+                ]
+            },
+            "FleetPlanDto": {
+                "type": "object",
+                "properties": {
+                    "weekStart": {
+                        "type": "string"
+                    },
+                    "days": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "timeZone": {
+                        "type": "string"
+                    },
+                    "carrier": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "carriers": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FleetCarrierDto"
+                        }
+                    },
+                    "fleet": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FleetTruckDto"
+                        }
+                    },
+                    "rows": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FleetRowDto"
+                        }
+                    },
+                    "unassigned": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FleetEntryDto"
+                        }
+                    },
+                    "conflicts": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FleetConflictDto"
+                        }
+                    },
+                    "readOnly": {
+                        "type": "boolean"
+                    },
+                    "checkedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "weekStart",
+                    "days",
+                    "timeZone",
+                    "carrier",
+                    "carriers",
+                    "fleet",
+                    "rows",
+                    "unassigned",
+                    "conflicts",
+                    "readOnly",
+                    "checkedAt"
+                ]
+            },
+            "FleetOptionDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "detail": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "eligible": {
+                        "type": "boolean"
+                    },
+                    "reason": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "required": ["id", "label", "detail", "eligible", "reason"]
+            },
+            "FleetOptionsDto": {
+                "type": "object",
+                "properties": {
+                    "drivers": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FleetOptionDto"
+                        }
+                    },
+                    "trucks": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FleetOptionDto"
+                        }
+                    },
+                    "driverId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "truckId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "suggestion": {
+                        "nullable": true,
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/FleetSuggestionDto"
+                            }
+                        ]
+                    },
+                    "deadline": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "version": {
+                        "type": "number"
+                    },
+                    "timeZone": {
+                        "type": "string"
+                    },
+                    "reassign": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "drivers",
+                    "trucks",
+                    "driverId",
+                    "truckId",
+                    "suggestion",
+                    "deadline",
+                    "version",
+                    "timeZone",
+                    "reassign"
+                ]
+            },
+            "AssignLoadDto": {
+                "type": "object",
+                "properties": {
+                    "driverId": {
+                        "type": "string"
+                    },
+                    "truckId": {
+                        "type": "string"
+                    },
+                    "trackingSource": {
+                        "type": "string",
+                        "enum": ["driverApp", "eld"]
+                    },
+                    "version": {
+                        "type": "number"
+                    },
+                    "reason": {
+                        "type": "string",
+                        "maxLength": 500
+                    }
+                },
+                "required": ["driverId", "truckId", "trackingSource", "version"]
+            },
+            "TruckUnavailableDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64
+                    },
+                    "from": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "to": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "reason": {
+                        "type": "string",
+                        "enum": ["maintenance", "timeOff", "other"]
+                    },
+                    "note": {
+                        "type": "string",
+                        "maxLength": 500
+                    }
+                },
+                "required": ["id", "from", "to", "reason"]
+            },
+            "RecommendedLoadDto": {
+                "type": "object",
+                "properties": {
+                    "loadId": {
+                        "type": "string"
+                    },
+                    "origin": {
+                        "$ref": "#/components/schemas/FleetPlaceDto"
+                    },
+                    "destination": {
+                        "$ref": "#/components/schemas/FleetPlaceDto"
+                    },
+                    "pickupStart": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "timeZone": {
+                        "type": "string"
+                    },
+                    "equipment": {
+                        "type": "string",
+                        "enum": ["dry-van", "reefer", "flatbed"]
+                    },
+                    "emptyMiles": {
+                        "type": "number"
+                    },
+                    "rateCents": {
+                        "type": "number"
+                    }
+                },
+                "required": [
+                    "loadId",
+                    "origin",
+                    "destination",
+                    "pickupStart",
+                    "timeZone",
+                    "equipment",
+                    "emptyMiles",
+                    "rateCents"
+                ]
             },
             "LoadCancellationDto": {
                 "type": "object",
@@ -4106,7 +6257,8 @@
                             "checkCallRequested",
                             "documentUploaded",
                             "trackingLinkCreated",
-                            "trackingLinkRevoked"
+                            "trackingLinkRevoked",
+                            "driverAssigned"
                         ]
                     },
                     "category": {
@@ -5114,6 +7266,38 @@
                     }
                 },
                 "required": ["id"]
+            },
+            "InviteDriverDto": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 254
+                    },
+                    "note": {
+                        "type": "string",
+                        "maxLength": 500
+                    }
+                },
+                "required": ["email"]
+            },
+            "InvitationSentDto": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string"
+                    },
+                    "role": {
+                        "type": "string",
+                        "enum": ["carrier.driver"]
+                    },
+                    "expiresAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": ["email", "role", "expiresAt"]
             },
             "InvitationDto": {
                 "type": "object",
