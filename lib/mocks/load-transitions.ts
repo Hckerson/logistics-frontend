@@ -5,7 +5,7 @@ import { MOCK_FACILITIES } from "@/lib/data/mocks/facilities";
 import { MOCK_ORGANISATIONS } from "@/lib/data/mocks/team";
 import { STOP_EVENT_UNDO_MINUTES, UNDOABLE_LOAD_STATUSES } from "@/lib/loads/constants";
 import { LOAD_MOVES, LOAD_RETURNS } from "@/lib/loads/transitions";
-import { FREIGHT_MESSAGES, loadMissing, recordEvent, visibleLoad, withCaller, type MockCaller } from "@/lib/mocks/freight-access";
+import { FREIGHT_MESSAGES, loadMissing, recordEvent, staleLoad, visibleLoad, withCaller, type MockCaller } from "@/lib/mocks/freight-access";
 import { freightStore } from "@/lib/mocks/freight-store";
 import { fail, ok } from "@/lib/mocks/http";
 import { toLoadDetail } from "@/lib/mocks/load-views";
@@ -18,6 +18,7 @@ const TRANSITION_MESSAGES = {
     stale: "The load changed since you opened it",
     illegal: "That move is not open for this load right now",
     carrier: "Choose the carrier to book this load for",
+    unassigned: "Assign a driver and truck to dispatch this load",
 } as const;
 
 const allows = (rule: { from: readonly LoadStatus[]; actors: readonly LoadActor[] }, from: LoadStatus, actors: readonly LoadActor[]) =>
@@ -44,13 +45,14 @@ export const transitionLoad = withCaller(({ path, body }, { loadId }, caller) =>
     if (!input.success) return fail(HTTP_STATUS.badRequest, FREIGHT_MESSAGES.invalid, path);
 
     const { to, version, reason, carrierId } = input.data;
-    if (version !== load.version) return fail(HTTP_STATUS.preconditionFailed, TRANSITION_MESSAGES.stale, path);
+    if (version !== load.version) return staleLoad(path, TRANSITION_MESSAGES.stale, load);
 
     const now = new Date().getTime();
     const actors = actorsOf(caller.user.roles);
     const isMove = stopFits(to, load.stops) && LOAD_MOVES.some((move) => move.to === to && allows(move, load.status, actors));
     const undo = !isMove && isReturn(load, to, actors, now);
     if (!isMove && !undo) return fail(HTTP_STATUS.conflict, TRANSITION_MESSAGES.illegal, path);
+    if (to === "Dispatched" && (!load.driver || !load.truck)) return fail(HTTP_STATUS.conflict, TRANSITION_MESSAGES.unassigned, path);
     if (!reason && (caller.staff || to === "OnHold" || load.status === "OnHold")) {
         return fail(HTTP_STATUS.unprocessable, FREIGHT_MESSAGES.reasonRequired, path);
     }
@@ -66,7 +68,7 @@ export const transitionLoad = withCaller(({ path, body }, { loadId }, caller) =>
     applyStopTimes(load.stops, from, to, undo, at);
     if (booking) load.carrier = booking;
     if (to === "Posted" && from !== "Draft") Object.assign(load, { carrier: null, driver: null });
-    Object.assign(load, { status: to, version: load.version + 1, updatedAt: at });
+    Object.assign(load, { status: to, version: load.version + 1, updatedAt: at, updatedBy: caller.user.name });
     recordEvent(load.id, caller, { type: "statusChanged", category: "status", fromStatus: from, toStatus: to, reason: reason ?? null, city });
 
     return ok(HTTP_STATUS.ok, toLoadDetail(load, caller, now));

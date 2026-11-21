@@ -41,6 +41,7 @@ export interface MockLoadSpec {
     shipper: string;
     carrier?: string;
     driver?: string;
+    truck?: string;
     equipment: Equipment;
     commodity: string;
     weightLb: number;
@@ -87,7 +88,11 @@ export interface MockLoad {
     track: MockTrackSpec | null;
     seededAt: number;
     importBatchId?: string;
+    truck?: string | null;
+    trackingSource?: "driverApp" | "eld";
+    assignedAt?: string;
     createdAt: string;
+    updatedBy?: string;
     updatedAt: string;
 }
 

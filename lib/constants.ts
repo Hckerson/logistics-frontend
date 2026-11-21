@@ -1,5 +1,6 @@
 import { appRoutes, INTERNAL_ROUTE_PREFIXES, ROUTE_PREFIXES, WORKSPACE_ROUTE_PREFIXES } from "@/lib/app-routes";
 import type { AccountSide, MfaMethod, SupportContext } from "@/lib/types";
+import { publicEnv } from "@/lib/validations/env";
 
 export const DATE_VALUE_FORMAT = "yyyy-MM-dd";
 
@@ -72,14 +73,13 @@ export const PROTECTED_ROUTE_PREFIXES: readonly string[] = [...WORKSPACE_ROUTE_P
 
 export const SIGNED_IN_ACCESS_ROUTES = [VERIFY_ROUTE, INVITE_ROUTE];
 
-export const API_BASE_URL =
-    process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5100";
+export const API_BASE_URL = publicEnv.NEXT_PUBLIC_API_URL;
 
 export const SESSION_MAX_AGE = 60 * 60 * 24 * 7;
 
 export const SESSION_IDLE = { workspaceMinutes: 30, internalMinutes: 15, warningMinutes: 2, activityRefreshMinutes: 1, channel: "haulr-session" } as const;
 
-export const API_MOCKS = process.env.NEXT_PUBLIC_API_MOCKS !== "off";
+export const API_MOCKS = publicEnv.NEXT_PUBLIC_API_MOCKS === "on";
 
 export const MOCK_LATENCY_MS = { min: 300, max: 800 } as const;
 
@@ -96,6 +96,7 @@ export const SESSION_UNAVAILABLE = "The account was created but sign-in failed";
 export const SESSION_REQUIRED = "A session is required";
 
 export const PASSWORD_MIN_LENGTH = 8;
+export const PASSWORD_MAX_LENGTH = 128;
 
 export const RESET_LINK_MINUTES = 30;
 
@@ -144,3 +145,5 @@ export const MOTION_SPRING = {
 } as const;
 
 export const CONNECTIVITY_BACK_MS = 4 * TIME_MS.second;
+
+export const OBSERVABILITY = { serviceName: "haulr-frontend", tracesSampleRate: 0 } as const;

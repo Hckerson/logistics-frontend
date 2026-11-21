@@ -1,7 +1,7 @@
 import { HTTP_STATUS, TIME_MS } from "@/lib/constants";
 import { MOCK_FREIGHT } from "@/lib/data/mocks/loads";
 import { CANCELLATION, CURRENCY, LOAD_PAGE_SIZE, STOP_INSTRUCTIONS } from "@/lib/loads/constants";
-import { FREIGHT_MESSAGES, loadMissing, sees, visibleLoad, withCaller } from "@/lib/mocks/freight-access";
+import { FREIGHT_MESSAGES, loadMissing, sees, staleLoad, visibleLoad, withCaller } from "@/lib/mocks/freight-access";
 import { freightStore } from "@/lib/mocks/freight-store";
 import { fail, ok } from "@/lib/mocks/http";
 import { findLoads } from "@/lib/mocks/load-query";
@@ -71,10 +71,10 @@ export const updateStopInstructions = withCaller(({ path, body }, { loadId, stop
     const input = stopInstructionsSchema.safeParse(body);
     if (!input.success) return fail(HTTP_STATUS.badRequest, FREIGHT_MESSAGES.invalid, path);
     if (!STOP_INSTRUCTIONS.openStatuses.some((status) => status === load.status)) return fail(HTTP_STATUS.conflict, INSTRUCTION_MESSAGES.closed, path);
-    if (input.data.version !== load.version) return fail(HTTP_STATUS.preconditionFailed, INSTRUCTION_MESSAGES.stale, path);
+    if (input.data.version !== load.version) return staleLoad(path, INSTRUCTION_MESSAGES.stale, load);
 
     const now = new Date().getTime();
     stop.instructions = input.data.instructions || null;
-    Object.assign(load, { version: load.version + 1, updatedAt: new Date(now).toISOString() });
+    Object.assign(load, { version: load.version + 1, updatedAt: new Date(now).toISOString(), updatedBy: caller.user.name });
     return ok(HTTP_STATUS.ok, toLoadDetail(load, caller, now));
 });

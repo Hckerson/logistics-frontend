@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ACCOUNT_SIDES, MFA_BACKUP_CODE_LENGTH, MFA_CODE_LENGTH, PASSWORD_MIN_LENGTH } from "@/lib/constants";
+import { ACCOUNT_SIDES, MFA_BACKUP_CODE_LENGTH, MFA_CODE_LENGTH, PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from "@/lib/constants";
 import {
     apiEnvelopeDtoSchema,
     emailDtoSchema,
@@ -11,8 +11,10 @@ import {
 
 const credentials = {
     email: z.string().email(),
-    password: z.string().min(PASSWORD_MIN_LENGTH),
+    password: z.string().min(PASSWORD_MIN_LENGTH).max(PASSWORD_MAX_LENGTH),
 };
+
+export const passwordFits = (password: string) => password.length >= PASSWORD_MIN_LENGTH && password.length <= PASSWORD_MAX_LENGTH;
 
 export const loginSchema = loginDtoSchema.extend(credentials);
 
@@ -27,7 +29,7 @@ export const accountSchema = registerDtoSchema.pick({ fullName: true, email: tru
     side: z.enum(ACCOUNT_SIDES, "missing"),
     fullName: z.string().trim().min(1, "missing"),
     email: z.string().trim().min(1, "missing").email("invalid"),
-    password: z.string().min(1, "missing").min(PASSWORD_MIN_LENGTH, "short"),
+    password: z.string().min(1, "missing").min(PASSWORD_MIN_LENGTH, "short").max(PASSWORD_MAX_LENGTH, "long"),
     consent: z.literal(true, "missing"),
 });
 
@@ -43,7 +45,7 @@ export const emailEnvelopeSchema = apiEnvelopeDtoSchema.extend({ data: emailDtoS
 
 export const newPasswordSchema = z
     .object({
-        password: z.string().min(1, "missing").min(PASSWORD_MIN_LENGTH, "short"),
+        password: z.string().min(1, "missing").min(PASSWORD_MIN_LENGTH, "short").max(PASSWORD_MAX_LENGTH, "long"),
         confirm: z.string().min(1, "missing"),
     })
     .refine(({ password, confirm }) => password === confirm, { path: ["confirm"], message: "mismatch" });

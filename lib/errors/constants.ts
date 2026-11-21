@@ -32,6 +32,8 @@ export const ERROR_COPY = {
 
 export const RATE_LIMIT_WAIT = "Too many attempts. Try again in {minutes} min.";
 
+export const CHANGED_BY = "{name} changed this at {time}. Reload to see it; your entries are kept.";
+
 export const SECTION_COPY = {
     loading: "Loading {label}",
     slow: "Still loading {label}. You can keep working.",
@@ -51,3 +53,11 @@ export const LOADING_ANNOUNCE_MS = 1000;
 export const LOADING_SLOW_MS = 5000;
 
 export const CORRELATION_HEADER = "x-request-id";
+
+export const AUDIT_REASON_HEADER = "x-haulr-reason";
+
+export const ERROR_CLASS_HEADER = "x-haulr-error-class";
+
+export const TIMING_HEADER = "Server-Timing";
+
+export const AUDIT_REASON_MAX = 500;

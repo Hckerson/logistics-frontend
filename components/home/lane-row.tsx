@@ -2,7 +2,7 @@
 import clsx from "clsx";
 import { motion } from "motion/react";
 import HeadlightStreak from "@/components/home/headlight-streak";
-import LaneRule from "@/components/home/lane-rule";
+import LaneRule from "@/components/common/lane-rule";
 import { LANE_DRAW_SECONDS, REVEAL_EASE } from "@/lib/home/constants";
 import type { LaneSample } from "@/lib/types";
 
@@ -18,7 +18,6 @@ export const LANE_ROW_GRID =
     "grid grid-cols-[minmax(0,1fr)_auto] items-center gap-6 sm:grid-cols-[minmax(0,2.2fr)_1fr_1fr_1fr_0.7fr]";
 
 const STAGGER = 0.09;
-const STRETCH = { fontStretch: "var(--haulr-semi)" };
 
 export default function LaneRow({ lane, featured, order, shown, reduced }: Props) {
     const delay = order * STAGGER;
@@ -33,13 +32,13 @@ export default function LaneRow({ lane, featured, order, shown, reduced }: Props
                     className={clsx(LANE_ROW_GRID, featured ? "py-8" : "py-5")}
                 >
                     {featured ? (
-                        <div className="text-text flex items-center gap-3 sm:gap-6" style={STRETCH}>
+                        <div className="text-text haulr-lane flex items-center gap-3 sm:gap-6">
                             <span className="text-3xl tracking-tight sm:text-5xl">{lane.from}</span>
                             <LaneRule className="w-10 shrink-0 sm:w-40" />
                             <span className="text-3xl tracking-tight sm:text-5xl">{lane.to}</span>
                         </div>
                     ) : (
-                        <p className="text-text text-xl tracking-tight sm:text-2xl" style={STRETCH}>
+                        <p className="text-text haulr-lane text-xl tracking-tight sm:text-2xl">
                             {lane.from} <span className="text-accent">→</span> {lane.to}
                         </p>
                     )}

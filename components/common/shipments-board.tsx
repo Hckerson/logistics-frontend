@@ -29,11 +29,12 @@ interface Props {
     initial: ShipmentFilters;
     reset: readonly ShipmentParam[];
     exportId: string | null;
+    canImport: boolean;
 }
 
 const { stages } = SHIPMENTS_COPY;
 
-export default function ShipmentsBoard({ initial, reset, exportId }: Props) {
+export default function ShipmentsBoard({ initial, reset, exportId, canImport }: Props) {
     const [filters, setFilters] = useState(initial);
     const [open, setOpen] = useState<string | null>(null);
     const [panel, setPanel] = useState({ open: false, key: 0 });
@@ -120,7 +121,7 @@ export default function ShipmentsBoard({ initial, reset, exportId }: Props) {
                                     />
                                 ),
                             }}
-                            empty={<ShipmentsEmpty filters={narrowed} onClear={() => clear(false)} />}
+                            empty={<ShipmentsEmpty filters={narrowed} canImport={canImport} onClear={() => clear(false)} />}
                         />
                     )
                 }
@@ -142,9 +143,7 @@ export default function ShipmentsBoard({ initial, reset, exportId }: Props) {
                 total={total}
                 filters={applied}
             />
-            <p role="status" className="sr-only">
-                {total === undefined ? "" : pluralize(total, SHIPMENTS_COPY.results)}
-            </p>
+            <p role="status" className="sr-only">{total === undefined ? "" : pluralize(total, SHIPMENTS_COPY.results)}</p>
         </div>
     );
 }

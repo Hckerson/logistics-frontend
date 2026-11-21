@@ -8,9 +8,16 @@ import type {
     CheckCallResponseDto,
     DocumentDto,
     DownloadLinkDto,
+    DriverPodPageTicketDto,
+    DriverPositionsAcceptedDto,
+    DriverTripDto,
+    DriverTripsDto,
     EmailDto,
     ExportJobDto,
     FacilityOptionDto,
+    FleetOptionsDto,
+    FleetPlanDto,
+    FleetUnavailableDto,
     HealthResponseDto,
     ImportBatchDto,
     ImportBatchPageDto,
@@ -18,24 +25,37 @@ import type {
     ImportRowPageDto,
     ImportUploadTicketDto,
     InvitationDto,
+    InvitationSentDto,
+    InvoiceDto,
+    InvoicePaymentResultDto,
+    LoadBoardPageDto,
+    LoadBookedDto,
+    LoadBookingDto,
     LoadCancellationDto,
     LoadCountDto,
+    LoadDraftDto,
     LoadDto,
     LoadEventPageDto,
     LoadFacetsDto,
     LoadPageDto,
     LoadPositionsDto,
+    LoadQuoteDto,
     LocationConsentReceiptDto,
     MapPositionDto,
     MfaStatusDto,
+    NetworkStatsDto,
     NotificationPageDto,
+    OrganisationStandingDto,
     PasswordResetDto,
+    PaymentMethodDto,
     PeriodSeriesResponseDto,
     PeriodTotalResponseDto,
     PlaceDto,
+    PostLoadResultDto,
     PublicTrackingDto,
     QuickFindDto,
     RateEstimateDto,
+    RecommendedLoadDto,
     SavedEstimateDto,
     TicketReceiptDto,
     TicketSummaryDto,
@@ -67,6 +87,15 @@ export const routes = {
         `/api/stats/users/total${queryString(query)}` as Endpoint<PeriodTotalResponseDto>,
     statsUsersSeries: (query: { period: "day" | "month" | "year" }) =>
         `/api/stats/users/series${queryString(query)}` as Endpoint<PeriodSeriesResponseDto>,
+    loadDraftsCreate: () => "/api/loads/drafts" as Endpoint<LoadDraftDto>,
+    loadDraftsFindOne: (draftId: string) =>
+        `/api/loads/drafts/${draftId}` as Endpoint<LoadDraftDto>,
+    loadDraftsUpdate: (draftId: string) =>
+        `/api/loads/drafts/${draftId}` as Endpoint<LoadDraftDto>,
+    loadDraftsQuote: (draftId: string) =>
+        `/api/loads/drafts/${draftId}/quote` as Endpoint<LoadQuoteDto>,
+    loadDraftsPost: (draftId: string) =>
+        `/api/loads/drafts/${draftId}/post` as Endpoint<PostLoadResultDto>,
     loadsFindAll: (query?: {
         cursor?: string;
         limit?: number;
@@ -96,6 +125,62 @@ export const routes = {
     loadsTransition: (loadId: string) =>
         `/api/loads/${loadId}/transitions` as Endpoint<LoadDto>,
     authRefresh: () => "/api/auth/refresh" as Endpoint<AuthResponseDto>,
+    driversTrips: () => "/api/driver/trips" as Endpoint<DriverTripsDto>,
+    driversTrip: (loadId: string) =>
+        `/api/driver/trips/${loadId}` as Endpoint<DriverTripDto>,
+    driversRecordEvent: (loadId: string) =>
+        `/api/driver/trips/${loadId}/events` as Endpoint<DriverTripDto>,
+    driversUndoEvent: (loadId: string, eventId: string) =>
+        `/api/driver/trips/${loadId}/events/${eventId}/undo` as Endpoint<DriverTripDto>,
+    driversPodPage: (loadId: string) =>
+        `/api/driver/trips/${loadId}/pod/pages` as Endpoint<DriverPodPageTicketDto>,
+    driversReportPositions: (loadId: string) =>
+        `/api/driver/trips/${loadId}/positions` as Endpoint<DriverPositionsAcceptedDto>,
+    driversDownloadDocument: (loadId: string, documentId: string) =>
+        `/api/driver/trips/${loadId}/documents/${documentId}/download` as Endpoint<DownloadLinkDto>,
+    driversSubmitPod: (loadId: string) =>
+        `/api/driver/trips/${loadId}/pod` as Endpoint<DriverTripDto>,
+    fleetPlan: (query?: {
+        week?: string;
+        truck?: string;
+        driver?: string;
+        equipment?: string;
+        carrier?: string;
+    }) => `/api/fleet/plan${queryString(query)}` as Endpoint<FleetPlanDto>,
+    fleetRecommendations: (query?: {
+        truck?: string;
+        from?: string;
+        to?: string;
+    }) =>
+        `/api/fleet/recommendations${queryString(query)}` as Endpoint<
+            RecommendedLoadDto[]
+        >,
+    fleetSetUnavailable: (truckId: string) =>
+        `/api/fleet/trucks/${truckId}/unavailable` as Endpoint<FleetUnavailableDto>,
+    fleetEndUnavailable: (truckId: string, periodId: string) =>
+        `/api/fleet/trucks/${truckId}/unavailable/${periodId}/end` as Endpoint<FleetUnavailableDto>,
+    fleetOptionsFor: (loadId: string) =>
+        `/api/loads/${loadId}/fleet` as Endpoint<FleetOptionsDto>,
+    fleetAssign: (loadId: string) =>
+        `/api/loads/${loadId}/assignment` as Endpoint<LoadDto>,
+    loadBoardSearch: (query?: {
+        origin?: string;
+        originRadius?: string;
+        destination?: string;
+        destinationRadius?: string;
+        from?: string;
+        to?: string;
+        equipment?: string;
+        minRate?: string;
+        minRpm?: string;
+        maxWeight?: string;
+        cursor?: string;
+        limit?: string;
+    }) => `/api/load-board${queryString(query)}` as Endpoint<LoadBoardPageDto>,
+    loadsBooking: (loadId: string) =>
+        `/api/loads/${loadId}/booking` as Endpoint<LoadBookingDto>,
+    loadsBook: (loadId: string) =>
+        `/api/loads/${loadId}/book` as Endpoint<LoadBookedDto>,
     loadsCancellation: (loadId: string) =>
         `/api/loads/${loadId}/cancellation` as Endpoint<LoadCancellationDto>,
     loadsUpdateStopInstructions: (loadId: string, stopId: string) =>
@@ -179,6 +264,8 @@ export const routes = {
         "/api/pricing/estimates" as Endpoint<SavedEstimateDto>,
     geoPlaces: (query: { q: string }) =>
         `/api/geo/places${queryString(query)}` as Endpoint<PlaceDto[]>,
+    teamInviteDriver: () =>
+        "/api/team/invitations" as Endpoint<InvitationSentDto>,
     teamCheckInvitation: () =>
         "/api/team/invitations/check" as Endpoint<InvitationDto>,
     teamAcceptInvitation: () =>
@@ -223,4 +310,15 @@ export const routes = {
     importsResults: (batchId: string) =>
         `/api/imports/${batchId}/results` as Endpoint<DownloadLinkDto>,
     facilitiesFindAll: () => "/api/facilities" as Endpoint<FacilityOptionDto[]>,
+    statsNetwork: () => "/api/stats/network" as Endpoint<NetworkStatsDto>,
+    organisationsStanding: () =>
+        "/api/organisations/standing" as Endpoint<OrganisationStandingDto>,
+    invoicesFindOne: (invoiceId: string) =>
+        `/api/invoices/${invoiceId}` as Endpoint<InvoiceDto>,
+    paymentMethodsFindAll: () =>
+        "/api/payment-methods" as Endpoint<PaymentMethodDto[]>,
+    invoicesPay: () =>
+        "/api/invoices/payments" as Endpoint<InvoicePaymentResultDto>,
+    invoicesRemittance: (paymentId: string) =>
+        `/api/invoice-payments/${paymentId}/remittance` as Endpoint<DownloadLinkDto>,
 } as const;

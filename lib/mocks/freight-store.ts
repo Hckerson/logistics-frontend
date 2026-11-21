@@ -47,6 +47,7 @@ const loadFrom = (spec: MockLoadSpec, now: number): MockLoad => ({
     shipper: spec.shipper,
     carrier: spec.carrier ?? null,
     driver: spec.driver ?? null,
+    truck: spec.truck ?? null,
     equipment: spec.equipment,
     commodity: spec.commodity,
     weightLb: spec.weightLb,

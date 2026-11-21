@@ -56,7 +56,8 @@ export const createImport = withCaller(({ path, body }, _params, caller) => {
         version: 1,
     };
     importBatches().set(batch.id, batch);
-    return ok(HTTP_STATUS.created, { batch: toBatchDto(batch, now), ...linkTo(`${MOCK_IMPORTS.storagePath}/${batch.id}`, now) });
+    const { url, expiresAt } = linkTo(`${MOCK_IMPORTS.storagePath}/${batch.id}`, now);
+    return ok(HTTP_STATUS.created, { batch: toBatchDto(batch, now), uploadUrl: url, expiresAt });
 });
 
 export const completeImport = withCaller(async ({ path }, { batchId }, caller) => {
@@ -125,6 +126,6 @@ export const listFacilities = withCaller((_request, _params, caller) =>
         HTTP_STATUS.ok,
         Object.entries(MOCK_FACILITIES)
             .filter(([, place]) => place.organisation === caller.organisation)
-            .map(([id, { name, city, region }]) => ({ id, name, city, region })),
+            .map(([id, { name, city, region, line1, postalCode, timeZone }]) => ({ id, name, city, region, line1, postalCode, timeZone })),
     ),
 );

@@ -1,6 +1,6 @@
 # Haulr Design OS — Complete
 
-`Version 1.3.8` · `2026-11-18` · Status: **Complete, ready for engineering handoff** · Start: [START_HERE](./START_HERE.md) · Overview: [README](./README.md)
+`Version 1.3.13` · `2026-11-21` · Status: **Complete, ready for engineering handoff** · Start: [START_HERE](./START_HERE.md) · Overview: [README](./README.md)
 
 The master index. If something exists in this design OS, it is listed here.
 
@@ -90,7 +90,7 @@ It deliberately contains **no visual design**. Each page's look is decided when 
 | Page sections | 223 | Phase 5 §13 |
 | Interaction contracts | 68 | Phase 6 |
 | Architectural decisions | 14 (D-1 … D-14) | Phase 7 §1 |
-| Hook files | 71 resource hook files (34 existing) + 35 existing hooks without transport | Phase 7 §8 |
+| Hook files | 80 resource hook files (47 existing) + 39 existing hooks without transport | Phase 7 §8 |
 | Build plan | Solo: 7 stages, about 71 weeks (active). Staffed: 8 sprints, 16 weeks | Phase 8 §16, §3 |
 | Milestones | 5 | Phase 8 §4 |
 | Risks | 17 | Phase 8 §6 |
@@ -233,9 +233,9 @@ Integrity checks run at generation: 66 pages defined in Phases 3, 4, 5 and 8; 23
 
 | Field | Value |
 | --- | --- |
-| Version | 1.3.8 (stage 2, accept invitation, the workspace frame and the primitives recorded; 1.3.7 pending contract for endpoints the backend has not built; 1.3.6 recorded the lane rate estimator; 1.3.5 aligned the host async rule with D-2; 1.3.4 recorded the merit-based library and service decisions and help and support pages; 1.3.3 recorded the stage 1 decisions and system and legal pages; 1.3.2 synced statuses after the MFA step; 1.3.1 caught statuses up, relabelled unblocked items Specified and fixed code drift; 1.3.0 recorded the maintainer decisions, solo build order and mocked backend; 1.2.0 added the dispatch board and quote desk, 1.1.1 was the audit, 1.1.0 enterprise hardening, 1.0.0 the initial generation) |
+| Version | 1.3.13 (stage 6 recorded; 1.3.12 stage 7 and SH-06; 1.3.11 stage 3 and 4 follow-ups; 1.3.10 stages 3 and 4 and the 1.3.8 gaps; 1.3.9 bulk load import; 1.3.8 stage 2, accept invitation, the workspace frame and the primitives; 1.3.7 pending contract for endpoints the backend has not built; 1.3.6 recorded the lane rate estimator; 1.3.5 aligned the host async rule with D-2; 1.3.4 recorded the merit-based library and service decisions and help and support pages; 1.3.3 recorded the stage 1 decisions and system and legal pages; 1.3.2 synced statuses after the MFA step; 1.3.1 caught statuses up, relabelled unblocked items Specified and fixed code drift; 1.3.0 recorded the maintainer decisions, solo build order and mocked backend; 1.2.0 added the dispatch board and quote desk, 1.1.1 was the audit, 1.1.0 enterprise hardening, 1.0.0 the initial generation) |
 | Generated | 2026-09-30 |
-| Revised | 2026-11-18 |
+| Revised | 2026-11-21 |
 | Seed prompt | `docs/MASTER_PROMPT_COMPLETE.md` |
 | Output directory | `design-os/generated/` |
 | Generation mode | 1.1.0 is a merge over 1.0.0: nothing removed; thin fields raised to the Phase 4 §2 taxonomy; enterprise scope added |
@@ -258,6 +258,11 @@ Integrity checks run at generation: 66 pages defined in Phases 3, 4, 5 and 8; 23
 | 1.3.6 | Recorded the Lane Rate Estimator, built ahead of stage 5: PG-05, XS-10 and SC-05.1 … SC-05.4 are In progress with IC-05, IC-08, IC-32 and IC-45. Phase 7 gains `components/estimator/`, `lib/quotes/`, `lib/data/quotes/`, the places, estimate and trend route handlers, the estimator hooks (one file per hook) and `public-page.tsx`; its route tree now marks every built page, and `lib/actions/` reads as mutations only (D-2). SC-05.1 records the equipment choice group (IC-09) it was built with. |
 | 1.3.7 | The backend stays unbuilt during the solo build. Endpoints it has not built are specified in `tools/contract/pending-openapi.json`, which `pnpm contract` merges over the backend document, so every mock still registers under a contract route. The stage 2 freight spine that had been built in the backend was reverted there and its endpoints and DTOs moved into the pending file, with the `roles` claim on `AuthResponseUserDto`. The reset, verification, MFA, help feedback, support ticket, pricing, places, invitation, location consent and tracking-link send endpoints that `lib/api-routes.ts` had typed by hand moved there too, and their response shapes now come from the contract. Phase 7 §11 and the Phase 8 backend dependency describe the pending file; the host `.claude/CLAUDE.md` contract layer matches. |
 | 1.3.8 | Recorded the work since 1.3.6. Stage 2 is built: Public Tracking, Shipments and Load Details (PG-02, PG-26, PG-40), XF-07 and their sections are In progress. Built ahead: Accept Invitation (PG-15), tracking share and export (SC-26.3), and the workspace frame's quick find, notifications, session warning and connectivity. Thirty-nine contracts are In progress, most through the `components/ui/` primitives rebuilt on React Aria Components. Phase 7 records the route handlers, hooks, components and `lib/` folders that exist, `components/tracking/` under D-14, `appRoutes` in `lib/app-routes.ts`, both libraries as installed, and the map decision of 2026-11-06 (native MapLibre route lines; deck.gl non-interleaved). Phase 8 records what stage 0 has and lacks, and lifts the export and bulk-action slice limit for PG-26. |
+| 1.3.9 | Recorded Bulk Load Import, built ahead of the S4 team plan: PG-56, SC-56.1 … SC-56.4, IC-61 and XF-14 are In progress, with the import route handlers, actions, hooks and components in Phase 7 and `read-excel-file` as the mock's spreadsheet parser. XS-07 caught up to In progress: a flow is In progress once the page it starts on is built. |
+| 1.3.10 | Recorded stages 3 and 4. The Dispatch Board (PG-65) with load assignment (SC-40.5, SH-15), Driver Home and Driver Trip (PG-20, PG-39), XF-05, XF-06, XF-09 and XF-17 are In progress, with IC-06, IC-25, IC-29, IC-31, IC-39 and IC-68. Phase 7 gains the driver and fleet route handlers, hooks, components, `lib/driver/` and `lib/fleet/`, and the offline queue as built. The 1.3.8 gaps are closed: the `/dashboard` role redirect, SC-01.3 statistics, the 128-character password maximum and the estimator combobox. SC-01.2 now picks equipment with IC-09, the maintainer's choice. |
+| 1.3.11 | Recorded the stage 3 and 4 follow-ups in Phase 7 and Phase 8: the `(fleet)` route group that lets `internal.ops` read PG-65, driver position reporting (`use-position-reporter.ts`), editor names on conflicts (IC-67) and the most-recently-used driver and truck pair in SH-15. No status changes. |
+| 1.3.12 | Recorded stage 7 and SH-06. Invoice Detail and payment (PG-31, SC-31.1 … SC-31.3, IC-43, XF-10) and the account standing notice (SH-06) are In progress, with their route handlers, hooks, components and `lib/billing/` in Phase 7. |
+| 1.3.13 | Recorded stage 6. Load Board and Book Load (PG-33, PG-34), their sections, IC-18, IC-26, IC-27 and XF-02 are In progress, with the load board and booking route handlers, `use-load-board.ts`, the components and `lib/load-board/` in Phase 7. |
 
 ---
 

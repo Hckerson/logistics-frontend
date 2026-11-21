@@ -5,6 +5,7 @@ import WorkspaceHeading from "@/components/common/workspace-heading";
 import WorkspacePage from "@/components/common/workspace-page";
 import ButtonLink from "@/components/ui/button-link";
 import { appRoutes } from "@/lib/app-routes";
+import { readFlags } from "@/lib/flags";
 import { SHIPMENTS_COPY } from "@/lib/data/loads/shipments";
 import { parseShipmentSearch } from "@/lib/loads/shipment-search";
 
@@ -16,18 +17,21 @@ export const metadata: Metadata = { title: SHIPMENTS_COPY.meta.title, robots: { 
 
 export default async function ShipmentsPage({ searchParams }: Props) {
     const { filters, reset, exportId } = parseShipmentSearch(await searchParams);
+    const { bulkImport } = readFlags();
 
     return (
         <WorkspacePage>
             <WorkspaceHeading title={SHIPMENTS_COPY.title}>
-                <ButtonLink href={appRoutes.bulkImport()} tone="outline" icon={Upload}>
-                    {SHIPMENTS_COPY.importLoads}
-                </ButtonLink>
+                {bulkImport ? (
+                    <ButtonLink href={appRoutes.bulkImport()} tone="outline" icon={Upload}>
+                        {SHIPMENTS_COPY.importLoads}
+                    </ButtonLink>
+                ) : null}
                 <ButtonLink href={appRoutes.postLoad()} icon={Add}>
                     {SHIPMENTS_COPY.post}
                 </ButtonLink>
             </WorkspaceHeading>
-            <ShipmentsBoard initial={filters} reset={reset} exportId={exportId} />
+            <ShipmentsBoard initial={filters} reset={reset} exportId={exportId} canImport={bulkImport} />
         </WorkspacePage>
     );
 }

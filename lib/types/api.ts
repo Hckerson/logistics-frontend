@@ -14,6 +14,8 @@ export interface ActionFailure {
     message: string;
     retryAfter?: number;
     correlationId?: string;
+    changedBy?: string;
+    changedAt?: string;
 }
 
 export type ActionResult<TData> = { ok: true; data: TData } | ActionFailure;

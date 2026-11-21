@@ -12,7 +12,13 @@ export const MOCK_MEMBERSHIPS: Record<string, string> = {
     "dispatch@northline.example": "northline",
     "approver@northline.example": "northline",
     "ray@ridgeway.example": "ridgeway",
+    "dispatch@bluemesa.example": "blueMesa",
     "driver@ridgeway.example": "ridgeway",
+    "driver2@ridgeway.example": "ridgeway",
+    "driver3@ridgeway.example": "ridgeway",
+    "driver4@ridgeway.example": "ridgeway",
+    "driver5@ridgeway.example": "ridgeway",
+    "driver6@ridgeway.example": "ridgeway",
 };
 
 const northline = { organisation: "northline", inviter: "Priya Raman", role: "shipper.member" } as const;

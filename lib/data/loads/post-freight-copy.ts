@@ -1,0 +1,46 @@
+import type { Equipment, Requirement } from "@/lib/types";
+
+export const FREIGHT_COPY = {
+    intro: "What's moving and what the truck needs. Changing equipment or weight clears any price you were given.",
+    equipment: "Equipment",
+    equipmentDetail: { "dry-van": "Enclosed 53 ft trailer", reefer: "Temperature controlled", flatbed: "Open deck for oversize or steel" } satisfies Record<
+        Equipment,
+        string
+    >,
+    commodity: "Commodity",
+    commodityHint: "What's on the truck, for example packaged food.",
+    weight: "Weight (lb)",
+    weightHint: "Up to {max} lb",
+    pallets: "Pallets",
+    palletsHint: "Optional",
+    tempMin: "Minimum (°F)",
+    tempMax: "Maximum (°F)",
+    tempHint: "Reefers hold between {min} °F and {max} °F",
+    tempLegend: "Temperature range",
+    tempShown: "Temperature range is now required for the reefer",
+    hazmat: "Hazardous materials",
+    hazmatDetail: "Placarded hazmat needs a certified carrier and a UN number, and adds a surcharge.",
+    unNumber: "UN number",
+    unHint: "UN followed by four digits, for example UN1203.",
+    unShown: "UN number is now required",
+    requirements: "Special requirements",
+    requirementOptions: {
+        team: { label: "Team drivers", detail: "Two drivers for a non-stop run" },
+        liftgate: { label: "Liftgate", detail: "For docks without a loading bay" },
+        tarps: { label: "Tarps", detail: "Covered load on a flatbed" },
+        driverAssist: { label: "Driver assist", detail: "Driver helps load or unload" },
+    } satisfies Record<Requirement, { label: string; detail: string }>,
+    poNumber: "PO number",
+    poHint: "Optional",
+    unit: { weight: "lb", temp: "°F" },
+    errors: {
+        equipment: { missing: "Choose the equipment" },
+        commodity: { missing: "Say what the commodity is", long: "Keep the commodity under {max} characters" },
+        weightLb: { missing: "Enter the weight", number: "Enter the weight as a number of pounds", heavy: "The weight is over the {max} lb legal limit" },
+        pallets: { whole: "Pallets must be a whole number", pallets: "A trailer holds up to {max} pallets" },
+        tempMinF: { temp: "Enter both temperatures for the reefer", tempRange: "Reefers hold between {min} °F and {max} °F", tempOrder: "The minimum is above the maximum" },
+        tempMaxF: { temp: "Enter both temperatures for the reefer", tempRange: "Reefers hold between {min} °F and {max} °F", tempOrder: "The minimum is above the maximum" },
+        unNumber: { un: "Enter the UN number as UN and four digits" },
+        poNumber: { long: "The PO number is too long" },
+    },
+} as const;

@@ -1,5 +1,5 @@
 import type { AuthLink, LaneTag } from "@/lib/types";
-import { HELP_ROUTE, HOME_ROUTE, LOGIN_ROUTE, PASSWORD_MIN_LENGTH, SUPPORT_ROUTE } from "@/lib/constants";
+import { HELP_ROUTE, HOME_ROUTE, LOGIN_ROUTE, PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH, SUPPORT_ROUTE } from "@/lib/constants";
 import { HERO_LANE, HUBS } from "@/lib/data/home/hubs";
 
 const cityOf = (code: string) => HUBS.find((hub) => hub.code === code)?.name.split(",")[0] ?? code;
@@ -10,7 +10,11 @@ export const AUTH_COPY = {
     note: "Design study",
     reveal: "Show password",
     capsLock: "Caps Lock is on",
-    password: { rule: `At least ${PASSWORD_MIN_LENGTH} characters`, short: `Use at least ${PASSWORD_MIN_LENGTH} characters.` },
+    password: {
+        rule: `${PASSWORD_MIN_LENGTH} to ${PASSWORD_MAX_LENGTH} characters`,
+        short: `Use at least ${PASSWORD_MIN_LENGTH} characters.`,
+        long: `Use ${PASSWORD_MAX_LENGTH} characters or fewer.`,
+    },
     enter: "Enter",
     link: { expired: ["Link", "expired."], dead: "Link no longer works" },
     recovery: {

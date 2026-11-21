@@ -119,6 +119,113 @@ export type PeriodSeriesResponseDto = z.infer<
     typeof periodSeriesResponseDtoSchema
 >;
 
+export const draftStopDtoSchema = z.object({
+    facilityId: z.string(),
+    type: z.enum(["pickup", "delivery"]),
+    windowStart: z.string(),
+    windowEnd: z.string(),
+    reference: z.string().nullable(),
+    instructions: z.string().nullable(),
+});
+export type DraftStopDto = z.infer<typeof draftStopDtoSchema>;
+
+export const draftFreightDtoSchema = z.object({
+    equipment: z.enum(["dry-van", "reefer", "flatbed"]),
+    commodity: z.string(),
+    weightLb: z.number(),
+    pallets: z.number().nullable(),
+    tempMinF: z.number().nullable(),
+    tempMaxF: z.number().nullable(),
+    hazmat: z.boolean(),
+    unNumber: z.string().nullable(),
+    requirements: z.array(
+        z.enum(["team", "liftgate", "tarps", "driverAssist"]),
+    ),
+    poNumber: z.string().nullable(),
+});
+export type DraftFreightDto = z.infer<typeof draftFreightDtoSchema>;
+
+export const loadDraftRequestDtoSchema = z.object({
+    stops: z.array(draftStopDtoSchema),
+    freight: draftFreightDtoSchema.nullable(),
+});
+export type LoadDraftRequestDto = z.infer<typeof loadDraftRequestDtoSchema>;
+
+export const loadDraftUpdateDtoSchema = z.object({
+    version: z.number(),
+    stops: z.array(draftStopDtoSchema),
+    freight: draftFreightDtoSchema.nullable(),
+});
+export type LoadDraftUpdateDto = z.infer<typeof loadDraftUpdateDtoSchema>;
+
+export const quoteApprovalDtoSchema = z.object({
+    required: z.boolean(),
+    limitCents: z.number().nullable(),
+    approvers: z.array(z.string()),
+});
+export type QuoteApprovalDto = z.infer<typeof quoteApprovalDtoSchema>;
+
+export const chargeDtoSchema = z.object({
+    kind: z.enum([
+        "linehaul",
+        "fuel",
+        "accessorial",
+        "fee",
+        "deduction",
+        "quickPayFee",
+    ]),
+    amountCents: z.number(),
+    status: z.enum(["agreed", "pendingApproval", "disputed"]),
+});
+export type ChargeDto = z.infer<typeof chargeDtoSchema>;
+
+export const moneyDtoSchema = z.object({
+    totalCents: z.number(),
+    currency: z.string(),
+    pending: z.boolean(),
+    parts: z.array(chargeDtoSchema),
+});
+export type MoneyDto = z.infer<typeof moneyDtoSchema>;
+
+export const loadQuoteDtoSchema = z.object({
+    id: z.string(),
+    price: moneyDtoSchema,
+    miles: z.number(),
+    confidence: z.enum(["high", "medium", "low"]),
+    validUntil: z.string(),
+    approval: quoteApprovalDtoSchema,
+});
+export type LoadQuoteDto = z.infer<typeof loadQuoteDtoSchema>;
+
+export const loadDraftDtoSchema = z.object({
+    id: z.string(),
+    version: z.number(),
+    stops: z.array(draftStopDtoSchema),
+    freight: draftFreightDtoSchema.nullable(),
+    quote: loadQuoteDtoSchema.nullable(),
+    updatedAt: z.string(),
+});
+export type LoadDraftDto = z.infer<typeof loadDraftDtoSchema>;
+
+export const loadQuoteRequestDtoSchema = z.object({ version: z.number() });
+export type LoadQuoteRequestDto = z.infer<typeof loadQuoteRequestDtoSchema>;
+
+export const postLoadRequestDtoSchema = z.object({
+    version: z.number(),
+    quoteId: z.string(),
+    idempotencyKey: z.string(),
+    note: z.string().nullable(),
+});
+export type PostLoadRequestDto = z.infer<typeof postLoadRequestDtoSchema>;
+
+export const postLoadResultDtoSchema = z.object({
+    loadId: z.string(),
+    status: z.enum(["Posted", "PendingApproval"]),
+    approvers: z.array(z.string()),
+    decideBy: z.string().nullable(),
+});
+export type PostLoadResultDto = z.infer<typeof postLoadResultDtoSchema>;
+
 export const partyDtoSchema = z.object({ id: z.string(), name: z.string() });
 export type PartyDto = z.infer<typeof partyDtoSchema>;
 
@@ -231,27 +338,15 @@ export const stopDtoSchema = z.object({
 });
 export type StopDto = z.infer<typeof stopDtoSchema>;
 
-export const chargeDtoSchema = z.object({
-    kind: z.enum([
-        "linehaul",
-        "fuel",
-        "accessorial",
-        "fee",
-        "deduction",
-        "quickPayFee",
-    ]),
-    amountCents: z.number(),
-    status: z.enum(["agreed", "pendingApproval", "disputed"]),
+export const loadAssignmentDtoSchema = z.object({
+    driverId: z.string().nullable(),
+    driverName: z.string(),
+    truckId: z.string().nullable(),
+    truckUnit: z.string(),
+    trackingSource: z.enum(["driverApp", "eld"]),
+    assignedAt: z.string(),
 });
-export type ChargeDto = z.infer<typeof chargeDtoSchema>;
-
-export const moneyDtoSchema = z.object({
-    totalCents: z.number(),
-    currency: z.string(),
-    pending: z.boolean(),
-    parts: z.array(chargeDtoSchema),
-});
-export type MoneyDto = z.infer<typeof moneyDtoSchema>;
+export type LoadAssignmentDto = z.infer<typeof loadAssignmentDtoSchema>;
 
 export const loadDtoSchema = z.object({
     id: z.string(),
@@ -289,9 +384,11 @@ export const loadDtoSchema = z.object({
     eta: etaDtoSchema.nullable(),
     stops: z.array(stopDtoSchema),
     shipperPrice: moneyDtoSchema.nullable(),
+    assignment: loadAssignmentDtoSchema.nullable(),
     carrierPay: moneyDtoSchema.nullable(),
     createdAt: z.string(),
     updatedAt: z.string(),
+    invoiceId: z.string().nullable(),
 });
 export type LoadDto = z.infer<typeof loadDtoSchema>;
 
@@ -321,6 +418,51 @@ export const loadTransitionDtoSchema = z.object({
 });
 export type LoadTransitionDto = z.infer<typeof loadTransitionDtoSchema>;
 
+export const driverPositionDtoSchema = z.object({
+    id: z.string(),
+    recordedAt: z.string(),
+    latitude: z.number(),
+    longitude: z.number(),
+    accuracyM: z.number().nullable().optional(),
+    speedMph: z.number().nullable().optional(),
+    heading: z.number().nullable().optional(),
+});
+export type DriverPositionDto = z.infer<typeof driverPositionDtoSchema>;
+
+export const driverPositionsDtoSchema = z.object({
+    positions: z.array(driverPositionDtoSchema),
+});
+export type DriverPositionsDto = z.infer<typeof driverPositionsDtoSchema>;
+
+export const driverPositionsAcceptedDtoSchema = z.object({
+    accepted: z.number(),
+});
+export type DriverPositionsAcceptedDto = z.infer<
+    typeof driverPositionsAcceptedDtoSchema
+>;
+
+export const preconditionFailedDtoSchema = z.object({
+    statusCode: z.number(),
+    message: z.string(),
+    changedBy: z.string().nullable(),
+    changedAt: z.string().nullable(),
+});
+export type PreconditionFailedDto = z.infer<typeof preconditionFailedDtoSchema>;
+
+export const fleetCarrierDtoSchema = z.object({
+    id: z.string(),
+    name: z.string(),
+});
+export type FleetCarrierDto = z.infer<typeof fleetCarrierDtoSchema>;
+
+export const fleetSuggestionDtoSchema = z.object({
+    driverId: z.string(),
+    truckId: z.string(),
+    loadId: z.string(),
+    assignedAt: z.string(),
+});
+export type FleetSuggestionDto = z.infer<typeof fleetSuggestionDtoSchema>;
+
 export const positionDtoSchema = z.object({
     latitude: z.number(),
     longitude: z.number(),
@@ -346,6 +488,492 @@ export const loadPositionsDtoSchema = z.object({
     route: publicRouteDtoSchema.nullable(),
 });
 export type LoadPositionsDto = z.infer<typeof loadPositionsDtoSchema>;
+
+export const driverContactDtoSchema = z.object({
+    name: z.string(),
+    phone: z.string(),
+});
+export type DriverContactDto = z.infer<typeof driverContactDtoSchema>;
+
+export const driverStopDtoSchema = z.object({
+    id: z.string(),
+    sequence: z.number(),
+    type: z.enum(["pickup", "delivery"]),
+    facility: facilityPlaceDtoSchema,
+    windowStart: z.string(),
+    windowEnd: z.string(),
+    reference: z.string().nullable(),
+    instructions: z.string().nullable(),
+    contact: driverContactDtoSchema.nullable(),
+    arrivedAt: z.string().nullable(),
+    departedAt: z.string().nullable(),
+    seal: z.string().nullable(),
+    pieces: z.number().nullable(),
+});
+export type DriverStopDto = z.infer<typeof driverStopDtoSchema>;
+
+export const driverPodDtoSchema = z.object({
+    id: z.string(),
+    status: z.enum(["checking", "verified", "review"]),
+    pages: z.number(),
+    submittedAt: z.string(),
+});
+export type DriverPodDto = z.infer<typeof driverPodDtoSchema>;
+
+export const driverUndoDtoSchema = z.object({
+    eventId: z.string(),
+    type: z.enum(["arrive", "depart"]),
+    stopId: z.string(),
+    until: z.string(),
+});
+export type DriverUndoDto = z.infer<typeof driverUndoDtoSchema>;
+
+export const documentDtoSchema = z.object({
+    id: z.string(),
+    type: z.enum([
+        "bol",
+        "pod",
+        "rateConfirmation",
+        "lumperReceipt",
+        "damagePhoto",
+        "invoice",
+        "insuranceCertificate",
+        "w9",
+        "carrierAgreement",
+    ]),
+    fileName: z.string(),
+    contentType: z.enum(["application/pdf", "image/jpeg", "image/png"]),
+    sizeBytes: z.number(),
+    scanStatus: z.enum([
+        "awaitingUpload",
+        "pending",
+        "clean",
+        "rejected",
+        "failed",
+    ]),
+    version: z.number(),
+    uploadedByName: z.string(),
+    createdAt: z.string(),
+});
+export type DocumentDto = z.infer<typeof documentDtoSchema>;
+
+export const driverTripDtoSchema = z.object({
+    loadId: z.string(),
+    status: z.enum([
+        "Draft",
+        "PendingApproval",
+        "Posted",
+        "Booked",
+        "Dispatched",
+        "AtPickup",
+        "InTransit",
+        "AtDelivery",
+        "Delivered",
+        "PodVerified",
+        "Invoiced",
+        "Paid",
+        "Closed",
+        "Cancelled",
+        "Expired",
+        "OnHold",
+        "Disputed",
+    ]),
+    active: z.boolean(),
+    equipment: z.enum(["dry-van", "reefer", "flatbed"]),
+    commodity: z.string(),
+    weightLb: z.number(),
+    pallets: z.number().nullable(),
+    tempMinF: z.number().nullable(),
+    tempMaxF: z.number().nullable(),
+    hazmat: z.boolean(),
+    poNumber: z.string().nullable(),
+    bolNumber: z.string().nullable(),
+    shipperName: z.string(),
+    stops: z.array(driverStopDtoSchema),
+    dispatch: driverContactDtoSchema.nullable(),
+    route: publicRouteDtoSchema.nullable(),
+    documents: z.array(documentDtoSchema),
+    pod: driverPodDtoSchema.nullable(),
+    undo: driverUndoDtoSchema.nullable(),
+});
+export type DriverTripDto = z.infer<typeof driverTripDtoSchema>;
+
+export const driverNextStopDtoSchema = z.object({
+    type: z.enum(["pickup", "delivery"]),
+    name: z.string(),
+    city: z.string(),
+    region: z.string(),
+    windowStart: z.string(),
+    windowEnd: z.string(),
+    timeZone: z.string(),
+});
+export type DriverNextStopDto = z.infer<typeof driverNextStopDtoSchema>;
+
+export const fleetPlaceDtoSchema = z.object({
+    city: z.string(),
+    region: z.string(),
+});
+export type FleetPlaceDto = z.infer<typeof fleetPlaceDtoSchema>;
+
+export const driverTripSummaryDtoSchema = z.object({
+    loadId: z.string(),
+    status: z.enum([
+        "Draft",
+        "PendingApproval",
+        "Posted",
+        "Booked",
+        "Dispatched",
+        "AtPickup",
+        "InTransit",
+        "AtDelivery",
+        "Delivered",
+        "PodVerified",
+        "Invoiced",
+        "Paid",
+        "Closed",
+        "Cancelled",
+        "Expired",
+        "OnHold",
+        "Disputed",
+    ]),
+    active: z.boolean(),
+    stopCount: z.number(),
+    stopsDone: z.number(),
+    needsPod: z.boolean(),
+    origin: fleetPlaceDtoSchema,
+    destination: fleetPlaceDtoSchema,
+    nextStop: driverNextStopDtoSchema.nullable(),
+});
+export type DriverTripSummaryDto = z.infer<typeof driverTripSummaryDtoSchema>;
+
+export const driverTripsDtoSchema = z.object({
+    trips: z.array(driverTripSummaryDtoSchema),
+    dispatch: driverContactDtoSchema.nullable(),
+});
+export type DriverTripsDto = z.infer<typeof driverTripsDtoSchema>;
+
+export const driverStopEventDtoSchema = z.object({
+    id: z.string(),
+    type: z.enum(["arrive", "depart"]),
+    stopId: z.string(),
+    recordedAt: z.string(),
+    latitude: z.number().optional(),
+    longitude: z.number().optional(),
+    seal: z.string().optional(),
+    pieces: z.number().optional(),
+});
+export type DriverStopEventDto = z.infer<typeof driverStopEventDtoSchema>;
+
+export const driverUndoRequestDtoSchema = z.object({ id: z.string() });
+export type DriverUndoRequestDto = z.infer<typeof driverUndoRequestDtoSchema>;
+
+export const driverPodPageDtoSchema = z.object({
+    id: z.string(),
+    contentType: z.enum(["image/jpeg", "image/png"]),
+    sizeBytes: z.number(),
+});
+export type DriverPodPageDto = z.infer<typeof driverPodPageDtoSchema>;
+
+export const driverPodPageTicketDtoSchema = z.object({
+    uploadUrl: z.string(),
+    expiresAt: z.string(),
+});
+export type DriverPodPageTicketDto = z.infer<
+    typeof driverPodPageTicketDtoSchema
+>;
+
+export const driverPodSubmitDtoSchema = z.object({
+    id: z.string(),
+    pageIds: z.array(z.string()),
+    receiverName: z.string(),
+    osdNotes: z.string().optional(),
+});
+export type DriverPodSubmitDto = z.infer<typeof driverPodSubmitDtoSchema>;
+
+export const fleetTruckDtoSchema = z.object({
+    id: z.string(),
+    unit: z.string(),
+    equipment: z.enum(["dry-van", "reefer", "flatbed"]),
+    driverId: z.string().nullable(),
+    driverName: z.string().nullable(),
+});
+export type FleetTruckDto = z.infer<typeof fleetTruckDtoSchema>;
+
+export const fleetEntryDtoSchema = z.object({
+    loadId: z.string(),
+    status: z.enum([
+        "Draft",
+        "PendingApproval",
+        "Posted",
+        "Booked",
+        "Dispatched",
+        "AtPickup",
+        "InTransit",
+        "AtDelivery",
+        "Delivered",
+        "PodVerified",
+        "Invoiced",
+        "Paid",
+        "Closed",
+        "Cancelled",
+        "Expired",
+        "OnHold",
+        "Disputed",
+    ]),
+    origin: fleetPlaceDtoSchema,
+    destination: fleetPlaceDtoSchema,
+    pickupStart: z.string(),
+    pickupEnd: z.string(),
+    deliveryStart: z.string(),
+    deliveryEnd: z.string(),
+    timeZone: z.string(),
+    equipment: z.enum(["dry-van", "reefer", "flatbed"]),
+    carrierPayCents: z.number().nullable(),
+    driverName: z.string().nullable(),
+    movable: z.boolean(),
+    version: z.number(),
+});
+export type FleetEntryDto = z.infer<typeof fleetEntryDtoSchema>;
+
+export const fleetUnavailableDtoSchema = z.object({
+    id: z.string(),
+    from: z.string(),
+    to: z.string(),
+    reason: z.enum(["maintenance", "timeOff", "other"]),
+    note: z.string().nullable(),
+});
+export type FleetUnavailableDto = z.infer<typeof fleetUnavailableDtoSchema>;
+
+export const fleetWindowDtoSchema = z.object({
+    id: z.string(),
+    from: z.string(),
+    to: z.string(),
+    city: z.string(),
+    region: z.string(),
+    latitude: z.number(),
+    longitude: z.number(),
+    hours: z.number(),
+    emptyMiles: z.number().nullable(),
+});
+export type FleetWindowDto = z.infer<typeof fleetWindowDtoSchema>;
+
+export const fleetPositionDtoSchema = z.object({
+    city: z.string(),
+    source: z.enum(["eld", "driverApp", "stopEvent", "home"]),
+    recordedAt: z.string().nullable(),
+});
+export type FleetPositionDto = z.infer<typeof fleetPositionDtoSchema>;
+
+export const fleetHoursDtoSchema = z.object({
+    state: z.enum(["reported", "unavailable"]),
+    remainingMinutes: z.number().nullable(),
+    readAt: z.string(),
+});
+export type FleetHoursDto = z.infer<typeof fleetHoursDtoSchema>;
+
+export const fleetRowDtoSchema = z.object({
+    truck: fleetTruckDtoSchema,
+    position: fleetPositionDtoSchema.nullable(),
+    hours: fleetHoursDtoSchema.nullable(),
+    entries: z.array(fleetEntryDtoSchema),
+    unavailable: z.array(fleetUnavailableDtoSchema),
+    windows: z.array(fleetWindowDtoSchema),
+});
+export type FleetRowDto = z.infer<typeof fleetRowDtoSchema>;
+
+export const fleetConflictDtoSchema = z.object({
+    type: z.enum(["needsAssignment", "overlap", "unreachable", "unavailable"]),
+    loadId: z.string(),
+    truckId: z.string().nullable(),
+    otherLoadId: z.string().nullable(),
+    deadline: z.string().nullable(),
+    overdue: z.boolean(),
+});
+export type FleetConflictDto = z.infer<typeof fleetConflictDtoSchema>;
+
+export const fleetPlanDtoSchema = z.object({
+    weekStart: z.string(),
+    days: z.array(z.string()),
+    timeZone: z.string(),
+    carrier: z.string().nullable(),
+    carriers: z.array(fleetCarrierDtoSchema),
+    fleet: z.array(fleetTruckDtoSchema),
+    rows: z.array(fleetRowDtoSchema),
+    unassigned: z.array(fleetEntryDtoSchema),
+    conflicts: z.array(fleetConflictDtoSchema),
+    readOnly: z.boolean(),
+    checkedAt: z.string(),
+});
+export type FleetPlanDto = z.infer<typeof fleetPlanDtoSchema>;
+
+export const fleetOptionDtoSchema = z.object({
+    id: z.string(),
+    label: z.string(),
+    detail: z.string().nullable(),
+    eligible: z.boolean(),
+    reason: z.string().nullable(),
+});
+export type FleetOptionDto = z.infer<typeof fleetOptionDtoSchema>;
+
+export const fleetOptionsDtoSchema = z.object({
+    drivers: z.array(fleetOptionDtoSchema),
+    trucks: z.array(fleetOptionDtoSchema),
+    driverId: z.string().nullable(),
+    truckId: z.string().nullable(),
+    suggestion: fleetSuggestionDtoSchema.nullable(),
+    deadline: z.string().nullable(),
+    version: z.number(),
+    timeZone: z.string(),
+    reassign: z.boolean(),
+});
+export type FleetOptionsDto = z.infer<typeof fleetOptionsDtoSchema>;
+
+export const assignLoadDtoSchema = z.object({
+    driverId: z.string(),
+    truckId: z.string(),
+    trackingSource: z.enum(["driverApp", "eld"]),
+    version: z.number(),
+    reason: z.string().optional(),
+});
+export type AssignLoadDto = z.infer<typeof assignLoadDtoSchema>;
+
+export const truckUnavailableDtoSchema = z.object({
+    id: z.string(),
+    from: z.string(),
+    to: z.string(),
+    reason: z.enum(["maintenance", "timeOff", "other"]),
+    note: z.string().optional(),
+});
+export type TruckUnavailableDto = z.infer<typeof truckUnavailableDtoSchema>;
+
+export const recommendedLoadDtoSchema = z.object({
+    loadId: z.string(),
+    origin: fleetPlaceDtoSchema,
+    destination: fleetPlaceDtoSchema,
+    pickupStart: z.string(),
+    timeZone: z.string(),
+    equipment: z.enum(["dry-van", "reefer", "flatbed"]),
+    emptyMiles: z.number(),
+    rateCents: z.number(),
+});
+export type RecommendedLoadDto = z.infer<typeof recommendedLoadDtoSchema>;
+
+export const loadBoardPlaceDtoSchema = z.object({
+    city: z.string(),
+    region: z.string(),
+    latitude: z.number(),
+    longitude: z.number(),
+});
+export type LoadBoardPlaceDto = z.infer<typeof loadBoardPlaceDtoSchema>;
+
+export const loadBoardItemDtoSchema = z.object({
+    loadId: z.string(),
+    version: z.number(),
+    origin: loadBoardPlaceDtoSchema,
+    destination: loadBoardPlaceDtoSchema,
+    pickupStart: z.string(),
+    pickupEnd: z.string(),
+    deliveryStart: z.string(),
+    deliveryEnd: z.string(),
+    timeZone: z.string(),
+    equipment: z.enum(["dry-van", "reefer", "flatbed"]),
+    commodity: z.string(),
+    weightLb: z.number(),
+    tempMinF: z.number().nullable(),
+    tempMaxF: z.number().nullable(),
+    hazmat: z.boolean(),
+    carrierPayCents: z.number(),
+    currency: z.string(),
+    miles: z.number(),
+    ratePerMileCents: z.number(),
+    deadheadMiles: z.number().nullable(),
+});
+export type LoadBoardItemDto = z.infer<typeof loadBoardItemDtoSchema>;
+
+export const loadBoardPageDtoSchema = z.object({
+    items: z.array(loadBoardItemDtoSchema),
+    total: z.number(),
+    nextCursor: z.string().nullable(),
+    origin: loadBoardPlaceDtoSchema.nullable(),
+    checkedAt: z.string(),
+});
+export type LoadBoardPageDto = z.infer<typeof loadBoardPageDtoSchema>;
+
+export const bookingCheckDtoSchema = z.object({
+    key: z.enum(["standing", "insurance", "equipment", "availability"]),
+    passed: z.boolean(),
+    detail: z.string(),
+    fix: z.enum(["onboarding", "documents", "fleet", "loadBoard"]).nullable(),
+});
+export type BookingCheckDto = z.infer<typeof bookingCheckDtoSchema>;
+
+export const bookingTermsDtoSchema = z.object({
+    detentionFreeHours: z.number(),
+    detentionCentsPerHour: z.number(),
+    layoverCentsPerDay: z.number(),
+    tonuCents: z.number(),
+    cancellationNoticeHours: z.number(),
+});
+export type BookingTermsDto = z.infer<typeof bookingTermsDtoSchema>;
+
+export const rateConfirmationSectionDtoSchema = z.object({
+    heading: z.string(),
+    body: z.string(),
+});
+export type RateConfirmationSectionDto = z.infer<
+    typeof rateConfirmationSectionDtoSchema
+>;
+
+export const rateConfirmationDtoSchema = z.object({
+    version: z.number(),
+    fileName: z.string(),
+    issuedAt: z.string(),
+    sections: z.array(rateConfirmationSectionDtoSchema),
+});
+export type RateConfirmationDto = z.infer<typeof rateConfirmationDtoSchema>;
+
+export const loadBookingDtoSchema = z.object({
+    loadId: z.string(),
+    version: z.number(),
+    status: z.string(),
+    shipperName: z.string(),
+    stops: z.array(stopDtoSchema),
+    equipment: z.enum(["dry-van", "reefer", "flatbed"]),
+    commodity: z.string(),
+    weightLb: z.number(),
+    pallets: z.number().nullable(),
+    tempMinF: z.number().nullable(),
+    tempMaxF: z.number().nullable(),
+    hazmat: z.boolean(),
+    insuranceMinCents: z.number(),
+    carrierPay: moneyDtoSchema,
+    miles: z.number(),
+    ratePerMileCents: z.number(),
+    terms: bookingTermsDtoSchema,
+    rateConfirmation: rateConfirmationDtoSchema,
+    checks: z.array(bookingCheckDtoSchema),
+    bookable: z.boolean(),
+});
+export type LoadBookingDto = z.infer<typeof loadBookingDtoSchema>;
+
+export const bookLoadDtoSchema = z.object({
+    idempotencyKey: z.string(),
+    version: z.number(),
+    rateConfirmationVersion: z.number(),
+    signerName: z.string(),
+    attested: z.boolean(),
+});
+export type BookLoadDto = z.infer<typeof bookLoadDtoSchema>;
+
+export const loadBookedDtoSchema = z.object({
+    loadId: z.string(),
+    status: z.string(),
+    rateConfirmationVersion: z.number(),
+    acceptedAt: z.string(),
+    assignmentDeadline: z.string(),
+    timeZone: z.string(),
+});
+export type LoadBookedDto = z.infer<typeof loadBookedDtoSchema>;
 
 export const loadCancellationDtoSchema = z.object({
     tonu: moneyDtoSchema.nullable(),
@@ -407,6 +1035,7 @@ export const loadEventDtoSchema = z.object({
         "documentUploaded",
         "trackingLinkCreated",
         "trackingLinkRevoked",
+        "driverAssigned",
     ]),
     category: z.enum(["status", "stop", "tracking", "document"]),
     fromStatus: z
@@ -544,35 +1173,6 @@ export const publicTrackingDtoSchema = z.object({
     expired: z.boolean(),
 });
 export type PublicTrackingDto = z.infer<typeof publicTrackingDtoSchema>;
-
-export const documentDtoSchema = z.object({
-    id: z.string(),
-    type: z.enum([
-        "bol",
-        "pod",
-        "rateConfirmation",
-        "lumperReceipt",
-        "damagePhoto",
-        "invoice",
-        "insuranceCertificate",
-        "w9",
-        "carrierAgreement",
-    ]),
-    fileName: z.string(),
-    contentType: z.enum(["application/pdf", "image/jpeg", "image/png"]),
-    sizeBytes: z.number(),
-    scanStatus: z.enum([
-        "awaitingUpload",
-        "pending",
-        "clean",
-        "rejected",
-        "failed",
-    ]),
-    version: z.number(),
-    uploadedByName: z.string(),
-    createdAt: z.string(),
-});
-export type DocumentDto = z.infer<typeof documentDtoSchema>;
 
 export const uploadTicketDtoSchema = z.object({
     document: documentDtoSchema,
@@ -808,6 +1408,19 @@ export type SaveEstimateDto = z.infer<typeof saveEstimateDtoSchema>;
 
 export const savedEstimateDtoSchema = z.object({ id: z.string() });
 export type SavedEstimateDto = z.infer<typeof savedEstimateDtoSchema>;
+
+export const inviteDriverDtoSchema = z.object({
+    email: z.string(),
+    note: z.string().optional(),
+});
+export type InviteDriverDto = z.infer<typeof inviteDriverDtoSchema>;
+
+export const invitationSentDtoSchema = z.object({
+    email: z.string(),
+    role: z.enum(["carrier.driver"]),
+    expiresAt: z.string(),
+});
+export type InvitationSentDto = z.infer<typeof invitationSentDtoSchema>;
 
 export const invitationDtoSchema = z.object({
     email: z.string(),
@@ -1220,5 +1833,148 @@ export const facilityOptionDtoSchema = z.object({
     name: z.string(),
     city: z.string(),
     region: z.string(),
+    line1: z.string(),
+    postalCode: z.string(),
+    timeZone: z.string(),
 });
 export type FacilityOptionDto = z.infer<typeof facilityOptionDtoSchema>;
+
+export const networkStatsDtoSchema = z.object({
+    approvedCarriers: z.number(),
+    loadsDelivered: z.number(),
+    onTimeRate: z.number(),
+    periodStart: z.string(),
+    periodEnd: z.string(),
+    computedAt: z.string(),
+});
+export type NetworkStatsDto = z.infer<typeof networkStatsDtoSchema>;
+
+export const standingBlockerDtoSchema = z.object({
+    id: z.string(),
+    type: z.enum([
+        "onboardingIncomplete",
+        "complianceHold",
+        "insuranceExpiring",
+        "insuranceLapsed",
+        "authorityInactive",
+        "paymentMethodMissing",
+        "paymentMethodFailed",
+        "creditLimitReached",
+        "payoutMethodFailed",
+    ]),
+    severity: z.enum(["blocking", "warning"]),
+    capabilities: z.array(z.enum(["book", "bid", "post", "pay"])),
+    effectiveAt: z.string().nullable(),
+    fix: z
+        .enum([
+            "shipperOnboarding",
+            "carrierOnboarding",
+            "billing",
+            "compliance",
+        ])
+        .nullable(),
+});
+export type StandingBlockerDto = z.infer<typeof standingBlockerDtoSchema>;
+
+export const organisationStandingDtoSchema = z.object({
+    organisation: partyDtoSchema,
+    blockers: z.array(standingBlockerDtoSchema),
+    checkedAt: z.string(),
+});
+export type OrganisationStandingDto = z.infer<
+    typeof organisationStandingDtoSchema
+>;
+
+export const invoiceEvidenceDtoSchema = z.object({
+    documentId: z.string(),
+    label: z.string(),
+});
+export type InvoiceEvidenceDto = z.infer<typeof invoiceEvidenceDtoSchema>;
+
+export const invoiceLineDtoSchema = z.object({
+    id: z.string(),
+    kind: z.enum(["linehaul", "fuel", "accessorial", "fee", "deduction"]),
+    description: z.string(),
+    amountCents: z.number(),
+    evidence: invoiceEvidenceDtoSchema.nullable(),
+});
+export type InvoiceLineDto = z.infer<typeof invoiceLineDtoSchema>;
+
+export const invoicePaymentDtoSchema = z.object({
+    id: z.string(),
+    reference: z.string(),
+    amountCents: z.number(),
+    methodLabel: z.string(),
+    methodType: z.enum(["ach", "card"]),
+    paidAt: z.string(),
+    paidByName: z.string(),
+});
+export type InvoicePaymentDto = z.infer<typeof invoicePaymentDtoSchema>;
+
+export const invoiceLaneDtoSchema = z.object({
+    origin: z.string(),
+    destination: z.string(),
+    deliveredAt: z.string().nullable(),
+});
+export type InvoiceLaneDto = z.infer<typeof invoiceLaneDtoSchema>;
+
+export const invoiceDtoSchema = z.object({
+    id: z.string(),
+    number: z.string(),
+    loadId: z.string(),
+    status: z.enum(["open", "paid", "disputed"]),
+    shipper: partyDtoSchema,
+    carrier: partyDtoSchema.nullable(),
+    lane: invoiceLaneDtoSchema,
+    issuedAt: z.string(),
+    dueAt: z.string(),
+    termsDays: z.number(),
+    currency: z.string(),
+    lines: z.array(invoiceLineDtoSchema),
+    totalCents: z.number(),
+    paidCents: z.number(),
+    disputedCents: z.number(),
+    balanceCents: z.number(),
+    agreedRateCents: z.number(),
+    rateConfirmationVersion: z.number().nullable(),
+    brokerMc: z.string(),
+    payments: z.array(invoicePaymentDtoSchema),
+    version: z.number(),
+});
+export type InvoiceDto = z.infer<typeof invoiceDtoSchema>;
+
+export const paymentMethodDtoSchema = z.object({
+    id: z.string(),
+    type: z.enum(["ach", "card"]),
+    label: z.string(),
+    last4: z.string(),
+    brand: z.string().nullable(),
+    status: z.enum(["verified", "pendingVerification", "failed"]),
+    isDefault: z.boolean(),
+});
+export type PaymentMethodDto = z.infer<typeof paymentMethodDtoSchema>;
+
+export const invoicePaymentItemDtoSchema = z.object({
+    invoiceId: z.string(),
+    version: z.number(),
+    amountCents: z.number(),
+});
+export type InvoicePaymentItemDto = z.infer<typeof invoicePaymentItemDtoSchema>;
+
+export const invoicePaymentRequestDtoSchema = z.object({
+    items: z.array(invoicePaymentItemDtoSchema),
+    methodId: z.string(),
+    idempotencyKey: z.string(),
+});
+export type InvoicePaymentRequestDto = z.infer<
+    typeof invoicePaymentRequestDtoSchema
+>;
+
+export const invoicePaymentResultDtoSchema = z.object({
+    status: z.enum(["succeeded", "declined", "verificationRequired"]),
+    payment: invoicePaymentDtoSchema.nullable(),
+    reason: z.string().nullable(),
+});
+export type InvoicePaymentResultDto = z.infer<
+    typeof invoicePaymentResultDtoSchema
+>;

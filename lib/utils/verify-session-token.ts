@@ -4,6 +4,7 @@ import { API_MOCKS } from "@/lib/constants";
 import { createUserDtoSchema } from "@/lib/contract/schemas";
 import { ROLE_KEYS } from "@/lib/enums/role-key";
 import { MOCK_TOKEN_ALGORITHM, MOCK_TOKEN_SECRET } from "@/lib/mocks/session-token";
+import { serverEnv } from "@/lib/validations/env";
 
 const ALGORITHM = "RS256";
 const PEM_MARKER = "-----BEGIN";
@@ -26,7 +27,7 @@ let importedKey: Promise<CryptoKey> | null = null;
 
 const publicKey = () => {
     if (!importedKey) {
-        const raw = process.env.JWT_PUBLIC_KEY;
+        const raw = serverEnv().JWT_PUBLIC_KEY;
         if (!raw) {
             throw new Error(
                 "JWT_PUBLIC_KEY is not set — the proxy cannot verify a session",

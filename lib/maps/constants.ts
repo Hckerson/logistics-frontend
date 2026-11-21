@@ -1,7 +1,8 @@
 import { MAP_ORIGINS } from "@/lib/security/headers";
 import type { LonLat } from "@/lib/types";
+import { publicEnv } from "@/lib/validations/env";
 
-export const MAP_KEY = process.env.NEXT_PUBLIC_PROTOMAPS_KEY ?? "";
+export const MAP_KEY = publicEnv.NEXT_PUBLIC_PROTOMAPS_KEY ?? "";
 
 export const BASEMAP = {
     source: "protomaps",

@@ -10,7 +10,7 @@ import { canReturn, nextStatuses } from "@/lib/loads/transitions";
 import type { LoadAction, LoadStatus, RoleKey } from "@/lib/types";
 import { fillTemplate } from "@/lib/utils/fill-template";
 
-const DECIDED_ELSEWHERE: readonly LoadStatus[] = ["PendingApproval", "Booked"];
+const DECIDED_ELSEWHERE: readonly LoadStatus[] = ["PendingApproval", "Booked", "Dispatched"];
 const REASONED: readonly LoadStatus[] = ["OnHold", "Cancelled", "Disputed"];
 const RELEASED_FROM: readonly LoadStatus[] = ["Booked", "Dispatched"];
 const TARGET_LABELS: Partial<Record<LoadStatus, string>> = LOAD_COPY.actions.targets;

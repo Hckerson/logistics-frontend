@@ -1,3 +1,18 @@
+export const sessionStore = {
+    setItem: (key: string, value: string) => {
+        if (typeof window === "undefined") return;
+        return sessionStorage.setItem(key, value);
+    },
+    getItem: (key: string) => {
+        if (typeof window === "undefined") return;
+        return sessionStorage.getItem(key);
+    },
+    clear: () => {
+        if (typeof window === "undefined") return;
+        return sessionStorage.clear();
+    },
+};
+
 export const storage = {
     setItem: (key: string, value: string) => {
         if (typeof window === "undefined") return;

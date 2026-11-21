@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import LoadActions from "@/components/common/load-actions";
+import LoadAssignment from "@/components/common/load-assignment";
 import LoadCoverage from "@/components/common/load-coverage";
 import LoadDocuments from "@/components/common/load-documents";
 import LoadHeader from "@/components/common/load-header";
@@ -33,6 +34,7 @@ export default async function LoadPage({ params }: Props) {
             <LoadSections
                 actions={<LoadActions initial={load} />}
                 coverage={<LoadCoverage initial={load} />}
+                assignment={<LoadAssignment initial={load} />}
                 tracking={<LoadTracking initial={load} />}
                 share={<LoadShare initial={load} />}
                 stops={<LoadStops initial={load} />}

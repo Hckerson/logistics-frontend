@@ -7,9 +7,10 @@ import PrimitivesHeader from "@/components/common/primitives-header";
 import PrimitivesOverlays from "@/components/common/primitives-overlays";
 import PrimitivesStatus from "@/components/common/primitives-status";
 import { MAIN_CONTENT_ID } from "@/lib/constants";
+import { serverEnv } from "@/lib/validations/env";
 
 export default function PrimitivesPage() {
-    if (process.env.NODE_ENV === "production") notFound();
+    if (serverEnv().NODE_ENV === "production") notFound();
 
     return (
         <main id={MAIN_CONTENT_ID} className="haulr-shell flex flex-col gap-4 py-6">

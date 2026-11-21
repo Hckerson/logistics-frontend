@@ -7,7 +7,16 @@ import { recordFeedback } from "@/lib/mocks/help";
 import { createTicket, listTickets } from "@/lib/mocks/support";
 import { places } from "@/lib/mocks/geo";
 import { estimate, saveEstimate, trend } from "@/lib/mocks/pricing";
+import { networkStats } from "@/lib/mocks/stats";
+import { organisationStanding } from "@/lib/mocks/standing";
+import { payInvoices } from "@/lib/mocks/invoice-pay";
+import { findInvoice, invoiceRemittance, listPaymentMethods } from "@/lib/mocks/invoices";
 import { acceptInvitation, checkInvitation, recordLocationConsent } from "@/lib/mocks/team";
+import { DRIVER_HANDLERS } from "@/lib/mocks/driver-routes";
+import { FLEET_HANDLERS } from "@/lib/mocks/fleet-routes";
+import { LOAD_BOARD_HANDLERS } from "@/lib/mocks/load-board-routes";
+import { POSTING_HANDLERS } from "@/lib/mocks/posting-routes";
+import { inviteDriver } from "@/lib/mocks/team-invite";
 import { FREIGHT_HANDLERS } from "@/lib/mocks/freight-routes";
 import { pathOf, resolveRoute } from "@/lib/mocks/match-route";
 import { EQUIPMENT_TYPES } from "@/lib/enums/equipment-type";
@@ -33,11 +42,22 @@ const HANDLERS: Record<string, MockHandler> = {
     [`GET ${pathOf(routes.pricingEstimate(ANY_LANE))}`]: estimate,
     [`GET ${pathOf(routes.pricingTrend(ANY_LANE))}`]: trend,
     [`POST ${routes.pricingSaveEstimate()}`]: saveEstimate,
+    [`GET ${routes.statsNetwork()}`]: networkStats,
+    [`GET ${routes.organisationsStanding()}`]: organisationStanding,
+    [`POST ${routes.invoicesPay()}`]: payInvoices,
+    [`GET ${routes.invoicesFindOne(":invoiceId")}`]: findInvoice,
+    [`GET ${routes.paymentMethodsFindAll()}`]: listPaymentMethods,
+    [`GET ${routes.invoicesRemittance(":paymentId")}`]: invoiceRemittance,
     [`GET ${pathOf(routes.geoPlaces({ q: "" }))}`]: places,
     [`POST ${routes.teamCheckInvitation()}`]: checkInvitation,
     [`POST ${routes.teamAcceptInvitation()}`]: acceptInvitation,
+    [`POST ${routes.teamInviteDriver()}`]: inviteDriver,
     [`POST ${routes.driversRecordLocationConsent()}`]: recordLocationConsent,
     ...FREIGHT_HANDLERS,
+    ...DRIVER_HANDLERS,
+    ...FLEET_HANDLERS,
+    ...LOAD_BOARD_HANDLERS,
+    ...POSTING_HANDLERS,
 };
 
 const randomLatency = () => MOCK_LATENCY_MS.min + Math.random() * (MOCK_LATENCY_MS.max - MOCK_LATENCY_MS.min);
