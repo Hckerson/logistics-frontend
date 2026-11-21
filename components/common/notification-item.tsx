@@ -4,6 +4,8 @@ import Link from "next/link";
 import { appRoutes } from "@/lib/app-routes";
 import type { NotificationDto } from "@/lib/contract/schemas";
 import { NOTIFICATION_COPY as copy } from "@/lib/data/notifications";
+import { useSession } from "@/components/providers/session-provider";
+import { hasAnyRole, ROLE_GROUPS } from "@/lib/auth/roles";
 import { useMarkRead } from "@/lib/hooks/use-notifications";
 import { minutesSince } from "@/lib/loads/tracking";
 import { ageOf } from "@/lib/tracking/view";
@@ -25,7 +27,8 @@ export default function NotificationItem({ notification, now, onOpen }: Props) {
     const unread = readAt === null;
     const text = fillTemplate(copy.events[event], { reference: loadId ?? copy.noLoad });
     const age = now === null ? null : ageOf(minutesSince(createdAt, now));
-    const href = loadId ? appRoutes.load(loadId) : exportId ? `${appRoutes.shipments()}${queryString({ export: exportId })}` : null;
+    const driver = hasAnyRole(useSession()?.roles ?? [], ROLE_GROUPS.driver);
+    const href = loadId ? (driver ? appRoutes.driverTrip(loadId) : appRoutes.load(loadId)) : exportId ? `${appRoutes.shipments()}${queryString({ export: exportId })}` : null;
 
     const open = () => {
         if (unread) markRead.mutate(id);
