@@ -72,3 +72,5 @@ export const WORDMARK = { width: 1000, height: 200, baseline: 196, size: 262 } a
 
 export const SIGNATURE_PATH =
     "M6 34 C 14 6, 24 6, 26 24 S 36 46, 42 22 S 54 4, 60 26 S 72 42, 82 18 S 98 10, 106 28 C 112 38, 124 30, 154 24";
+
+export const NETWORK_STATS = { revalidateSeconds: 3600, day: "d MMMM yyyy", time: "HH:mm" } as const;
