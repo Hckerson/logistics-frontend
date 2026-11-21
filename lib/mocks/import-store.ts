@@ -11,9 +11,9 @@ const holder = globalThis as typeof globalThis & {
     haulrImportBlobs?: Map<string, Uint8Array>;
 };
 
-export const importBatches = () => (holder.haulrImports ??= new Map());
-export const savedMappings = () => (holder.haulrImportMappings ??= new Map());
-export const importBlobs = () => (holder.haulrImportBlobs ??= new Map());
+export const importBatches = () => (holder.haulrImports ??= new Map<string, MockImport>());
+export const savedMappings = () => (holder.haulrImportMappings ??= new Map<string, Map<string, ImportField>>());
+export const importBlobs = () => (holder.haulrImportBlobs ??= new Map<string, Uint8Array>());
 
 export const iso = (moment: number) => new Date(moment).toISOString();
 

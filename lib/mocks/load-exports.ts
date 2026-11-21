@@ -15,7 +15,7 @@ import { fillTemplate } from "@/lib/utils/fill-template";
 import { exportRequestSchema, loadListQuerySchema } from "@/lib/validations/freight";
 
 const holder = globalThis as typeof globalThis & { haulrExports?: Map<string, MockExport> };
-const jobs = () => (holder.haulrExports ??= new Map());
+const jobs = () => (holder.haulrExports ??= new Map<string, MockExport>());
 const iso = (moment: number) => new Date(moment).toISOString();
 const durationOf = (job: MockExport) => (job.loadIds.length > EXPORT_RULES.instantRows ? MOCK_EXPORTS.jobMs : MOCK_EXPORTS.quickMs);
 const readyAt = (job: MockExport) => job.createdAt + durationOf(job);
