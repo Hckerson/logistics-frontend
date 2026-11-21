@@ -12,6 +12,7 @@ export const FLEET_COPY = {
         announce: "Week of {start}. {assign}, {conflicts}, {windows}.",
     },
     filters: {
+        carrier: "Carrier",
         truck: "Truck",
         allTrucks: "All trucks",
         driver: "Driver",

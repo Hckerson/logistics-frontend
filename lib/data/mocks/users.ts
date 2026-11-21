@@ -43,6 +43,16 @@ export const MOCK_USERS: readonly MockUser[] = [
         mfa: false,
     },
     {
+        id: "usr_bluemesa",
+        name: "Mara Quintero",
+        email: "dispatch@bluemesa.example",
+        password: "hunter22",
+        role: "USER",
+        roles: ["carrier.dispatcher"],
+        verified: true,
+        mfa: false,
+    },
+    {
         id: "usr_driver",
         name: "Ana Ruiz",
         email: "driver@ridgeway.example",

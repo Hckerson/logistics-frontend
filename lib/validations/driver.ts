@@ -3,12 +3,15 @@ import {
     driverPodPageDtoSchema,
     driverPodPageTicketDtoSchema,
     driverPodSubmitDtoSchema,
+    driverPositionDtoSchema,
+    driverPositionsAcceptedDtoSchema,
+    driverPositionsDtoSchema,
     driverStopEventDtoSchema,
     driverTripDtoSchema,
     driverTripsDtoSchema,
     driverUndoRequestDtoSchema,
 } from "@/lib/contract/schemas";
-import { POD_LIMITS, STOP_EVENT_LIMITS } from "@/lib/driver/constants";
+import { POD_LIMITS, POSITION_REPORTING, STOP_EVENT_LIMITS } from "@/lib/driver/constants";
 import { enveloped } from "@/lib/validations/freight";
 
 const WHOLE_NUMBER = /^\d+$/;
@@ -46,6 +49,22 @@ export const queueEntrySchema = z.object({
     target: z.string().nullable(),
     page: driverPodPageDtoSchema.pick({ contentType: true, sizeBytes: true }).nullable(),
 });
+
+export const positionReportSchema = driverPositionsDtoSchema.extend({
+    positions: z
+        .array(
+            driverPositionDtoSchema.extend({
+                id: z.string().min(1).max(POSITION_REPORTING.idMax),
+                recordedAt: z.iso.datetime(),
+                latitude: z.number().min(-90).max(90),
+                longitude: z.number().min(-180).max(180),
+            }),
+        )
+        .min(1)
+        .max(POSITION_REPORTING.batchMax),
+});
+
+export const positionsAcceptedEnvelopeSchema = enveloped(driverPositionsAcceptedDtoSchema);
 
 export const driverTripsEnvelopeSchema = enveloped(driverTripsDtoSchema);
 export const driverTripEnvelopeSchema = enveloped(driverTripDtoSchema);

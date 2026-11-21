@@ -9,6 +9,7 @@ export const FLEET = {
     searchRadiusMiles: 150,
     recommendationLimit: 5,
     reasonMax: 500,
+    carrierIdMax: 64,
     noteMax: 500,
     emailMax: 254,
     laneRem: 2.75,

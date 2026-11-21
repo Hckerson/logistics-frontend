@@ -7,6 +7,7 @@ import { fleetStore } from "@/lib/mocks/fleet-store";
 import type { MockCaller } from "@/lib/mocks/freight-access";
 import { mockStore } from "@/lib/mocks/store";
 import type { LoadAssignmentDto, LoadDto, LoadSummaryDto } from "@/lib/contract/schemas";
+import { INVOICED_STATUSES, invoiceIdOf } from "@/lib/billing/constants";
 import type { ChargeParty, MockCharge, MockLoad, MockStop } from "@/lib/types";
 
 const DISPATCHED: readonly MockLoad["status"][] = ["Dispatched", "AtPickup", "InTransit", "AtDelivery", "Delivered", "PodVerified", "Invoiced", "Paid", "Closed"];
@@ -69,6 +70,7 @@ export const toLoadDetail = (load: MockLoad, caller: MockCaller, now: number): L
     shipperPrice: can(caller.user.roles, "viewShipperPrice") ? moneyOf(load.charges, "shipper") : null,
     carrierPay: can(caller.user.roles, "viewCarrierPay") ? moneyOf(load.charges, "carrier") : null,
     assignment: assignmentOf(load, caller),
+    invoiceId: INVOICED_STATUSES.includes(load.status) && can(caller.user.roles, "payInvoices") ? invoiceIdOf(load.id) : null,
     createdAt: load.createdAt,
     updatedAt: load.updatedAt,
 });

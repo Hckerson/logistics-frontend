@@ -12,6 +12,7 @@ export const MOCK_MEMBERSHIPS: Record<string, string> = {
     "dispatch@northline.example": "northline",
     "approver@northline.example": "northline",
     "ray@ridgeway.example": "ridgeway",
+    "dispatch@bluemesa.example": "blueMesa",
     "driver@ridgeway.example": "ridgeway",
     "driver2@ridgeway.example": "ridgeway",
     "driver3@ridgeway.example": "ridgeway",

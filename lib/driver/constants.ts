@@ -30,3 +30,13 @@ export const POD_IMAGE = {
 } as const;
 
 export const DRIVER_LOCATION = { maximumAge: 60_000, timeout: 15_000, enableHighAccuracy: true } as const;
+
+export const POSITION_REPORTING = {
+    statuses: ["Dispatched", "AtPickup", "InTransit", "AtDelivery"] satisfies readonly LoadStatus[],
+    sampleMs: 15_000,
+    reportEveryMs: 30_000,
+    batchMax: 50,
+    bufferMax: 200,
+    keptPerLoad: 500,
+    idMax: 64,
+} as const;

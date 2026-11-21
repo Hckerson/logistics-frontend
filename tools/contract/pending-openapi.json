@@ -6,6 +6,333 @@
         "version": "1.0"
     },
     "paths": {
+        "/api/loads/drafts": {
+            "post": {
+                "operationId": "LoadDraftsController_create",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoadDraftRequestDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/LoadDraftDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Draft entries invalid"
+                    },
+                    "403": {
+                        "description": "Organisation cannot post loads"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "tags": ["load-drafts"]
+            }
+        },
+        "/api/loads/drafts/{draftId}": {
+            "get": {
+                "operationId": "LoadDraftsController_findOne",
+                "parameters": [
+                    {
+                        "name": "draftId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/LoadDraftDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Draft not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "tags": ["load-drafts"]
+            },
+            "post": {
+                "operationId": "LoadDraftsController_update",
+                "parameters": [
+                    {
+                        "name": "draftId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoadDraftUpdateDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/LoadDraftDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Draft entries invalid"
+                    },
+                    "404": {
+                        "description": "Draft not found"
+                    },
+                    "409": {
+                        "description": "Load is no longer a draft"
+                    },
+                    "412": {
+                        "description": "Draft changed since read",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PreconditionFailedDto"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "tags": ["load-drafts"]
+            }
+        },
+        "/api/loads/drafts/{draftId}/quote": {
+            "post": {
+                "operationId": "LoadDraftsController_quote",
+                "parameters": [
+                    {
+                        "name": "draftId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoadQuoteRequestDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/LoadQuoteDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Draft not found"
+                    },
+                    "412": {
+                        "description": "Draft changed since read",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PreconditionFailedDto"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Lane cannot be priced instantly, or the draft is incomplete"
+                    },
+                    "429": {
+                        "description": "Too many quotes"
+                    },
+                    "503": {
+                        "description": "Pricing unavailable"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "tags": ["load-drafts"]
+            }
+        },
+        "/api/loads/drafts/{draftId}/post": {
+            "post": {
+                "operationId": "LoadDraftsController_post",
+                "parameters": [
+                    {
+                        "name": "draftId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PostLoadRequestDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/PostLoadResultDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Organisation cannot post loads"
+                    },
+                    "404": {
+                        "description": "Draft not found"
+                    },
+                    "409": {
+                        "description": "Quote expired or the load was already posted"
+                    },
+                    "412": {
+                        "description": "Draft changed since read",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PreconditionFailedDto"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "tags": ["load-drafts"]
+            }
+        },
         "/api/loads": {
             "get": {
                 "operationId": "LoadsController_findAll",
@@ -906,6 +1233,15 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "name": "carrier",
+                        "required": false,
+                        "in": "query",
+                        "description": "Carrier organisation to plan; honoured for internal.ops only, carrier roles always get their own",
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
@@ -1238,6 +1574,273 @@
                 ],
                 "summary": "Assign or reassign the driver and truck for a load",
                 "tags": ["fleet"]
+            }
+        },
+        "/api/load-board": {
+            "get": {
+                "operationId": "LoadBoardController_search",
+                "parameters": [
+                    {
+                        "name": "origin",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "originRadius",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "destination",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "destinationRadius",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "from",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "to",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "equipment",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "minRate",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "minRpm",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "maxWeight",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "cursor",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/LoadBoardPageDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unknown origin or destination"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Posted loads a carrier can book, with deadhead from the search origin and carrier pay only (XF-02)",
+                "tags": ["loads"]
+            }
+        },
+        "/api/loads/{loadId}/booking": {
+            "get": {
+                "operationId": "LoadsController_booking",
+                "parameters": [
+                    {
+                        "name": "loadId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/LoadBookingDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Load not found"
+                    },
+                    "409": {
+                        "description": "Load no longer posted"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Terms, rate confirmation and booking checks for a posted load (PG-34)",
+                "tags": ["loads"]
+            }
+        },
+        "/api/loads/{loadId}/book": {
+            "post": {
+                "operationId": "LoadsController_book",
+                "parameters": [
+                    {
+                        "name": "loadId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BookLoadDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/LoadBookedDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Carrier not eligible to book this load"
+                    },
+                    "409": {
+                        "description": "Load taken by another carrier"
+                    },
+                    "412": {
+                        "description": "Load changed since read",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PreconditionFailedDto"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Signer name does not match the account"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Book a posted load at its rate and accept the rate confirmation, idempotent by key (BR-04)",
+                "tags": ["loads"]
             }
         },
         "/api/loads/{loadId}/cancellation": {
@@ -4218,10 +4821,564 @@
                 "summary": "The caller organisation's facilities",
                 "tags": ["facilities"]
             }
+        },
+        "/api/stats/network": {
+            "get": {
+                "operationId": "StatsController_network",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/NetworkStatsDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "Public aggregate network statistics with the period they cover; cached hourly",
+                "tags": ["stats"]
+            }
+        },
+        "/api/organisations/standing": {
+            "get": {
+                "operationId": "OrganisationsController_standing",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/OrganisationStandingDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Blockers on the caller's organisation, with what they block and the fix",
+                "tags": ["organisations"]
+            }
+        },
+        "/api/invoices/{invoiceId}": {
+            "get": {
+                "operationId": "InvoicesController_findOne",
+                "parameters": [
+                    {
+                        "name": "invoiceId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/InvoiceDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Invoice missing or not the caller's"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "One invoice, shipper-shaped, with lines, evidence references and payments applied",
+                "tags": ["invoices"]
+            }
+        },
+        "/api/payment-methods": {
+            "get": {
+                "operationId": "PaymentMethodsController_findAll",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/PaymentMethodDto"
+                                                    }
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "The organisation's saved payment methods, masked; raw details never reach Haulr",
+                "tags": ["payments"]
+            }
+        },
+        "/api/invoices/payments": {
+            "post": {
+                "operationId": "InvoicesController_pay",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/InvoicePaymentRequestDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/InvoicePaymentResultDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Paying is never available in view-as"
+                    },
+                    "409": {
+                        "description": "Invoice already paid or disputed"
+                    },
+                    "412": {
+                        "description": "Invoice changed since it was read"
+                    },
+                    "503": {
+                        "description": "Payment processor unavailable; nothing was charged"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Pay one or more invoices with a saved method; idempotent per key",
+                "tags": ["invoices"]
+            }
+        },
+        "/api/invoice-payments/{paymentId}/remittance": {
+            "get": {
+                "operationId": "InvoicesController_remittance",
+                "parameters": [
+                    {
+                        "name": "paymentId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/DownloadLinkDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Short-lived link to the remittance advice for a payment",
+                "tags": ["invoices"]
+            }
         }
     },
     "components": {
         "schemas": {
+            "DraftStopDto": {
+                "type": "object",
+                "properties": {
+                    "facilityId": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": ["pickup", "delivery"]
+                    },
+                    "windowStart": {
+                        "type": "string"
+                    },
+                    "windowEnd": {
+                        "type": "string"
+                    },
+                    "reference": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "instructions": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "required": [
+                    "facilityId",
+                    "type",
+                    "windowStart",
+                    "windowEnd",
+                    "reference",
+                    "instructions"
+                ]
+            },
+            "DraftFreightDto": {
+                "type": "object",
+                "properties": {
+                    "equipment": {
+                        "type": "string",
+                        "enum": ["dry-van", "reefer", "flatbed"]
+                    },
+                    "commodity": {
+                        "type": "string"
+                    },
+                    "weightLb": {
+                        "type": "number"
+                    },
+                    "pallets": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "tempMinF": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "tempMaxF": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "hazmat": {
+                        "type": "boolean"
+                    },
+                    "unNumber": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "requirements": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "team",
+                                "liftgate",
+                                "tarps",
+                                "driverAssist"
+                            ]
+                        }
+                    },
+                    "poNumber": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "required": [
+                    "equipment",
+                    "commodity",
+                    "weightLb",
+                    "pallets",
+                    "tempMinF",
+                    "tempMaxF",
+                    "hazmat",
+                    "unNumber",
+                    "requirements",
+                    "poNumber"
+                ]
+            },
+            "LoadDraftRequestDto": {
+                "type": "object",
+                "properties": {
+                    "stops": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DraftStopDto"
+                        }
+                    },
+                    "freight": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/DraftFreightDto"
+                            }
+                        ],
+                        "nullable": true
+                    }
+                },
+                "required": ["stops", "freight"]
+            },
+            "LoadDraftUpdateDto": {
+                "type": "object",
+                "properties": {
+                    "version": {
+                        "type": "number"
+                    },
+                    "stops": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DraftStopDto"
+                        }
+                    },
+                    "freight": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/DraftFreightDto"
+                            }
+                        ],
+                        "nullable": true
+                    }
+                },
+                "required": ["version", "stops", "freight"]
+            },
+            "QuoteApprovalDto": {
+                "type": "object",
+                "properties": {
+                    "required": {
+                        "type": "boolean"
+                    },
+                    "limitCents": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "approvers": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": ["required", "limitCents", "approvers"]
+            },
+            "LoadQuoteDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "price": {
+                        "$ref": "#/components/schemas/MoneyDto"
+                    },
+                    "miles": {
+                        "type": "number"
+                    },
+                    "confidence": {
+                        "type": "string",
+                        "enum": ["high", "medium", "low"]
+                    },
+                    "validUntil": {
+                        "type": "string"
+                    },
+                    "approval": {
+                        "$ref": "#/components/schemas/QuoteApprovalDto"
+                    }
+                },
+                "required": [
+                    "id",
+                    "price",
+                    "miles",
+                    "confidence",
+                    "validUntil",
+                    "approval"
+                ]
+            },
+            "LoadDraftDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "version": {
+                        "type": "number"
+                    },
+                    "stops": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DraftStopDto"
+                        }
+                    },
+                    "freight": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/DraftFreightDto"
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "quote": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/LoadQuoteDto"
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "updatedAt": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "version",
+                    "stops",
+                    "freight",
+                    "quote",
+                    "updatedAt"
+                ]
+            },
+            "LoadQuoteRequestDto": {
+                "type": "object",
+                "properties": {
+                    "version": {
+                        "type": "number"
+                    }
+                },
+                "required": ["version"]
+            },
+            "PostLoadRequestDto": {
+                "type": "object",
+                "properties": {
+                    "version": {
+                        "type": "number"
+                    },
+                    "quoteId": {
+                        "type": "string"
+                    },
+                    "idempotencyKey": {
+                        "type": "string"
+                    },
+                    "note": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "required": ["version", "quoteId", "idempotencyKey", "note"]
+            },
+            "PostLoadResultDto": {
+                "type": "object",
+                "properties": {
+                    "loadId": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": ["Posted", "PendingApproval"]
+                    },
+                    "approvers": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "decideBy": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "required": ["loadId", "status", "approvers", "decideBy"]
+            },
             "AuthResponseUserDto": {
                 "type": "object",
                 "properties": {
@@ -4743,6 +5900,11 @@
                     "updatedAt": {
                         "type": "string",
                         "format": "date-time"
+                    },
+                    "invoiceId": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Set once the load is invoiced (BR-14)"
                     }
                 },
                 "required": [
@@ -4766,7 +5928,8 @@
                     "assignment",
                     "carrierPay",
                     "createdAt",
-                    "updatedAt"
+                    "updatedAt",
+                    "invoiceId"
                 ]
             },
             "LoadTransitionDto": {
@@ -6002,7 +7165,8 @@
                             {
                                 "$ref": "#/components/schemas/FleetSuggestionDto"
                             }
-                        ]
+                        ],
+                        "description": "Most recently used driver and truck pair from this carrier's assignments (latest assignedAt first), excluding the load's current pair, where both are still eligible for this load; null when none fits. Offered, never pre-selected."
                     },
                     "deadline": {
                         "type": "string",
@@ -6120,6 +7284,410 @@
                     "equipment",
                     "emptyMiles",
                     "rateCents"
+                ]
+            },
+            "LoadBoardPlaceDto": {
+                "type": "object",
+                "properties": {
+                    "city": {
+                        "type": "string"
+                    },
+                    "region": {
+                        "type": "string"
+                    },
+                    "latitude": {
+                        "type": "number"
+                    },
+                    "longitude": {
+                        "type": "number"
+                    }
+                },
+                "required": ["city", "region", "latitude", "longitude"]
+            },
+            "LoadBoardItemDto": {
+                "type": "object",
+                "properties": {
+                    "loadId": {
+                        "type": "string"
+                    },
+                    "version": {
+                        "type": "number"
+                    },
+                    "origin": {
+                        "$ref": "#/components/schemas/LoadBoardPlaceDto"
+                    },
+                    "destination": {
+                        "$ref": "#/components/schemas/LoadBoardPlaceDto"
+                    },
+                    "pickupStart": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "pickupEnd": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "deliveryStart": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "deliveryEnd": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "timeZone": {
+                        "type": "string"
+                    },
+                    "equipment": {
+                        "type": "string",
+                        "enum": ["dry-van", "reefer", "flatbed"]
+                    },
+                    "commodity": {
+                        "type": "string"
+                    },
+                    "weightLb": {
+                        "type": "number"
+                    },
+                    "tempMinF": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "tempMaxF": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "hazmat": {
+                        "type": "boolean"
+                    },
+                    "carrierPayCents": {
+                        "type": "number"
+                    },
+                    "currency": {
+                        "type": "string"
+                    },
+                    "miles": {
+                        "type": "number"
+                    },
+                    "ratePerMileCents": {
+                        "type": "number"
+                    },
+                    "deadheadMiles": {
+                        "type": "number",
+                        "nullable": true
+                    }
+                },
+                "required": [
+                    "loadId",
+                    "version",
+                    "origin",
+                    "destination",
+                    "pickupStart",
+                    "pickupEnd",
+                    "deliveryStart",
+                    "deliveryEnd",
+                    "timeZone",
+                    "equipment",
+                    "commodity",
+                    "weightLb",
+                    "tempMinF",
+                    "tempMaxF",
+                    "hazmat",
+                    "carrierPayCents",
+                    "currency",
+                    "miles",
+                    "ratePerMileCents",
+                    "deadheadMiles"
+                ]
+            },
+            "LoadBoardPageDto": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/LoadBoardItemDto"
+                        }
+                    },
+                    "total": {
+                        "type": "number"
+                    },
+                    "nextCursor": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "origin": {
+                        "nullable": true,
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/LoadBoardPlaceDto"
+                            }
+                        ]
+                    },
+                    "checkedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "items",
+                    "total",
+                    "nextCursor",
+                    "origin",
+                    "checkedAt"
+                ]
+            },
+            "BookingCheckDto": {
+                "type": "object",
+                "properties": {
+                    "key": {
+                        "type": "string",
+                        "enum": [
+                            "standing",
+                            "insurance",
+                            "equipment",
+                            "availability"
+                        ]
+                    },
+                    "passed": {
+                        "type": "boolean"
+                    },
+                    "detail": {
+                        "type": "string"
+                    },
+                    "fix": {
+                        "type": "string",
+                        "nullable": true,
+                        "enum": [
+                            "onboarding",
+                            "documents",
+                            "fleet",
+                            "loadBoard"
+                        ]
+                    }
+                },
+                "required": ["key", "passed", "detail", "fix"]
+            },
+            "BookingTermsDto": {
+                "type": "object",
+                "properties": {
+                    "detentionFreeHours": {
+                        "type": "number"
+                    },
+                    "detentionCentsPerHour": {
+                        "type": "number"
+                    },
+                    "layoverCentsPerDay": {
+                        "type": "number"
+                    },
+                    "tonuCents": {
+                        "type": "number"
+                    },
+                    "cancellationNoticeHours": {
+                        "type": "number"
+                    }
+                },
+                "required": [
+                    "detentionFreeHours",
+                    "detentionCentsPerHour",
+                    "layoverCentsPerDay",
+                    "tonuCents",
+                    "cancellationNoticeHours"
+                ]
+            },
+            "RateConfirmationSectionDto": {
+                "type": "object",
+                "properties": {
+                    "heading": {
+                        "type": "string"
+                    },
+                    "body": {
+                        "type": "string"
+                    }
+                },
+                "required": ["heading", "body"]
+            },
+            "RateConfirmationDto": {
+                "type": "object",
+                "properties": {
+                    "version": {
+                        "type": "number"
+                    },
+                    "fileName": {
+                        "type": "string"
+                    },
+                    "issuedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "sections": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/RateConfirmationSectionDto"
+                        }
+                    }
+                },
+                "required": ["version", "fileName", "issuedAt", "sections"]
+            },
+            "LoadBookingDto": {
+                "type": "object",
+                "properties": {
+                    "loadId": {
+                        "type": "string"
+                    },
+                    "version": {
+                        "type": "number"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "shipperName": {
+                        "type": "string"
+                    },
+                    "stops": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/StopDto"
+                        }
+                    },
+                    "equipment": {
+                        "type": "string",
+                        "enum": ["dry-van", "reefer", "flatbed"]
+                    },
+                    "commodity": {
+                        "type": "string"
+                    },
+                    "weightLb": {
+                        "type": "number"
+                    },
+                    "pallets": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "tempMinF": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "tempMaxF": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "hazmat": {
+                        "type": "boolean"
+                    },
+                    "insuranceMinCents": {
+                        "type": "number"
+                    },
+                    "carrierPay": {
+                        "$ref": "#/components/schemas/MoneyDto"
+                    },
+                    "miles": {
+                        "type": "number"
+                    },
+                    "ratePerMileCents": {
+                        "type": "number"
+                    },
+                    "terms": {
+                        "$ref": "#/components/schemas/BookingTermsDto"
+                    },
+                    "rateConfirmation": {
+                        "$ref": "#/components/schemas/RateConfirmationDto"
+                    },
+                    "checks": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/BookingCheckDto"
+                        }
+                    },
+                    "bookable": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "loadId",
+                    "version",
+                    "status",
+                    "shipperName",
+                    "stops",
+                    "equipment",
+                    "commodity",
+                    "weightLb",
+                    "pallets",
+                    "tempMinF",
+                    "tempMaxF",
+                    "hazmat",
+                    "insuranceMinCents",
+                    "carrierPay",
+                    "miles",
+                    "ratePerMileCents",
+                    "terms",
+                    "rateConfirmation",
+                    "checks",
+                    "bookable"
+                ]
+            },
+            "BookLoadDto": {
+                "type": "object",
+                "properties": {
+                    "idempotencyKey": {
+                        "type": "string",
+                        "minLength": 8,
+                        "maxLength": 64
+                    },
+                    "version": {
+                        "type": "number"
+                    },
+                    "rateConfirmationVersion": {
+                        "type": "number"
+                    },
+                    "signerName": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                    },
+                    "attested": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "idempotencyKey",
+                    "version",
+                    "rateConfirmationVersion",
+                    "signerName",
+                    "attested"
+                ]
+            },
+            "LoadBookedDto": {
+                "type": "object",
+                "properties": {
+                    "loadId": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "rateConfirmationVersion": {
+                        "type": "number"
+                    },
+                    "acceptedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "assignmentDeadline": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "timeZone": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "loadId",
+                    "status",
+                    "rateConfirmationVersion",
+                    "acceptedAt",
+                    "assignmentDeadline",
+                    "timeZone"
                 ]
             },
             "LoadCancellationDto": {
@@ -8318,9 +9886,454 @@
                     },
                     "region": {
                         "type": "string"
+                    },
+                    "line1": {
+                        "type": "string"
+                    },
+                    "postalCode": {
+                        "type": "string"
+                    },
+                    "timeZone": {
+                        "type": "string"
                     }
                 },
-                "required": ["id", "name", "city", "region"]
+                "required": [
+                    "id",
+                    "name",
+                    "city",
+                    "region",
+                    "line1",
+                    "postalCode",
+                    "timeZone"
+                ]
+            },
+            "NetworkStatsDto": {
+                "type": "object",
+                "properties": {
+                    "approvedCarriers": {
+                        "type": "number",
+                        "description": "Carriers approved to book"
+                    },
+                    "loadsDelivered": {
+                        "type": "number",
+                        "description": "Loads delivered in the period"
+                    },
+                    "onTimeRate": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1,
+                        "description": "Share of deliveries inside their window"
+                    },
+                    "periodStart": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "periodEnd": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "computedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "approvedCarriers",
+                    "loadsDelivered",
+                    "onTimeRate",
+                    "periodStart",
+                    "periodEnd",
+                    "computedAt"
+                ]
+            },
+            "StandingBlockerDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "onboardingIncomplete",
+                            "complianceHold",
+                            "insuranceExpiring",
+                            "insuranceLapsed",
+                            "authorityInactive",
+                            "paymentMethodMissing",
+                            "paymentMethodFailed",
+                            "creditLimitReached",
+                            "payoutMethodFailed"
+                        ]
+                    },
+                    "severity": {
+                        "type": "string",
+                        "enum": ["blocking", "warning"]
+                    },
+                    "capabilities": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": ["book", "bid", "post", "pay"]
+                        }
+                    },
+                    "effectiveAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "fix": {
+                        "type": "string",
+                        "enum": [
+                            "shipperOnboarding",
+                            "carrierOnboarding",
+                            "billing",
+                            "compliance"
+                        ],
+                        "nullable": true
+                    }
+                },
+                "required": [
+                    "id",
+                    "type",
+                    "severity",
+                    "capabilities",
+                    "effectiveAt",
+                    "fix"
+                ]
+            },
+            "OrganisationStandingDto": {
+                "type": "object",
+                "properties": {
+                    "organisation": {
+                        "$ref": "#/components/schemas/PartyDto"
+                    },
+                    "blockers": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/StandingBlockerDto"
+                        }
+                    },
+                    "checkedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": ["organisation", "blockers", "checkedAt"]
+            },
+            "InvoiceEvidenceDto": {
+                "type": "object",
+                "properties": {
+                    "documentId": {
+                        "type": "string"
+                    },
+                    "label": {
+                        "type": "string"
+                    }
+                },
+                "required": ["documentId", "label"]
+            },
+            "InvoiceLineDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "kind": {
+                        "type": "string",
+                        "enum": [
+                            "linehaul",
+                            "fuel",
+                            "accessorial",
+                            "fee",
+                            "deduction"
+                        ]
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "amountCents": {
+                        "type": "number"
+                    },
+                    "evidence": {
+                        "nullable": true,
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/InvoiceEvidenceDto"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "id",
+                    "kind",
+                    "description",
+                    "amountCents",
+                    "evidence"
+                ]
+            },
+            "InvoicePaymentDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "reference": {
+                        "type": "string"
+                    },
+                    "amountCents": {
+                        "type": "number"
+                    },
+                    "methodLabel": {
+                        "type": "string"
+                    },
+                    "methodType": {
+                        "type": "string",
+                        "enum": ["ach", "card"]
+                    },
+                    "paidAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "paidByName": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "reference",
+                    "amountCents",
+                    "methodLabel",
+                    "methodType",
+                    "paidAt",
+                    "paidByName"
+                ]
+            },
+            "InvoiceLaneDto": {
+                "type": "object",
+                "properties": {
+                    "origin": {
+                        "type": "string"
+                    },
+                    "destination": {
+                        "type": "string"
+                    },
+                    "deliveredAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    }
+                },
+                "required": ["origin", "destination", "deliveredAt"]
+            },
+            "InvoiceDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "number": {
+                        "type": "string"
+                    },
+                    "loadId": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": ["open", "paid", "disputed"]
+                    },
+                    "shipper": {
+                        "$ref": "#/components/schemas/PartyDto"
+                    },
+                    "carrier": {
+                        "nullable": true,
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/PartyDto"
+                            }
+                        ]
+                    },
+                    "lane": {
+                        "$ref": "#/components/schemas/InvoiceLaneDto"
+                    },
+                    "issuedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "dueAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "termsDays": {
+                        "type": "number"
+                    },
+                    "currency": {
+                        "type": "string"
+                    },
+                    "lines": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/InvoiceLineDto"
+                        }
+                    },
+                    "totalCents": {
+                        "type": "number"
+                    },
+                    "paidCents": {
+                        "type": "number"
+                    },
+                    "disputedCents": {
+                        "type": "number"
+                    },
+                    "balanceCents": {
+                        "type": "number"
+                    },
+                    "agreedRateCents": {
+                        "type": "number"
+                    },
+                    "rateConfirmationVersion": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "brokerMc": {
+                        "type": "string"
+                    },
+                    "payments": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/InvoicePaymentDto"
+                        }
+                    },
+                    "version": {
+                        "type": "number"
+                    }
+                },
+                "required": [
+                    "id",
+                    "number",
+                    "loadId",
+                    "status",
+                    "shipper",
+                    "carrier",
+                    "lane",
+                    "issuedAt",
+                    "dueAt",
+                    "termsDays",
+                    "currency",
+                    "lines",
+                    "totalCents",
+                    "paidCents",
+                    "disputedCents",
+                    "balanceCents",
+                    "agreedRateCents",
+                    "rateConfirmationVersion",
+                    "brokerMc",
+                    "payments",
+                    "version"
+                ]
+            },
+            "PaymentMethodDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": ["ach", "card"]
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "last4": {
+                        "type": "string"
+                    },
+                    "brand": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": ["verified", "pendingVerification", "failed"]
+                    },
+                    "isDefault": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "id",
+                    "type",
+                    "label",
+                    "last4",
+                    "brand",
+                    "status",
+                    "isDefault"
+                ]
+            },
+            "InvoicePaymentItemDto": {
+                "type": "object",
+                "properties": {
+                    "invoiceId": {
+                        "type": "string"
+                    },
+                    "version": {
+                        "type": "number"
+                    },
+                    "amountCents": {
+                        "type": "number"
+                    }
+                },
+                "required": ["invoiceId", "version", "amountCents"]
+            },
+            "InvoicePaymentRequestDto": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/InvoicePaymentItemDto"
+                        },
+                        "minItems": 1,
+                        "maxItems": 100
+                    },
+                    "methodId": {
+                        "type": "string"
+                    },
+                    "idempotencyKey": {
+                        "type": "string",
+                        "maxLength": 64
+                    }
+                },
+                "required": ["items", "methodId", "idempotencyKey"]
+            },
+            "InvoicePaymentResultDto": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "succeeded",
+                            "declined",
+                            "verificationRequired"
+                        ]
+                    },
+                    "payment": {
+                        "nullable": true,
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/InvoicePaymentDto"
+                            }
+                        ]
+                    },
+                    "reason": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "required": ["status", "payment", "reason"]
             }
         }
     }

@@ -11,6 +11,7 @@ export const ASSIGNMENT_COPY = {
     truck: "Truck",
     truckPlaceholder: "Choose a truck",
     usual: "Usually {driver}",
+    suggestion: { label: "Last paired: {driver} with {truck}, on {load}.", use: "Use this pair", used: "{driver} and {truck} selected." },
     tracking: "Tracking source",
     sources: [
         { value: "driverApp", label: "Driver app", detail: "The driver's phone shares position while the trip is open." },
@@ -32,6 +33,7 @@ export const ASSIGNMENT_COPY = {
     done: "{driver} and {truck} assigned to {load}.",
     errors: {
         precondition: "This load changed since you opened it. The options are refreshed; check them and try again.",
+        changedBy: "{name} changed this load at {time}. The options are refreshed; check them and try again.",
         conflict: "That driver or truck was just taken, or the load moved on. The options now show why.",
     },
     noDrivers: "No drivers on your team yet. Invite one and assign them once they accept.",
