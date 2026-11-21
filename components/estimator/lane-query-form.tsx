@@ -3,7 +3,7 @@ import { useId, type FormEvent } from "react";
 import AuthSubmit from "@/components/auth/auth-submit";
 import ErrorSummary from "@/components/common/error-summary";
 import HudPanel from "@/components/common/hud-panel";
-import LocationField from "@/components/estimator/location-field";
+import LocationField from "@/components/common/location-field";
 import DateField from "@/components/ui/date-field";
 import Field from "@/components/ui/field";
 import RadioGroup from "@/components/ui/radio-group";
@@ -45,12 +45,13 @@ export default function LaneQueryForm({ entry, problems, attempt, pending, error
                     count={problemCount(problems.length)}
                     fieldId={idOf}
                 />
-                <LocationField id={idOf("origin")} {...fields.origin} value={entry.origin} error={errorFor("origin")} onChange={onChange("origin")} />
+                <LocationField id={idOf("origin")} {...fields.origin} value={entry.origin} error={errorFor("origin")} places={ESTIMATOR_COPY.places} onChange={onChange("origin")} />
                 <LocationField
                     id={idOf("destination")}
                     {...fields.destination}
                     value={entry.destination}
                     error={errorFor("destination")}
+                    places={ESTIMATOR_COPY.places}
                     onChange={onChange("destination")}
                 />
                 <RadioGroup
