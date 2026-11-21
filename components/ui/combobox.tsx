@@ -20,6 +20,9 @@ interface Props<T extends string> {
     onInputChange?: (value: string) => void;
     filter?: boolean;
     loading?: boolean;
+    allowsCustomValue?: boolean;
+    allowsEmpty?: boolean;
+    emptyLabel?: string;
     id?: string;
     name?: string;
     label?: string;
@@ -38,7 +41,7 @@ interface Props<T extends string> {
 const keepAll = () => true;
 
 export default function Combobox<T extends string>(props: Props<T>) {
-    const { options, value, onChange, inputValue, onInputChange, filter = true, loading = false } = props;
+    const { options, value, onChange, inputValue, onInputChange, filter = true, loading = false, allowsCustomValue, allowsEmpty = true, emptyLabel } = props;
     const { id, name, label, size = "md", invalid = false, placeholder, icon: Icon, isRequired, isDisabled, className } = props;
     const { contains } = useFilter({ sensitivity: "base" });
     const frame = useRef<HTMLDivElement>(null);
@@ -53,7 +56,8 @@ export default function Combobox<T extends string>(props: Props<T>) {
             inputValue={inputValue}
             onInputChange={onInputChange}
             defaultFilter={filter ? contains : keepAll}
-            allowsEmptyCollection
+            allowsCustomValue={allowsCustomValue}
+            allowsEmptyCollection={allowsEmpty}
             isRequired={isRequired}
             isDisabled={isDisabled}
             isInvalid={invalid}
@@ -74,7 +78,7 @@ export default function Combobox<T extends string>(props: Props<T>) {
             <Popover triggerRef={frame} placement="bottom start" className="min-w-(--trigger-width)">
                 <ListBox
                     className="max-h-72 overflow-y-auto py-1 outline-none"
-                    renderEmptyState={() => <p className="text-text-muted px-3 py-2 text-xs">{loading ? UI_COPY.loading : UI_COPY.noResults}</p>}
+                    renderEmptyState={() => <p className="text-text-muted px-3 py-2 text-xs">{loading ? UI_COPY.loading : (emptyLabel ?? UI_COPY.noResults)}</p>}
                 >
                     {options.map((option) => (
                         <ListOption

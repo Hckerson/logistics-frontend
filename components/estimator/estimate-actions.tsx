@@ -1,8 +1,6 @@
 "use client";
-import Link from "next/link";
 import ConsoleLink from "@/components/auth/console-link";
 import Button from "@/components/ui/button";
-import { QUIET_LINK } from "@/lib/auth/constants";
 import { loginRoute, postLoadRoute } from "@/lib/constants";
 import { ESTIMATOR_COPY } from "@/lib/data/quotes/estimator";
 import { useSaveEstimate } from "@/lib/hooks/use-save-estimate";
@@ -28,11 +26,6 @@ export default function EstimateActions({ lane, estimate, signedIn }: Props) {
         <div className="flex flex-col gap-4">
             <ConsoleLink href={through(postLoadRoute(carried))} label={actions.post} />
             <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
-                {estimate.confidence === "low" ? (
-                    <Link href={through(postLoadRoute(carried, "custom"))} className={QUIET_LINK}>
-                        {actions.custom}
-                    </Link>
-                ) : null}
                 {signedIn && saved ? (
                     <p role="status" className="text-signal-success text-xs">
                         {actions.saved}

@@ -4,8 +4,7 @@ import { ArrowRight } from "@carbon/icons-react";
 import FormLane from "@/components/home/form-lane";
 import LaneField from "@/components/home/lane-field";
 import Button from "@/components/ui/button";
-import Field from "@/components/ui/field";
-import Select from "@/components/ui/select";
+import RadioGroup from "@/components/ui/radio-group";
 import { CLOSE_COPY } from "@/lib/data/home/close";
 import { HUBS } from "@/lib/data/home/hubs";
 import { RATE_ESTIMATOR_ROUTE } from "@/lib/constants";
@@ -44,9 +43,15 @@ export default function LaneForm({ lane, onChange }: Props) {
                 onChange={update("destination")}
             />
             <FormLane origin={lane.origin.trim() !== ""} destination={lane.destination.trim() !== ""} />
-            <Field id={`${baseId}-equipment`} label={fields.equipment.label}>
-                {(control) => <Select {...control} size="xl" name={fields.equipment.name} options={equipment} value={kind} onChange={setKind} />}
-            </Field>
+            <RadioGroup
+                id={`${baseId}-equipment`}
+                name={fields.equipment.name}
+                legend={fields.equipment.label}
+                options={equipment}
+                value={kind}
+                columns={3}
+                onChange={setKind}
+            />
             <Button type="submit" tone="accent" size="lg" trailing={ArrowRight}>
                 {CLOSE_COPY.submit}
             </Button>
