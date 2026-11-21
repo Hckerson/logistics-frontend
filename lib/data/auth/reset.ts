@@ -56,6 +56,7 @@ export const RESET_COPY = {
         password: {
             missing: "Enter a new password.",
             short: AUTH_COPY.password.short,
+            long: AUTH_COPY.password.long,
             breached: "This password has appeared in a data breach. Choose a different one.",
         },
         confirm: { missing: "Confirm your new password.", mismatch: "Passwords don't match." },
