@@ -6,6 +6,8 @@ import Button from "@/components/ui/button";
 import Dialog from "@/components/ui/dialog";
 import IconButton from "@/components/ui/icon-button";
 import Kbd from "@/components/ui/kbd";
+import { useSession } from "@/components/providers/session-provider";
+import { hasAnyRole, ROLE_GROUPS } from "@/lib/auth/roles";
 import { SHELL_COPY } from "@/lib/data/shell";
 import { useApplePlatform, useShortcut } from "@/lib/hooks/use-shortcut";
 
@@ -15,8 +17,13 @@ const SHORTCUT_KEY = "k";
 export default function QuickFind() {
     const [open, setOpen] = useState(false);
     const apple = useApplePlatform();
-    const show = useCallback(() => setOpen(true), []);
+    const driver = hasAnyRole(useSession()?.roles ?? [], ROLE_GROUPS.driver);
+    const show = useCallback(() => {
+        if (!driver) setOpen(true);
+    }, [driver]);
     useShortcut(SHORTCUT_KEY, show);
+
+    if (driver) return null;
 
     return (
         <>
