@@ -1,27 +1,28 @@
 import { NextResponse } from "next/server";
 import { API_MOCKS, HTTP_STATUS } from "@/lib/constants";
+import { withHandler } from "@/lib/utils/with-action";
 
 type Context = RouteContext<"/api/mock-storage/[documentId]">;
 
 const missing = () => new NextResponse(null, { status: HTTP_STATUS.notFound });
 
-const storedDocument = async ({ params }: Context) => {
-    if (!API_MOCKS) return null;
-    const [{ documentId }, { freightStore }] = await Promise.all([params, import("@/lib/mocks/freight-store")]);
+const storedDocument = async (route: Context | undefined) => {
+    if (!API_MOCKS || !route) return null;
+    const [{ documentId }, { freightStore }] = await Promise.all([route.params, import("@/lib/mocks/freight-store")]);
     const store = freightStore();
     const document = store.documents.get(documentId);
     return document ? { store, document } : null;
 };
 
-export async function PUT(request: Request, context: Context) {
-    const found = await storedDocument(context);
+export const PUT = withHandler<Context>(async (request, _context, route) => {
+    const found = await storedDocument(route);
     if (!found) return missing();
     found.store.blobs.set(found.document.id, new Uint8Array(await request.arrayBuffer()));
     return new NextResponse(null, { status: HTTP_STATUS.ok });
-}
+});
 
-export async function GET(_request: Request, context: Context) {
-    const found = await storedDocument(context);
+export const GET = withHandler<Context>(async (_request, _context, route) => {
+    const found = await storedDocument(route);
     if (!found) return missing();
 
     const { MOCK_SAMPLE_PDF, MOCK_SAMPLE_TYPE } = await import("@/lib/data/mocks/freight");
@@ -32,4 +33,4 @@ export async function GET(_request: Request, context: Context) {
             "Content-Disposition": `attachment; filename="${encodeURIComponent(found.document.fileName)}"`,
         },
     });
-}
+});

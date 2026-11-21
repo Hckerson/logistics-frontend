@@ -1,6 +1,8 @@
 import { isAxiosError } from "axios";
 import { HTTP_STATUS, INVALID_REQUEST, REQUEST_FAILED } from "@/lib/constants";
-import { CORRELATION_HEADER, ERROR_COPY, RATE_LIMIT_WAIT, READ_RETRY_DELAYS_MS } from "@/lib/errors/constants";
+import { CHANGED_BY, CORRELATION_HEADER, ERROR_COPY, RATE_LIMIT_WAIT, READ_RETRY_DELAYS_MS } from "@/lib/errors/constants";
+import { UI_LOCALE } from "@/lib/ui/constants";
+import { fillTemplate } from "@/lib/utils/fill-template";
 import type { ActionFailure, ActionResult, ErrorClass } from "@/lib/types";
 
 const SECOND = 1000;
@@ -36,10 +38,16 @@ export const invalidInput = () => failureOf(HTTP_STATUS.badRequest, { message: I
 
 export const contractFailure = (): ActionFailure => ({ ...failureOf(HTTP_STATUS.badGateway), errorClass: "contract" });
 
-export const errorMessage = ({ errorClass, retryAfter }: Pick<ActionFailure, "errorClass" | "retryAfter">) =>
-    errorClass === "rate-limit" && retryAfter
-        ? RATE_LIMIT_WAIT.replace("{minutes}", String(Math.ceil(retryAfter / SECONDS_PER_MINUTE)))
-        : ERROR_COPY[errorClass];
+const changedClock = new Intl.DateTimeFormat(UI_LOCALE, { hour: "numeric", minute: "2-digit" });
+
+export const staleText = ({ changedBy, changedAt }: Pick<ActionFailure, "changedBy" | "changedAt">, plain: string, named: string) =>
+    changedBy && changedAt ? fillTemplate(named, { name: changedBy, time: changedClock.format(Date.parse(changedAt)) }) : plain;
+
+export const errorMessage = (failure: Pick<ActionFailure, "errorClass" | "retryAfter" | "changedBy" | "changedAt">) => {
+    const { errorClass, retryAfter } = failure;
+    if (errorClass === "rate-limit" && retryAfter) return RATE_LIMIT_WAIT.replace("{minutes}", String(Math.ceil(retryAfter / SECONDS_PER_MINUTE)));
+    return errorClass === "precondition" ? staleText(failure, ERROR_COPY.precondition, CHANGED_BY) : ERROR_COPY[errorClass];
+};
 
 export class ActionError extends Error {
     readonly failure: ActionFailure;

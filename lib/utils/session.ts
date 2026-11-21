@@ -12,6 +12,7 @@ import {
     type SessionPayload,
 } from "@/lib/utils/verify-session-token";
 import { mfaChallengeSchema } from "@/lib/validations/auth";
+import { serverEnv } from "@/lib/validations/env";
 
 const SECONDS_PER_MINUTE = 60;
 
@@ -21,7 +22,7 @@ const authEnvelopeSchema = z.object({
 
 const cookieOptions = (maxAge: number) => ({
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: serverEnv().NODE_ENV === "production",
     sameSite: "lax" as const,
     path: "/",
     maxAge,
