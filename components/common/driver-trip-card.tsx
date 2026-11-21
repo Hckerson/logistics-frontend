@@ -1,7 +1,7 @@
 import { ArrowRight } from "@carbon/icons-react";
 import BoardReadout from "@/components/common/board-readout";
-import DriverLane from "@/components/common/driver-lane";
 import HudPanel from "@/components/common/hud-panel";
+import LaneLine from "@/components/common/lane-line";
 import ButtonLink from "@/components/ui/button-link";
 import { appRoutes } from "@/lib/app-routes";
 import type { DriverTripSummaryDto } from "@/lib/contract/schemas";
@@ -23,7 +23,7 @@ export default function DriverTripCard({ trip }: Props) {
 
     return (
         <HudPanel label={copy.inProgress} status={LOAD_STATUS_LABELS[status]} note={loadId}>
-            <DriverLane origin={origin.city} destination={destination.city} progress={stopsDone / Math.max(stopCount, 1)} />
+            <LaneLine origin={origin.city} destination={destination.city} progress={stopsDone / Math.max(stopCount, 1)} label={fillTemplate(tripCopy.lane, { origin: origin.city, destination: destination.city })} />
             {nextStop ? (
                 <div className="border-border flex flex-col gap-2 border-t pt-4">
                     <p className="haulr-label text-accent">{fillTemplate(copy.nextStop, { type: stopTypes[nextStop.type] })}</p>

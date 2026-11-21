@@ -10,7 +10,7 @@ import { hasAnyRole, ROLE_GROUPS } from "@/lib/auth/roles";
 import { ASSIGNMENT_COPY } from "@/lib/data/fleet/assignment";
 import { useAssignLoad, useFleetOptions } from "@/lib/hooks/use-assign-load";
 import type { AssignTarget } from "@/lib/types";
-import { errorMessage, failureFrom } from "@/lib/utils/action-result";
+import { errorMessage, failureFrom, staleText } from "@/lib/utils/action-result";
 import { fillTemplate } from "@/lib/utils/fill-template";
 
 interface Props {
@@ -27,7 +27,13 @@ export default function AssignmentDialog({ target, preview, onClose }: Props) {
     const announce = useAnnounce();
     const staff = hasAnyRole(useSession()?.roles ?? [], ROLE_GROUPS.internal);
     const failure = assign.isError ? failureFrom(assign.error) : null;
-    const problem = failure ? (failure.errorClass === "precondition" || failure.errorClass === "conflict" ? copy.errors[failure.errorClass] : errorMessage(failure)) : null;
+    const problem = !failure
+        ? null
+        : failure.errorClass === "precondition"
+          ? staleText(failure, copy.errors.precondition, copy.errors.changedBy)
+          : failure.errorClass === "conflict"
+            ? copy.errors.conflict
+            : errorMessage(failure);
 
     const close = (open: boolean) => {
         if (!open && !assign.isPending) onClose();

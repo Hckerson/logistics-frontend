@@ -58,6 +58,16 @@ export default function DispatchToolbar({ plan, query, updatedAt, wide, view, on
                 {wide ? <SegmentedControl label={viewCopy.label} options={viewCopy.options} value={view} onChange={onView} size="sm" /> : null}
             </div>
             <div className="flex flex-wrap items-center gap-2">
+                {plan && plan.carriers.length > 1 ? (
+                    <Select
+                        label={filters.carrier}
+                        size="sm"
+                        className={FILTER}
+                        options={plan.carriers.map(({ id, name }) => ({ value: id, label: name }))}
+                        value={plan.carrier}
+                        onChange={(carrier) => onChange({ week: query.week, carrier })}
+                    />
+                ) : null}
                 {wide ? (
                     <Select
                         label={filters.truck}
@@ -85,7 +95,7 @@ export default function DispatchToolbar({ plan, query, updatedAt, wide, view, on
                     onChange={(value) => onChange({ ...query, equipment: EQUIPMENT_TYPES.find((kind) => kind === value) })}
                 />
                 {filtered ? (
-                    <Button tone="link" size="inline" onPress={() => onChange({ week: query.week })}>
+                    <Button tone="link" size="inline" onPress={() => onChange({ week: query.week, carrier: query.carrier })}>
                         {filters.clear}
                     </Button>
                 ) : null}

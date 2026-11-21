@@ -13,6 +13,7 @@ import type { DriverTripDto } from "@/lib/contract/schemas";
 import { DRIVER_COPY } from "@/lib/data/driver/copy";
 import { currentIndex, nextAction, podOpen } from "@/lib/driver/trip";
 import { useDriverLocation } from "@/lib/hooks/use-driver-location";
+import { usePositionReporter } from "@/lib/hooks/use-position-reporter";
 import { useStopEvents } from "@/lib/hooks/use-stop-events";
 
 interface Props {
@@ -29,6 +30,7 @@ const plan = ({ stops }: DriverTripDto) => stops.map(({ id, facility, windowStar
 export default function DriverTripView({ owner, trip: served }: Props) {
     const { trip, undoable, record, undo } = useStopEvents(owner, served);
     const location = useDriverLocation(trip.active);
+    usePositionReporter(trip.loadId, location.coords, trip.active);
     const announce = useAnnounce();
     const known = useRef<string | null>(null);
     const index = currentIndex(trip.stops);

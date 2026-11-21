@@ -1,6 +1,7 @@
 "use client";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import AccountStandingNotice from "@/components/common/account-standing-notice";
 import AssignmentDialog from "@/components/common/assignment-dialog";
 import AssignmentPreview from "@/components/common/assignment-preview";
 import DispatchPlan from "@/components/common/dispatch-plan";
@@ -63,7 +64,7 @@ export default function DispatchBoard({ initial }: Props) {
             truck={query.truck}
             onTruck={(truck) => change({ ...query, truck })}
             onWeek={(weeks) => change({ ...query, week: shiftWeek(data.weekStart, weeks) })}
-            onClear={() => change({ week: query.week })}
+            onClear={() => change({ week: query.week, carrier: query.carrier })}
             onAssign={(target, move) => setAssigning({ target, move })}
             onAvailability={setAvailability}
         />
@@ -71,6 +72,7 @@ export default function DispatchBoard({ initial }: Props) {
 
     return (
         <div className="flex flex-col gap-4">
+            <AccountStandingNotice />
             <DispatchToolbar plan={plan.data} query={query} updatedAt={plan.dataUpdatedAt} wide={wide} view={view} onView={setView} onChange={change} />
             {plan.data ? (
                 <>
