@@ -13,7 +13,7 @@ import type { ChargeParty, MockCharge, MockLoad, MockStop } from "@/lib/types";
 const DISPATCHED: readonly MockLoad["status"][] = ["Dispatched", "AtPickup", "InTransit", "AtDelivery", "Delivered", "PodVerified", "Invoiced", "Paid", "Closed"];
 
 const assignmentOf = (load: MockLoad, { side, staff }: MockCaller): LoadAssignmentDto | null => {
-    const truck = load.truck ? fleetStore().trucks.get(load.truck) : undefined;
+    const truck = load.truck ? (fleetStore().trucks.get(load.truck) ?? fleetStore().retired.get(load.truck)) : undefined;
     const name = [...mockStore().users.values()].find((user) => user.id === load.driver)?.name;
     if (!truck || !name) return null;
     const party = staff || side === "carrier";

@@ -68,6 +68,8 @@ export interface MockInvitation {
     inviter: string;
     role: TeamRole;
     status: InvitationStatus;
+    sentAt?: string;
+    resends?: number;
 }
 
 export interface MockSavedEstimate {

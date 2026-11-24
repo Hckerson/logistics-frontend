@@ -1,3 +1,4 @@
+import { MOCK_LOCATION_CONSENTS } from "@/lib/data/mocks/drivers";
 import { MOCK_INVITATIONS, MOCK_MEMBERSHIPS } from "@/lib/data/mocks/team";
 import { MOCK_TICKETS } from "@/lib/data/mocks/tickets";
 import { MOCK_RESET_TOKENS, MOCK_USERS } from "@/lib/data/mocks/users";
@@ -30,7 +31,7 @@ const seed = (): MockStore => ({
     savedEstimates: new Map(),
     invitations: new Map(Object.entries(MOCK_INVITATIONS).map(([token, invitation]) => [token, { ...invitation }])),
     memberships: new Map(Object.entries(MOCK_MEMBERSHIPS)),
-    locationConsents: new Map(),
+    locationConsents: new Map(Object.entries(MOCK_LOCATION_CONSENTS)),
 });
 
 export const mockStore = (): MockStore => {

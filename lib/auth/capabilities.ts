@@ -14,6 +14,8 @@ export const CAPABILITY_ROLES = {
     planFleet: ["carrier.dispatcher", "carrier.admin"],
     bookLoad: ["carrier.dispatcher", "carrier.admin"],
     readFleetPlan: ["carrier.dispatcher", "carrier.admin", "internal.ops"],
+    editVehicles: ["carrier.admin"],
+    manageDrivers: ["carrier.dispatcher", "carrier.admin"],
     importLoads: ["shipper.member", "shipper.admin"],
     postLoads: ["shipper.member", "shipper.admin"],
     viewImports: ["shipper.member", "shipper.admin", "internal.support"],

@@ -22,3 +22,18 @@ export const PLANNED_STATUSES = ["Booked", "Dispatched", "AtPickup", "InTransit"
 export const UNAVAILABLE_REASONS = ["maintenance", "timeOff", "other"] as const;
 
 export const ALL_OPTION = "all";
+
+export const VEHICLE_KINDS = ["truck", "trailer"] as const;
+
+export const ACTIVE_STATUSES = [...MOVABLE_STATUSES, "AtPickup", "InTransit", "AtDelivery"] as const;
+
+export const ROSTER = {
+    unitMax: 16,
+    vinLength: 17,
+    vinPattern: /^[A-HJ-NPR-Z0-9]{17}$/,
+    plateMax: 10,
+    platePattern: /^[A-Z0-9 -]{2,10}$/,
+    stateLength: 2,
+    resendLimit: 3,
+    eldFreshMinutes: 30,
+} as const;

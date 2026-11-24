@@ -1,5 +1,5 @@
 import type { DriverContactDto } from "@/lib/contract/schemas";
-import type { MockUser } from "@/lib/types";
+import type { LocationDecision, MockUser } from "@/lib/types";
 
 export const MOCK_DISPATCH_CONTACTS: Readonly<Record<string, DriverContactDto>> = {
     ridgeway: { name: "Ray Okoro", phone: "+1 312 555 0142" },
@@ -17,6 +17,14 @@ export const MOCK_FACILITY_CONTACTS: Readonly<Record<string, DriverContactDto>> 
     ind: { name: "Receiving", phone: "+1 317 555 0107" },
     det: { name: "Shipping desk", phone: "+1 313 555 0108" },
     atl: { name: "Receiving", phone: "+1 404 555 0109" },
+};
+
+export const MOCK_LOCATION_CONSENTS: Readonly<Record<string, LocationDecision>> = {
+    "driver@ridgeway.example": "granted",
+    "driver2@ridgeway.example": "granted",
+    "driver3@ridgeway.example": "declined",
+    "driver5@ridgeway.example": "granted",
+    "driver6@ridgeway.example": "granted",
 };
 
 export const MOCK_POD = { verifySeconds: 8, uploadHost: "/api/mock-storage" } as const;

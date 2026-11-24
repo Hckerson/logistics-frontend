@@ -31,6 +31,8 @@ const expiresAt = (now: number) => new Date(now + DOCUMENT_RULES.signedUrlSecond
 
 const storageUrl = (documentId: string) => `${MOCK_FREIGHT.uploadHost}/${documentId}`;
 
+const PREVIEW_QUERY = "inline=1";
+
 export const listDocuments = withCaller(({ path }, { loadId }, caller) => {
     const load = visibleLoad(caller, loadId);
     if (!load) return loadMissing(path);
@@ -93,6 +95,19 @@ export const documentLink = (found: MockDocument | null, path: string) => {
     if (document.scanStatus !== "clean") return fail(HTTP_STATUS.conflict, DOCUMENT_MESSAGES.notReady, path);
     return ok(HTTP_STATUS.ok, { url: storageUrl(document.id), expiresAt: expiresAt(now) });
 };
+
+export const documentPreview = (found: MockDocument | null, path: string) => {
+    const now = new Date().getTime();
+    const document = found ? settled(found, now) : null;
+    if (!document) return fail(HTTP_STATUS.notFound, DOCUMENT_MESSAGES.missing, path);
+    if (document.scanStatus !== "clean") return fail(HTTP_STATUS.conflict, DOCUMENT_MESSAGES.notReady, path);
+    return ok(HTTP_STATUS.ok, { url: `${storageUrl(document.id)}?${PREVIEW_QUERY}`, expiresAt: expiresAt(now), contentType: document.contentType, previewable: true });
+};
+
+export const previewDocument = withCaller(({ path }, { documentId }, caller) => {
+    const found = freightStore().documents.get(documentId);
+    return documentPreview(found && visibleLoad(caller, found.loadId) ? found : null, path);
+});
 
 export const downloadDocument = withCaller(({ path }, { documentId }, caller) => {
     const found = freightStore().documents.get(documentId);

@@ -53,7 +53,28 @@ export interface PostStart {
     reference: string | null;
 }
 
+export type FlowNotice = { kind: "restored"; age: string } | { kind: "corrupt" } | { kind: PostStart["source"]; load: string };
+
 export type FacilityIndex = ReadonlyMap<string, FacilityOptionDto>;
+
+export type PostFix = "retry" | "lane" | "quote" | "onboarding";
+
+export interface PostProblem {
+    text: string;
+    fix: PostFix | null;
+}
+
+export interface ReviewRow {
+    term: string;
+    details: string[];
+}
+
+export interface ReviewGroup {
+    step: Extract<PostStep, "lane" | "freight">;
+    title: string;
+    aside: string | null;
+    rows: ReviewRow[];
+}
 
 export interface MockPostingDraft {
     freight: DraftFreightDto | null;

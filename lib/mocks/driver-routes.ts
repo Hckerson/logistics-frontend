@@ -1,6 +1,6 @@
 import { routes } from "@/lib/contract/routes";
 import { getTrip, listTrips, recordStopEvent, undoStopEvent } from "@/lib/mocks/driver";
-import { downloadTripDocument } from "@/lib/mocks/driver-documents";
+import { downloadTripDocument, previewTripDocument } from "@/lib/mocks/driver-documents";
 import { requestPodPage, submitPod } from "@/lib/mocks/driver-pod";
 import { reportPositions } from "@/lib/mocks/position-reports";
 import type { MockHandler } from "@/lib/types";
@@ -15,5 +15,6 @@ export const DRIVER_HANDLERS: Record<string, MockHandler> = {
     [`POST ${routes.driversPodPage(LOAD)}`]: requestPodPage,
     [`POST ${routes.driversSubmitPod(LOAD)}`]: submitPod,
     [`GET ${routes.driversDownloadDocument(LOAD, ":documentId")}`]: downloadTripDocument,
+    [`GET ${routes.driversPreviewDocument(LOAD, ":documentId")}`]: previewTripDocument,
     [`POST ${routes.driversReportPositions(LOAD)}`]: reportPositions,
 };

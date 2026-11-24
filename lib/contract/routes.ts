@@ -7,7 +7,9 @@ import type {
     BulkTrackingLinkResultDto,
     CheckCallResponseDto,
     DocumentDto,
+    DocumentPreviewDto,
     DownloadLinkDto,
+    DriverInvitationDto,
     DriverPodPageTicketDto,
     DriverPositionsAcceptedDto,
     DriverTripDto,
@@ -15,9 +17,12 @@ import type {
     EmailDto,
     ExportJobDto,
     FacilityOptionDto,
+    FleetDriverDto,
     FleetOptionsDto,
     FleetPlanDto,
+    FleetRosterDto,
     FleetUnavailableDto,
+    FleetVehicleDto,
     HealthResponseDto,
     ImportBatchDto,
     ImportBatchPageDto,
@@ -216,6 +221,10 @@ export const routes = {
         `/api/loads/${loadId}/documents` as Endpoint<UploadTicketDto>,
     documentsComplete: (documentId: string) =>
         `/api/documents/${documentId}/complete` as Endpoint<DocumentDto>,
+    documentsPreview: (documentId: string) =>
+        `/api/documents/${documentId}/preview` as Endpoint<DocumentPreviewDto>,
+    driversPreviewDocument: (loadId: string, documentId: string) =>
+        `/api/driver/trips/${loadId}/documents/${documentId}/preview` as Endpoint<DocumentPreviewDto>,
     documentsDownload: (documentId: string) =>
         `/api/documents/${documentId}/download` as Endpoint<DownloadLinkDto>,
     notificationsList: (query?: { cursor?: string; limit?: number }) =>
@@ -321,4 +330,23 @@ export const routes = {
         "/api/invoices/payments" as Endpoint<InvoicePaymentResultDto>,
     invoicesRemittance: (paymentId: string) =>
         `/api/invoice-payments/${paymentId}/remittance` as Endpoint<DownloadLinkDto>,
+    fleetVehicles: (query?: {
+        equipment?: "dry-van" | "reefer" | "flatbed";
+        kind?: "truck" | "trailer";
+    }) =>
+        `/api/fleet/vehicles${queryString(query)}` as Endpoint<
+            FleetVehicleDto[]
+        >,
+    fleetAddVehicle: () => "/api/fleet/vehicles" as Endpoint<FleetVehicleDto>,
+    fleetUpdateVehicle: (vehicleId: string) =>
+        `/api/fleet/vehicles/${vehicleId}` as Endpoint<FleetVehicleDto>,
+    fleetRetireVehicle: (vehicleId: string) =>
+        `/api/fleet/vehicles/${vehicleId}/retire` as Endpoint<FleetVehicleDto>,
+    fleetDrivers: () => "/api/fleet/drivers" as Endpoint<FleetRosterDto>,
+    fleetDeactivateDriver: (driverId: string) =>
+        `/api/fleet/drivers/${driverId}/deactivate` as Endpoint<FleetDriverDto>,
+    teamResendInvitation: (invitationId: string) =>
+        `/api/team/invitations/${invitationId}/resend` as Endpoint<DriverInvitationDto>,
+    teamRevokeInvitation: (invitationId: string) =>
+        `/api/team/invitations/${invitationId}/revoke` as Endpoint<DriverInvitationDto>,
 } as const;

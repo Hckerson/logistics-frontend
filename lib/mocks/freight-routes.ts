@@ -1,6 +1,6 @@
 import { routes } from "@/lib/contract/routes";
 import { createLinks } from "@/lib/mocks/bulk-tracking";
-import { completeUpload, downloadDocument, listDocuments, requestUpload } from "@/lib/mocks/documents";
+import { completeUpload, downloadDocument, listDocuments, previewDocument, requestUpload } from "@/lib/mocks/documents";
 import { createExport, downloadExport, findExport } from "@/lib/mocks/load-exports";
 import { confirmImport, excludeImportRows, importRows, mapImport, priceImport, updateImportRow } from "@/lib/mocks/import-steps";
 import { completeImport, createImport, findImport, importResults, importTemplate, listFacilities, listImports } from "@/lib/mocks/imports";
@@ -43,6 +43,7 @@ export const FREIGHT_HANDLERS: Record<string, MockHandler> = {
     [`POST ${routes.documentsRequestUpload(LOAD)}`]: requestUpload,
     [`POST ${routes.documentsComplete(":documentId")}`]: completeUpload,
     [`GET ${routes.documentsDownload(":documentId")}`]: downloadDocument,
+    [`GET ${routes.documentsPreview(":documentId")}`]: previewDocument,
     [`GET ${routes.notificationsList()}`]: listNotifications,
     [`GET ${routes.notificationsUnreadCount()}`]: unreadCount,
     [`POST ${routes.notificationsMarkAllRead()}`]: markAllRead,

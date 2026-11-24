@@ -26,3 +26,4 @@ export * from "./billing";
 export * from "./posting";
 export * from "./flags";
 export * from "./navigation";
+export * from "./documents";

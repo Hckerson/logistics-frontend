@@ -1,16 +1,21 @@
 import { z } from "zod";
 import {
     assignLoadDtoSchema,
+    driverInvitationDtoSchema,
+    fleetDriverDtoSchema,
+    fleetRosterDtoSchema,
+    fleetVehicleDtoSchema,
     fleetOptionsDtoSchema,
     fleetPlanDtoSchema,
     fleetUnavailableDtoSchema,
     invitationSentDtoSchema,
     inviteDriverDtoSchema,
     recommendedLoadDtoSchema,
+    saveVehicleDtoSchema,
     truckUnavailableDtoSchema,
 } from "@/lib/contract/schemas";
 import { EQUIPMENT_TYPES } from "@/lib/enums/equipment-type";
-import { FLEET } from "@/lib/fleet/constants";
+import { FLEET, ROSTER, VEHICLE_KINDS } from "@/lib/fleet/constants";
 import { enveloped } from "@/lib/validations/freight";
 
 export const fleetQuerySchema = z.object({
@@ -40,3 +45,22 @@ export const inviteDriverSchema = inviteDriverDtoSchema.extend({
 });
 
 export const invitationSentEnvelopeSchema = enveloped(invitationSentDtoSchema);
+
+export const vehicleQuerySchema = z.object({ equipment: z.enum(EQUIPMENT_TYPES).optional(), kind: z.enum(VEHICLE_KINDS).optional() });
+
+export const vehicleSchema = saveVehicleDtoSchema
+    .extend({
+        unit: z.string().trim().min(1).max(ROSTER.unitMax),
+        vin: z.string().trim().toUpperCase().regex(ROSTER.vinPattern),
+        plate: z.string().trim().toUpperCase().regex(ROSTER.platePattern),
+        plateState: z.string().trim().toUpperCase().length(ROSTER.stateLength),
+        driverId: z.string().min(1).nullable().optional(),
+        version: z.number().int().positive().optional(),
+    })
+    .refine(({ kind, driverId }) => kind === "truck" || !driverId, { path: ["driverId"] });
+
+export const vehiclesEnvelopeSchema = enveloped(z.array(fleetVehicleDtoSchema));
+export const vehicleEnvelopeSchema = enveloped(fleetVehicleDtoSchema);
+export const rosterEnvelopeSchema = enveloped(fleetRosterDtoSchema);
+export const fleetDriverEnvelopeSchema = enveloped(fleetDriverDtoSchema);
+export const driverInvitationEnvelopeSchema = enveloped(driverInvitationDtoSchema);
