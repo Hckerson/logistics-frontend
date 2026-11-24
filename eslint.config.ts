@@ -39,7 +39,13 @@ type RestrictedImports = [
 ];
 
 const ID_SOURCE = "IDs come from nanoid — never uuid or Date.now().";
-const LITERAL_ROUTE = "JSXAttribute[name.name='href'] Literal[value=/^\\//]";
+const LITERAL_ROUTES = [
+    "JSXAttribute[name.name='href'] Literal[value=/^\\//]",
+    "JSXAttribute[name.name='href'] TemplateLiteral > TemplateElement:first-child[value.raw=/^\\//]",
+    "CallExpression[callee.object.name='router'][callee.property.name=/^(push|replace|prefetch)$/] > Literal.arguments[raw=/^[\"']\\//]",
+    "CallExpression[callee.object.name='router'][callee.property.name=/^(push|replace|prefetch)$/] > TemplateLiteral.arguments > TemplateElement:first-child[value.raw=/^\\//]",
+    "CallExpression[callee.name=/^(redirect|permanentRedirect)$/] > Literal.arguments[raw=/^[\"']\\//]",
+];
 const ROUTE_SOURCE = "Build internal paths with appRoutes from @/lib/app-routes (IC-51), never a string literal.";
 
 const restrictedImports = (...paths: RestrictedPath[]): RestrictedImports => [
@@ -98,7 +104,7 @@ const starterConfig: ConfigArray = [
     },
     {
         files: VIEWS,
-        rules: { "no-restricted-syntax": ["error", { selector: LITERAL_ROUTE, message: ROUTE_SOURCE }] },
+        rules: { "no-restricted-syntax": ["error", ...LITERAL_ROUTES.map((selector) => ({ selector, message: ROUTE_SOURCE }))] },
     },
     {
         files: COMPONENTS,
