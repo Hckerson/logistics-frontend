@@ -1,5 +1,5 @@
 import type { LoadDraftDto, LoadQuoteDto } from "@/lib/contract/schemas";
-import { fromServerDraft, furthest, stepIndex } from "@/lib/loads/posting";
+import { fromServerDraft, furthest, POST_STEPS, stepIndex } from "@/lib/loads/posting";
 import type { FreightEntries, LaneEntries, PostDraft, PostStep } from "@/lib/types";
 
 export type PostAction =
@@ -8,7 +8,7 @@ export type PostAction =
     | { type: "freight"; freight: FreightEntries; saved: LoadDraftDto }
     | { type: "quoted"; quote: LoadQuoteDto }
     | { type: "replace"; saved: LoadDraftDto }
-    | { type: "rebase"; version: number }
+    | { type: "rebase"; saved: LoadDraftDto }
     | { type: "stash"; lane?: LaneEntries; freight?: FreightEntries };
 
 const capped = (reached: PostStep, saved: LoadDraftDto): PostStep => {
@@ -40,7 +40,7 @@ export const postReducer = (draft: PostDraft, action: PostAction): PostDraft => 
         case "replace":
             return fromServerDraft(action.saved, capped(draft.reached, action.saved));
         case "rebase":
-            return { ...draft, version: action.version };
+            return { ...draft, ...synced(action.saved), reached: capped(draft.reached, action.saved) };
         case "stash":
             return stashed(draft, action.lane ?? draft.lane, action.freight ?? draft.freight);
     }
@@ -52,3 +52,13 @@ export const openSteps = (draft: PostDraft) => ({
     quote: stepIndex(draft.reached) >= stepIndex("quote"),
     review: stepIndex(draft.reached) >= stepIndex("review") && draft.quote !== null,
 });
+
+export const stepStates = (draft: PostDraft, current: PostStep) => {
+    const open = openSteps(draft);
+    const stateOf = (step: PostStep) => {
+        if (step === current) return "current";
+        if (!open[step]) return "locked";
+        return stepIndex(step) < stepIndex(draft.reached) ? "done" : "open";
+    };
+    return POST_STEPS.map((step) => ({ step, state: stateOf(step) }));
+};
