@@ -89,7 +89,7 @@ export default function LoadBoard({ initial }: Props) {
             {!page && board.isPending ? <Skeleton className="h-72" /> : null}
             {page && page.items.length === 0 ? <LoadBoardEmpty query={query} onChange={(next) => apply(next)} /> : null}
             {page && page.items.length > 0 && view === "list" ? (
-                <LoadBoardResults items={page.items} more={page.nextCursor !== null} pending={board.isFetching} next={initial.next} onMore={() => setLimit(limit + LOAD_BOARD.pageSize)} />
+                <LoadBoardResults items={page.items} more={page.nextCursor !== null} pending={board.isFetching} back={boardHref(query, view, initial.next)} onMore={() => setLimit(limit + LOAD_BOARD.pageSize)} />
             ) : null}
             {page && page.items.length > 0 && view === "map" ? <LoadBoardMap items={page.items} origin={page.origin} /> : null}
         </div>

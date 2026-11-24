@@ -5,6 +5,7 @@ import { appRoutes } from "@/lib/app-routes";
 import type { LoadSummaryDto } from "@/lib/contract/schemas";
 import { SHIPMENTS_COPY } from "@/lib/data/loads/shipments";
 import { placeLabel, shipmentQualifier, shortMoment } from "@/lib/loads/shipments";
+import { withBack } from "@/lib/navigation/back";
 import { loadStatusDisplay } from "@/lib/loads/status";
 import { minutesSince } from "@/lib/loads/tracking";
 import { ageOf } from "@/lib/tracking/view";
@@ -30,14 +31,14 @@ const seen = ({ lastPositionAt, lastPositionCity }: LoadSummaryDto, now: number)
         <span className="text-text-muted">{SHIPMENTS_COPY.noPosition}</span>
     );
 
-export const shipmentColumns = (now: number): readonly TableColumn<LoadSummaryDto>[] => [
+export const shipmentColumns = (now: number, back: string | null): readonly TableColumn<LoadSummaryDto>[] => [
     {
         key: "load",
         label: label.load,
         rowHeader: true,
         width: "8.5rem",
         cell: (row) => (
-            <Link href={appRoutes.load(row.id)} className={RECORD_LINK}>
+            <Link href={withBack(appRoutes.load(row.id), back)} className={RECORD_LINK}>
                 {row.id}
             </Link>
         ),

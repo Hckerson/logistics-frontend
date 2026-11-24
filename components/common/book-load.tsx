@@ -15,16 +15,18 @@ import type { LoadBookedDto, LoadBookingDto } from "@/lib/contract/schemas";
 import { BOOKING_COPY } from "@/lib/data/load-board/booking";
 import { useBookLoad, useLoadBooking } from "@/lib/hooks/use-load-board";
 import { LOAD_BOARD } from "@/lib/load-board/constants";
+import type { Crumb } from "@/lib/types";
 import { errorMessage, failureFrom } from "@/lib/utils/action-result";
 import { fillTemplate } from "@/lib/utils/fill-template";
 
 interface Props {
     initial: LoadBookingDto;
+    trail: readonly Crumb[];
 }
 
 const { outcome: copy, confirmation } = BOOKING_COPY;
 
-export default function BookLoad({ initial }: Props) {
+export default function BookLoad({ initial, trail }: Props) {
     const { data: booking, refetch } = useLoadBooking(initial.loadId, initial);
     const book = useBookLoad(booking.loadId);
     const announce = useAnnounce();
@@ -68,7 +70,7 @@ export default function BookLoad({ initial }: Props) {
 
     return (
         <div className="flex flex-col gap-6">
-            <BookHero booking={booking} back={appRoutes.loadBoard()} />
+            <BookHero booking={booking} trail={trail} />
             <AccountStandingNotice capabilities={["book"]} />
             {booked ? <BookOutcome ref={outcome} booked={booked} /> : null}
             {taken && !booked ? (

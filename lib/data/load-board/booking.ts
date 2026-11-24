@@ -2,7 +2,7 @@ import type { BookingCheckDto } from "@/lib/contract/schemas";
 
 export const BOOKING_COPY = {
     meta: "Book {reference}",
-    back: "Load board",
+    crumb: "Book",
     hero: { pay: "Carrier pay", perMile: "{rpm} per mile · {miles} mi" },
     terms: {
         label: "Terms",

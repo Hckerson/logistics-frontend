@@ -21,7 +21,7 @@ export default function BookSimilar({ loadId, query }: Props) {
     return (
         <section className="flex flex-col gap-2">
             <h2 className="haulr-label text-text-muted">{copy.similar}</h2>
-            {items.length === 0 ? <p className="text-text-secondary text-xs">{copy.noSimilar}</p> : <LoadBoardResults items={items} more={false} pending={false} next={null} onMore={() => undefined} />}
+            {items.length === 0 ? <p className="text-text-secondary text-xs">{copy.noSimilar}</p> : <LoadBoardResults items={items} more={false} pending={false} back={null} onMore={() => undefined} />}
         </section>
     );
 }

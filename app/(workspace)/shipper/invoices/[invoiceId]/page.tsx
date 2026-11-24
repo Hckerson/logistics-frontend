@@ -5,6 +5,7 @@ import { CAPABILITY_ROLES } from "@/lib/auth/capabilities";
 import { requireRoles } from "@/lib/auth/guards";
 import { readInvoice } from "@/lib/billing/server-read";
 import { INVOICE_COPY } from "@/lib/data/billing/invoice-copy";
+import { invoiceTrail } from "@/lib/navigation/trails";
 import { fillTemplate } from "@/lib/utils/fill-template";
 
 interface Props {
@@ -23,7 +24,7 @@ export default async function InvoicePage({ params }: Props) {
 
     return (
         <WorkspacePage>
-            <InvoiceDetail initial={invoice} />
+            <InvoiceDetail initial={invoice} trail={invoiceTrail()} />
         </WorkspacePage>
     );
 }

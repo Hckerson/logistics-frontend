@@ -1,4 +1,5 @@
 export const UI_COPY = {
+    breadcrumb: "Breadcrumb",
     clear: "Clear",
     close: "Close",
     cancel: "Cancel",

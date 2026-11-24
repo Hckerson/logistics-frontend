@@ -10,10 +10,12 @@ import { ageOf } from "@/lib/tracking/view";
 import { LABEL_TEXT } from "@/lib/ui/constants";
 import { fillTemplate } from "@/lib/utils/fill-template";
 import { grouped } from "@/lib/utils/format-number";
+import { withBack } from "@/lib/navigation/back";
 
 interface Props {
     load: LoadSummaryDto;
     now: number;
+    back: string | null;
 }
 
 const { preview } = SHIPMENTS_COPY;
@@ -25,7 +27,7 @@ const arrival = ({ eta, destination }: LoadSummaryDto) => {
     return parts.join(" · ");
 };
 
-export default function ShipmentPreview({ load, now }: Props) {
+export default function ShipmentPreview({ load, now, back }: Props) {
     const facts = [
         { label: preview.pickup, value: placeWindow(load.origin) },
         { label: preview.delivery, value: placeWindow(load.destination) },
@@ -50,7 +52,7 @@ export default function ShipmentPreview({ load, now }: Props) {
                     ) : null,
                 )}
             </dl>
-            <ButtonLink href={appRoutes.load(load.id)} tone="outline" size="sm" trailing={ArrowRight} className="self-start">
+            <ButtonLink href={withBack(appRoutes.load(load.id), back)} tone="outline" size="sm" trailing={ArrowRight} className="self-start">
                 {preview.open}
             </ButtonLink>
         </div>

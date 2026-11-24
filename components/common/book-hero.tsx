@@ -1,34 +1,30 @@
-import Link from "next/link";
-import { ArrowLeft } from "@carbon/icons-react";
+import Breadcrumbs from "@/components/common/breadcrumbs";
 import LaneLine from "@/components/common/lane-line";
 import StatusLabel from "@/components/ui/status-label";
-import { QUIET_LINK } from "@/lib/auth/constants";
 import type { LoadBookingDto } from "@/lib/contract/schemas";
 import { BOOKING_COPY } from "@/lib/data/load-board/booking";
 import { DRIVER_COPY } from "@/lib/data/driver/copy";
 import { loadStatusDisplay } from "@/lib/loads/status";
+import type { Crumb } from "@/lib/types";
 import { formatMoney } from "@/lib/utils/currency";
 import { fillTemplate } from "@/lib/utils/fill-template";
 import { grouped } from "@/lib/utils/format-number";
 
 interface Props {
     booking: LoadBookingDto;
-    back: string;
+    trail: readonly Crumb[];
 }
 
 const { hero: copy } = BOOKING_COPY;
 
-export default function BookHero({ booking, back }: Props) {
+export default function BookHero({ booking, trail }: Props) {
     const first = booking.stops[0].facility;
     const last = booking.stops[booking.stops.length - 1].facility;
     const { currency } = booking.carrierPay;
 
     return (
         <header className="flex flex-col gap-4">
-            <Link href={back} className={`${QUIET_LINK} inline-flex min-h-11 items-center gap-1.5 self-start`}>
-                <ArrowLeft aria-hidden className="size-4" />
-                {BOOKING_COPY.back}
-            </Link>
+            <Breadcrumbs trail={trail} current={BOOKING_COPY.crumb} />
             <div className="flex items-center justify-between gap-3">
                 <h1 className="text-text font-mono text-sm tracking-tight">{booking.loadId}</h1>
                 <StatusLabel {...loadStatusDisplay(booking.status === "Posted" ? "Posted" : "Booked")} />
