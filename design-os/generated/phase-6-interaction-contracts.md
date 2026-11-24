@@ -1,6 +1,6 @@
 # Phase 6 — Interaction Contracts
 
-`Haulr Design OS` · `Version 1.3.13` · `2026-11-21` · Previous: [Phase 5 — Section Blueprints](./phase-5-section-blueprints.md) · Next: [Phase 7 — Frontend Architecture](./phase-7-frontend-architecture.md)
+`Haulr Design OS` · `Version 1.3.17` · `2026-11-24` · Previous: [Phase 5 — Section Blueprints](./phase-5-section-blueprints.md) · Next: [Phase 7 — Frontend Architecture](./phase-7-frontend-architecture.md)
 
 How every interactive element behaves. Sections in [Phase 5](./phase-5-section-blueprints.md) cite these contracts by ID (`IC-nn`). A contract defines behaviour only: inputs, states, keyboard and assistive-technology behaviour, validation, loading, errors and content rules. Which components exist, how they are grouped and how they look is decided when pages are built.
 
