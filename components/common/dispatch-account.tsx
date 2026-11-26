@@ -10,6 +10,7 @@ import { entryLabel, timeOrdered, truckName, windowSearch, withinDays } from "@/
 import { stopMoment } from "@/lib/loads/view";
 import type { PlanRow } from "@/lib/types";
 import { fillTemplate } from "@/lib/utils/fill-template";
+import { withBack } from "@/lib/navigation/back";
 
 interface Props {
     rows: readonly PlanRow[];
@@ -47,7 +48,7 @@ export default function DispatchAccount({ rows, timeZone, back, readOnly, days, 
                                 <li key={key} className={ITEM}>
                                     {item.kind === "entry" ? (
                                         <>
-                                            <Link href={appRoutes.load(item.entry.loadId)} className={QUIET_LINK}>
+                                            <Link href={withBack(appRoutes.load(item.entry.loadId), back)} className={QUIET_LINK}>
                                                 {entryLabel(item.entry)}
                                             </Link>
                                             {item.entry.movable && !readOnly ? (

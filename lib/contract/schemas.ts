@@ -1199,6 +1199,14 @@ export const uploadRequestDtoSchema = z.object({
 });
 export type UploadRequestDto = z.infer<typeof uploadRequestDtoSchema>;
 
+export const documentPreviewDtoSchema = z.object({
+    url: z.string(),
+    expiresAt: z.string(),
+    contentType: z.enum(["application/pdf", "image/jpeg", "image/png"]),
+    previewable: z.boolean(),
+});
+export type DocumentPreviewDto = z.infer<typeof documentPreviewDtoSchema>;
+
 export const downloadLinkDtoSchema = z.object({
     url: z.string(),
     expiresAt: z.string(),
@@ -1978,3 +1986,70 @@ export const invoicePaymentResultDtoSchema = z.object({
 export type InvoicePaymentResultDto = z.infer<
     typeof invoicePaymentResultDtoSchema
 >;
+
+export const eldLinkDtoSchema = z.object({
+    state: z.enum(["connected", "lost", "notLinked"]),
+    reportedAt: z.string().nullable(),
+});
+export type EldLinkDto = z.infer<typeof eldLinkDtoSchema>;
+
+export const fleetVehicleDtoSchema = z.object({
+    id: z.string(),
+    kind: z.enum(["truck", "trailer"]),
+    unit: z.string(),
+    equipment: z.enum(["dry-van", "reefer", "flatbed"]),
+    vin: z.string(),
+    plate: z.string(),
+    plateState: z.string(),
+    driverId: z.string().nullable(),
+    driverName: z.string().nullable(),
+    eld: eldLinkDtoSchema.nullable(),
+    currentLoadId: z.string().nullable(),
+    version: z.number(),
+    updatedAt: z.string(),
+    updatedBy: z.string().nullable(),
+});
+export type FleetVehicleDto = z.infer<typeof fleetVehicleDtoSchema>;
+
+export const saveVehicleDtoSchema = z.object({
+    kind: z.enum(["truck", "trailer"]),
+    unit: z.string(),
+    equipment: z.enum(["dry-van", "reefer", "flatbed"]),
+    vin: z.string(),
+    plate: z.string(),
+    plateState: z.string(),
+    driverId: z.string().nullable().optional(),
+    version: z.number().optional(),
+});
+export type SaveVehicleDto = z.infer<typeof saveVehicleDtoSchema>;
+
+export const vehicleVersionDtoSchema = z.object({ version: z.number() });
+export type VehicleVersionDto = z.infer<typeof vehicleVersionDtoSchema>;
+
+export const fleetDriverDtoSchema = z.object({
+    id: z.string(),
+    name: z.string(),
+    email: z.string(),
+    currentLoadId: z.string().nullable(),
+    truckUnit: z.string().nullable(),
+    locationSharing: z.enum(["granted", "declined", "notAsked"]),
+});
+export type FleetDriverDto = z.infer<typeof fleetDriverDtoSchema>;
+
+export const driverInvitationDtoSchema = z.object({
+    id: z.string(),
+    email: z.string(),
+    status: z.enum(["open", "expired", "revoked"]),
+    inviter: z.string(),
+    sentAt: z.string(),
+    expiresAt: z.string(),
+    resendsLeft: z.number(),
+});
+export type DriverInvitationDto = z.infer<typeof driverInvitationDtoSchema>;
+
+export const fleetRosterDtoSchema = z.object({
+    drivers: z.array(fleetDriverDtoSchema),
+    invitations: z.array(driverInvitationDtoSchema),
+    timeZone: z.string(),
+});
+export type FleetRosterDto = z.infer<typeof fleetRosterDtoSchema>;

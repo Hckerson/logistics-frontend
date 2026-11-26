@@ -13,7 +13,7 @@ interface Props {
     kicker?: string;
     description?: string;
     dismissable?: boolean;
-    width?: "sm" | "md";
+    width?: "sm" | "md" | "lg";
     role?: "dialog" | "alertdialog";
     footer?: ReactNode;
     children?: ReactNode;
@@ -22,6 +22,7 @@ interface Props {
 const WIDTHS = {
     sm: "max-w-sm",
     md: "max-w-lg",
+    lg: "max-w-4xl",
 } as const;
 
 export default function Dialog(props: Props) {

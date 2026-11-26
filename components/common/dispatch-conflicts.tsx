@@ -12,9 +12,11 @@ import { truckName } from "@/lib/fleet/grid";
 import { stopMoment } from "@/lib/loads/view";
 import { fillTemplate } from "@/lib/utils/fill-template";
 import { pluralize } from "@/lib/utils/plural";
+import { withBack } from "@/lib/navigation/back";
 
 interface Props {
     plan: FleetPlanDto;
+    back: string;
     onAssign: (loadId: string) => void;
 }
 
@@ -31,7 +33,7 @@ const sentence = (conflict: FleetConflictDto, plan: FleetPlanDto) => {
     return fillTemplate(conflict.overdue ? copy.overdue : copy.types[conflict.type], values);
 };
 
-export default function DispatchConflicts({ plan, onAssign }: Props) {
+export default function DispatchConflicts({ plan, onAssign, back }: Props) {
     const { conflicts } = plan;
 
     return (
@@ -53,7 +55,7 @@ export default function DispatchConflicts({ plan, onAssign }: Props) {
                                         {copy.assign}
                                     </Button>
                                 ) : (
-                                    <Link href={appRoutes.load(conflict.loadId)} className={QUIET_LINK}>
+                                    <Link href={withBack(appRoutes.load(conflict.loadId), back)} className={QUIET_LINK}>
                                         {fillTemplate(copy.open, { load: conflict.loadId })}
                                     </Link>
                                 )}

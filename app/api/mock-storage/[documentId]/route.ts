@@ -21,16 +21,21 @@ export const PUT = withHandler<Context>(async (request, _context, route) => {
     return new NextResponse(null, { status: HTTP_STATUS.ok });
 });
 
-export const GET = withHandler<Context>(async (_request, _context, route) => {
+const INLINE = "inline";
+
+export const GET = withHandler<Context>(async (request, _context, route) => {
     const found = await storedDocument(route);
     if (!found) return missing();
 
-    const { MOCK_SAMPLE_PDF, MOCK_SAMPLE_TYPE } = await import("@/lib/data/mocks/freight");
+    const [{ MOCK_SAMPLE_PDF, MOCK_SAMPLE_TYPE }, { MOCK_SAMPLE_IMAGE }] = await Promise.all([import("@/lib/data/mocks/freight"), import("@/lib/data/mocks/sample-image")]);
     const uploaded = found.store.blobs.get(found.document.id);
-    return new NextResponse(uploaded ?? new TextEncoder().encode(MOCK_SAMPLE_PDF), {
+    const image = found.document.contentType !== MOCK_SAMPLE_TYPE;
+    const sample = image ? Uint8Array.from(atob(MOCK_SAMPLE_IMAGE.base64), (char) => char.charCodeAt(0)) : new TextEncoder().encode(MOCK_SAMPLE_PDF);
+    const disposition = new URL(request.url).searchParams.has(INLINE) ? "inline" : "attachment";
+    return new NextResponse(uploaded ?? sample, {
         headers: {
-            "Content-Type": uploaded ? found.document.contentType : MOCK_SAMPLE_TYPE,
-            "Content-Disposition": `attachment; filename="${encodeURIComponent(found.document.fileName)}"`,
+            "Content-Type": uploaded ? found.document.contentType : image ? MOCK_SAMPLE_IMAGE.type : MOCK_SAMPLE_TYPE,
+            "Content-Disposition": `${disposition}; filename="${encodeURIComponent(found.document.fileName)}"`,
         },
     });
 });

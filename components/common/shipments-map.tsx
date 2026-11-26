@@ -20,6 +20,8 @@ import { RECORD_LINK } from "@/lib/ui/constants";
 import { fillTemplate } from "@/lib/utils/fill-template";
 import { pluralize } from "@/lib/utils/plural";
 import type { CollectionVehicle } from "@/lib/types";
+import { useCurrentPath } from "@/lib/hooks/use-current-path";
+import { withBack } from "@/lib/navigation/back";
 
 const FreightMap = dynamic(() => import("@/components/common/freight-map"), {
     ssr: false,
@@ -38,6 +40,7 @@ const { map } = SHIPMENTS_COPY;
 
 export default function ShipmentsMap({ rows, positions = [], loading, updatedAt, filters }: Props) {
     const router = useRouter();
+    const back = useCurrentPath();
     const fixes = useMemo(() => {
         const byId = new Map(rows.map((row) => [row.id, row]));
         return positions.flatMap((fix) => {
@@ -70,7 +73,7 @@ export default function ShipmentsMap({ rows, positions = [], loading, updatedAt,
             <div className="border-border-dark relative h-80 border sm:h-[28rem]">
                 <HudCorners />
                 <SectionBoundary label={map.label}>
-                    <FreightMap label={map.label} recentreLabel={map.recentre} precision="city" vehicles={vehicles} onSelect={(id) => router.push(appRoutes.load(id))} />
+                    <FreightMap label={map.label} recentreLabel={map.recentre} precision="city" vehicles={vehicles} onSelect={(id) => router.push(withBack(appRoutes.load(id), back))} />
                 </SectionBoundary>
             </div>
             <Panel label={map.list} aside={<span className="text-text-muted text-xs">{map.page}</span>} flush>
@@ -81,7 +84,7 @@ export default function ShipmentsMap({ rows, positions = [], loading, updatedAt,
                         {fixes.map(({ load, fix }) => (
                             <li key={load.id} className="border-border-light flex flex-col gap-1 border-b px-4 py-2.5 text-xs last:border-b-0">
                                 <div className="flex items-center justify-between gap-3">
-                                    <Link href={appRoutes.load(load.id)} className={RECORD_LINK}>
+                                    <Link href={withBack(appRoutes.load(load.id), back)} className={RECORD_LINK}>
                                         {load.id}
                                     </Link>
                                     <StatusLabel {...loadStatusDisplay(load.status, shipmentQualifier(load, updatedAt))} />

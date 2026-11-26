@@ -1,6 +1,6 @@
 # Haulr Design OS — Complete
 
-`Version 1.3.13` · `2026-11-21` · Status: **Complete, ready for engineering handoff** · Start: [START_HERE](./START_HERE.md) · Overview: [README](./README.md)
+`Version 1.3.17` · `2026-11-24` · Status: **Complete, ready for engineering handoff** · Start: [START_HERE](./START_HERE.md) · Overview: [README](./README.md)
 
 The master index. If something exists in this design OS, it is listed here.
 
@@ -90,7 +90,7 @@ It deliberately contains **no visual design**. Each page's look is decided when 
 | Page sections | 223 | Phase 5 §13 |
 | Interaction contracts | 68 | Phase 6 |
 | Architectural decisions | 14 (D-1 … D-14) | Phase 7 §1 |
-| Hook files | 80 resource hook files (47 existing) + 39 existing hooks without transport | Phase 7 §8 |
+| Hook files | 82 resource hook files (50 existing) + 44 existing hooks without transport | Phase 7 §8 |
 | Build plan | Solo: 7 stages, about 71 weeks (active). Staffed: 8 sprints, 16 weeks | Phase 8 §16, §3 |
 | Milestones | 5 | Phase 8 §4 |
 | Risks | 17 | Phase 8 §6 |
@@ -233,9 +233,9 @@ Integrity checks run at generation: 66 pages defined in Phases 3, 4, 5 and 8; 23
 
 | Field | Value |
 | --- | --- |
-| Version | 1.3.13 (stage 6 recorded; 1.3.12 stage 7 and SH-06; 1.3.11 stage 3 and 4 follow-ups; 1.3.10 stages 3 and 4 and the 1.3.8 gaps; 1.3.9 bulk load import; 1.3.8 stage 2, accept invitation, the workspace frame and the primitives; 1.3.7 pending contract for endpoints the backend has not built; 1.3.6 recorded the lane rate estimator; 1.3.5 aligned the host async rule with D-2; 1.3.4 recorded the merit-based library and service decisions and help and support pages; 1.3.3 recorded the stage 1 decisions and system and legal pages; 1.3.2 synced statuses after the MFA step; 1.3.1 caught statuses up, relabelled unblocked items Specified and fixed code drift; 1.3.0 recorded the maintainer decisions, solo build order and mocked backend; 1.2.0 added the dispatch board and quote desk, 1.1.1 was the audit, 1.1.0 enterprise hardening, 1.0.0 the initial generation) |
+| Version | 1.3.17 (Fleet recorded; 1.3.16 Post a Load, completing the solo build order; 1.3.15 IC-51 and IC-58; 1.3.14 stage 0; 1.3.13 stage 6; 1.3.12 stage 7 and SH-06; 1.3.11 stage 3 and 4 follow-ups; 1.3.10 stages 3 and 4 and the 1.3.8 gaps; 1.3.9 bulk load import; 1.3.8 stage 2, accept invitation, the workspace frame and the primitives; 1.3.7 pending contract for endpoints the backend has not built; 1.3.6 recorded the lane rate estimator; 1.3.5 aligned the host async rule with D-2; 1.3.4 recorded the merit-based library and service decisions and help and support pages; 1.3.3 recorded the stage 1 decisions and system and legal pages; 1.3.2 synced statuses after the MFA step; 1.3.1 caught statuses up, relabelled unblocked items Specified and fixed code drift; 1.3.0 recorded the maintainer decisions, solo build order and mocked backend; 1.2.0 added the dispatch board and quote desk, 1.1.1 was the audit, 1.1.0 enterprise hardening, 1.0.0 the initial generation) |
 | Generated | 2026-09-30 |
-| Revised | 2026-11-21 |
+| Revised | 2026-11-24 |
 | Seed prompt | `docs/MASTER_PROMPT_COMPLETE.md` |
 | Output directory | `design-os/generated/` |
 | Generation mode | 1.1.0 is a merge over 1.0.0: nothing removed; thin fields raised to the Phase 4 §2 taxonomy; enterprise scope added |
@@ -263,6 +263,10 @@ Integrity checks run at generation: 66 pages defined in Phases 3, 4, 5 and 8; 23
 | 1.3.11 | Recorded the stage 3 and 4 follow-ups in Phase 7 and Phase 8: the `(fleet)` route group that lets `internal.ops` read PG-65, driver position reporting (`use-position-reporter.ts`), editor names on conflicts (IC-67) and the most-recently-used driver and truck pair in SH-15. No status changes. |
 | 1.3.12 | Recorded stage 7 and SH-06. Invoice Detail and payment (PG-31, SC-31.1 … SC-31.3, IC-43, XF-10) and the account standing notice (SH-06) are In progress, with their route handlers, hooks, components and `lib/billing/` in Phase 7. |
 | 1.3.13 | Recorded stage 6. Load Board and Book Load (PG-33, PG-34), their sections, IC-18, IC-26, IC-27 and XF-02 are In progress, with the load board and booking route handlers, `use-load-board.ts`, the components and `lib/load-board/` in Phase 7. |
+| 1.3.14 | Recorded the rest of stage 0: `withHandler` (D-13), `lib/validations/env.ts` (D-9), `lib/flags.ts` (D-11) and `instrumentation.ts` with `report-error.ts` (D-10). Observability is installed and inert without a DSN; flags read environment values until PostHog clears the privacy review. No status changes. |
+| 1.3.15 | Recorded IC-51 links and breadcrumbs and IC-58 document preview as In progress; the only slice contracts left are IC-15 and IC-40, which come with PG-27. Phase 7 gains the preview route handlers, `use-document-preview.ts`, `lib/navigation/`, `lib/documents/` and `route-focus.tsx`. |
+| 1.3.16 | Recorded Post a Load: PG-27, SC-27.1 … SC-27.6, SH-13, IC-15, IC-40 and XF-01 are In progress. Every page in the solo build order (Phase 8 §16) is now built, and the next work comes from the "after stage 7" candidates. Phase 7 records `@tanstack/react-form` as installed, the drafts route handler, the posting hooks and components. |
+| 1.3.17 | Recorded Fleet, the first page after the solo build order: PG-37, SC-37.1 and SC-37.2 are In progress, with the vehicle and driver route handlers, `use-fleet.ts` and the `fleet-*` components in Phase 7. |
 
 ---
 

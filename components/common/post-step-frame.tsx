@@ -46,7 +46,7 @@ export default function PostStepFrame(props: Props) {
                 </h2>
                 <p className="text-text-secondary text-xs text-pretty">{intro}</p>
             </header>
-            <div className="flex flex-col gap-5 p-4 sm:p-5">{children}</div>
+            <div className="flex flex-col gap-4 p-4">{children}</div>
             <footer className="border-border flex flex-wrap items-center justify-between gap-3 border-t px-4 py-3 sm:px-5">
                 {onBack ? (
                     <Button tone="ghost" size="md" icon={ArrowLeft} onPress={onBack}>

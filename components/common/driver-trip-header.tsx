@@ -1,15 +1,13 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
-import { ArrowLeft } from "@carbon/icons-react";
+import Breadcrumbs from "@/components/common/breadcrumbs";
 import LaneLine from "@/components/common/lane-line";
 import StatusLabel from "@/components/ui/status-label";
-import { appRoutes } from "@/lib/app-routes";
-import { QUIET_LINK } from "@/lib/auth/constants";
 import type { DriverTripDto } from "@/lib/contract/schemas";
 import { DRIVER_COPY } from "@/lib/data/driver/copy";
 import { laneProgress } from "@/lib/driver/route";
 import { loadStatusDisplay } from "@/lib/loads/status";
 import { fillTemplate } from "@/lib/utils/fill-template";
+import { tripTrail } from "@/lib/navigation/trails";
 
 interface Props {
     loadId: string;
@@ -26,10 +24,7 @@ export default function DriverTripHeader({ loadId, trip, saved }: Props) {
     return (
         <header className="flex flex-col gap-3">
             <div className="flex items-center justify-between gap-3">
-                <Link href={appRoutes.driverHome()} className={`${QUIET_LINK} inline-flex min-h-11 items-center gap-1.5`}>
-                    <ArrowLeft aria-hidden className="size-4" />
-                    {copy.back}
-                </Link>
+                <Breadcrumbs trail={tripTrail()} current={loadId} mono />
                 {saved}
             </div>
             <div className="flex items-center justify-between gap-3">

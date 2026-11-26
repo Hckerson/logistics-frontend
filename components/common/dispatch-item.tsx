@@ -10,6 +10,7 @@ import { entryLabel, truckName, windowSearch } from "@/lib/fleet/grid";
 import { stopMoment } from "@/lib/loads/view";
 import type { PlacedItem } from "@/lib/types";
 import { fillTemplate } from "@/lib/utils/fill-template";
+import { withBack } from "@/lib/navigation/back";
 
 interface Props {
     placed: PlacedItem;
@@ -46,7 +47,7 @@ export default function DispatchItem(props: Props) {
         return (
             <Link
                 {...shared}
-                href={appRoutes.load(entry.loadId)}
+                href={withBack(appRoutes.load(entry.loadId), back)}
                 draggable={entry.movable && !readOnly}
                 onDragStart={onDragStart}
                 onDragEnd={onDragEnd}

@@ -5,7 +5,7 @@ import type { Equipment, LoadStatus } from "@/lib/types";
 
 export const LOAD_COPY = {
     meta: { title: "{reference} · Haulr", fallback: "Load · Haulr" },
-    trail: { label: "Breadcrumb", root: "Dashboard" },
+    trail: { root: "Dashboard", invoices: "Invoices" },
     header: {
         copy: "Copy reference",
         copied: "Reference {reference} copied",

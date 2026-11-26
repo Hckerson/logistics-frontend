@@ -35,7 +35,7 @@ export default function InvoiceEvidence({ loadId }: Props) {
                             {list
                                 .filter((document) => EVIDENCE.includes(document.type))
                                 .map((document) => (
-                                    <DocumentRow key={document.id} id={evidenceAnchor(document.id)} document={document} zone={zone} />
+                                    <DocumentRow key={document.id} anchor={evidenceAnchor(document.id)} document={document} zone={zone} />
                                 ))}
                         </ul>
                     )}

@@ -87,7 +87,7 @@ export default function PostLaneStep({ flow, facilities }: Props) {
                 count={pluralize(problems.problems.length, POST_COPY.errorsCount)}
                 fieldId={(field) => field}
             />
-            <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-4">
                 {stops.map((stop, index) => (
                     <PostStopCard key={stop.key} form={form} index={index} total={total} facilities={facilities} onMove={(from, to) => form.moveFieldValues("stops", from, to)} onRemove={removeAsked} />
                 ))}

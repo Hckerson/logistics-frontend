@@ -23,6 +23,7 @@ export const inviteDriver = withCaller(({ path, body }, _params, caller) => {
     const invited = [...invitations.values()].some((invitation) => invitation.email === email && invitation.status === "open");
     if (memberships.has(email) || invited) return fail(HTTP_STATUS.conflict, INVITE_MESSAGES.taken.replace("{email}", email), path);
 
-    invitations.set(`inv_${nanoid()}`, { email, organisation: carrier, inviter: caller.user.name, role: "carrier.driver", status: "open" });
-    return ok(HTTP_STATUS.created, { email, role: "carrier.driver", expiresAt: new Date(new Date().getTime() + INVITATION_DAYS * TIME_MS.day).toISOString() });
+    const now = new Date().getTime();
+    invitations.set(`inv_${nanoid()}`, { email, organisation: carrier, inviter: caller.user.name, role: "carrier.driver", status: "open", sentAt: new Date(now).toISOString() });
+    return ok(HTTP_STATUS.created, { email, role: "carrier.driver", expiresAt: new Date(now + INVITATION_DAYS * TIME_MS.day).toISOString() });
 });

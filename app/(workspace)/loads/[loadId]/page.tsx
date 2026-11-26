@@ -11,12 +11,16 @@ import LoadStops from "@/components/common/load-stops";
 import LoadTimeline from "@/components/common/load-timeline";
 import LoadTracking from "@/components/common/load-tracking";
 import WorkspacePage from "@/components/common/workspace-page";
+import { requireUser } from "@/lib/auth/guards";
 import { LOAD_COPY } from "@/lib/data/loads/copy";
 import { readLoad } from "@/lib/loads/server-read";
+import { backParam } from "@/lib/navigation/back";
+import { loadTrail } from "@/lib/navigation/trails";
 import { fillTemplate } from "@/lib/utils/fill-template";
 
 interface Props {
     params: Promise<{ loadId: string }>;
+    searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -24,13 +28,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { title: fillTemplate(LOAD_COPY.meta.title, { reference: loadId }), robots: { index: false, follow: false } };
 }
 
-export default async function LoadPage({ params }: Props) {
+export default async function LoadPage({ params, searchParams }: Props) {
     const { loadId } = await params;
-    const load = await readLoad(loadId);
+    const [load, user, search] = await Promise.all([readLoad(loadId), requireUser(), searchParams]);
+    const trail = loadTrail(user.roles, backParam(search));
 
     return (
         <WorkspacePage>
-            <LoadHeader initial={load} />
+            <LoadHeader initial={load} trail={trail} />
             <LoadSections
                 actions={<LoadActions initial={load} />}
                 coverage={<LoadCoverage initial={load} />}

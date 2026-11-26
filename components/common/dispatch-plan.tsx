@@ -71,7 +71,7 @@ export default function DispatchPlan({ plan, view, back, truck, onTruck, onWeek,
     return (
         <div className="flex flex-col gap-4">
             {plan.readOnly ? <p className="text-text-secondary text-xs">{FLEET_COPY.readOnly}</p> : null}
-            <DispatchConflicts plan={plan} onAssign={(loadId) => onAssign({ loadId })} />
+            <DispatchConflicts plan={plan} back={back} onAssign={(loadId) => onAssign({ loadId })} />
             {quiet ? (
                 <p className="text-text-secondary text-xs">
                     {`${empty.noLoads} `}

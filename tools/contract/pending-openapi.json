@@ -2576,6 +2576,128 @@
                 "tags": ["documents"]
             }
         },
+        "/api/documents/{documentId}/preview": {
+            "get": {
+                "operationId": "DocumentsController_preview",
+                "parameters": [
+                    {
+                        "name": "documentId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/DocumentPreviewDto"
+                                                }
+                                            },
+                                            "required": [
+                                                "data"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Document removed or outside the viewer's access"
+                    },
+                    "409": {
+                        "description": "Safety scan not finished"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Short-lived inline link to preview a load document",
+                "tags": [
+                    "documents"
+                ]
+            }
+        },
+        "/api/driver/trips/{loadId}/documents/{documentId}/preview": {
+            "get": {
+                "operationId": "DriversController_previewDocument",
+                "parameters": [
+                    {
+                        "name": "loadId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "documentId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/DocumentPreviewDto"
+                                                }
+                                            },
+                                            "required": [
+                                                "data"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Document removed or outside the viewer's access"
+                    },
+                    "409": {
+                        "description": "Safety scan not finished"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Short-lived inline link to preview a trip document the assigned driver may open",
+                "tags": [
+                    "drivers"
+                ]
+            }
+        },
         "/api/documents/{documentId}/download": {
             "get": {
                 "operationId": "DocumentsController_download",
@@ -5089,6 +5211,450 @@
                 ],
                 "summary": "Short-lived link to the remittance advice for a payment",
                 "tags": ["invoices"]
+            }
+        },
+        "/api/fleet/vehicles": {
+            "get": {
+                "operationId": "FleetController_vehicles",
+                "parameters": [
+                    {
+                        "name": "equipment",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": ["dry-van", "reefer", "flatbed"]
+                        }
+                    },
+                    {
+                        "name": "kind",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": ["truck", "trailer"]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/FleetVehicleDto"
+                                                    }
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "The carrier's trucks and trailers (PG-37)",
+                "tags": ["fleet"]
+            },
+            "post": {
+                "operationId": "FleetController_addVehicle",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SaveVehicleDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/FleetVehicleDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Only carrier admins edit vehicles"
+                    },
+                    "409": {
+                        "description": "Duplicate VIN or plate within the carrier"
+                    },
+                    "422": {
+                        "description": "Validation failed"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Add a truck or trailer; carrier.admin only",
+                "tags": ["fleet"]
+            }
+        },
+        "/api/fleet/vehicles/{vehicleId}": {
+            "post": {
+                "operationId": "FleetController_updateVehicle",
+                "parameters": [
+                    {
+                        "name": "vehicleId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SaveVehicleDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/FleetVehicleDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Vehicle not found"
+                    },
+                    "409": {
+                        "description": "Duplicate VIN or plate within the carrier"
+                    },
+                    "412": {
+                        "description": "A colleague saved this vehicle first"
+                    },
+                    "422": {
+                        "description": "Validation failed"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Edit a vehicle at the version the editor read (SSB-8)",
+                "tags": ["fleet"]
+            }
+        },
+        "/api/fleet/vehicles/{vehicleId}/retire": {
+            "post": {
+                "operationId": "FleetController_retireVehicle",
+                "parameters": [
+                    {
+                        "name": "vehicleId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/VehicleVersionDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/FleetVehicleDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Vehicle not found"
+                    },
+                    "409": {
+                        "description": "Vehicle is on an active load, named in the message"
+                    },
+                    "412": {
+                        "description": "A colleague saved this vehicle first"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Retire a vehicle; refused while it is on an active load",
+                "tags": ["fleet"]
+            }
+        },
+        "/api/fleet/drivers": {
+            "get": {
+                "operationId": "FleetController_drivers",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/FleetRosterDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "The carrier's drivers and their open or expired invitations (PG-37)",
+                "tags": ["fleet"]
+            }
+        },
+        "/api/fleet/drivers/{driverId}/deactivate": {
+            "post": {
+                "operationId": "FleetController_deactivateDriver",
+                "parameters": [
+                    {
+                        "name": "driverId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/FleetDriverDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Driver not found"
+                    },
+                    "409": {
+                        "description": "Driver is on an active load, named in the message"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Remove a driver from the carrier; refused while they are on an active load",
+                "tags": ["fleet"]
+            }
+        },
+        "/api/team/invitations/{invitationId}/resend": {
+            "post": {
+                "operationId": "TeamController_resendInvitation",
+                "parameters": [
+                    {
+                        "name": "invitationId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/DriverInvitationDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Invitation not found"
+                    },
+                    "429": {
+                        "description": "Resend limit reached for this invitation"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Send a driver invitation again with a fresh expiry; limited per invitation",
+                "tags": ["team"]
+            }
+        },
+        "/api/team/invitations/{invitationId}/revoke": {
+            "post": {
+                "operationId": "TeamController_revokeInvitation",
+                "parameters": [
+                    {
+                        "name": "invitationId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiEnvelopeDto"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/DriverInvitationDto"
+                                                }
+                                            },
+                                            "required": ["data"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Invitation not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Revoke a driver invitation so its link stops working",
+                "tags": ["team"]
             }
         }
     },
@@ -8310,6 +8876,36 @@
                 },
                 "required": ["type", "fileName", "contentType", "sizeBytes"]
             },
+            "DocumentPreviewDto": {
+                "type": "object",
+                "description": "Short-lived link that renders the document inline (IC-58); previewable is false for types the browser cannot show",
+                "properties": {
+                    "url": {
+                        "type": "string"
+                    },
+                    "expiresAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "contentType": {
+                        "type": "string",
+                        "enum": [
+                            "application/pdf",
+                            "image/jpeg",
+                            "image/png"
+                        ]
+                    },
+                    "previewable": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "url",
+                    "expiresAt",
+                    "contentType",
+                    "previewable"
+                ]
+            },
             "DownloadLinkDto": {
                 "type": "object",
                 "properties": {
@@ -10334,6 +10930,243 @@
                     }
                 },
                 "required": ["status", "payment", "reason"]
+            },
+            "EldLinkDto": {
+                "type": "object",
+                "properties": {
+                    "state": {
+                        "type": "string",
+                        "enum": ["connected", "lost", "notLinked"],
+                        "description": "Reported by the ELD integration; lost once the last reading is older than the integration's freshness window"
+                    },
+                    "reportedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    }
+                },
+                "required": ["state", "reportedAt"]
+            },
+            "FleetVehicleDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "kind": {
+                        "type": "string",
+                        "enum": ["truck", "trailer"]
+                    },
+                    "unit": {
+                        "type": "string"
+                    },
+                    "equipment": {
+                        "type": "string",
+                        "enum": ["dry-van", "reefer", "flatbed"]
+                    },
+                    "vin": {
+                        "type": "string"
+                    },
+                    "plate": {
+                        "type": "string"
+                    },
+                    "plateState": {
+                        "type": "string"
+                    },
+                    "driverId": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Default driver paired with a truck; always null for a trailer"
+                    },
+                    "driverName": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "eld": {
+                        "nullable": true,
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/EldLinkDto"
+                            }
+                        ],
+                        "description": "ELD link state for a truck; null for a trailer"
+                    },
+                    "currentLoadId": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Active load the vehicle is assigned to, if any"
+                    },
+                    "version": {
+                        "type": "integer"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updatedBy": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "required": [
+                    "id",
+                    "kind",
+                    "unit",
+                    "equipment",
+                    "vin",
+                    "plate",
+                    "plateState",
+                    "driverId",
+                    "driverName",
+                    "eld",
+                    "currentLoadId",
+                    "version",
+                    "updatedAt",
+                    "updatedBy"
+                ]
+            },
+            "SaveVehicleDto": {
+                "type": "object",
+                "properties": {
+                    "kind": {
+                        "type": "string",
+                        "enum": ["truck", "trailer"]
+                    },
+                    "unit": {
+                        "type": "string"
+                    },
+                    "equipment": {
+                        "type": "string",
+                        "enum": ["dry-van", "reefer", "flatbed"]
+                    },
+                    "vin": {
+                        "type": "string",
+                        "description": "17 characters, no I, O or Q; unique within the carrier"
+                    },
+                    "plate": {
+                        "type": "string",
+                        "description": "Unique within the carrier together with plateState"
+                    },
+                    "plateState": {
+                        "type": "string",
+                        "description": "Two-letter state or province code"
+                    },
+                    "driverId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "version": {
+                        "type": "integer",
+                        "description": "Required when updating; refused with 412 when a colleague saved first"
+                    }
+                },
+                "required": ["kind", "unit", "equipment", "vin", "plate", "plateState"]
+            },
+            "VehicleVersionDto": {
+                "type": "object",
+                "properties": {
+                    "version": {
+                        "type": "integer"
+                    }
+                },
+                "required": ["version"]
+            },
+            "FleetDriverDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "currentLoadId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "truckUnit": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Unit of the truck the driver is paired with by default"
+                    },
+                    "locationSharing": {
+                        "type": "string",
+                        "enum": ["granted", "declined", "notAsked"]
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "email",
+                    "currentLoadId",
+                    "truckUnit",
+                    "locationSharing"
+                ]
+            },
+            "DriverInvitationDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": ["open", "expired", "revoked"]
+                    },
+                    "inviter": {
+                        "type": "string"
+                    },
+                    "sentAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "expiresAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "resendsLeft": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "id",
+                    "email",
+                    "status",
+                    "inviter",
+                    "sentAt",
+                    "expiresAt",
+                    "resendsLeft"
+                ]
+            },
+            "FleetRosterDto": {
+                "type": "object",
+                "properties": {
+                    "drivers": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FleetDriverDto"
+                        }
+                    },
+                    "invitations": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DriverInvitationDto"
+                        },
+                        "description": "Open and expired driver invitations; accepted and revoked ones drop out"
+                    },
+                    "timeZone": {
+                        "type": "string",
+                        "description": "The carrier's time zone, for invitation dates"
+                    }
+                },
+                "required": ["drivers", "invitations", "timeZone"]
             }
         }
     }

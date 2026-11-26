@@ -7,7 +7,7 @@ import Panel from "@/components/ui/panel";
 import Select from "@/components/ui/select";
 import { useSession } from "@/components/providers/session-provider";
 import { can } from "@/lib/auth/capabilities";
-import type { LoadDto } from "@/lib/contract/schemas";
+import type { DocumentDto, LoadDto } from "@/lib/contract/schemas";
 import { LOAD_RECORD_COPY } from "@/lib/data/loads/record-copy";
 import { useDocuments } from "@/lib/hooks/use-documents";
 import { useLoad } from "@/lib/hooks/use-loads";
@@ -21,6 +21,9 @@ interface Props {
 }
 
 const { documents: copy } = LOAD_RECORD_COPY;
+
+const pagesOf = (list: readonly DocumentDto[], document: DocumentDto) =>
+    list.filter((item) => item.type === document.type && item.scanStatus === "clean" && item.contentType !== "application/pdf");
 
 export default function LoadDocuments({ initial }: Props) {
     const { data: load = initial } = useLoad(initial.id, initial);
@@ -54,7 +57,7 @@ export default function LoadDocuments({ initial }: Props) {
                 {(list) => (
                     <ul className="flex flex-col">
                         {list.filter((document) => kind === "all" || document.type === kind).map((document) => (
-                            <DocumentRow key={document.id} document={document} zone={zoneAt(load.stops, document.createdAt)} />
+                            <DocumentRow key={document.id} document={document} zone={zoneAt(load.stops, document.createdAt)} set={pagesOf(list, document)} />
                         ))}
                     </ul>
                 )}

@@ -1,3 +1,4 @@
+import type { PostLoadResultDto } from "@/lib/contract/schemas";
 import type { QuoteConfidence } from "@/lib/types";
 
 export const QUOTE_COPY = {
@@ -44,15 +45,15 @@ export const REVIEW_COPY = {
     groups: { lane: "Lane and schedule", freight: "Freight and equipment", quote: "Price", strategy: "Tender" },
     edit: "Edit {step}",
     stops: "{count} stops",
+    strategyTerm: "Offered to",
     strategy: "Open market, book now",
     strategyDetail: "Carriers on the load board can book it at your price as soon as it posts.",
-    hazmat: "Hazmat {un}",
     temperature: "{min} °F to {max} °F",
-    weight: "{weight} lb",
-    pallets: "{count} pallets",
     noPrice: "Get a price before you post.",
     note: "Note for the approver",
     noteHint: "Optional. Why this load needs to move at this price.",
+    noteLong: "Keep the note under {max} characters",
+    onboarding: "Finish onboarding",
     post: "Post load",
     submit: "Send for approval",
     posting: "Posting…",
@@ -61,6 +62,7 @@ export const REVIEW_COPY = {
         title: "Post this load?",
         posted: "It goes live on the load board at {amount}, open to book now. The price holds until {time}.",
         approval: "It goes to {approvers} for approval at {amount}. They need to decide by {time}.",
+        nobody: "It waits for approval at {amount}, but nobody in your organisation can approve it yet. The price holds until {time}.",
         cancel: "Not yet",
     },
     errors: {
@@ -70,4 +72,8 @@ export const REVIEW_COPY = {
         offline: "Posting needs a connection. Your draft is kept on this device.",
         pastWindow: "A window has already started. Update the lane, then get a new price.",
     },
+    done: {
+        Posted: "Load {load} posted",
+        PendingApproval: "Load {load} sent for approval",
+    } satisfies Record<PostLoadResultDto["status"], string>,
 } as const;

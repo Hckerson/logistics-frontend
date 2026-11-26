@@ -1,7 +1,8 @@
 import { nanoid } from "nanoid";
 import type { DraftFreightDto, DraftStopDto, LoadDraftDto } from "@/lib/contract/schemas";
+import { TIME_MS } from "@/lib/constants";
 import { STOP_INSTRUCTIONS } from "@/lib/loads/constants";
-import { BOOKING_HORIZON_DAYS, WINDOW_MINUTES } from "@/lib/ui/constants";
+import { BOOKING_HORIZON_DAYS, UI_LOCALE, WINDOW_MINUTES } from "@/lib/ui/constants";
 import type { FreightEntries, LaneEntries, PostDraft, PostStep, Requirement, StopEntry, StopType } from "@/lib/types";
 
 export const POST_STEPS = ["lane", "freight", "quote", "review"] as const satisfies readonly PostStep[];
@@ -23,6 +24,7 @@ export const POSTING = {
     windowMinutes: WINDOW_MINUTES,
     horizonDays: BOOKING_HORIZON_DAYS,
     quoteWarnMinutes: [5, 1],
+    quoteTimeoutMs: 30 * TIME_MS.second,
     draftDays: 30,
     storageKey: "haulr.post-load",
     strategy: { market: "openMarket", mode: "bookNow" },
@@ -138,3 +140,9 @@ export const stepIndex = (step: PostStep) => POST_STEPS.indexOf(step);
 export const furthest = (a: PostStep, b: PostStep) => (stepIndex(a) >= stepIndex(b) ? a : b);
 
 export const quoteLive = (draft: PostDraft, now: number) => draft.quote !== null && Date.parse(draft.quote.validUntil) > now;
+
+export const windowStarted = ({ stops }: LaneEntries, now: number) => stops.some((stop) => stop.window !== null && Date.parse(stop.window.start) <= now);
+
+const heldClock = new Intl.DateTimeFormat(UI_LOCALE, { hour: "numeric", minute: "2-digit" });
+
+export const heldTime = (iso: string) => heldClock.format(Date.parse(iso));

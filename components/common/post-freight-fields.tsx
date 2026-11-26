@@ -69,7 +69,7 @@ const PostFreightFields = withForm({
         );
 
         return (
-            <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-4">
                 <form.Field name="equipment">
                     {(field) => (
                         <RadioGroup<Equipment>
@@ -119,7 +119,7 @@ const PostFreightFields = withForm({
                     {(field) => (
                         <div role="group" aria-label={FREIGHT_COPY.requirements} className="flex flex-col gap-2">
                             <p className="haulr-label text-text-muted">{FREIGHT_COPY.requirements}</p>
-                            <div className="grid gap-x-6 gap-y-2 sm:grid-cols-2">
+                            <div className="grid gap-x-4 gap-y-2 sm:grid-cols-2">
                                 {REQUIREMENTS.map((requirement) => (
                                     <Checkbox
                                         key={requirement}

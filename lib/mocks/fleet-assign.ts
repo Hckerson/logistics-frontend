@@ -4,13 +4,12 @@ import type { FleetOptionDto, FleetSuggestionDto } from "@/lib/contract/schemas"
 import { LOAD_COPY } from "@/lib/data/loads/copy";
 import { MOCK_FACILITIES } from "@/lib/data/mocks/facilities";
 import { assignmentDeadline } from "@/lib/fleet/time";
-import { carrierLoads, driverName, movable, overlaps, spanOf } from "@/lib/mocks/fleet-entries";
+import { carrierDrivers, carrierLoads, driverName, movable, overlaps, spanOf } from "@/lib/mocks/fleet-entries";
 import { fleetStore } from "@/lib/mocks/fleet-store";
 import { freightStore } from "@/lib/mocks/freight-store";
 import { FREIGHT_MESSAGES, loadMissing, recordEvent, staleLoad, visibleLoad, withCaller, type MockCaller } from "@/lib/mocks/freight-access";
 import { fail, ok } from "@/lib/mocks/http";
 import { toLoadDetail } from "@/lib/mocks/load-views";
-import { mockStore } from "@/lib/mocks/store";
 import type { MockLoad } from "@/lib/types";
 import { assignSchema } from "@/lib/validations/fleet";
 
@@ -28,9 +27,8 @@ const zoneOf = (load: MockLoad) => MOCK_FACILITIES[load.stops[0].facility].timeZ
 const busyWith = (load: MockLoad, matches: (other: MockLoad) => boolean) =>
     carrierLoads(load.carrier).find((other) => other.id !== load.id && matches(other) && overlaps(spanOf(other), spanOf(load))) ?? null;
 
-const driversFor = (load: MockLoad): FleetOptionDto[] => {
-    const { memberships, users } = mockStore();
-    return [...users.values()].filter((user) => user.roles.includes("carrier.driver") && memberships.get(user.email) === load.carrier).map((user) => {
+const driversFor = (load: MockLoad): FleetOptionDto[] =>
+    carrierDrivers(load.carrier).map((user) => {
         const clash = busyWith(load, (other) => other.driver === user.id);
         return {
             id: user.id,
@@ -40,7 +38,6 @@ const driversFor = (load: MockLoad): FleetOptionDto[] => {
             reason: clash ? `On ${clash.id} until ${clock(spanOf(clash).to, zoneOf(clash))}` : null,
         };
     });
-};
 
 const trucksFor = (load: MockLoad): FleetOptionDto[] =>
     [...fleetStore().trucks.values()]

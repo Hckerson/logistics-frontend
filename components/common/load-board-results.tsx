@@ -8,14 +8,14 @@ interface Props {
     items: readonly LoadBoardItemDto[];
     more: boolean;
     pending: boolean;
-    next: string | null;
+    back: string | null;
     onMore: () => void;
 }
 
 const { results: copy } = LOAD_BOARD_COPY;
 const GRID = "grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-5 sm:grid-cols-[minmax(0,2.2fr)_1fr_auto] lg:grid-cols-[minmax(0,2.2fr)_1fr_1fr_0.7fr_auto]";
 
-export default function LoadBoardResults({ items, more, pending, next, onMore }: Props) {
+export default function LoadBoardResults({ items, more, pending, back, onMore }: Props) {
     return (
         <div className="flex flex-col">
             <div aria-hidden className={clsx(GRID, "haulr-label text-text-muted border-border border-b pb-2")}>
@@ -29,7 +29,7 @@ export default function LoadBoardResults({ items, more, pending, next, onMore }:
             </div>
             <ul aria-label={copy.label} aria-busy={pending || undefined}>
                 {items.map((item) => (
-                    <LoadBoardRow key={item.loadId} item={item} grid={GRID} next={next} />
+                    <LoadBoardRow key={item.loadId} item={item} grid={GRID} back={back} />
                 ))}
             </ul>
             {more ? (

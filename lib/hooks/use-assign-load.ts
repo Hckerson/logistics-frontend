@@ -4,6 +4,7 @@ import { inviteDriver } from "@/lib/actions/invite-driver";
 import { local } from "@/lib/api-client";
 import { apiRoutes } from "@/lib/api-routes";
 import type { AssignLoadDto, InviteDriverDto } from "@/lib/contract/schemas";
+import { rosterKeys } from "@/lib/hooks/use-fleet";
 import { fleetPlanKeys } from "@/lib/hooks/use-fleet-plan";
 import { timelineKeys } from "@/lib/hooks/use-load-timeline";
 import { loadKeys } from "@/lib/hooks/use-loads";
@@ -37,4 +38,10 @@ export const useAssignLoad = (loadId: string) => {
     });
 };
 
-export const useInviteDriver = () => useMutation({ mutationFn: async (input: InviteDriverDto) => unwrap(await inviteDriver(input)) });
+export const useInviteDriver = () => {
+    const client = useQueryClient();
+    return useMutation({
+        mutationFn: async (input: InviteDriverDto) => unwrap(await inviteDriver(input)),
+        onSuccess: () => client.invalidateQueries({ queryKey: rosterKeys.drivers() }),
+    });
+};

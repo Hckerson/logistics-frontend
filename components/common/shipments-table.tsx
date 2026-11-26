@@ -13,6 +13,8 @@ import type { LoadSummaryDto } from "@/lib/contract/schemas";
 import { SHIPMENTS_COPY } from "@/lib/data/loads/shipments";
 import { stepKey, useRowSteps } from "@/lib/hooks/use-row-steps";
 import type { MenuEntry, TableSelection, TableSort } from "@/lib/types";
+import { useCurrentPath } from "@/lib/hooks/use-current-path";
+import { withBack } from "@/lib/navigation/back";
 
 interface Props {
     rows: readonly LoadSummaryDto[];
@@ -35,8 +37,8 @@ interface Props {
 
 const { menu } = SHIPMENTS_COPY;
 
-const STANDING = (row: LoadSummaryDto): MenuEntry[] => [
-    { id: "open", label: menu.open, icon: Launch, href: appRoutes.load(row.id) },
+const STANDING = (row: LoadSummaryDto, back: string | null): MenuEntry[] => [
+    { id: "open", label: menu.open, icon: Launch, href: withBack(appRoutes.load(row.id), back) },
     { id: "copy", label: menu.copy, icon: Copy },
     { id: "share", label: menu.share, icon: Share },
 ];
@@ -45,11 +47,12 @@ export default function ShipmentsTable(props: Props) {
     const { rows, total, updatedAt, loading, failed, onRetry, sort, onSortChange, open, onOpen } = props;
     const { hasMore, loadingMore, onLoadMore, empty, selection, onShare } = props;
     const steps = useRowSteps(useSession()?.roles ?? []);
+    const back = useCurrentPath();
 
     const items = (row: LoadSummaryDto): readonly MenuEntry[] => {
-        if (row.id !== steps.menuFor) return STANDING(row);
-        if (!steps.loaded) return [{ id: "loading", label: menu.loading, pending: true }, ...STANDING(row)];
-        return [...steps.steps.map((step) => ({ id: stepKey(step), label: step.label, destructive: step.destructive })), ...STANDING(row)];
+        if (row.id !== steps.menuFor) return STANDING(row, back);
+        if (!steps.loaded) return [{ id: "loading", label: menu.loading, pending: true }, ...STANDING(row, back)];
+        return [...steps.steps.map((step) => ({ id: stepKey(step), label: step.label, destructive: step.destructive })), ...STANDING(row, back)];
     };
 
     const act = (row: LoadSummaryDto, action: string) => {
@@ -64,7 +67,7 @@ export default function ShipmentsTable(props: Props) {
                 caption={SHIPMENTS_COPY.caption}
                 count={total}
                 note={<UpdatedAge at={updatedAt} template={SHIPMENTS_COPY.updated} />}
-                columns={shipmentColumns(updatedAt)}
+                columns={shipmentColumns(updatedAt, back)}
                 rows={rows}
                 rowKey={(row) => row.id}
                 rowSignature={(row) => `${row.status}:${row.eta?.late ?? false}`}
@@ -72,7 +75,7 @@ export default function ShipmentsTable(props: Props) {
                 onSortChange={onSortChange}
                 selection={selection}
                 menu={{ items, onAction: act, onOpenChange: (row, isOpen) => (isOpen ? steps.open(row.id) : undefined) }}
-                preview={{ open, onOpen, render: (row) => <ShipmentPreview load={row} now={updatedAt} /> }}
+                preview={{ open, onOpen, render: (row) => <ShipmentPreview load={row} now={updatedAt} back={back} /> }}
                 loading={loading}
                 failed={failed}
                 onRetry={onRetry}

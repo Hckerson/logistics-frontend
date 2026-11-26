@@ -26,6 +26,7 @@ const northline = { organisation: "northline", inviter: "Priya Raman", role: "sh
 export const MOCK_INVITATIONS: Record<string, MockInvitation> = {
     inv_member: { ...northline, email: "ines@northline.example", status: "open" },
     inv_driver: { email: "tomas@ridgeway.example", organisation: "ridgeway", inviter: "Ray Okoro", role: "carrier.driver", status: "open" },
+    inv_driver_lapsed: { email: "sam@ridgeway.example", organisation: "ridgeway", inviter: "Ray Okoro", role: "carrier.driver", status: "expired" },
     inv_existing: { ...northline, email: "fresh@northline.example", status: "open" },
     inv_elsewhere: { email: "dispatch@northline.example", organisation: "ridgeway", inviter: "Ray Okoro", role: "carrier.dispatcher", status: "open" },
     inv_sso: { email: "lee@harborfoods.example", organisation: "harbor", inviter: "Sam Ortiz", role: "shipper.member", status: "open" },

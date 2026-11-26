@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import WorkspaceFrame from "@/components/common/workspace-frame";
 import SessionProvider from "@/components/providers/session-provider";
+import RouteFocus from "@/components/wrappers/route-focus";
 import { requireUser } from "@/lib/auth/guards";
 
 export default async function WorkspaceLayout({ children }: { children: ReactNode }) {
@@ -8,7 +9,10 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
 
     return (
         <SessionProvider user={user}>
-            <WorkspaceFrame session={user}>{children}</WorkspaceFrame>
+            <WorkspaceFrame session={user}>
+                <RouteFocus />
+                {children}
+            </WorkspaceFrame>
         </SessionProvider>
     );
 }

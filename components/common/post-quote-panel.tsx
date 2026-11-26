@@ -5,9 +5,8 @@ import StatusLabel from "@/components/ui/status-label";
 import type { LoadQuoteDto } from "@/lib/contract/schemas";
 import { QUOTE_COPY } from "@/lib/data/loads/post-quote-copy";
 import { TIME_MS } from "@/lib/constants";
-import { POSTING } from "@/lib/loads/posting";
+import { heldTime, POSTING } from "@/lib/loads/posting";
 import type { QuoteConfidence, SignalTone } from "@/lib/types";
-import { UI_LOCALE } from "@/lib/ui/constants";
 import { formatMoney } from "@/lib/utils/currency";
 import { fillTemplate } from "@/lib/utils/fill-template";
 import { grouped } from "@/lib/utils/format-number";
@@ -20,13 +19,11 @@ interface Props {
 
 const TONES: Record<QuoteConfidence, SignalTone> = { high: "success", medium: "info", low: "warning" };
 
-const clock = new Intl.DateTimeFormat(UI_LOCALE, { hour: "numeric", minute: "2-digit" });
-
 const SECONDS_PER_MINUTE = TIME_MS.minute / TIME_MS.second;
 
 export const approvalText = ({ approval, validUntil, price }: LoadQuoteDto) => {
     const limit = approval.limitCents === null ? "" : formatMoney(approval.limitCents, price.currency);
-    const time = clock.format(Date.parse(validUntil));
+    const time = heldTime(validUntil);
     return approval.approvers.length > 0
         ? fillTemplate(QUOTE_COPY.approval.body, { limit, approvers: approval.approvers.join(", "), time })
         : fillTemplate(QUOTE_COPY.approval.nobody, { limit });
@@ -40,7 +37,7 @@ export default function PostQuotePanel({ quote, live, previousCents }: Props) {
             <div className="grid gap-4 md:grid-cols-[1fr_auto] md:items-end">
                 <div className="flex flex-col gap-2">
                     <p className="haulr-label text-text-muted">{QUOTE_COPY.price}</p>
-                    <p className={clsx("text-h3 font-mono leading-none tracking-tight tabular-nums transition-colors", live ? "text-text" : "text-text-muted line-through")}>{amount}</p>
+                    <p className={clsx("text-h4 font-mono leading-none tracking-tight tabular-nums transition-colors", live ? "text-text" : "text-text-muted line-through")}>{amount}</p>
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
                         <StatusLabel label={QUOTE_COPY.confidence[quote.confidence]} tone={TONES[quote.confidence]} />
                         <span className="text-text-secondary">{fillTemplate(QUOTE_COPY.miles, { miles: grouped(quote.miles) })}</span>
@@ -53,7 +50,7 @@ export default function PostQuotePanel({ quote, live, previousCents }: Props) {
                 <div className="border-border-dark flex flex-col gap-1 border px-3 py-2 md:min-w-44">
                     <p className="haulr-label text-text-muted">{QUOTE_COPY.held}</p>
                     <Countdown deadline={quote.validUntil} warnAt={POSTING.quoteWarnMinutes[0] * SECONDS_PER_MINUTE} label={QUOTE_COPY.held} className="text-h6" />
-                    <p className="text-text-muted text-xs">{fillTemplate(QUOTE_COPY.heldUntil, { time: clock.format(Date.parse(quote.validUntil)) })}</p>
+                    <p className="text-text-muted text-xs">{fillTemplate(QUOTE_COPY.heldUntil, { time: heldTime(quote.validUntil) })}</p>
                 </div>
             </div>
             {live ? null : (

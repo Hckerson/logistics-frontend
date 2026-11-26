@@ -5,6 +5,7 @@ import { appRoutes } from "@/lib/app-routes";
 import type { LoadBoardItemDto } from "@/lib/contract/schemas";
 import { LOAD_BOARD_COPY } from "@/lib/data/load-board/copy";
 import { LOAD_COPY } from "@/lib/data/loads/copy";
+import { withBack } from "@/lib/navigation/back";
 import { dayName, shortTime } from "@/lib/tracking/view";
 import { FOCUS_RING } from "@/lib/ui/constants";
 import { formatMoney } from "@/lib/utils/currency";
@@ -14,17 +15,17 @@ import { grouped } from "@/lib/utils/format-number";
 interface Props {
     item: LoadBoardItemDto;
     grid: string;
-    next: string | null;
+    back: string | null;
 }
 
 const { results: copy } = LOAD_BOARD_COPY;
 
-export default function LoadBoardRow({ item, grid, next }: Props) {
+export default function LoadBoardRow({ item, grid, back }: Props) {
     const pay = formatMoney(item.carrierPayCents, item.currency);
     const rpm = formatMoney(item.ratePerMileCents, item.currency);
     const pickup = `${dayName(item.pickupStart, item.timeZone)} ${shortTime(item.pickupStart, item.timeZone)}`;
     const equipment = LOAD_COPY.equipment[item.equipment];
-    const href = `${appRoutes.bookLoad(item.loadId)}${next ? `?next=${encodeURIComponent(next)}` : ""}`;
+    const href = withBack(appRoutes.bookLoad(item.loadId), back);
 
     return (
         <li className="border-border border-b">

@@ -1,24 +1,24 @@
 "use client";
-import Link from "next/link";
+import Breadcrumbs from "@/components/common/breadcrumbs";
 import LaneLabel from "@/components/common/lane-label";
 import CopyButton from "@/components/ui/copy-button";
 import StatusLabel from "@/components/ui/status-label";
-import { QUIET_LINK } from "@/lib/auth/constants";
-import { DASHBOARD_ROUTE } from "@/lib/constants";
 import type { LoadDto } from "@/lib/contract/schemas";
 import { LOAD_COPY } from "@/lib/data/loads/copy";
 import { useLoad } from "@/lib/hooks/use-loads";
 import { loadStatusDisplay } from "@/lib/loads/status";
 import { awaitingOf, loadFacts, placeName } from "@/lib/loads/view";
+import type { Crumb } from "@/lib/types";
 import { fillTemplate } from "@/lib/utils/fill-template";
 
 interface Props {
     initial: LoadDto;
+    trail: readonly Crumb[];
 }
 
-const { trail, header } = LOAD_COPY;
+const { header } = LOAD_COPY;
 
-export default function LoadHeader({ initial }: Props) {
+export default function LoadHeader({ initial, trail }: Props) {
     const { data: load = initial } = useLoad(initial.id, initial);
     const parties = [
         { id: "shipper", label: header.shipper, value: load.shipper.name },
@@ -29,19 +29,7 @@ export default function LoadHeader({ initial }: Props) {
 
     return (
         <header className="flex flex-col gap-3">
-            <nav aria-label={trail.label}>
-                <ol className="text-text-muted flex items-center gap-2 text-xs">
-                    <li>
-                        <Link href={DASHBOARD_ROUTE} className={QUIET_LINK}>
-                            {trail.root}
-                        </Link>
-                    </li>
-                    <li aria-hidden>/</li>
-                    <li aria-current="page" className="text-text font-mono">
-                        {load.id}
-                    </li>
-                </ol>
-            </nav>
+            <Breadcrumbs trail={trail} current={load.id} mono />
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
                 <h1 className="text-text text-h5 font-mono tracking-tight">{load.id}</h1>
                 <CopyButton value={load.id} label={header.copy} done={fillTemplate(header.copied, { reference: load.id })} />

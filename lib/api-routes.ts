@@ -1,4 +1,4 @@
-import type { FleetQuery, ImportRowsParams, LaneQuery, LoadBoardQuery, LoadListParams, PageParams, RecommendationQuery, TicketStatus, TimelineParams } from "@/lib/types";
+import type { FleetQuery, ImportRowsParams, LaneQuery, LoadBoardQuery, LoadListParams, PageParams, RecommendationQuery, TicketStatus, TimelineParams, VehicleQuery } from "@/lib/types";
 import { queryString } from "@/lib/utils/query-string";
 
 export const apiRoutes = {
@@ -23,6 +23,8 @@ export const apiRoutes = {
     loadBooking: (loadId: string) => `/api/loads/${encodeURIComponent(loadId)}/booking`,
     fleetPlan: (query?: FleetQuery) => `/api/fleet/plan${queryString(query)}`,
     fleetRecommendations: (query: RecommendationQuery) => `/api/fleet/recommendations${queryString(query)}`,
+    fleetVehicles: (query?: VehicleQuery) => `/api/fleet/vehicles${queryString(query)}`,
+    fleetDrivers: () => "/api/fleet/drivers",
     driverTrips: () => "/api/driver/trips",
     driverTrip: (loadId: string) => `/api/driver/trips/${encodeURIComponent(loadId)}`,
     driverDocument: (loadId: string, documentId: string) =>
@@ -39,6 +41,9 @@ export const apiRoutes = {
         `/api/loads/${encodeURIComponent(loadId)}/documents`,
     documentDownload: (documentId: string) =>
         `/api/documents/${encodeURIComponent(documentId)}/download`,
+    documentPreview: (documentId: string) => `/api/documents/${encodeURIComponent(documentId)}/preview`,
+    driverDocumentPreview: (loadId: string, documentId: string) =>
+        `/api/driver/trips/${encodeURIComponent(loadId)}/documents/${encodeURIComponent(documentId)}/preview`,
     mapPositions: (loadIds?: readonly string[]) => `/api/positions/latest${queryString({ loadIds: loadIds?.join(",") })}`,
     notifications: (query?: PageParams) =>
         `/api/notifications${queryString(query)}`,
